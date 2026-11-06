@@ -67,8 +67,78 @@ photo or the overview paper.
 | Track (FL to FR wheel centres) | 415.4 | derived (235.7 + 179.7 from camera offsets) | [S8] |
 | Width check | 415.4 + 80 = 495.4 vs stated 505 | derived, 10 mm gap unexplained | [S1], [S8] |
 | Body shape | Wedge. Sloped side faces carry the solar panels. Mast at the front | derived (figures only) | [S1], [S7], [S11] |
-| Body main dimensions | "about 20 x 20 x 40 cm" | (unverified), does not reconcile with the 415 track | [S6] |
-| Sidewall angle | not found | (unverified) | n/a |
+| Body main dimensions | "about 20 x 20 x 40 cm" | stated, rounded. Now plausible: see 3a and 3b | [S6] |
+| Sidewall angle | about 9 degrees from vertical in the rear view (see 3a). Not stated anywhere | derived from a figure, low confidence | [S3] Fig. 2 |
+
+### 3a. Measurements from the rear-view CAD figure
+
+[S3] Fig. 2 (left panel) and [S11] Fig. 1(a) show a rear view of the CAD model that looks close
+to orthographic (left-right symmetric, no visible convergence). I measured pixel extents in
+the [S3] figure (about 1500 px wide at 400 dpi, blurry) and scaled them with the stated
+80 mm wheel width, which is 55 px. That gives 1.455 mm per pixel. Edges are good to about
+2 px, so values are good to about 3 mm plus any perspective error. Treat everything here
+as **derived**, not stated.
+
+Cross-check against stated values, which were not used to set the scale:
+
+| Quantity | Measured | Stated | Agreement |
+|---|---|---|---|
+| Track (wheel centre to centre) | 419 mm (288 px) | 415.4 [S8] | 1% |
+| Overall width over wheels | 499 mm (343 px) | 495 to 505 [S1], [S8] | within 1% |
+| Overall height, ground to mast top | 706 mm (485 px) | 700 [S1] | 1% |
+
+The agreement supports the 80 mm wheel width. A 168 mm width would imply 3.05 mm per pixel
+and a 1.5 m wide rover.
+
+New values read from the same figure:
+
+| Quantity | Value (mm) | Status |
+|---|---|---|
+| Body width at the underside | about 230 | derived |
+| Body width at the top deck | about 157 | derived |
+| Body height, underside to top deck | about 233 | derived |
+| Ground clearance under the body | about 120 | derived |
+| Side taper | about 9 degrees from vertical (25 px inset over 160 px) | derived |
+| Wheel diameter over the grouser tips | about 228 | derived, see below |
+
+**Open tension.** The measured wheel diameter over the grousers is about 228 mm, close to
+200 mm rim plus 2 x 15 mm grousers = 230 mm. So the stated 200 mm may be the rim diameter.
+But the 470 mm length equals the 270 mm wheelbase plus 200 mm, which fits a 200 mm overall
+wheel. With 230 mm overall wheels the length would be about 500 mm. Not resolved. Section 6
+and the wheel table above still show 200 mm as the stated figure.
+
+Not measured: the side view in the same figure is a perspective view, so no lengths were
+taken from it. The grid overlay and crop are kept out of the repo (third-party figure).
+
+### 3b. Measurements from the 360 degree turntable video [S17]
+
+[S17] is a 12 s, 2880 x 1620 render of the rover with the camera orbiting it. It is a
+2021 marketing model: the camera head is a plain box and the panel cells are triangular, so
+it is not the flight CAD in [S3]. Use it for proportions only. I took one near side-on frame
+(t = 5.0 s), scaled it with the stated 700 mm overall height (757 px, so 0.925 mm per
+pixel), and measured it at low contrast with a perspective camera. Error is about 10%.
+
+| Quantity | Value (mm) | Status |
+|---|---|---|
+| Body length (front to back), top deck | about 370 | derived, low confidence |
+| Wheel diameter | about 205 | derived, low confidence |
+| Wheelbase (centre to centre) | about 250 | derived, low confidence |
+| Length over the wheels | about 445 | derived, low confidence |
+
+Scaling with the 228 mm wheel from 3a instead gives a body length of about 410 mm. Taking
+the range, **body length is about 370 to 410 mm**.
+
+**Reconciling [S6].** Langmuir paper [S6] says the body is "about 20 x 20 x 40 cm". I had
+marked this as irreconcilable with the 415 mm track. That was wrong. The track is
+wheel centre to wheel centre, and the hubs sit outboard of the body. From 3a the body is
+about 230 mm wide at the underside and 157 mm at the deck (mean about 195), about 233 mm
+tall, and from 3b about 370 to 410 mm long. That matches 20 x 20 x 40 cm at the rounding
+[S6] uses. The wheels' inner faces are at 415.4 - 80 = 335 mm across, which leaves about
+50 mm each side between the body and the wheel for the hub. The same gap is visible in the
+rear view.
+
+Note that this video gives a wheel diameter near 205 mm, close to 200 mm, whereas the CAD
+rear view gives 228 mm. The two disagree, and the open question in 3a stands.
 | Ground clearance | not found | (unverified) | n/a |
 | Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
 | Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
@@ -133,10 +203,13 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 ## 7. What is still missing
 
 1. Stowed envelope (mast down), which is also the envelope inside the lander bay.
-2. Body height, body width, sidewall angle and ground clearance.
+2. Body height, body width, sidewall angle and ground clearance. Rough values now in
+   section 3a (derived from a figure). Still need a dimensioned source. Body length
+   is about 370 to 410 mm from a video (section 3b, low confidence).
 3. Panel size and the position of each panel on its sloped face.
 4. Suspension and drivetrain layout.
-5. Wheel width conflict (80 vs 168).
+5. Wheel width conflict (80 vs 168). The figure scaling in section 3a favours 80.
+   Wheel diameter (200 rim vs about 228 over grousers) is a new open question.
 6. What 470 and 505 are measured over.
 7. Battery capacity, motor specifications.
 
@@ -194,6 +267,12 @@ Journal for all Springer papers is *Space Science Reviews*.
 - **[S16]** Almehisni R, Garg P, Wali M. *Thermal Management System Design and Analysis of
   Rashid Rover - Emirates Lunar Mission.* IAC-21-C2.7, 72nd International Astronautical
   Congress, Dubai, 2021. MBRSC.
+
+- **[S17]** "Inside the Dubai lab building the UAE lunar Rashid rover" (page title "Building
+  Rashid"), *The National*, thenational.shorthandstories.com. Article text gives only the
+  10 kg mass limit. Its header video, a 360 degree turntable render
+  (`09-07-2021_t_d23fe02bec2c4765ae27f64a5d75389c_name_the__VKJ6.mp4`), is used for
+  proportions only. Third-party, kept in an untracked local folder, not redistributed.
 
 Not used for Rashid dimensions: Walker J, et al. *ispace Modular Rover Design.* IAC-19 (2019).
 It describes ispace's Hakuto and modular rovers, not Rashid.

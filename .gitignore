@@ -7,3 +7,6 @@ venv/
 # generated outputs from comparison scripts
 graphic-design/scripts/mosaic/*.svg
 graphic-design/scripts/mosaic/*.png
+
+# any folder with "do-not-track" in its name stays local
+*do-not-track*/
