@@ -7,18 +7,29 @@ rover's dimensions as faithfully as possible.
 ## Primary goal: dimensional fidelity
 - The original rover's real dimensions are the source of truth. Design choices
   follow them, not the other way round.
-- Reported figures: about 10 kg, about 50 cm x 50 cm, four wheels (Gulf News,
-  CNN). These are press figures. Find primary sources (MBRSC, mission
-  documentation, photos with known scale) before treating any number as final.
+- Primary-source figures are recorded in `docs/original-dimensions.md`, with a
+  source tag and a status (stated / derived / unverified) on every value. That
+  file is the dimension record. Check it before designing anything, and update
+  it when a new source is read. Headline: 10 kg; 470 x 505 mm footprint and
+  700 mm height with the mast deployed (MBRSC, EGU 2021); four wheels of 200 mm
+  diameter and about 80 mm width. Press figures (50 x 50 cm) agree roughly and
+  are superseded.
 - Record every dimension with its source. Mark anything without one **(unverified)**.
+- Open conflicts and gaps are listed in that file (wheel width 80 vs 168 mm,
+  stowed envelope, sidewall angle, panel size, suspension). Do not paper over them.
 
 ## Repo layout
+- `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
 
 ## Provisional design (from earlier sessions, NOT checked against the original)
-These came from earlier AI chat sessions, before the project became a faithful
-replica. Where they conflict with the original rover's dimensions, the original wins.
+These came from earlier AI chat sessions. They describe a rover *inspired by*
+Rashid, before the project became a faithful replica. They do not bind the
+replica. Where they conflict with the original rover's dimensions, the original
+wins. `docs/original-dimensions.md` section 6 compares each item. Known
+mismatches: the 6U CubeSat envelope (the original is 470 x 505 x 700 mm), the
+PET panel size and count, the Ackermann steering, and the missing mast.
 - Body: tapered trapezoidal prism with 15 degree sidewalls, sized around a
   6U CubeSat envelope of 100 x 200 x 340.5 mm. The 15 degree angle and the envelope are unverified.
 - Frame: "zero-cut" box core of supplier-cut 40120 / 4040 aluminum extrusion
@@ -35,8 +46,13 @@ replica. Where they conflict with the original rover's dimensions, the original 
 - Third-party material (NASA photos in `graphic-design/source-photos/`) is covered by `NOTICE.md`, not these licences.
 
 ## Status
-- Not started: sourcing the original's dimensions, reconciling the provisional
-  design with them, power and battery sizing, centre-of-mass check, CAD, BOM.
+- Done: first pass at sourcing the original's dimensions from MBRSC and
+  instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
+  rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
+- Still to do: close the gaps listed in section 7 of that file (stowed envelope,
+  body height and sidewall angle, panel size, suspension and drivetrain),
+  reconcile the provisional design, power and battery sizing, centre-of-mass
+  check, CAD, BOM.
 
 ## Conventions
 - Hardware units are millimetres.
