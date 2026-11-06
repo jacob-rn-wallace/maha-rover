@@ -1,0 +1,9 @@
+.DS_Store
+previous-context-do-not-track/
+__pycache__/
+*.pyc
+.venv/
+venv/
+# generated outputs from comparison scripts
+graphic-design/scripts/mosaic/*.svg
+graphic-design/scripts/mosaic/*.png

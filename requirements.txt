@@ -1,0 +1,5 @@
+numpy
+pillow
+shapely
+# only for SVG -> PNG/JPG export
+cairosvg
