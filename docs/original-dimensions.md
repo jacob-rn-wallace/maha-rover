@@ -137,6 +137,33 @@ tall, and from 3b about 370 to 410 mm long. That matches 20 x 20 x 40 cm at the 
 50 mm each side between the body and the wheel for the hub. The same gap is visible in the
 rear view.
 
+### 3c. Structure from motion on the video [S17]
+
+COLMAP 4.2.1 (CPU) on 96 frames (8 per second), cropped to 1000 x 1000 around the rover,
+registered all 96 images (0.39 px mean reprojection error, about 50,000 sparse points).
+The camera path is a near-perfect circle (radius 3.80 model units, height scatter 0.0008).
+So the video is a clean orbit of a static scene, and the sparse cloud holds the rover: four
+wheel clusters, a deck outline at the top of the body, and the mast and camera head.
+
+Scale is not recoverable from the video. Setting the mast-top height (0.94 units) to the
+stated 700 mm gives about 745 mm per unit. At that scale the sparse cloud gives:
+
+| Quantity | SfM value (mm) | Compare | Status |
+|---|---|---|---|
+| Deck length | about 380 | 370 to 410 from 3b | derived, about 8% |
+| Deck width | about 168 | 157 from 3a | derived, about 8% |
+| Deck height above ground | about 335 | 353 from 3a (120 + 233) | derived, about 8% |
+
+These agree with 3a and 3b, so they corroborate the proportions but add no new precision.
+**Do not use the wheel-level footprint from this run.** At wheel height the cloud includes
+terrain points around the wheels and the extents come out about 15% too large. The cloud
+is sparse on the dark rover and the wheels are only partly resolved. The point cloud and the
+frames stay in the scratchpad and are not in the repo.
+
+Next step if this is pursued: re-triangulate with the fixed camera poses using many more
+features from tight, contrast-boosted rover crops, which should resolve the wheels and the
+panel edges. COLMAP's dense stereo needs CUDA, which this machine lacks.
+
 Note that this video gives a wheel diameter near 205 mm, close to 200 mm, whereas the CAD
 rear view gives 228 mm. The two disagree, and the open question in 3a stands.
 | Ground clearance | not found | (unverified) | n/a |
