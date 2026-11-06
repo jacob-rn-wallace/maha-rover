@@ -35,5 +35,9 @@ Details and the other scripts are in [`graphic-design/README.md`](graphic-design
 ## Contributing
 Corrections to Rashid's dimensions are the most valuable contribution, ideally with a primary source (MBRSC material, mission documentation, or photographs with known scale). Arabic readers' feedback on wordmark legibility is also wanted.
 
-## Licence
-Code is MIT, hardware design files are CERN-OHL-P-2.0, and graphics and documentation are CC BY 4.0. See [`LICENSE.md`](LICENSE.md) for the breakdown and third-party notices, including the NASA photo credit.
+## License model
+- **Code** (scripts, firmware, tooling) is licensed under **Apache-2.0** (see [`LICENSE`](LICENSE)).
+- **Hardware designs, mechanical documentation and bills of materials** are licensed under **CERN-OHL-S-2.0**, strongly reciprocal (see [`LICENSE-HARDWARE.txt`](LICENSE-HARDWARE.txt)).
+- **Graphics and other documentation** (wordmark, poster, headers, READMEs) are licensed under **CC BY 4.0** (see [`LICENSE-DOCUMENTATION.txt`](LICENSE-DOCUMENTATION.txt)).
+
+Unless otherwise noted, files are licensed according to the category they fall under. Third-party material, including the NASA photographs, is not covered by these licences; see [`NOTICE.md`](NOTICE.md).

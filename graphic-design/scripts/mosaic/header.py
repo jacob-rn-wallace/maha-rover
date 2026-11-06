@@ -4,7 +4,7 @@ Usage (from graphic-design/scripts/mosaic):
     python3 header.py <preset> [preview.png]
     python3 header.py --list
 
-Output goes to graphic-design/headers/. Photos are read from graphic-design/source-photos/.
+Output goes to graphic-design/ (see each preset's `out`). Photos are read from graphic-design/source-photos/.
 
 Lattice alignment: the wordmark is scaled so one 20-unit wordmark cell spans K mosaic triangle
 bases (S = K*b/20), and K wordmark rows span exactly K mosaic rows. The wordmark's x offset is
@@ -19,29 +19,31 @@ from trap import group_geometry, labels
 
 GD = os.path.join(HERE, "..", "..")      # graphic-design/
 PHOTOS = os.path.join(GD, "source-photos")
-HEADERS = os.path.join(GD, "headers")
 
 # photo: file in graphic-design/source-photos/; size: working size (None = native); b: triangle base (photo px);
 # K: wordmark cell = K bases; crop: x0, y0, width, height; wm: (centre x, baseline y), photo px.
 PRESETS = {
     "earthset": dict(photo="art002e009288orig.jpg", size=(2576, 1717), b=15.0, K=2,
-                     crop=(0, 620, 1900, 594), wm=(375, 1008), out="almaha-header-earthset.svg"),
+                     crop=(0, 620, 1900, 594), wm=(375, 1008), out="headers/almaha-header-earthset.svg"),
     "crescent": dict(photo="art002e021110~large.jpg", size=None, b=6.0, K=3,
-                     crop=(0, 330, 1920, 600), wm=(1650, 680), out="almaha-header-crescent.svg"),
+                     crop=(0, 330, 1920, 600), wm=(1650, 680), out="headers/almaha-header-crescent.svg"),
     "edge":     dict(photo="art002e009285~large.jpg", size=None, b=6.0, K=3,
-                     crop=(0, 346, 1920, 600), wm=(960, 700), out="almaha-header-edge.svg"),
+                     crop=(0, 346, 1920, 600), wm=(960, 700), out="headers/almaha-header-edge.svg"),
     # K=1: wordmark stem width (20 units) = one triangle base = the trapezoids' short edge
     "edge-coarse": dict(photo="art002e009285~large.jpg", size=None, b=18.0, K=1,
-                     crop=(0, 346, 1920, 600), wm=(960, 700), out="almaha-header-edge-coarse.svg"),
+                     crop=(0, 346, 1920, 600), wm=(960, 700), out="headers/almaha-header-edge-coarse.svg"),
+    # GitHub social preview: 2:1 (1280 x 640 px), same coarse grid as edge-coarse, wordmark centred
+    "social":   dict(photo="art002e009285~large.jpg", size=None, b=18.0, K=1,
+                     crop=(320, 326, 1280, 640), wm=(960, 700), out="social-preview/almaha-social-preview.svg"),
     "horizon":  dict(photo="art002e021219~large.jpg", size=None, b=7.0, K=3,
-                     crop=(0, 40, 1920, 600), wm=(250, 400), out="almaha-header-horizon.svg"),
+                     crop=(0, 40, 1920, 600), wm=(250, 400), out="headers/almaha-header-horizon.svg"),
 }
 
 if len(sys.argv) < 2 or sys.argv[1] == "--list" or sys.argv[1] not in PRESETS:
     print("presets:", ", ".join(PRESETS)); sys.exit(0 if len(sys.argv) > 1 and sys.argv[1] == "--list" else 1)
 P = PRESETS[sys.argv[1]]
 out_png = sys.argv[2] if len(sys.argv) > 2 else None
-out_svg = os.path.join(HEADERS, P["out"])
+out_svg = os.path.join(GD, P["out"])
 
 b, K = P["b"], P["K"]
 h = b * 37.32 / 20.0
@@ -90,7 +92,7 @@ svg += ['</g>',
         f'<path transform="translate({tx:.3f} {ty:.3f}) scale({S})" fill="{WM_COL}" fill-rule="evenodd" d="{wordmark.path_d()}"/>',
         '</svg>']
 open(out_svg, "w").write("\n".join(svg))
-print(P["out"], "cells:", len(cells), "bytes:", os.path.getsize(out_svg),
+print(os.path.basename(P["out"]), "cells:", len(cells), "bytes:", os.path.getsize(out_svg),
       "wordmark x:", round(tx + 50 * S), "-", round(tx + 450 * S), "y:", round(ty + 133.04 * S), "-", round(m * h))
 
 if out_png:

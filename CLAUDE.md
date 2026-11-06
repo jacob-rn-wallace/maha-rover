@@ -28,6 +28,12 @@ replica. Where they conflict with the original rover's dimensions, the original 
 - Suspension and steering: 4-wheel rocker with Nomad-style Double Ackermann, one servo per side.
 - Extrusions are ground and testbed hardware only. This is not a flight design.
 
+## Licensing
+- **Code** (scripts, firmware, tools): Apache-2.0 (`LICENSE`)
+- **Hardware** (CAD, drawings, schematics, mechanical docs, BOM): CERN-OHL-S-2.0 (`LICENSE-HARDWARE.txt`)
+- **Graphics and other docs** (wordmark, poster, headers, READMEs): CC BY 4.0 (`LICENSE-DOCUMENTATION.txt`)
+- Third-party material (NASA photos in `graphic-design/source-photos/`) is covered by `NOTICE.md`, not these licences.
+
 ## Status
 - Not started: sourcing the original's dimensions, reconciling the provisional
   design with them, power and battery sizing, centre-of-mass check, CAD, BOM.

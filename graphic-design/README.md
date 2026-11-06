@@ -10,6 +10,7 @@ graphic-design/
   poster/          almaha-poster-trapezoid.svg / .jpg
   headers/         README banners (SVG), one per source photo / grid size
   source-photos/   NASA Artemis II photographs the mosaics are built from
+  social-preview/  GitHub social preview image (1280 x 640)
   scripts/         Python that generates the wordmark, poster and headers
 ```
 
@@ -18,6 +19,9 @@ Final wordmark, 4 merged closed outlines, viewBox 440 x 152, cut-ready (untested
 
 ### Poster: `poster/`
 Final poster, 2:3, Earthset mosaic with the wordmark at the bottom. The SVG is vector; the JPG is 2288 x 3434.
+
+### Social preview: `social-preview/`
+`almaha-social-preview.png` is the 1280 x 640 image uploaded in the GitHub repo settings (Settings, Social preview; GitHub has no API for this). Same coarse grid as `edge-coarse`, wordmark centred between the Earth and the limb. Regenerate with `python3 header.py social ../../social-preview/almaha-social-preview.png` from `scripts/mosaic/`.
 
 ### Headers: `headers/`
 Wide banners (about 3.2 : 1), all built from the same 15 degree trapezoid mosaic with the wordmark on the mosaic lattice.
@@ -30,7 +34,7 @@ Wide banners (about 3.2 : 1), all built from the same 15 degree trapezoid mosaic
 | `almaha-header-crescent.svg` | `art002e021110` | Crescent Earth beside the limb. 1.2 MB. |
 | `almaha-header-horizon.svg` | `art002e021219` | Earthset over a cratered horizon. 0.9 MB. |
 
-Photo titles and NASA URLs are in [`../LICENSE.md`](../LICENSE.md).
+Photo titles and NASA URLs are in [`../NOTICE.md`](../NOTICE.md).
 
 ## Wordmark design
 - Square Kufic spelling المَهَا on a slanted lattice, 15 degree lean, coarse-grid version with a continuous baseline.
@@ -62,7 +66,7 @@ Setup (from the repo root): `pip install -r requirements.txt`. Only `numpy pillo
 
 - `wordmark.py`: shared module. The wordmark polygons live here once, plus the photo loader.
 - `build_wordmark.py`: `python3 scripts/build_wordmark.py` writes `wordmark/almaha-wordmark.svg`.
-- `mosaic/header.py`: `python3 header.py <preset> [preview.png]` (from `scripts/mosaic/`) writes a banner into `headers/`. Presets: `earthset`, `edge`, `edge-coarse`, `crescent`, `horizon` (`--list` shows them). A preset sets photo, cell size, wordmark scale and position; the wordmark is snapped onto the lattice automatically. The optional PNG is a Pillow preview.
+- `mosaic/header.py`: `python3 header.py <preset> [preview.png]` (from `scripts/mosaic/`) writes a banner (or the social preview) under `graphic-design/`. Presets: `earthset`, `edge`, `edge-coarse`, `crescent`, `horizon`, `social` (`--list` shows them). A preset sets photo, cell size, wordmark scale and position; the wordmark is snapped onto the lattice automatically. The optional PNG is a Pillow preview.
 - `mosaic/poster_trap.py`: writes the poster SVG into the current directory (it does not overwrite `poster/`).
 - Comparison and exploration scripts (run from `scripts/mosaic/`; outputs land in the current directory and are gitignored):
   - `tri_mosaic.py <base_px> <out.svg>`: triangle mosaic. Bases used were 48, 24 and 12.
