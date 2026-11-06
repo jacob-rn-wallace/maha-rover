@@ -160,9 +160,14 @@ terrain points around the wheels and the extents come out about 15% too large. T
 is sparse on the dark rover and the wheels are only partly resolved. The point cloud and the
 frames stay in the scratchpad and are not in the repo.
 
-Next step if this is pursued: re-triangulate with the fixed camera poses using many more
-features from tight, contrast-boosted rover crops, which should resolve the wheels and the
-panel edges. COLMAP's dense stereo needs CUDA, which this machine lacks.
+**Second pass.** I kept the solved camera poses and re-triangulated from tight rover
+crops (900 px at 1.5x, contrast boosted, up to 16,000 features per frame). That gave about
+67,000 points at 0.47 px error, but the wheels are still not resolved: the wheel-level
+slice stays a mix of wheel and terrain points. The deck result did stabilise. Across
+height bands and trim levels the deck comes out 0.50 to 0.52 units long and 0.20 to 0.22
+wide, which at 745 mm per unit is about 380 mm long and 159 mm wide. The 159 mm width
+matches the 157 mm from 3a. So the deck figures above stand, and further SfM on this
+video is unlikely to pay off. COLMAP's dense stereo needs CUDA, which this machine lacks.
 
 Note that this video gives a wheel diameter near 205 mm, close to 200 mm, whereas the CAD
 rear view gives 228 mm. The two disagree, and the open question in 3a stands.
