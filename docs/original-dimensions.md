@@ -264,11 +264,24 @@ probe mast or antenna on the deck, and a flat grousered band with five spokes on
 The wheel interior also differs between [S5] Fig. 15 (about twelve petal-shaped webs) and
 [S12] Fig. 1 (open spokes), but the rim diameter and grouser tips agree. **Use 3e, not 3b to
 3d, for the final configuration.** The video values stay recorded as an earlier or promotional
-variant. Width over wheels and sidewall angle are not measurable from a side view, so those
-two values (520 mm and 19 degrees from the video, 9 degrees from 3a) remain open for the
-final model. [S12] Fig. 1 is not a safe source for them: the hubs in its front-left view differ
+variant. Width over wheels and sidewall angle are not measurable from a side view. Sidewall
+angle is now about 9 degrees for the final model (see the flight-model photo below). Width
+over wheels (520 mm in the video) remains open for the final model. [S12] Fig. 1 is not a
+safe source for it: the hubs in its front-left view differ
 in apparent size by about 14% (near 34.6 px, far 30.4 px major axis), so it is a perspective
 view. The rear-right view could not be tested (its two hubs are at nearly equal depth).
+
+**Flight-model photo [S10] Fig. 1 (right).** A real photograph of the flight model from the
+rear with the mast stowed (camera head folded over the top of the body). The body outline is
+a trapezoid, as in the CAD rear view. Reading the left and right silhouette edges by eye
+between the top plate and the lower edge of the MLI gives about 8.5 and 10 degrees from
+vertical, so **about 9 degrees (plus or minus 2)**. That agrees with the 9 degrees from 3a
+(rear-view CAD) and not with the 19 degrees from the video, so the video's steeper sides
+are another sign of a different revision. Treat the 9 degrees as the final value, pending a
+dimensioned source. The photo is a perspective view with the wheel bottoms cropped, so it
+gives no scale and no stowed height. As a ratio, the body's top width is about 0.32 and its
+lower width about 0.44 of the width over the wheels, which at 505 mm gives about 160 and
+about 220 mm (circular, since it uses the stated 505).
 
 ## 4. Mast and cameras
 
@@ -334,8 +347,9 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 5. Wheel width conflict (80 vs 168). Section 3a and the dense stereo in 3d both favour 80.
    Wheel diameter: 3d and 3e give 200, matching the stated 200. The 228 from 3a is the
    diameter over grouser tips (3e). The video (3b to 3d) is a different revision; use 3e.
-   Still open for the final model: width over wheels, sidewall angle (video 19 degrees,
-   3a 9 degrees) and the panel grid detail.
+   Sidewall angle for the final model is about 9 degrees (3a and the [S10] flight photo;
+   the video's 19 is a different revision). Still open: width over wheels and the panel
+   grid detail.
 6. What 470 and 505 are measured over.
 7. Battery capacity, motor specifications.
 
@@ -399,6 +413,12 @@ Journal for all Springer papers is *Space Science Reviews*.
   10 kg mass limit. Its header video, a 360 degree turntable render
   (`09-07-2021_t_d23fe02bec2c4765ae27f64a5d75389c_name_the__VKJ6.mp4`), is used for
   proportions only. Third-party, kept in an untracked local folder, not redistributed.
+
+Not used for Rashid dimensions: Yakubu M, et al. *A Novel Mobility Concept for Terrestrial
+Wheel-Legged Lunar Rover.* IEEE Access 13 (2025). Its Rashid model (Fig. 29) is a simplified
+simulation body, and its Table 3 gives Rashid a 0.10 m obstacle limit at a ratio of 2 to the
+wheel radius, which implies a 50 mm radius and contradicts the stated 200 mm diameter. It
+confirms only the 10 kg mass (including payload).
 
 Not used for Rashid dimensions: Walker J, et al. *ispace Modular Rover Design.* IAC-19 (2019).
 It describes ispace's Hakuto and modular rovers, not Rashid.
