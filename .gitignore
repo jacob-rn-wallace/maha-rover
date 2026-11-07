@@ -10,3 +10,6 @@ graphic-design/scripts/mosaic/*.png
 
 # any folder with "do-not-track" in its name stays local
 *do-not-track*/
+
+# generated CAD meshes (STEP is tracked)
+hardware/**/out/*.stl

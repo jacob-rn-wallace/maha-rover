@@ -22,6 +22,7 @@ rover's dimensions as faithfully as possible.
   battery and motor specifications. Do not paper over them.
 
 ## Repo layout
+- `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model (build123d, venv in `.venv`).
 - `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
@@ -55,7 +56,7 @@ PET panel size and count, the Ackermann steering, and the missing mast.
 - Still to do: close the remaining gaps in section 7 of that file (suspension and
   drivetrain layout, cell part, a dimensioned drawing), reconcile the provisional
   design (sidewall angle, panels and mast already differ), power and battery sizing,
-  centre-of-mass check, CAD (the wheel is the natural first part), BOM.
+  centre-of-mass check, BOM. First wheel CAD model done (`hardware/wheel/`); refine its unsourced choices as sources arrive.
 
 ## Conventions
 - Hardware units are millimetres.

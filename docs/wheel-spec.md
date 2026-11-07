@@ -49,6 +49,10 @@ minus 2 to 3%), **(unverified)** (no source, or sources disagree).
 | Wheel mass, flight | the closed test wheel is 1.18 kg ([S4]), not the flight wheel. The photographed wheels are machined, so a machined-magnesium mass estimate would be possible, but none is published | (unverified) |
 | Hub tube length, bore and axle interface | outer diameter about 50 is known. A hardware photograph shows a cup-shaped hub with a floor and four small screw holes, a flange with six bolt holes, and, nearby, black cylindrical housings with six-hole bolt circles and silver flanged adapters that may be the matching drive parts (not confirmed). Length, bore and exact bolt-circle sizes are not known | (unverified) |
 
+Questions on the hub, rib layering and thickness, rim band, grouser thickness, the 215 versus 230 tip
+diameter and the flight mass were sent to the thesis advisors on 2026-11-07 (the first address bounced,
+the co-advisor was copied). No answer yet. Record any reply here with a "personal communication" tag.
+
 ## 4. Suggested choices for a first CAD model
 
 These are choices, not facts, and each should be changed if a better source appears.
@@ -71,3 +75,16 @@ diameter of about 230 mm is the CAD value, and the thesis's own side-on drawing 
 lists 215, which looks like 200 + 15 and contradicts both. The 50 mm hub tube comes out the same from
 the thesis drawing and from the CAD side views. The ten-rib, 36 degree pattern comes out the same from
 the thesis drawing and from the CAD side views.
+
+## 6. CAD model
+
+A first parametric model is in [`hardware/wheel/wheel.py`](../hardware/wheel/wheel.py) (build123d;
+`pip install -r hardware/wheel/requirements.txt`, then run the script to write `out/wheel.step` and
+`out/wheel.stl`). Axle along Z, one grouser on +X. It follows section 4 and checks to 230 mm over the
+grouser tips and 80 mm wide, as one valid solid.
+
+Modelling choices with no source (marked ASSUMPTION or unverified in the script): the two rib sets sit
+at z = plus and minus 10 mm; hub tube 40 mm long with a 3 mm wall; rim band 80 mm wide (flush with the
+grousers); rib root flare 10 mm long opening to 24 mm; grousers 15 mm tall (tip radius 115, against the
+derived 116). The script prints a mass of about 384 g at AZ91E density. That follows from the assumed
+dimensions and is not a flight figure.

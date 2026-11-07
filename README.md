@@ -8,7 +8,7 @@ An open-source replica of the UAE's **Rashid** lunar rover, built to match the o
 
 *Al-maha* (المَهَا) is the Arabian oryx, and also the word for the oryx's eyes in classical Arabic poetry.
 
-> **Status: early.** Branding is done, and a first pass at the original's dimensions is recorded in [`docs/original-dimensions.md`](docs/original-dimensions.md). Most outer dimensions are now sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid); gaps remain in the suspension and drivetrain layout and the exact solar cell part. There is no CAD or BOM yet. Everything below says what exists and what doesn't.
+> **Status: early.** Branding is done, and a first pass at the original's dimensions is recorded in [`docs/original-dimensions.md`](docs/original-dimensions.md). Most outer dimensions are now sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid); gaps remain in the suspension and drivetrain layout and the exact solar cell part. A first parametric wheel model exists (see `hardware/wheel/`); there is no BOM yet. Everything below says what exists and what doesn't.
 
 ## Goal
 Reproduce Rashid (MBRSC, Dubai) at the original's dimensions. Primary sources (MBRSC conference material and the instrument teams' *Space Science Reviews* papers) give a 10 kg rover, 470 x 505 mm in plan and 700 mm tall with the mast deployed, on four wheels of 200 mm diameter and about 80 mm width. Each dimension in this repo cites its source or is marked unverified, and open conflicts are listed alongside.
@@ -20,7 +20,7 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 |---|---|
 | [`docs/`](docs/original-dimensions.md) | Sourced record of the original rover's dimensions, with a source tag and status on every value, and a [wheel specification](docs/wheel-spec.md) for CAD |
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
-| `hardware/` | *Not yet created.* Planned home for CAD, drawings and the BOM |
+| [`hardware/`](hardware/wheel/wheel.py) | Parametric CAD (build123d). First model: the wheel, with STEP output. Drawings and the BOM will go here |
 
 ## Provisional design notes
 Early planning (a 15 degree wedge body around a 6U CubeSat envelope, 200 x 80 mm wheels, rocker suspension with Ackermann steering) came from brainstorming for a rover *inspired by* Rashid, before the project became a faithful replica. It does not bind the replica and is overridden wherever it conflicts with the original. Already known to differ: the CubeSat envelope (the original is 470 x 505 x 700 mm), the solar panel layout, the steering, and the missing mast. The 200 x 80 mm wheel size matches. See section 6 of [`docs/original-dimensions.md`](docs/original-dimensions.md).
