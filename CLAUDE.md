@@ -89,8 +89,12 @@ does not bind the replica; the original wins):
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
   check: `hardware/drive/motor.py`. Open: bearing loads, concentricity, can clamp.
-- Still to do, in rough order: pick the exact motor, then place the passive differential and the
-  electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
+- Suspension decision (2026-11-07): passive bevel differential under the belly joining two rigid
+  side arms, body as carrier (an interpretation of [S25], not the original's layout). Spec:
+  `docs/suspension-spec.md`. CAD and clearance sweep: `hardware/suspension/arms.py`. Open: the
+  differential hangs below the belly and would snag a 100 mm rock; strength and gear choice unchecked.
+- Still to do, in rough order: pick the exact motor, then settle the differential's ground clearance and
+  choose the electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
   the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
   Closing the section 7 gaps is now optional: only chase a source when it changes one of the

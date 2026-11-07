@@ -37,7 +37,8 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | Pololu 37D without encoder, candidate #4746 (131.25:1, spur/helical), open-loop speed and direction (decision 2026-11-07). See `drive-spec.md` | 0.195 each (vendor, upper bound) |
 | Motor driver | 2 | not found | (unverified) | Dual-channel brushed DC drivers, four channels in total, so pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | not known |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
-| Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | - | not known |
+| Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline under the belly, body as carrier, joined to two side arms (`suspension-spec.md`), no bar-linkage alternative chosen yet | not known |
+| Side arms | 2 | Not found | (unverified) | One low beam per side with a strap to each motor's clamp ring, from `suspension-spec.md` | not known |
 | Steering | none | Skid steering [S25], [S20] | stated | - | - |
 
 ## Mast and cameras
