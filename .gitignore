@@ -1,5 +1,4 @@
 .DS_Store
-previous-context-do-not-track/
 __pycache__/
 *.pyc
 .venv/

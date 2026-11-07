@@ -45,7 +45,11 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
 - `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model and `hardware/body/body.py` the body, wheels and deployed-mast envelope (build123d, venv in `.venv`).
 - `docs/`: sourced reference material. `frame-spec.md` is the chassis (T-slot frame and panels). `mass-budget.md` is the generated mass and centre-of-mass check. `bom.md` is the BOM skeleton. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
-- `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
+- `../maha-rover-private` (private GitHub repo `jacob-rn-wallace/maha-rover-private`, cloned beside this one; needs
+  credentials): the Rashid papers and abstracts (`papers/INDEX.md` maps the source tags of
+  `docs/original-dimensions.md` to files), solar cell datasheets, saved web pages and press photos, and the notes
+  from earlier sessions (`previous-context/`, background only, do not edit). Its contents are copyrighted: never copy
+  files from it into this repo, record only numerical facts and citations here.
 
 ## Design status
 Settled from the final-configuration CAD and MBRSC statements (sources in
