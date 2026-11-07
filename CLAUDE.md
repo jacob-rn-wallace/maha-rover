@@ -87,7 +87,7 @@ does not bind the replica; the original wins):
   unallocated); the replica's own mass is free under the scope above.
 - Drive decision (2026-11-07): 37 mm planetary DC gearmotors in the hubs, no encoders (only speed
   and direction matter). Placeholder model and hub clearance check: `hardware/drive/motor.py`.
-  Open: how the wheel is supported (see below).
+  Open: how the wheel is supported. The radial gap between motor and hub bore is 3.5 mm, too little for a bearing.
 - Still to do, in rough order: pick the exact motor, then place the passive differential and the
   electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
