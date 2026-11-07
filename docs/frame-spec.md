@@ -16,59 +16,72 @@ vendor you buy from.
 
 ## Frame
 
-Revised 2026-11-07 from the owner's sketch: **every extrusion is vertical or horizontal; only the panels lean.** The frame is
-**stepped**: a wide bottom frame on the floor and a narrow top frame under the deck, joined by four vertical posts that stand on the
-bottom end cross rails. The side panels run from the outer edge of the bottom side rails to the outer edge of the top side rails, so the
-difference in width sets the 10 degrees (stated [S20]) and no member needs an angle. Members are modelled as plain 20 x 20 sections
-(slots ignored); each sits 0.2 mm inside the panels.
+Revised 2026-11-07 from the owner's sketch and a second correction: **every extrusion is vertical or horizontal; only the side panels
+lean, and they are separate plates held off the frame on pivots.** The frame is **stepped**: a wide bottom frame on the floor and a narrow
+top frame under the deck, joined by four vertical posts that stand on the bottom end cross rails. Members are modelled as plain 20 x 20
+sections (slots ignored).
 
-- **Bottom frame:** outer faces vertical at y = plus or minus 114.9 (touching the panel at the rails' top outer corner), the floor lies on it.
-- **Top frame:** outer faces at y = plus or minus 79.8, under the deck.
-- **Posts:** y 59.8 to 79.8 (under the top rails), x at the ends, standing on the bottom end cross rails; they are 35 mm inboard of the
-  bottom frame's outer face, so the posts never touch the sloped panels.
+- **Bottom frame:** two side rails the full length of the body, joined at the ends by two end cross rails (so all four corners are
+  closed; an earlier version stopped the side rails short and left the corners unjoined). Outer faces at y = plus or minus 105.1. The
+  floor lies on it. The side rails are split at |x| < 35 for the pivot shafts, where a bearing plate bridges them.
+- **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, plus the cross rail under the mast.
+- **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails; they lie 35 mm inboard of the
+  bottom frame's outer face.
+
+The frame sits **10 mm inside the side panels** at the outer upper corner of each rail (`PANEL_GAP` in `interior.py`), so no member touches a
+side panel.
 
 | Group | Members | Length (mm) |
 |---|---|---|
 | Vertical posts, on the bottom end rails | 4 | 199.0 |
-| Bottom end cross rails | 2 | 189.7 |
-| Bottom side rails, split at the pivot shafts | 4 | 132.6 |
-| Top end cross rails | 2 | 119.5 |
-| Cross rail under the mast base | 1 | 119.5 |
+| Bottom end cross rails | 2 | 170.1 |
+| Bottom side rails, split at the pivot shafts | 4 | 152.8 |
+| Top end cross rails | 2 | 99.9 |
+| Cross rail under the mast base | 1 | 99.9 |
 | Top side rails | 2 | 335.2 |
 | Mid side rails (z 175, between the posts) | 2 | 335.2 |
-| Differential cross rails (x = plus or minus 28, z 175) | 2 | 119.5 |
+| Differential cross rails (x = plus or minus 28, z 175) | 2 | 99.9 |
 
-19 members, 3.64 m, **1.82 kg** (the leaning-post version was 1.92 kg). Every extrusion is cut square (zero-cut), with no angle anywhere.
+19 members, 3.59 m, **1.79 kg**. Every extrusion is cut square (zero-cut). A connectivity check in `frame.py` confirms the 19 members form one piece
+(each bottom side rail meets an end cross rail at one end and the bearing plate at the other).
 
-- **Tapered strips.** A vertical rail face against a sloped panel leaves a wedge, 0 to 3.5 mm over the rail's 20 mm. Six printed strips
-  (the four bottom side rails and the two top side rails, 42 cm3, 0.05 kg) fill it; the panel screws through the strip into the rail's
-  T-nut. No strips are needed at the posts or mid rails, which do not touch the panels.
-- **Unsupported middle.** The side panel is held along its bottom and top edges and at the bearing plate, but not in the middle: 224 mm of
-  2 mm sheet between the rails, carrying the cells. It may need a stiffening rib or a printed spacer from a mid rail (a printed block between
-  the mid rail and the panel, about 30 mm thick, would do); no stiffness check has been made.
-- **Edges of the tub.** The floor lies on the bottom frame, so its edges are supported. The side-to-end seams still want a 15 x 15 x 2 mm
-  aluminium angle each (4, about 224 mm; not modelled or massed: about 0.03 kg, inside the fasteners allowance).
-- **Bearing plates.** The pivot shafts at z 145.7 would pass through a bottom side rail, so those rails are split
-  (no rail for |x| < 35 mm) and a 6 mm sloped plate (0.04 kg each) lies against the side panel and bridges the gap, with a seat for the
-  688 bearing, as before.
+- **Side panels on pivot standoffs.** In the original the side panels stand proud of the body on spacers, apparently so that the heat
+  the cells absorb does not reach the body (front view, [S18] Fig. 1; the gap reads about 10 mm by eye, uncertain by several mm; the
+  reason is the owner's reading, not a source). The replica copies this: each side panel is a single 2 mm sloped plate
+  (the solar panel itself) held by **four standoffs near its corners**, two on a bottom side rail and two on a top side rail, at
+  x = plus or minus 150. A standoff is a horizontal 8 mm stud, about 12.5 mm long, from the rail's outer face to the panel, with a rod end or small ball
+  joint at the panel end so the 10 degrees between the stud and the sloped plate and thermal movement are taken up (a hinge is the alternative).
+  Each is fixed to its rail by an M4 bolt into a T-nut. **Eight standoffs, 0.015 kg each (ASSUMPTION), 0.12 kg.** The pivot parts are not chosen or modelled.
+- **There is no separate body wall at the sides.** The panel is the only side sheet, with air behind it; this keeps the mass down (a second wall
+  would add about 0.9 kg) but leaves the sides open to dust and light. A thin inner wall can be added later.
+- **Stiffness.** The panel is held at four points only, with 224 mm of 2 mm sheet between them, carrying the cells; no check has been made. A 3 mm sheet,
+  a folded edge or a stiffener behind the cells are the options.
+- **Edges of the tub.** The floor lies on the bottom frame, wider than the rails by 13 mm on each side. The floor, end panels and side panels are
+  not joined to each other along their seams; the end panels bolt to the end rails and posts. Closing the seams is not designed.
+- **Bearing plates.** The pivot shafts at z 145.7 would pass through a bottom side rail, so those rails are split. On each side a 6 mm aluminium plate
+  (x plus or minus 60, z 126 to 164, 0.07 kg) lies in the XZ plane against the rails' outer faces, bolted over the rail ends, with a 16 mm bore
+  for a 688 bearing. The shaft passes on through a 22 mm clearance hole in the side panel (the panel floats on its pivots) to the link plate at
+  y = 133, about 25 mm beyond the bearing. There is now one bearing per side, as in the earlier design, and the shaft is cantilevered a little further.
 - **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
-  (not modelled), 1.3 mm above its top. They span the mid rails, y plus or minus 59.8.
+  (not modelled), 1.3 mm above its top. They span the mid rails, y plus or minus 50.
 - **Mast.** The base plate (x 123 to 199) lies over the mast cross rail (x 131 to 151) and the front end rail
   (x 168 to 188); a 17 mm gap between them is left for the cable entry.
 
 ## Joints (revised 2026-11-07)
 
 Every rail-to-rail and rail-to-post joint is a plain 90 degree butt joint with a standard 20-series
-**corner bracket** (2 T-nuts, 2 M4 bolts). Nothing else is needed: no shims, no angle cuts.
+**corner bracket** (2 T-nuts, 2 M4 bolts). Nothing else is needed: no shims, no angle cuts, no printed wedges.
 
 | Joint | Count |
 |---|---|
-| End cross rail to post (post on the bottom rail; top rail between the posts) | 8 |
-| Side rail to end cross rail | 8 |
+| Bottom end cross rail to bottom side rail | 4 |
+| Bottom end cross rail to post (post stands on it) | 4 |
+| Top end cross rail to post | 4 |
+| Top side rail to post | 4 |
 | Mid side rail to post | 4 |
 | Differential cross rail to mid side rail | 4 |
 | Mast cross rail to top side rail | 2 |
-| Bottom side rail to bearing plate | 4 |
+| Bottom side rail to bearing plate (the plate is bolted over the rail end) | 4 |
 | **Total** | **30 brackets, 60 T-nuts, 60 M4 bolts** |
 
 Bracket sizes, T-nut type and bolt lengths are standard 20-series items, not chosen from a catalogue.
@@ -82,61 +95,61 @@ M4 button-head screws into T-nuts in the slot facing each panel, at about 100 mm
 | Floor (on the bottom rails and bottom end rails) | 12 |
 | Deck (the lid) | 14 |
 | End panels (2) | 16 |
-| Side panels (2), through the tapered strips into the bottom and top rails, 2 more each into the bearing plate | 20 |
-| **Total** | **62** |
+| Side panels (2), by the 8 pivot standoffs | 8 |
+| **Total** | **50** |
 
 Panel holes are clearance holes; the T-nut sits in the frame.
 
 **Access to the cavity: the deck is the lid.** Undoing its 14 screws lifts off the deck with the mast attached
-(0.8 kg now); the 160 mm wide opening reaches the battery, drivers and controller. The mast's wires need a connector
+(0.8 kg now); the 140 mm wide opening reaches the battery, drivers and controller. The mast's wires need a connector
 at the lid so the two can be parted. The mast base plate is held by 4 M4 bolts through the plate and deck into the
 mast cross rail (x 141) and the front end rail (x 178), at y plus or minus 30, so removing the lid does not
 unbolt the mast. The 17 mm gap between those two rails (x 151 to 168) is the cable entry.
 
 ## Panels
 
-Aluminium sheet, bolted to the frame through the slots (M4 T-nuts at roughly 80 to 100 mm pitch, not designed):
+Aluminium sheet. The floor, ends and deck are bolted to the frame through the slots (M4 T-nuts at roughly 80 to 100 mm pitch, not designed); the side panels hang on pivot standoffs:
 
 | Panel | Size (mm) | Thickness |
 |---|---|---|
 | Floor | 380 x about 242 | 2 |
-| Side walls (2, sloped 10 degrees, carry the cells) | 380 x about 224 | 2 |
+| Side panels (2, sloped 10 degrees, carry the cells, on pivot standoffs) | 380 x about 224 | 2 |
 | End walls (2) | about 242 bottom, 164 top, 221 high | 2 |
 | Deck | 401 x 164 | 3 |
 
 Total **2.41 kg** at 2.70 g/cm3 (the standard density of aluminium). Alternatives: 1.5 mm sheet (the earlier idea,
-about 0.6 kg lighter), or printed panels. Folding the floor and side walls from one sheet into a tub, with 100 degree
-bends, would save three joints; not designed.
+about 0.6 kg lighter), or printed panels. 
 
 ## Result of the checks
 
-- All 19 members and both bearing plates lie inside the cavity; no member touches another.
+- All 19 members and both bearing plates lie inside the cavity (the space inside the side panels); no member touches another; the 19 form one connected frame.
+- Frame and plates are clear of the side panels (0 mm3 overlap); the standoffs clear every member and plate.
 - The frame does not touch the battery, controller, drivers, converter, differential housing, or the cable entry zone (15 x 40 x 30 mm, in the gap
-  under the mast). The wide bottom frame leaves the floor open: the interior parts keep their earlier positions.
-- The strips lie inside the cavity and clear every member and plate; the 12 solar wire holes and the four terminal boards clear the frame.
-- The pivot shafts clear every member and turn freely in the plate bores.
+  under the mast). The master switch moved from y 45 to y 35 to clear the post.
+- The 12 solar wire holes and the four terminal boards clear the frame; the pivot shafts clear every member and turn freely in the plate bores.
 - Frame and plates take about 1.5 L of the 16.35 L cavity.
 
 ## Mass
 
 | Item | kg | Status |
 |---|---|---|
-| Frame | 1.82 | catalogue linear mass x lengths |
+| Frame | 1.79 | catalogue linear mass x lengths |
 | Panels | 2.41 | 2 mm sides, ends, floor; 3 mm deck |
-| Bearing plates | 0.08 | |
-| Printed strips | 0.05 | PETG, solid |
-| **Chassis** | **4.36** | the original's structure is 2 kg, excluding mobility [S26] |
+| Bearing plates | 0.14 | |
+| Pivot standoffs | 0.12 | 8 x 0.015 kg, ASSUMPTION |
+| **Chassis** | **4.46** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.44 kg** (`replica-mass.md`; was 9.20 kg before the T-slot mast, which adds 0.38 kg; the frame saves 0.10 kg and the
-strips are 0.04 kg lighter than the old wedges and shims). Decision 2026-11-07: the first pass is not optimised for mass, and the motors,
-drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the build down to 10 kg if the real parts come
-out over. If it does, the first places to save mass are the side plates, the panel thickness, the redundant top and mid rails, and a 30 x 30 mast.
+Replica total from the CAD: **9.53 kg** (`replica-mass.md`; was 9.20 kg before the T-slot mast, which adds 0.38 kg). Decision 2026-11-07: the first
+pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the build
+down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the redundant
+top and mid rails, and a 30 x 30 mast.
 
 ## Open
 
 - Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
-- Stiffness of the side panels between the bottom and top rails (and any spacer from the mid rails); the side-to-end edge angles.
-- The bearing plate's fixing to the wall panel, and the cradles that hold the differential housing (printed), are not modelled.
+- The pivot standoffs: rod end, ball joint or hinge, how thermal expansion of the panel is taken up, whether four points hold a 2 mm sheet flat, and the true gap (about 10 mm by eye).
+- Sealing: no side wall, so the sides, the floor-to-panel seams and the end seams are open.
+- The bearing plate's fixing to the rails, and the cradles that hold the differential housing (printed), are not modelled.
 - The lid's gasket-free fit: no dust sealing, and no connector chosen for the mast cable.
 - Panel material and thickness.
 - Mid rails and top side rails may be partly unnecessary; no stiffness analysis has been done.

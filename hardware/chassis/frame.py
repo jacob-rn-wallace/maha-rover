@@ -8,22 +8,22 @@ ignored, and mass comes from the catalogue linear mass. All positions and the pa
 material are ASSUMPTION.
 
 Frame (owner's sketch, 2026-11-07: every extrusion is vertical or horizontal; only the panels lean):
-  * a STEPPED frame: a wide bottom frame (end cross rails and side rails on the floor, the
-    side rails touching the sloped side panels at the bottom, split at |x| < GAP for the
-    pivot shafts) and a narrow top frame (end cross rails, side rails and a mast cross rail
-    under the deck, touching the side panels at the top), joined by four vertical posts that
-    stand on the bottom end cross rails, inboard of the side panels
+  * a STEPPED frame: a wide bottom frame (two side rails running the full length, joined by
+    two end cross rails; the side rails are split at |x| < GAP for the pivot shafts) and a
+    narrow top frame (end cross rails, side rails and a mast cross rail under the deck), joined
+    by four vertical posts that stand on the bottom end cross rails
   * two mid rails along X at z 175 between the posts, with two cross rails at x = +-28
     that carry the differential housing on printed cradles (not modelled)
-  * the sloped side panels run from the bottom side rails to the top side rails, so the
-    difference in width sets the 10 degrees; thin printed tapered strips (0 to 3.5 mm) fill
-    the angle between a vertical rail face and the panel
-  * two bearing plates (6 mm, sloped, against the side wall) at x = 0, bridging the split
-    bottom rails and carrying the 688 bearings for the pivot shafts
+  * the side panels (the solar panels, 2 mm) are separate sloped plates held PANEL_GAP off
+    the frame on four pivot standoffs each, near the corners (two on a bottom rail, two on
+    a top rail), as the original's panels stand proud of its body; the pivots take up the
+    10 degrees between the horizontal studs and the sloped plate
+  * two bearing plates (6 mm, in the XZ plane against the bottom rails) at x = 0, bridging
+    the split bottom rails and carrying the 688 bearings for the pivot shafts
 
 Joints: every extrusion is cut square; rail-to-rail and post joints are 90 degree butt joints
-with standard 20-series corner brackets. Panels bolt to the frame with M4 screws into T-nuts.
-The deck is the lid: it carries the mast.
+with standard 20-series corner brackets. The floor, end panels and deck bolt to the frame with
+M4 screws into T-nuts. The deck is the lid: it carries the mast.
 
 Frame as in body.py.
 
@@ -47,11 +47,17 @@ P = 20.0                 # extrusion section, 20 x 20             stated (catalo
 KG_PER_M = 0.50          # HFS5-2020 and a second 20 x 20 datasheet   stated (catalogue)
 TAN, COS = I.TAN, I.COS
 GAP = 35.0               # side rails stop this far from x = 0     ASSUMPTION
-EDGE = 0.2               # members sit this far inside the panels, so they never touch
+EDGE = 0.2               # clearance to the end panels and the floor
+G = I.PANEL_GAP          # frame outer faces sit this far inside the side panels (at the top outer corner of the rails)
+PIV_X = 150.0            # pivot standoffs at x = +-150, near the corners   ASSUMPTION
+PIV_D = 8.0              # standoff stud diameter                          ASSUMPTION
+PIV_KG = 0.015           # one standoff with its rod end and fasteners     ASSUMPTION
 CROSS_X = 28.0           # differential cross rails at x = +-28
 MAST_RAIL_X = 140.7      # cross rail under the mast base; the base (x 122 to 200) also spans the front end rail  ASSUMPTION
 MID_Z = 175.0            # centre height of the mid rails          ASSUMPTION
 PLATE_T = 6.0            # bearing plate thickness                 ASSUMPTION
+PLATE_X = 25.0           # the plate reaches this far past GAP over the rail ends   ASSUMPTION
+PLATE_Z1 = 164.0         # top of the bearing plate                ASSUMPTION
 PETG = 1.27              # g/cm3
 BEARING_SEAT_R = 8.0     # 688 outer radius (8 x 16 x 5, ISO size from memory)
 FIX_PITCH = 100.0        # panel screw pitch                      ASSUMPTION
@@ -68,8 +74,8 @@ def yin(z):
     return I.inner_half_width(z)
 
 
-YO = yin(Z_DECK) - EDGE     # outer face of the top frame, posts and mid rails: the cavity is narrowest at the deck
-YB = yin(Z_FLOOR + P) - EDGE   # outer face of the bottom frame: touches the panel at the top outer corner of the bottom rails
+YO = yin(Z_DECK) - G       # outer face of the top frame, posts and mid rails
+YB = yin(Z_FLOOR + P) - G  # outer face of the bottom frame
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -95,22 +101,18 @@ def post(sx, sy):
     return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK)
 
 
-def wedge_strips(members):
-    """Printed tapered strips between each axis-aligned side rail and its sloped panel."""
-    strips = {}
-    for n, r in members.items():
-        if not (n.startswith("bottom side") or n.startswith("top side")):
-            continue
-        bb = r.bounding_box()
-        sy = 1 if bb.max.Y > 0 else -1
-        z0, z1 = bb.min.Z, bb.max.Z
-        y_o = (bb.max.Y if sy > 0 else -bb.min.Y)            # rail outer face, vertical
-        y_panel_bottom = yin(z0) - EDGE                        # sloped panel surface at the rail's bottom edge
-        pts = [(sy * y_o, z1), (sy * y_o, z0), (sy * y_panel_bottom, z0)]
-        x0, x1 = bb.min.X, bb.max.X
-        strip = Pos((x0 + x1) / 2, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=(x1 - x0) / 2, both=True)
-        strips["strip " + n] = strip
-    return strips
+def standoffs():
+    """Eight pivot standoffs: four per side panel, near the corners, two on a bottom side rail and two on a top side rail.
+    Each is a horizontal stud from the rail's outer face to the panel (its end is cut by the panel's slope here); the rod end
+    or ball joint that takes up the 10 degrees is not modelled."""
+    cav = I.cavity()
+    out = {}
+    for sy in (1, -1):
+        for sx in (1, -1):
+            for lvl, zc, yo in (("bottom", Z_FLOOR + P / 2, YB), ("top", Z_DECK - P / 2, YO)):
+                stud = Pos(sx * PIV_X, sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
+                out[f"pivot {lvl} {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = stud & cav
+    return out
 
 
 def build():
@@ -127,8 +129,8 @@ def build():
     inner = X_END - P - 2 * EDGE                       # rails run between the end cross rails
     for sy in (1, -1):
         s = "L" if sy > 0 else "R"
-        m[f"bottom side {s} front"] = side_rail(sy, GAP, inner, zb, YB)
-        m[f"bottom side {s} rear"] = side_rail(sy, -inner, -GAP, zb, YB)
+        m[f"bottom side {s} front"] = side_rail(sy, GAP, X_END - EDGE, zb, YB)
+        m[f"bottom side {s} rear"] = side_rail(sy, -(X_END - EDGE), -GAP, zb, YB)
         m[f"top side {s}"] = side_rail(sy, -inner, inner, zt)
         m[f"mid side {s}"] = side_rail(sy, -inner, inner, MID_Z)
     m["top cross under mast"] = cross_rail(MAST_RAIL_X, zt)
@@ -138,20 +140,16 @@ def build():
 
 
 def bearing_plates():
-    """6 mm plate against each side wall at x = 0, with a seat for the 6800 bearing."""
+    """Per side: a 6 mm plate in the XZ plane against the outer faces of the split bottom rails (bolted over the rail ends), with
+    a 16 mm bore and a 688 bearing seated in it. The pivot shaft passes on through the clearance hole in the side panel."""
     plates, bearings = [], []
-    z0, z1 = Z_FLOOR, MID_Z - P / 2 - 1.0               # up to 1 mm under the mid rails
     for sy in (1, -1):
-        o0, o1 = yin(z0) - EDGE, yin(z1) - EDGE
-        pts = [(sy * o0, z0), (sy * (o0 - PLATE_T / COS), z0), (sy * (o1 - PLATE_T / COS), z1), (sy * o1, z1)]
-        plate = extrude(Plane.YZ * Polygon(*pts, align=None), amount=GAP, both=True)
-        # bore along Y through the plate for the bearing
+        y0, y1 = sorted((sy * YB, sy * (YB + PLATE_T)))
+        plate = box(-(GAP + PLATE_X), GAP + PLATE_X, y0, y1, Z_FLOOR, PLATE_Z1)
         bore = Pos(0, 0, A.PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BEARING_SEAT_R, 400.0)
         plates.append(plate - bore)
-        # bearing ring, 5 mm wide, seated at the inner face of the plate
-        y_in_face = yin(A.PIVOT_Z) - EDGE - PLATE_T / COS
-        b = Cylinder(BEARING_SEAT_R, 5.0) - Cylinder(4.2, 5.0)
-        bearings.append(Pos(0, sy * (y_in_face + 2.5 + 0.5), A.PIVOT_Z) * Rot(90, 0, 0) * b)
+        ring = Cylinder(BEARING_SEAT_R, 5.0) - Cylinder(4.2, 5.0)
+        bearings.append(Pos(0, sy * (YB + PLATE_T / 2), A.PIVOT_Z) * Rot(90, 0, 0) * ring)
     return plates, bearings
 
 
@@ -219,26 +217,49 @@ if __name__ == "__main__":
     print(f"  top side rails at y +-{YO - P / 2:.0f}: the mast plate (y +-38) lies between their outer faces, "
           f"so the plate bolts to the cross rail and front end rail, and its cable hole can sit in the gap between them")
 
-    # ---- printed tapered strips ----
-    strips = wedge_strips(members)
-    sv = sum(v.volume for v in strips.values())
-    print(f"\nprinted parts: {len(strips)} tapered strips (0 to {P * TAN:.1f} mm), total {sv / 1e3:.1f} cm3, {sv / 1e3 * PETG / 1000:.3f} kg in PETG")
-    out_s = [n for n, v in strips.items() if v.volume - (v & cav).volume > 0.5]
-    print(f"  outside the cavity: {out_s or 'none'}")
-    clash = []
-    for n, v in strips.items():
-        for m_, mem in {**members, **{f"plate{i}": p_ for i, p_ in enumerate(plates)}}.items():
-            o = (v & mem).volume
-            if o > 0.5:
-                clash.append((n, m_, round(o, 1)))
+    # ---- connectivity: every member must touch another along a face (joint), and the frame must be one piece ----
+    names_ = list(members)
+    def grown(sh):
+        bb = sh.bounding_box()
+        return box(bb.min.X - 0.5, bb.max.X + 0.5, bb.min.Y - 0.5, bb.max.Y + 0.5, bb.min.Z - 0.5, bb.max.Z + 0.5)
+    gr = {n: grown(s_) for n, s_ in members.items()}
+    adj = {n: set() for n in names_}
+    for i, a_ in enumerate(names_):
+        for b_ in names_[i + 1:]:
+            if (gr[a_] & members[b_]).volume > 0.5 and (gr[b_] & members[a_]).volume > 0.5:
+                adj[a_].add(b_); adj[b_].add(a_)
+    seen, stack = set(), [names_[0]]
+    while stack:
+        n = stack.pop()
+        if n in seen:
+            continue
+        seen.add(n); stack.extend(adj[n] - seen)
+    print(f"\nconnectivity (members within 0.5 mm of each other): {len(seen)} of {len(names_)} in one piece; loose: {[n for n in names_ if n not in seen] or 'none'}")
+    for n in names_:
+        if len(adj[n]) < 2:
+            print(f"  only {len(adj[n])} neighbour(s): {n} -> {sorted(adj[n])}")
+    for n in ("bottom side L front", "bottom end cross F", "post FL"):
+        print(f"  {n}: {sorted(adj[n])}")
+
+    # ---- pivot standoffs ----
+    st = standoffs()
+    print(f"\npivot standoffs: {len(st)} ({len(st) // 2} per side panel), at x = +-{PIV_X:.0f}; panel held {G:.0f} mm off the frame at the top outer corner of the rails")
+    for n, v in list(st.items())[:2]:
+        bb = v.bounding_box()
+        print(f"  {n}: length {bb.size.Y:.1f} mm, z {bb.min.Z:.1f} to {bb.max.Z:.1f}")
+    clash = [(n, m_, round((v & mem).volume, 1)) for n, v in st.items() for m_, mem in {**members, **{f'plate{i}': p_ for i, p_ in enumerate(plates)}}.items() if (v & mem).volume > 0.5]
     print(f"  clashes with members and plates: {clash or 'none'}")
-    print(f"  top frame outer faces at y = +-{YO:.1f}, bottom frame at y = +-{YB:.1f}; the posts stand on the bottom end cross rails, {YB - YO:.1f} mm inboard of the bottom frame's outer face")
+    sides = I.side_panels()
+    allm_ = Compound(list(members.values()) + plates)
+    print(f"  frame and plates vs the side panels (mm3, want 0): {sum((allm_ & sp).volume for sp in sides):.1f}")
 
     # ---- joint inventory (explicit, from the topology above) ----
     n_end_cross = sum("end cross" in n for n in members)
     joints = {
-        "end cross rail to post (bracket)": n_end_cross * 2,
-        "side rail to end cross rail (bracket)": 4 + 4,                 # bottom (outer ends) and top side rails
+        "bottom end cross rail to bottom side rail (bracket)": 4,
+        "bottom end cross rail to post (post stands on it, bracket)": 4,
+        "top end cross rail to post (bracket)": 4,
+        "top side rail to post (bracket)": 4,
         "mid side rail to post (bracket)": 4,
         "differential cross rail to mid side rail (bracket)": 4,
         "mast cross rail to top side rail (bracket)": 2,
@@ -259,18 +280,16 @@ if __name__ == "__main__":
     deck_b = nbolts(pick("top side", "top end cross", "top cross under mast"))
     end_b = (nbolts([n for n in members if n.endswith("cross F") and n.startswith(("bottom end", "top end"))] + pick("post FL", "post FR")) +
              nbolts([n for n in members if n.endswith("cross R") and n.startswith(("bottom end", "top end"))] + pick("post RL", "post RR")))
-    side_b = 0
-    for s_ in ("L", "R"):
-        side_b += nbolts([n for n in members if n.startswith(("bottom side " + s_, "top side " + s_))]) + 2   # plus 2 into the bearing plate
+    side_b = 8                                         # the pivot standoffs: one M4 into a T-nut each (the side panels have no other fixing)
     total_b = floor_b + deck_b + end_b + side_b
     print(f"\npanel fixing (M4 button head into T-nuts, pitch about {FIX_PITCH:.0f} mm, at least 2 per member)")
-    print(f"  floor {floor_b}, deck (the lid) {deck_b}, end panels {end_b}, side panels {side_b} (bottom and top rails and the plates; the middle of each side panel is unsupported): total {total_b} screws and {total_b} T-nuts")
+    print(f"  floor {floor_b}, deck (the lid) {deck_b}, end panels {end_b}, side panels {side_b} (the 8 pivot standoffs): total {total_b} screws and {total_b} T-nuts")
     print("  mast base: 4 M4 bolts through the base plate and deck into the mast cross rail (x 141) and front end rail (x 178), y +-30")
 
     # masses
     plate_vol = sum(s.volume for s in plates)
-    sh_mass = shell.volume / 1e3 * ALU / 1000.0
-    print(f"\npanels (the shell of interior.py, {PANEL_MASS_NOTE}): {sh_mass:.2f} kg")
+    sh_mass = (shell.volume + sum(sp.volume for sp in sides)) / 1e3 * ALU / 1000.0
+    print(f"\npanels (floor, ends, deck and the two side panels of interior.py, {PANEL_MASS_NOTE}): {sh_mass:.2f} kg")
     print(f"frame {total / 1000 * KG_PER_M:.2f} kg; bearing plates {plate_vol / 1e3 * ALU / 1000:.2f} kg; "
           f"chassis total {sh_mass + total / 1000 * KG_PER_M + plate_vol / 1e3 * ALU / 1000:.2f} kg "
           f"(original structure: 2 kg excluding mobility [S26])")
@@ -279,4 +298,4 @@ if __name__ == "__main__":
 
     out = HERE / "out"
     out.mkdir(exist_ok=True)
-    export_step(Compound(list(members.values()) + plates + bearings + list(strips.values()) + [shell], label="al-maha-chassis"), str(out / "frame.step"))
+    export_step(Compound(list(members.values()) + plates + bearings + list(st.values()) + [shell] + sides, label="al-maha-chassis"), str(out / "frame.step"))

@@ -12,7 +12,7 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 | Item | Value | Status |
 |---|---|---|
-| Side walls, end walls | 2 mm | ASSUMPTION |
+| Side panels (separate plates on pivot standoffs, 10 mm off the frame), end walls | 2 mm | ASSUMPTION |
 | Floor | 2 mm, top at z 126 (belly at 124) | ASSUMPTION |
 | Deck | 3 mm | ASSUMPTION |
 | Cavity | x -188 to 188, half-width 119 at the floor, z 126 to 345, about 16.4 L | derived from the above |
@@ -21,8 +21,8 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 - Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
   44 mm long) on printed cradles between them (`frame-spec.md`).
-- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate in the side wall at x = 0, z = 145.7, with a seat
-  for a 688 bearing (8 x 16 x 5, ISO size from memory), and enters the housing (`differential-spec.md`).
+- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate against the bottom rails at x = 0, z = 145.7, with a seat
+  for a 688 bearing (8 x 16 x 5, ISO size from memory), then through a 22 mm clearance hole in the side panel, and enters the housing (`differential-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
   bearings. The plate tops out at z 164, below the cell field (from about 172).
 

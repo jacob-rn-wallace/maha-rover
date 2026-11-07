@@ -18,7 +18,7 @@ import math
 import sys
 from pathlib import Path
 
-from build123d import Box, Compound, Plane, Polygon, Pos, extrude, export_step
+from build123d import Box, Compound, Cylinder, Plane, Polygon, Pos, Rot, extrude, export_step
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
@@ -41,9 +41,13 @@ PARTS = {
     "fuse block (4-way blade)":    dict(size=(60.0, 36.0, 20.0), mass=0.04, at=(-65.0, -45.0)),     # size class ASSUMPTION (mini 4-way)
     "bus bar (power node)":        dict(size=(40.0, 20.0, 15.0), mass=0.03, at=(-52.0, 0.0)),       # size class ASSUMPTION
     "servo regulator (6 V)":       dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(-20.0, -75.0)),    # Pololu D24V22F6, 17.8 x 17.8 x 7.9, 2.3 g
-    "master switch (rear panel)":  dict(size=(20.0, 14.0, 28.0), mass=0.02, at=(-178.0, 45.0), z=165.0),   # panel-mount switch body behind the rear panel; ASSUMPTION
+    "master switch (rear panel)":  dict(size=(20.0, 14.0, 28.0), mass=0.02, at=(-178.0, 35.0), z=165.0),   # panel-mount switch body behind the rear panel; ASSUMPTION
     "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -70.0)),    # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; mass ASSUMPTION
 }
+PANEL_GAP = 10.0         # clearance between the side panels and the frame behind them. The original's side panels stand proud
+                         # of its body on spacers (front view, [S18] Fig. 1; about 10 mm read by eye on a 1.10 mm/px scale, uncertain
+                         # by several mm)                                                     derived, by eye
+PIVOT_HOLE_D = 22.0      # clearance hole in each side panel for the pivot shaft (the panel floats on its pivots)  ASSUMPTION
 KEEP_OUT = dict(size=(15.0, 40.0, 30.0), at=(159.2, 0.0))   # under the mast base, in the gap between the mast cross rail
                                                            # and the front end rail (frame.py), for the cable entry  ASSUMPTION
 
@@ -83,24 +87,51 @@ def placed_parts():
     return out
 
 
-def shell(cav):
+def side_panels(cav=None):
+    """The two 2 mm side panels (the solar panels), one per side, 10 degrees from vertical, with the 12 wire holes and a
+    clearance hole for each pivot shaft. They are separate plates, held off the frame on pivot standoffs (frame.py)."""
     outer, _ = B.body()
-    shell_ = outer - cav
-    for h in B.solar_holes(length=WALL_T / COS + 2.0):
-        shell_ = shell_ - h
-    return shell_
+    z0, z1 = floor_z(), B.DECK_TOP_Z - B.DECK_T
+    pts = [(-inner_half_width(z0), z0), (inner_half_width(z0), z0), (inner_half_width(z1), z1), (-inner_half_width(z1), z1)]
+    cav_long = Pos(B.BODY_X0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=(B.SIDE_PLATE_LEN + 20) / 2, both=True)
+    slab = Pos(B.BODY_X0, 0, (z0 + z1) / 2) * Box(B.SIDE_PLATE_LEN + 20, 2 * B.TOP_WIDTH, z1 - z0)
+    both = (outer & slab) - cav_long
+    out = []
+    for sy in (1, -1):
+        half = Pos(0, sy * 150.0, (z0 + z1) / 2) * Box(B.SIDE_PLATE_LEN + 20, 300.0, z1 - z0)
+        pl = both & half
+        for h in B.solar_holes(length=WALL_T / COS + 2.0):
+            pl = pl - h
+        pl = pl - Pos(0, 0, A.PIVOT_Z) * Rot(90, 0, 0) * Cylinder(PIVOT_HOLE_D / 2, 400.0)
+        out.append(pl)
+    return out
+
+
+def shell(cav):
+    """Floor, end walls and deck. The side panels are separate (side_panels)."""
+    outer, _ = B.body()
+    sides = side_panels()
+    # remove the full side-wall slabs (before holes): rebuild them without holes and subtract
+    z0, z1 = floor_z(), B.DECK_TOP_Z - B.DECK_T
+    pts = [(-inner_half_width(z0), z0), (inner_half_width(z0), z0), (inner_half_width(z1), z1), (-inner_half_width(z1), z1)]
+    cav_long = Pos(B.BODY_X0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=(B.SIDE_PLATE_LEN + 20) / 2, both=True)
+    slab = Pos(B.BODY_X0, 0, (z0 + z1) / 2) * Box(B.SIDE_PLATE_LEN + 20, 2 * B.TOP_WIDTH, z1 - z0)
+    walls = (outer & slab) - cav_long
+    return (outer - cav) - walls
 
 
 if __name__ == "__main__":
     cav = cavity()
     sh = shell(cav)
+    sides = side_panels(cav)
     diff = A.differential()["diff_housing"]
     parts = placed_parts()
 
     ib = cav.bounding_box()
     print(f"cavity x {ib.min.X:.0f}..{ib.max.X:.0f}, y +-{ib.max.Y:.0f}, z {ib.min.Z:.0f}..{ib.max.Z:.0f}; "
           f"volume {cav.volume / 1e6:.2f} L")
-    print(f"panels (shell) volume {sh.volume / 1e3:.0f} cm3")
+    print(f"panels: floor, ends and deck {sh.volume / 1e3:.0f} cm3; two side panels {sum(p.volume for p in sides) / 1e3:.0f} cm3 "
+          f"(2 mm, {PANEL_GAP:.0f} mm off the frame on pivot standoffs)")
 
     print("\nfit (mm3 outside the cavity, want 0)")
     contents = {"differential housing": diff, **parts}
@@ -123,4 +154,4 @@ if __name__ == "__main__":
 
     out = HERE / "out"
     out.mkdir(exist_ok=True)
-    export_step(Compound([sh, diff, *parts.values()], label="al-maha-interior"), str(out / "interior.step"))
+    export_step(Compound([sh, *sides, diff, *parts.values()], label="al-maha-interior"), str(out / "interior.step"))

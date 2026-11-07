@@ -28,7 +28,7 @@ import motor as M          # noqa: E402
 from build123d import Compound, Pos, Rot, export_step  # noqa: E402
 
 COLORS = {
-    "panels": (178, 184, 190), "frame": (96, 102, 112), "bearing plates": (150, 155, 160), "printed wedges": (236, 205, 90),
+    "panels": (178, 184, 190), "frame": (96, 102, 112), "bearing plates": (150, 155, 160), "pivot standoffs": (236, 205, 90),
     "solar pieces": (22, 32, 62), "wheels": (74, 78, 86), "motors": (196, 122, 62), "link plates": (118, 130, 150),
     "differential": (205, 180, 80), "differential housing": (160, 170, 182), "mast": (214, 217, 222), "camera": (30, 30, 34),
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
@@ -42,6 +42,8 @@ def collect():
     add = lambda g, n, s: items.append((g, n, s))
     cav = I.cavity()
     add("panels", "shell", I.shell(cav))
+    for i, sp in enumerate(I.side_panels(cav)):
+        add("panels", f"side panel {i}", sp)
     members = F.build()
     for n, s in members.items():
         add("frame", n, s)
@@ -50,8 +52,8 @@ def collect():
         add("bearing plates", f"plate {i}", p)
     for i, p in enumerate(bearings):
         add("bearings", f"bearing {i}", p)
-    for n, s in F.wedge_strips(members).items():
-        add("printed wedges", n, s)
+    for n, s in F.standoffs().items():
+        add("pivot standoffs", n, s)
     for i, c in enumerate(B.cells()):
         add("solar pieces", f"piece {i}", c)
 
@@ -177,8 +179,8 @@ def main():
         ("Exterior, front left", 35, 22, (), 0.86),
         ("Exterior, rear right", 215, 22, (), 0.86),
         ("Side (right), exterior", -90, 0, (), 0.95),
-        ("Frame and interior: panels and cells hidden", 35, 25, ("panels", "solar pieces", "printed wedges"), 0.86),
-        ("Top, panels and mast hidden", 90, 89.5, ("panels", "solar pieces", "printed wedges", "mast", "camera"), 0.9),
+        ("Frame and interior: panels and cells hidden", 35, 25, ("panels", "solar pieces", "pivot standoffs"), 0.86),
+        ("Top, panels and mast hidden", 90, 89.5, ("panels", "solar pieces", "pivot standoffs", "mast", "camera"), 0.9),
         ("Front", 0, 0, (), 1.0),
     ]
     imgs = []

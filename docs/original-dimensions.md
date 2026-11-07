@@ -336,6 +336,8 @@ All values are derived.
 
 The sloped panel faces appear edge-on as thin dark lines about 10 degrees from vertical,
 parallel to the body side plates, so the panel slope and the body wall slope are the same.
+The front view of [S18] Fig. 1 also shows each panel standing proud of the dark body wall on small spacers (bosses near the top and
+lower down), a gap of about 10 mm read by eye at 1.10 mm per px (uncertain by several mm; derived, not stated).
 **Width over wheels is about 497 mm, not the 520 mm of the video**, so the stated 505 mm is
 consistent with the final model to within 1.6%. The stated 470 x 505 mm is therefore the
 plan size over the wheel rims (474 and about 497 to 500 in the CAD); the 10 mm gap in

@@ -90,7 +90,7 @@ wires leave the shaft well before the housing. Not designed: the clips along the
 - Pack at the rear floor (x -110); BMS beside it (x -65, y +45); fuse block (x -65, y -45); power node (x -45, y 0), all on the floor, clear of
   the differential housing (x within 18) and the cross rails.
 - Servo regulator next to the fuse block (x -20, y -75); charger and drivers in the front compartment as before.
-- The master switch is on the rear end panel (x -178, y +45, z 165), 20 mm deep, clear of the bottom end rail (z up to 146).
+- The master switch is on the rear end panel (x -178, y +35, z 165), 20 mm deep, clear of the bottom end rail (z up to 146).
 
 ## Open
 

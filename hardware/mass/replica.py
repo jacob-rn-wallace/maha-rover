@@ -44,12 +44,14 @@ def collect():
     for n, s in members.items():
         add("T-slot frame", n, F.member_length(n, s) / 1000.0 * F.KG_PER_M, c(s))
     sh = I.shell(cav)
-    add("panels", "shell (floor, sides, ends, deck)", kg(sh.volume, AL), c(sh))
+    add("panels", "floor, ends, deck", kg(sh.volume, AL), c(sh))
+    for i, sp in enumerate(I.side_panels(cav)):
+        add("panels", f"side panel {i}", kg(sp.volume, AL), c(sp))
     plates, _ = F.bearing_plates()
     for i, p in enumerate(plates):
         add("bearing plates", f"plate {i}", kg(p.volume, AL), c(p))
-    for n, s in F.wedge_strips(members).items():
-        add("printed wedges", n, kg(s.volume, PETG), c(s))
+    for n, s in F.standoffs().items():
+        add("pivot standoffs", n, F.PIV_KG, c(s))
 
     for sy in (1, -1):
         arm, wheels, motors = A.side(sy)
