@@ -22,9 +22,6 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
 | [`hardware/`](hardware/wheel/wheel.py) | Parametric CAD (build123d). First model: the wheel, with STEP output. Drawings and the BOM will go here |
 
-## Provisional design notes
-Early planning (a 15 degree wedge body around a 6U CubeSat envelope, 200 x 80 mm wheels, rocker suspension with Ackermann steering) came from brainstorming for a rover *inspired by* Rashid, before the project became a faithful replica. It does not bind the replica and is overridden wherever it conflicts with the original. Already known to differ: the CubeSat envelope (the original is 470 x 505 x 700 mm), the solar panel layout, the steering, and the missing mast. The 200 x 80 mm wheel size matches. See section 6 of [`docs/original-dimensions.md`](docs/original-dimensions.md).
-
 ## Regenerating the graphics
 ```
 pip install -r requirements.txt
