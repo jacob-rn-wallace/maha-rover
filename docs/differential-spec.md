@@ -51,7 +51,7 @@ modules 1 to 8, a KSM1.5-20 with an 8 mm bore). The 8 mm bore sets the shaft siz
 
 - **Shaft:** an **8 mm tube with a 5 mm bore** (was 10/6), to suit the 8 mm gear bore; the motor wires still run through it (four 22 AWG are about 3.4 mm across in a 2 x 2
   bundle), through 3 mm radial holes inside the body (60 mm out) and in the gap outside the wall (125 mm out).
-- **Bearings:** **688 (8 x 16 x 5, ISO size from memory)** in the wall plates, in place of 6800; the plates' seats are 16 mm.
+- **Bearings:** **688 (8 x 16 x 5, ISO size from memory)** one in each bearing plate and one at the outer end of each standoff tube (`frame-spec.md`), in place of 6800; the seats are 16 mm.
 - **Shear:** at the firmware cap the tube sees 52 MPa, and 157 MPa at the cross holes with a stress-concentration factor of 3; at the gearbox limit 84 and 251 MPa.
   That is too high for plain steel at the holes, which is another reason for the cap. A heat-treated or stainless tube, or a thicker wall, would help. No material is chosen.
 

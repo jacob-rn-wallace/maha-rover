@@ -147,7 +147,7 @@ Hole ids in `solar.py`: side L or R, column 0 to 4 rear to front, row 0 to 2 bot
   x = plus or minus 165.2) are 1.1 mm from the post's inner face, so wires there leave away from the post.
 - **Leads:** from the board to the charger about 180 mm (right) or 260 mm (left); an array current of 0.51 A over 1 m of 24 AWG
   pair drops 0.04 V of 16.7 V. A blocking diode per side joins them at the charger, as before (one side lit at a time).
-- **Clearance:** nothing in the frame, strips, plates or shim lies within 2.25 mm of a hole's axis, 14 mm deep; the mid rail ends at
+- **Clearance:** nothing in the frame, ribs or plates lies within 2.25 mm of a hole's axis, 14 mm deep; the mid rail ends at
   z 185, 24 mm below the lowest pad holes; the top rail starts at z 325, above the top row's holes.
 - **Not designed:** how the 60 wires are held behind the panel, a harness for them, protection (fuses, bypass diodes per module
   or column), and the blocking diodes' parts.
@@ -370,7 +370,7 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
   ends come inside the cavity, so the series and parallel wiring is chosen on a terminal block and either option
   above can be wired. The holes are under the dummy cells and so invisible; real cells will need their rear contact
   and a lead brought to the hole, which depends on the cell type.
-- **Clearance.** Nothing in the frame, wedge strips, bearing plates or shaft path lies within 6 mm of any hole's axis,
+- **Clearance.** Nothing in the frame, ribs, bearing plates or shaft path lies within 6 mm of any hole's axis,
   14 mm deep. The nearest member is the top side rail, 9 mm above the highest hole row (centre to rail); the mid rail is 50 mm below the lowest; the posts are 5 mm from the
   hole edges. Wires should pass between the panel and the mid rail and drop to the floor.
 - **Harness.** The longest straight run from a hole to the charge controller is 363 mm; allow about 470 mm of wire per
@@ -403,7 +403,7 @@ Check and numbers: `hardware/solar/solar.py`. Hole ids: side L or R, row 1 (bott
 the top side rail, the mid rail is 50 mm below the lowest holes, and the posts are 5 mm from the hole edges.
 
 **Terminal boards.** One small board (20 x 8 x 90 mm, ASSUMPTION) lies on the cavity-facing face of each of the four posts at
-z 275, leaning with the post. Fit checked: no clash with the frame, strips, plates or contents. The front board of a side takes
+z 205 to 305 (centred on the cell field), on the inner face of the vertical post. Fit checked: no clash with the frame, ribs, plates or contents. The front board of a side takes
 the three front holes of that side, the rear board the three rear holes, so each hole wire is 30 to 40 mm long. Holes are
 5 mm; a bundled pair of 24 AWG wires fits, with a grommet.
 

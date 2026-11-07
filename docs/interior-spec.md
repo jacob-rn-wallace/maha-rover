@@ -21,12 +21,15 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 - Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
   44 mm long) on printed cradles between them (`frame-spec.md`).
-- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate in the side wall at x = 0, z = 145.7, with a seat
-  for a 688 bearing (8 x 16 x 5, ISO size from memory), and enters the housing (`differential-spec.md`).
+- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate against the bottom rails' outer faces (y 79.8 to 85.8) at x = 0, z = 145.7, then through a
+  22 mm standoff tube out to the side panel, with a 688 bearing (8 x 16 x 5, ISO size from memory) at each end of the tube, and enters the housing (`differential-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
-  bearings. The plate tops out at z 164, below the cell field (from about 172).
+  bearings. The plate tops out at z 166, below the cell field (from about 172).
 
 ## Compartments
+
+The frame is now a vertical box whose side rails run at y plus or minus 60 to 80 (`frame-spec.md`), so parts that sat further out moved in
+(2026-11-07): the 5 V converter to y 40, the fuse block to y -40, the servo regulator to y -50, the charger to y -45.
 
 The differential cross rails split the upper cavity; the floor is open from end to end.
 
@@ -36,7 +39,7 @@ The differential cross rails split the upper cavity; the floor is open from end 
 | Controller, Raspberry Pi Zero 2 W | 65 x 30 x 8 (height assumed) | 0.015 (assumed) | front compartment, on the floor |
 | Motor drivers, two Pololu MC33926 boards side by side | 46 x 56 x 12 (28 x 46 each; height assumed) | 0.014 | front compartment, on the floor |
 | 5 V converter, Pololu D24V22F5 | 18 x 18 x 8 | 0.0023 | front compartment, on the floor |
-| Solar charge controller (part not chosen) | 50 x 30 x 12 | 0.03 (assumed) | front compartment, on the floor at x 112, y -70, between the drivers and the bottom side rail (`solar-spec.md`) |
+| Solar charge controller (part not chosen) | 50 x 30 x 12 | 0.03 (assumed) | front compartment, on the floor at x 112, y -45, between the drivers and the bottom side rail (`solar-spec.md`) |
 | Keep-out under the mast base | 15 x 40 x 30 | n/a | front, in the gap between the mast cross rail and the front end rail, for the cable entry from the mast |
 
 All of them fit the cavity and none clash with each other, the frame or the housing. Together

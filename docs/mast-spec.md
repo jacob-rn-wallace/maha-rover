@@ -11,17 +11,25 @@ ASSUMPTION. CAD and checks: `hardware/mast/mast.py`.
 
 ## Geometry
 
+Revised 2026-11-07 (owner's request): **the mast is a T-slot aluminium extrusion itself.** A 40 x 40 mm extrusion stands on a
+base plate on the deck and carries the printed neck, arm and head on its top end.
+
 | Item | Value | Status |
 |---|---|---|
-| Tube | 58 x 58 mm, z 420 to 577, centre 24.2 mm ahead of the front axle (x 160.7), 3 mm wall, 2 x 4 oval lightening slots on each side face | size and position derived [3j]; wall and slots ASSUMPTION |
-| Base block | 78 x 90 mm, deck (348) to z 420, bolted through the deck into the mast cross rail and front end rail (`frame-spec.md`) | height derived [3j]; about 90 fore-aft was measured, which would overhang the 401 mm deck front by 5 mm, so 78; width ASSUMPTION |
-| Neck and C-arm | neck z 577 to 621; arm bar 50 x 45 mm at y +25 to +70, to z 690 | derived by eye [3j] |
+| Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 577, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
+| Base plate | 76 x 76 x 6 mm aluminium on the deck (z 348 to 354), 4 M4 bolts at x 141 and 178, y +-30, through the deck into the mast cross rail and front end rail (`frame-spec.md`) | ASSUMPTION |
+| Neck and C-arm | printed neck 58 x 58 mm, z 577 to 621; arm bar 50 x 45 mm at y +25 to +70, to z 690 | derived by eye [3j] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
 | Camera | CAM-1 35 x 35 x 73 mm, axis at z 660, lens front 77.9 ahead of the front axle | stated [S12], [S8] |
 | Top | z 700 | stated [S1] |
 
-The original's mast is additively manufactured ULTEM 1010 with titanium and aluminium parts [S19];
-the replica's material is not chosen (a printed tube is the obvious candidate).
+**Departure from the original.** The original's mast tube measures about 58 mm square [3j]. The replica's extrusion is 40 mm, so the
+visible column is slimmer below the 58 mm printed neck. A 60 x 60 extrusion would match, but at about 4.17 kg/m it would weigh 0.93 kg
+(0.52 kg more) and the mass margin would shrink to about 0.1 kg; a 40 x 60 would be a compromise (not looked up). The extrusion's end is
+tapped (M8) to take the neck's base plate; its slots carry the camera and servo cables, and the centre bore can pass a connector lead.
+
+The original's mast is additively manufactured ULTEM 1010 with titanium and aluminium parts [S19]; the replica's neck, arm and head are printed
+(material not chosen).
 
 ## Actuation
 
@@ -36,20 +44,21 @@ the replica's material is not chosen (a printed tube is the obvious candidate).
 
 - Top at 700 (stated); camera axis 660; lens front 214.4 (front axle at 136.5 + 77.9), which is 24 mm
   ahead of the body's front end (190).
-- The base block lies wholly on the deck plate and does not touch the body or the cells.
+- The base plate lies wholly on the deck plate (5776 of 5776 mm2) and does not touch the body or the cells.
 
 ## Loads
 
-With the assumed masses (structure 0.25 kg, servos 0.11, camera 0.04, hardware 0.02; total 0.42 kg) the
-centre of mass is 211 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about
-**0.87 N.m** on the base joint; 0.30 N.m on a 20 degree slope. The mast is a 58 mm printed tube with 3 mm
-walls on a 78 x 90 mm base; no stress check has been done.
+With the assumed masses (extrusion 0.41 kg and base plate 0.09 kg from catalogue and density, printed parts 0.12, servos 0.11, camera 0.04,
+hardware 0.02; total 0.80 kg) the centre of mass is 159 mm above the deck (was 211 mm). A sideways acceleration of 1 g (a tipping rover)
+puts about **1.25 N.m** on the base joint; 0.43 N.m on a 20 degree slope. The extrusion is a stiff column (40 x 40 section); the joint at
+the plate is the weak point and no stress check has been done.
 
 ## Open
 
 - Servos and camera module are candidates only (`electronics-spec.md`), none bought.
-- The wires from the head down the tube and into the body: where they enter the deck is reserved in
-  `interior-spec.md` (a 40 x 40 x 30 mm zone under the base), but the entry is not designed.
-- The base is held by 4 M4 bolts through the deck into two frame rails (`frame-spec.md`); the bolts themselves, the
-  tube's internal ribs and the base joint's strength are not modelled.
+- The wires from the head down the extrusion's slots and into the body: where they enter the deck is reserved in
+  `interior-spec.md` (a 15 x 40 x 30 mm zone under the base), but the entry is not designed.
+- The plate is held by 4 M4 bolts through the deck into two frame rails (`frame-spec.md`); the bolts themselves, how the plate fixes to the
+  extrusion (corner brackets or end-tapped screws) and the joint's strength are not modelled.
+- Servos sit in the printed neck and arm as before; the extrusion has no cavity for them.
 - Stowing: deferred. The stowed height limit (120 mm above the deck [S19]) is not met by this mast.
