@@ -50,6 +50,9 @@ Use [S1].
 | Hub tube diameter | about 50 | derived: [S23] Fig. 88a gives 50.1 (42.3 px at 0.845 px/mm); the CAD side views give about 50 independently | [S23], 3e, 3f |
 | Rim band thickness | about 3 (plus or minus 1), measured between the drawn edge lines | derived, coarse | [S23] Fig. 88a |
 | Grouser tip radius | 116 (tip diameter 232), so grouser height about 16 (stated 15) | derived from [S23] Fig. 88a; agrees with the CAD (about 230) and not with the 0.215 m in [S23] Table 3 | [S23], 3e, 3f |
+| Grouser plate thickness | about 0.8 (0.5 to 1.0). From [S8] Fig. 3, photographs of the flight PRS plates in the wheel slot looking radially inward: the plate's top edge shows as a bright strip 6 to 8 px wide at 8.2 to 9.0 px/mm (scale from the known hole pitches of 1.5 to 2.25 mm). The side-on drawing in [S23] gives 0.6 plus or minus 0.4 independently | derived | [S8] Fig. 3, [S23] Fig. 88a |
+| Slot width between grouser plates (floor) | about 43 | derived from the same photographs; agrees with the stated 4.4 cm | [S8] |
+| Rib thickness | about 3 (2 to 4), very low confidence: one edge strip in one oblique figure, with the viewing tilt (about 22 degrees) estimated from the rim band depth. No figure in the 15 papers or the thesis gives a usable view | derived, very low confidence | [S23] Fig. 91 |
 | Grouser length, test wheel | 20 (not the flight value) | stated | [S4] |
 | Grouser pitch | about 44 to 45 | derived (pi x 200 / 14 = 44.9), matches the "4 cm" separation in [S5] and the 4.4 cm slot in [S8] | [S5], [S8] |
 | Sample slot between grousers | about 44 x 80 | stated | [S8] |
