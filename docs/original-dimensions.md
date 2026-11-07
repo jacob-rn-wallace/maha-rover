@@ -327,6 +327,52 @@ drawings are not covered):
   in [S9]), a sandbox or gymnasium photograph of the engineering model, or science
   data. None gives a further dimension.
 
+### 3g. Solar cell size [S18], [S5]
+
+The final-configuration CAD has 15 cells on each sloped side face, in 5 columns x 3 rows,
+all landscape. I measured them in two orthographic side views ([S5] Fig. 15 and [S18]
+Fig. 1), with the scale set as in 3e and 3f. All values are derived.
+
+| Quantity | [S5] Fig. 15 | [S18] Fig. 1 | Used |
+|---|---|---|---|
+| Cell width (dark rectangle) | 65.8 mm | 68.0 mm | about 67 (plus or minus 1.5) |
+| Cell height, projected | 37.5 mm | 38.4 mm | about 38 (about 38.6 true at a 10 degree slope) |
+| Pitch along the row | 72.3 mm | 70.9 mm | about 71.6 |
+| Row pitch, projected | 40.8 mm | 39.9 mm | about 40.4 (about 41 true) |
+| Corner clip | not resolved | about 6.5 mm legs at 45 degrees, both bottom corners; top corners square | about 6.5 |
+
+The outline (square top corners, both bottom corners clipped) is the outline of a half of a
+wafer-sized cell, as on CubeSat half-cut cells. The size and clip match the standard
+26.5 to 26.6 cm2 triple-junction cell: CESI CTJ30 lists 6.9 x 3.9 cm and 26.5 cm2, and the
+Spectrolab UTJ datasheet lists a 26.6 cm2 size sold "2 per wafer". Gross area 6.9 x 3.9 =
+26.9 cm2, so two equal 45 degree clips remove about 0.41 cm2, a leg of about 6.4 mm each
+(my arithmetic from the catalogue areas; neither datasheet gives corner dimensions).
+Measured clip legs agree. A 4 x 8 cm cell with two clips would need legs of about 14 mm,
+which does not fit. The measured cell is within 1.5% of 69 x 39 mm, which also supports
+the 1.10 mm per px scale in 3f.
+
+**Test of the panel grid as a camera fiducial.** On the two perspective CAD views in [S12]
+Fig. 1, the 15 cell centres were located automatically and fitted with the cell positions
+known from 3f and 3g (camera pose and focal length free). In the front-left view the fit
+is very tight (0.11 px residual, focal length 1,398 px, camera about 2.3 m away), and
+rim ellipses placed from that pose and the true geometry (wheelbase 273, track 415) land
+on the two near-side wheel outlines to about 2 px (about 3 mm). A joint fit of grid and
+rims then recovered a wheelbase of 271 to 276 mm (true 273) but a track 3.6 to 6% low
+(389 to 400 mm; the track depends on the panel-to-wheel offset taken from the front
+view). It is not robust: the far-side arc is ambiguous (10 px off), the result moves a lot
+if the traced edge is taken as 108 mm instead of 100 mm radius, and in the rear-right
+view the panel is seen so obliquely that the focal length runs to its upper bound and the
+fit is unusable. Conclusion: the grid fixes camera pose well when the panel face is seen
+at a moderate angle, so it is worth trying on photographs of the flight rover that show a
+panel, but expect wheelbase to about 2% and track to about 5 to 8%, and do not use it
+where the panel is seen near edge-on.
+
+The cell supplier is not named in any paper. The cover glass is 200 um cerium-doped
+borosilicate from Qioptiq ([S10]). CESI's 26.5 cm2 and Spectrolab's 26.6 cm2 differ by 0.4%,
+so the outline cannot separate them, and a cell of 7 x 4 cm (AZUR 3G30C-Advanced size
+list) is within 1.5% as well. Treat the exact catalogue part as (unverified); the size
+class is the finding. The CAD outline may be simplified.
+
 ## 4. Mast and cameras
 
 Heights are above ground, measured with wheels on a hard surface.
@@ -387,7 +433,9 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
    figures in 3a, 3e and 3f, which agree (sidewall about 10 degrees, underside about
    124 mm up, deck top about 348 mm, body top width about 164 mm). Still need a dimensioned
    source.
-3. Panel size and the position of each panel on its sloped face.
+3. Panel size and the position of each panel on its sloped face. Cell size and grid are now
+   derived in 3g (15 cells per side, about 69 x 39 mm each, pitch about 71.6 x 41 mm); the
+   absolute position of the field on the face and the cell part number remain open.
 4. Suspension and drivetrain layout.
 5. Wheel width is settled at about 80: 3a, 3d and the front view in 3f all give it, and
    168 is excluded.
