@@ -29,17 +29,19 @@ import motor as M          # noqa: E402
 from build123d import Box, Compound, Pos, Rot, export_step  # noqa: E402
 
 COLORS = {
-    "panels": (178, 184, 190), "frame": (96, 102, 112), "bushings": (150, 155, 160), "pivot standoffs": (236, 205, 90),
+    "panels": (178, 184, 190), "frame": (96, 102, 112), "frame upper": (96, 102, 112), "bushings": (150, 155, 160), "pivot standoffs": (236, 205, 90),
     "solar pieces": (22, 32, 62), "wheels": (74, 78, 86), "motors": (196, 122, 62), "link plates": (118, 130, 150),
     "differential": (205, 180, 80), "differential housing": (160, 170, 182), "mast": (214, 217, 222), "camera": (30, 30, 34),
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
     "switch": (60, 60, 64), "bearings": (225, 225, 230), "wheel hardware": (110, 112, 120),
     "pivot shaft": (40, 150, 165), "pivot boss": (150, 110, 190),
+    "controller": (30, 140, 90), "motor drivers": (30, 70, 160), "converters": (140, 70, 170), "charger": (210, 120, 50),
 }
 LEGEND_NAMES = {
     "frame": "20 x 40 rail and cross rails", "bearings": "sleeve and bushings", "pivot shaft": "shaft and stub", "link plates": "link plate",
     "pivot boss": "link plate boss", "differential housing": "differential housing, bosses, lugs", "differential": "gears and pin",
-    "panels": "side panel",
+    "panels": "side panel", "controller": "Raspberry Pi Zero 2 W", "motor drivers": "motor drivers (MC33926 carriers)", "converters": "5 V and 6 V converters (D24V22Fx)",
+    "charger": "solar charge module (box)", "battery": "battery pack (box)", "BMS": "BMS (box)", "fuses": "4-way fuse block", "bus bar": "power node (box)", "switch": "master switch",
 }
 
 
@@ -53,7 +55,7 @@ def collect():
         add("panels", f"side panel {i}", sp)
     members = F.build()
     for n, s in members.items():
-        add("frame", n, s)
+        add("frame upper" if n.startswith(("top", "mid", "post", "differential cross")) else "frame", n, s)
     bearings = F.bushings()
     for i, p in enumerate(bearings):
         add("bearings", f"bearing {i}", p)
@@ -86,7 +88,8 @@ def collect():
         if n.startswith("keep-out"):
             continue
         g = ("battery" if "battery" in n else "BMS" if "BMS" in n else "fuses" if "fuse" in n else "bus bar" if "bus bar" in n
-             else "switch" if "switch" in n else "electronics")
+             else "switch" if "switch" in n else "charger" if "charge" in n else "controller" if "controller" in n else "motor drivers" if "driver" in n
+             else "converters" if ("converter" in n or "regulator" in n) else "electronics")
         add(g, n, s)
     return items
 
@@ -96,7 +99,7 @@ def mesh(shape, tol=0.4, ang=0.4):
     return np.array([(p.X, p.Y, p.Z) for p in v], dtype=float), np.array(t, dtype=int)
 
 
-def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None, legend=(), legend_left=False):
+def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None, legend=(), legend_left=False, shift=0, legend_cols=1):
     """Orthographic z-buffer render, flat shaded, two-sided. azim: camera angle about Z from +X toward +Y, elev above the horizon."""
     a, e = math.radians(azim), math.radians(elev)
     d = np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])      # toward the camera
@@ -119,7 +122,7 @@ def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None,
     img[:] = (248, 248, 245)
     for g, v, t, col in sel:
         pv = proj(v)
-        px = np.stack([pv[:, 0] * scale + w / 2, h / 2 - pv[:, 1] * scale, pv[:, 2]], axis=1)
+        px = np.stack([pv[:, 0] * scale + w / 2, h / 2 - shift * ss - pv[:, 1] * scale, pv[:, 2]], axis=1)
         tri = px[t]
         nrm = np.cross(pv[t][:, 1] - pv[t][:, 0], pv[t][:, 2] - pv[t][:, 0])
         nl = np.linalg.norm(nrm, axis=1)
@@ -162,9 +165,11 @@ def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None,
                 continue
         t.text((10, 8), label, fill=(30, 30, 30), font=f)
         f2 = ImageFont.truetype(f.path, 14) if hasattr(f, "path") else f
+        per = math.ceil(len(legend) / legend_cols)
         for k, (name, col) in enumerate(legend):
-            y0 = H_ - 22 - 20 * (len(legend) - 1 - k)
-            x0 = 12 if legend_left else W_ - 270
+            colk, rowk = divmod(k, per)
+            y0 = H_ - 22 - 20 * (per - 1 - rowk)
+            x0 = (12 if legend_left else W_ - 270 * legend_cols) + colk * 270
             t.rectangle((x0, y0, x0 + 16, y0 + 13), fill=tuple(col), outline=(60, 60, 60))
             t.text((x0 + 24, y0 - 1), name, fill=(30, 30, 30), font=f2)
     return im
@@ -241,7 +246,18 @@ def main():
     imgs.append(detail((-72, 72, 0, 165, 100, zc), 0, 90, "Pivot detail, left: section at the shaft axis (z 145.7), from above", 0.98, legend_left=True))
     imgs.append(detail((0, 72, 0, 122, 100, 200), 150, 30, "Pivot detail, left: section at x = 0 from the rear left (panel and link plate removed)", 0.9,
                        skip=("side panel 0", "plate L", "boss L", "mid side L")))
-    cols, rows = 2, 4
+    def bay(az, el, label, zoom, shift=0):
+        hide = ("panels", "solar pieces", "pivot standoffs", "mast", "camera", "wheels", "motors", "link plates", "wheel hardware", "frame upper", "bearings", "differential")
+        present = []
+        for g, v, t, col in meshes:
+            if g not in hide and g not in [x[0] for x in present]:
+                present.append((g, col))
+        keep = ("controller", "motor drivers", "converters", "charger", "battery", "BMS", "fuses", "bus bar", "switch", "frame", "differential housing")
+        leg = [(LEGEND_NAMES.get(g, g), col) for g, col in present if g in keep]
+        return render(meshes, az, el, size, hide=hide, label=label, zoom=zoom, legend=leg, legend_left=False, shift=shift, legend_cols=2)
+    imgs.append(bay(90, 89.5, "Electronics bay from above (upper frame, panels, mast and wheels hidden)", 0.92, shift=40))
+    imgs.append(bay(40, 52, "Electronics bay from the front left, raised view", 0.85, shift=40))
+    cols, rows = 2, 5
     gap = 12
     sheet = Image.new("RGB", (cols * size[0] + (cols + 1) * gap, rows * size[1] + (rows + 1) * gap + 34), (255, 255, 255))
     t = ImageDraw.Draw(sheet)

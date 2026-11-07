@@ -107,12 +107,12 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   (3 mm deck), the differential held by two cross rails, the pivot shafts (12 mm 4130 tubes, checked for bending in `hardware/chassis/rail_check.py`, bonded into the link plate bosses) running through 16 mm holes drilled in single 20 x 40 bottom side rails (bonded sleeve and igus-type flanged bushings) and supported again in the differential housing wall; the housing hangs from the cross rails by four lugs. Every
   extrusion is cut square and either vertical or horizontal (owner's sketch, 2026-11-07): a stepped frame, wide at the bottom and narrow at the top, joined by vertical posts. Only the side panels lean at 10 degrees: they are separate 2 mm plates (the solar panels) held about 10 mm off the frame on four pivot standoffs each near the corners, as the original's panels stand proud of its body (`original-dimensions.md` 3f). Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 9.89 kg, under the 10 kg target by only 0.11 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 205 mm.
+  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 9.88 kg, under the 10 kg target by only 0.12 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 205 mm.
 - Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
   panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
   charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:
   `docs/power-spec.md`. Candidates only.
-- Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
+- Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base; the Pi, the two driver carriers, the converters, the fuse block and the switch are dimensioned models from vendor drawings (`hardware/electronics/boards.py`, `docs/electronics-spec.md`), the battery, BMS, power node and charger module are still boxes. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
   drive motor; design the differential's gear train; settle the cell mounting, the cradles that hold the differential,

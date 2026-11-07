@@ -2,7 +2,7 @@
 
 `hardware/assembly/rover.py` collects every modelled part into one assembly (168 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
 `docs/images/rover-assembly.png`: exterior from front-left and rear-right, a side view, a view with panels and cells hidden to show the frame and interior, a top view and a front
-view, then two sectioned close-ups of the left pivot (a cut at the shaft axis seen from above, and a cut at x = 0 seen from the rear left, with the panel and link plate removed) showing the shaft, its bonded stub, the rail's sleeve and bushings, the housing boss and the link plate boss. In the close-ups the lugs share the housing's colour and the bushing flanges are not modelled. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
+view, two views of the electronics bay (from above with the upper frame hidden, and a raised oblique view), then two sectioned close-ups of the left pivot (a cut at the shaft axis seen from above, and a cut at x = 0 seen from the rear left, with the panel and link plate removed) showing the shaft, its bonded stub, the rail's sleeve and bushings, the housing boss and the link plate boss. In the close-ups the lugs share the housing's colour and the bushing flanges are not modelled. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
 
 ## Modelled, with simplified geometry
 
@@ -16,7 +16,7 @@ view, then two sectioned close-ups of the left pivot (a cut at the shaft axis se
 | Suspension | 2 link plates with bosses and motor sleeves, 2 hollow pivot shafts (12 / 8 tube with a bonded 8 / 5 stub, bonded into the link plate bosses) with their wire holes | `arms.py` |
 | Differential | the 48 x 50 x 36 mm housing with its two shaft bosses, bushings and four mounting lugs, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
 | Mast | 76 mm base plate, 40 x 40 T-slot extrusion, printed neck, C-arm, camera housing, tilt motor housing, CAM-1 tube | `mast.py` |
-| Interior (as boxes) | battery, BMS, fuse block, bus bar, servo regulator, rear-panel switch, charger module, Pi, two motor drivers, 5 V converter | `interior.py` |
+| Interior | dimensioned boards (`boards.py`): Pi Zero 2 W, two MC33926 driver carriers, 5 V and 6 V converters, fuse block, rear-panel switch with its 20.2 mm hole; still boxes: battery, BMS, power node, charger module | `interior.py`, `boards.py` |
 
 Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.9 kg with the centre of mass at z 205 mm.
 

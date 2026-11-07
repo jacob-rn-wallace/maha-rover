@@ -32,7 +32,7 @@ pack 2S2P (4 x 18650) --- BMS (2S, common port) --- P+ ---- NODE (bus bar) --- m
 | BMS | 2S 20 A, balanced, common port | about 48 x 20 x 4 | 12 g (assumed) | listings: 45 to 48 mm long, 15 to 20 mm wide; one lists 13 A continuous with 20 A peak, passive balance about 100 mA; check continuous against peak |
 | Main fuse and branch fuses | blade (ATO) 15 A main; mini or standard 4-way block for the branches | block about 60 x 36 x 20 (assumed) | 0.04 kg | blocks found: standard ATO 4-way 47 x 86 x 36, Blue Sea compact 94 x 44 x 33 (30 A per circuit, 32 V); mini ATM 4-way blocks are limited to 15 A per circuit and 12 V |
 | Power node | bus bar or terminal block | about 40 x 20 x 15 | 0.03 kg | assumed |
-| Master switch | panel-mount, rated for 15 A or more **DC** | body about 20 x 14 x 28 behind the rear panel | 0.02 kg | many rockers list an AC rating only: check the DC rating |
+| Master switch | panel-mount, rated for 15 A or more **DC**; candidate SCI R13-112B8-02 (round, 20.2 mm cut-out, 20 A at 14 VDC) | round body about 20 mm across x 28 deep behind the rear panel, bezel 23 mm | 0.02 kg | many rockers list an AC rating only: check the DC rating |
 | Servo regulator | Pololu D24V22F6 (6 V, 2.5 A) | 17.8 x 17.8 x 7.9 | 2.3 g | vendor: 5 V, 2.5 A version read earlier; F6 is the 6 V part; its minimum input was not read |
 | Connectors | XT60 class for the pack, XT30 class for branches, JST-XH for the balance leads | | | hobby-standard, from memory; not chosen |
 
@@ -87,10 +87,10 @@ so the housing needs a gland or a slot for them (not designed). Not designed: th
 
 ## Where the parts sit (all checked for fit and clashes in `interior.py` and `frame.py`)
 
-- Pack at the rear floor (x -110); BMS beside it (x -65, y +45); fuse block (x -65, y -45); power node (x -45, y 0), all on the floor, clear of
+- Pack at the rear floor (x -110); BMS beside it (x -65, y +45); fuse block (x -70, y -50, an 85 x 47 x 21 mm block); power node (x -45, y 0), all on the floor, clear of
   the differential housing (x within 18) and the cross rails.
-- Servo regulator next to the fuse block (x -20, y -75); charger and drivers in the front compartment as before.
-- The master switch is on the rear end panel (x -178, y +35, z 172), 20 mm deep, clear of the bottom end rail (z up to 156).
+- Servo regulator beside the fuse block (x -10, y -60); charger and drivers in the front compartment as before.
+- The master switch is on the rear end panel (y +35, z 165) in a 20.2 mm round hole, its body about 28 mm deep, clear of the bottom end rail (z up to 146).
 
 ## Open
 

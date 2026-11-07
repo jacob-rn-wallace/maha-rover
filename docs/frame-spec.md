@@ -149,7 +149,7 @@ about 0.6 kg lighter), or printed panels.
 - Frame and bushings are clear of the side panels (0 mm3 overlap); the standoffs clear every member.
 - The pivot shafts pass through the rail holes and bushings with no overlap, and the housing bosses clear the frame.
 - The frame does not touch the battery, controller, drivers, converter, differential housing, or the cable entry zone (15 x 40 x 30 mm, in the gap
-  under the mast). The tall rails now run through x = 0 at y 81 to 101, so the servo regulator moved to y -60 and the charger to y -65.
+  under the mast). The tall rails now run through x = 0 at y 81 to 101, so the servo regulator moved to y -60 and the charger to y -65 (and later, with the real fuse block, the regulator to x -10).
 - The 12 solar wire holes and the four terminal boards clear the frame.
 - Frame takes about 1.8 L of the 16.35 L cavity.
 
@@ -163,7 +163,7 @@ about 0.6 kg lighter), or printed panels.
 | Sleeves and bushings | 0.02 | ASSUMPTION |
 | **Chassis** | **4.69** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.89 kg** (`replica-mass.md`), a margin of only 0.11 kg: the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
+Replica total from the CAD: **9.88 kg** (`replica-mass.md`), a margin of only 0.12 kg: the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
 2026-11-07: the first pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass
 brings the build down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the
 redundant top and mid rails, and a 30 x 30 mast.

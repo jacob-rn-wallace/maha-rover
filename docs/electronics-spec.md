@@ -120,9 +120,30 @@ repeatedly but needs a pedestal that can hold a 45 x 25 x 35 mm servo on the hin
   with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load, which is the worst case; flat driving takes far less.
 - **Solar:** the original's panels give 15 W peak [S3]; the replica's cells are dummies.
 
+## Dimensioned board models (2026-11-07)
+
+`hardware/electronics/boards.py` replaces the placeholder boxes with dimensioned models; the interior (`interior-spec.md`) places them. What each rests on:
+
+| Part | Sourced | Measured | ASSUMPTION |
+|---|---|---|---|
+| Pololu MC33926 carrier #1213 | 27.94 x 45.72 mm, PCB 1.57, components to 7.67 above the underside (6.1 above the board; 7.8 for boards before Dec 2014), holes 2.18 mm, both 2.5 mm from one long edge and 40.6 apart (vendor dimension diagram, rev 26 Oct 2018) | two 8 x 8 mm ICs to 3.2 mm, one 4.8 x 5.0 IC, four 6.8 mm capacitors to 7.67 (slices of Pololu's 3D model; the model is not kept in this repo) | the three 2-pin 3.5 mm terminal blocks (7 x 7.7 x 8.5 mm bodies) and the 25-pin header are on the **underside** (the drawing's connector callouts are a bottom view), so the board is raised on 9 mm posts; the two posts at the far corners |
+| Pololu D24V22F5 and F6 | 17.8 x 17.8 x 7.9 mm; two 2.18 mm holes on opposite corners 13.21 mm apart in each direction; 0.1 inch pin pitch (product page) | - | PCB 1.6 mm, inductor footprint 10 x 10 mm |
+| Raspberry Pi Zero 2 W | 65 x 30 mm, holes 3.5 mm from the corners (58 x 23 apart), connector centres on one long edge at 12.4, 41.4 and 54 mm (product brief p. 4); 5.2 mm maximum height (a retailer listing, not the brief) | - | PCB 1.0 mm, hole 2.75 mm, connector sizes, the microSD slot, the CSI connector, the RF shield and the SoC |
+| 4-way blade fuse block | candidate Optifuse BLR-I-304, 1.85 x 3.35 x 0.83 in = 47 x 85 x 21 mm (retailer listing) | - | which axis is which; the shape of the base and fuse positions; mass |
+| Master switch | candidate SCI R13-112B8-02, round, 20.2 mm cut-out, 20 A at 14 VDC, IP65 (retailer listing) | - | bezel 23 mm, body depth 28 mm and tab length |
+
+Findings that changed the layout:
+- **The fuse block is bigger than the placeholder:** 85 x 47 x 21 mm against 60 x 36 x 20, if the listing's axes are as assumed. It no longer fits where it was; it sits at x -70, y -50, and the servo regulator moved to x -10, y -60.
+- **The driver carriers stand 16.7 mm tall once mounted** (9 mm of posts plus 7.67), against the placeholder's 12 mm, because their connectors are on the underside (assumed).
+- **The master switch needs a hole**: the rear panel now has a 20.2 mm hole at y 35, z 165; the bezel stands 2 mm proud of the panel and the body reaches 28 mm inside.
+- The two driver boards are modelled separately, side by side at y -16 and y -44, 45.7 mm long in x.
+
+Still boxes (no usable dimensions found): the battery pack (a 2 x 2 arrangement of 18.4 x 65 mm cells, 68 x 38 x 38 box), the BMS (generic listing sizes), the power node (bus bar), and the solar charge module (listings for the BQ24650 and CN3722 modules disagree: 45 x 20 x 9.5, 49 x 31, 54 x 38 and 50 x 25 x 17 mm were all seen).
+Fetches of Pololu's regulator dimension drawing, the WAGO and Eaton datasheets failed or timed out, so those are not read.
+
 ## Open
 
 - Battery management board, bus-servo adapter, fuses, switches, connectors, a charger for 2S: not chosen.
-- Pi Zero 2 W, camera module and driver masses and heights: not found.
+- Pi Zero 2 W and camera module masses, and the heights of the Pi's individual connectors: not found. The terminal block heights on the MC33926 carrier are assumed.
 - The STS3215 datasheet and SKU voltage window; mounting hole pattern.
 - Wiring harness and the cable path from the mast head down into the body.

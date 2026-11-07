@@ -70,7 +70,7 @@ def collect():
     placed = I.placed_parts()
     for n, d in I.PARTS.items():
         s = placed[n]
-        add("electronics", n, d["mass"], c(s))
+        add("electronics", n, I.part_mass(n), c(s))
     cells = B.cells()
     cx = sum(c(s)[0] for s in cells) / len(cells)
     cy = sum(abs(c(s)[1]) for s in cells) / len(cells)
