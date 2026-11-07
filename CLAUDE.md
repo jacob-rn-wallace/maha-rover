@@ -33,11 +33,13 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
   about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
   plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
-- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each. Not yet modelled.
+- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each, modelled as thin plates in
+  `hardware/body/body.py`. Their position on the face is an assumption (centred).
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
 - Mast: about 300 mm, stowed along the top panel, spring hinge to vertical; CAM-1 on a
-  pan and tilt gimbal. Deployed envelope is in the body model; stowed form is not.
+  pan and tilt gimbal. Both deployed and stowed (folded rearward, an assumption) envelopes are in the body model;
+  the mast cross-section and gimbal head are placeholder sizes.
 - Drive: 4 in-wheel motors [S3], with a differential gear or linkage [S1] (unresolved).
 
 Still provisional, from earlier AI chat sessions, NOT checked against the original (they
@@ -62,7 +64,7 @@ do not bind the replica; the original wins):
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
 - Still to do: close the remaining gaps in section 7 of that file (suspension and
   drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
-  centre-of-mass check, BOM. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks the solar cell field, stowed mast, suspension and internals.
+  centre-of-mass check, BOM. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
 
 ## Conventions
 - Hardware units are millimetres.

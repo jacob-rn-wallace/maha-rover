@@ -1,7 +1,8 @@
 """al-maha body: parametric envelope model (build123d), first pass.
 
 Replica of the Rashid-1 body, wheels and deployed mast as a dimensional
-envelope: solid parts, no internal structure, no panels, no suspension.
+envelope: solid parts, thin solar cell plates, no internal structure, no
+suspension. Also builds the stowed mast (rover_stowed.step).
 Millimetres. Rover frame: X forward, Y left, Z up, origin on the ground
 (wheel contact line) under the midpoint between the axles, on the centreline.
 
@@ -20,6 +21,7 @@ from build123d import (
     Box, Compound, Cylinder, Plane, Polygon, Pos, Rot, extrude, export_step,
     export_stl,
 )
+from build123d import Vector
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "wheel"))
 from wheel import build_wheel  # noqa: E402
@@ -54,6 +56,20 @@ CAM_X = WHEELBASE / 2 + 77.9    # CAM-1 forward of front axle     derived [S8]
 CAM_Y = -28.0            # 28 right of centreline (Y is left)     derived [S8]
 CAM_TUBE = (73.0, 35.0, 35.0)   # L x W x H optical tube          stated [S12]
 
+# ---- Solar cells (section 3g, 3h, 5) -------------------------------------
+N_COLS, N_ROWS = 5, 3    # per side, all landscape               derived [3e, 3g]
+CELL_W, CELL_H = 69.0, 39.0     # true size on the sloped face    derived [3g]
+PITCH_U, PITCH_V = 71.6, 41.0   # along row / across rows         derived [3g]
+CLIP = 6.5               # 45 degree clip, both bottom corners    derived [3g]
+CELL_T = 0.5             # cell plus cover glass, stood off face  ASSUMPTION
+FIELD_Z = (UNDERSIDE_Z + DECK_TOP_Z - DECK_T) / 2
+                         # field centre height on the face. The
+                         # position on the face is open [7.3]     ASSUMPTION
+
+# ---- Stowed mast (section 3h) --------------------------------------------
+MAST_STOWED_MAX = 120.0  # max stowed height above the top cover  stated [S19]
+STOW_DIR = -1            # mast folds rearward (-X)               ASSUMPTION
+
 TARGETS = {              # for the printed check
     "length over wheel rims": (470.0, "stated [S1]"),
     "width over wheels":      (505.0, "stated [S1]; CAD 497 [3f]"),
@@ -62,7 +78,7 @@ TARGETS = {              # for the printed check
 
 
 def body():
-    h = DECK_TOP_Z - UNDERSIDE_Z
+    h = DECK_TOP_Z - DECK_T - UNDERSIDE_Z    # the wedge ends under the deck plate
     bottom_w = TOP_WIDTH + 2 * h * math.tan(math.radians(SIDEWALL_DEG))
     pts = [(-bottom_w / 2, UNDERSIDE_Z), (bottom_w / 2, UNDERSIDE_Z),
            (TOP_WIDTH / 2, DECK_TOP_Z - DECK_T), (-TOP_WIDTH / 2, DECK_TOP_Z - DECK_T)]
@@ -79,18 +95,50 @@ def wheels():
             for sx in (1, -1) for sy in (1, -1)]
 
 
-def mast():
+def cells():
+    """Two 5 x 3 cell fields, one per sloped side face (thin plates)."""
+    t = math.tan(math.radians(SIDEWALL_DEG))
+    c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
+    hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
+    W, H, k = CELL_W / 2, CELL_H / 2, CLIP
+    pts = [(-W + k, -H), (W - k, -H), (W, -H + k), (W, H), (-W, H), (-W, -H + k)]
+    cell = extrude(Polygon(*pts, align=None), amount=CELL_T)
+    out = []
+    for sy in (1, -1):
+        # plane y axis runs up the slope; z is the outward normal
+        normal = Vector(0, sy * c, sn)
+        xdir = Vector(-sy, 0, 0)
+        for i in range(N_COLS):
+            for j in range(N_ROWS):
+                u, v = (i - (N_COLS - 1) / 2) * PITCH_U, (j - (N_ROWS - 1) / 2) * PITCH_V
+                # origin: face point at the field centre, moved up-slope by v
+                up = Vector(0, -sy * sn, c)
+                o = Vector(BODY_X0, sy * hw(FIELD_Z), FIELD_Z) + up * v
+                pl = Plane(origin=o, x_dir=xdir, z_dir=normal)
+                out.append(pl * Pos(u, 0, 0) * cell)
+    return out
+
+
+def mast(stowed=False):
     base = DECK_TOP_Z
     head_bot = TOP_Z - HEAD_H
     tube = Pos(MAST_X, 0, (base + head_bot) / 2) * Cylinder(MAST_D / 2, head_bot - base)
     head = Pos(MAST_X, 0, TOP_Z - HEAD_H / 2) * Box(HEAD_L, HEAD_W, HEAD_H)
     cam = Pos(CAM_X, CAM_Y, CAM_AXIS_Z) * Box(*CAM_TUBE)
-    return tube + head + cam
+    m = tube + head + cam
+    if stowed:
+        # fold about the mast base (a horizontal axis on the deck), then rest
+        # the widest part (the head block) on the deck
+        pivot = Pos(MAST_X, 0, DECK_TOP_Z)
+        m = Pos(0, 0, HEAD_W / 2) * pivot * Rot(0, STOW_DIR * 90, 0) * pivot.inverse() * m
+    return m
 
 
-def build_rover():
+def build_rover(stowed=False):
     b, bottom_w = body()
-    parts = {"body": b, "mast": mast()}
+    parts = {"body": b, "mast": mast(stowed)}
+    for i, cl in enumerate(cells()):
+        parts[f"cell{i}"] = cl
     for i, w in enumerate(wheels()):
         parts[f"wheel{i}"] = w
     return parts, bottom_w
@@ -103,6 +151,18 @@ if __name__ == "__main__":
     out.mkdir(exist_ok=True)
     export_step(rover, str(out / "rover.step"))
     export_stl(rover, str(out / "rover.stl"))
+
+    sparts, _ = build_rover(stowed=True)
+    stowed = Compound(list(sparts.values()), label="al-maha-stowed")
+    export_step(stowed, str(out / "rover_stowed.step"))
+    export_stl(stowed, str(out / "rover_stowed.stl"))
+    sb = stowed.bounding_box()
+    sw = Compound([v for k, v in sparts.items() if k.startswith("wheel")]).bounding_box()
+    mb = sparts["mast"].bounding_box()
+    print(f"stowed: mast top {mb.max.Z - DECK_TOP_Z:.1f} above deck (limit {MAST_STOWED_MAX:.0f}, stated [S19]);"
+          f" overall height {sb.max.Z:.0f} (derived 468 [3h]); mast x {mb.min.X:.0f}..{mb.max.X:.0f}")
+    print(f"cells: {sum(k.startswith('cell') for k in parts)} (target 30), "
+          f"all valid {all(p.is_valid for k, p in parts.items() if k.startswith('cell'))}")
 
     bb = rover.bounding_box()
     wb = Compound([v for k, v in parts.items() if k.startswith("wheel")]).bounding_box()
