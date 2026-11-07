@@ -1,25 +1,43 @@
 # المَهَا (al-maha): Rashid lunar rover replica
 
-A replica of the UAE's **Rashid** lunar rover (built by MBRSC, Dubai), renamed
-**المَهَا** (al-maha, the Arabian oryx). The goal is to match the original
-rover's dimensions as faithfully as possible.
+A scale-1:1, looks-like and works-like replica of the UAE's **Rashid** lunar rover (built by
+MBRSC, Dubai), renamed **المَهَا** (al-maha, the Arabian oryx). It is a hobby build in the spirit
+of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight rover.
 
-## Primary goal: dimensional fidelity
-- The original rover's real dimensions are the source of truth. Design choices
-  follow them, not the other way round.
-- Primary-source figures are recorded in `docs/original-dimensions.md`, with a
-  source tag and a status (stated / derived / unverified) on every value. That
-  file is the dimension record. Check it before designing anything, and update
-  it when a new source is read. Headline: 10 kg; 470 x 505 mm footprint and
-  700 mm height with the mast deployed (MBRSC, EGU 2021); four wheels of 200 mm
-  diameter and about 80 mm width. Press figures (50 x 50 cm) agree roughly and
-  are superseded.
+## Scope: what "replica" means here
+- **Goal:** a rover that externally resembles Rashid and whose function roughly follows it,
+  at full size (about 470 x 500 mm, 200 mm wheels), that one person can build and afford.
+- **Must be recognisably Rashid** (match the sourced dimensions and shape):
+  1. Wedge body with 10 degree sidewalls (panels at 80 degrees).
+  2. Skeletonized wheels, 200 x 80 mm, 14 radial grousers of 15 mm.
+  3. 5 x 3 solar cell fields on both sloped faces (printed or dummy cells are fine).
+  4. Deployable mast and camera: stows flat along the top panel, rotates up to vertical.
+  5. Overall envelope: about 474 x 497 mm over the wheels, 700 mm tall with the mast up.
+- **Must work, roughly as the original does:** four driven wheels, skid steering, a passive
+  differential suspension (no rocker, no springs), a mast that deploys and pans and tilts, and a
+  live camera on it. No science payload instruments.
+- **Free to differ:** materials (the original is magnesium alloy with MLI; the replica can be
+  printed plastic, aluminium or whatever builds easily), internal structure, fasteners, motors,
+  electronics and battery (choose off-the-shelf parts), the 10 kg mass, thermal and space
+  hardware. Document each substitution in `docs/bom.md`.
+- **Out of scope:** flight qualification, vacuum or thermal fidelity, exact mass, the science
+  instruments (Langmuir probes, microscope, thermal camera, sampler).
+
+## Dimensional record
+- The original's real dimensions remain the reference for the five "must" items above. Design
+  choices that affect them follow the sources, not the other way round. Where something is not
+  one of those items, choose for buildability, and say so.
+- Primary-source figures are recorded in `docs/original-dimensions.md`, with a source tag and a
+  status (stated / derived / unverified) on every value. Check it before designing anything and
+  update it when a new source is read. Headline: 10 kg; 470 x 505 mm footprint and 700 mm height
+  with the mast deployed (MBRSC, EGU 2021); four wheels of 200 mm diameter and about 80 mm width.
 - Record every dimension with its source. Mark anything without one **(unverified)**.
-- Open gaps are listed in that file (section 7). Settled from the final-configuration CAD
-  and MBRSC statements: wheel 200 x 80 mm, width over wheels about 497 mm, sidewall 10 degrees
-  (panels at 80 degrees), 5 x 3 cells per side of about 69 x 39 mm, stowed envelope about
-  474 x 497 x 468 mm. Still open: suspension and drivetrain layout, the exact cell part,
-  battery and motor specifications. Do not paper over them.
+- Open gaps are listed in that file (section 7). Settled from the final-configuration CAD and
+  MBRSC statements: wheel 200 x 80 mm, width over wheels about 497 mm, sidewall 10 degrees, 5 x 3
+  cells per side of about 69 x 39 mm, stowed envelope about 474 x 497 x 468 mm. Still open:
+  differential placement and drivetrain layout, the exact cell part, battery and motor
+  specifications. Under this scope those gaps no longer block the build: pick a sensible design,
+  label it ASSUMPTION, and swap it if a source appears. Do not present it as the original's.
 
 ## Repo layout
 - `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model and `hardware/body/body.py` the body, wheels and deployed-mast envelope (build123d, venv in `.venv`).
@@ -63,9 +81,16 @@ does not bind the replica; the original wins):
 - Done: first pass at sourcing the original's dimensions from MBRSC and
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
-- Still to do: close the remaining gaps in section 7 of that file (differential
-  placement and drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
-  filling in the BOM (`docs/bom.md`, skeleton only). First mass budget and centre-of-mass range done (`docs/mass-budget.md`, `hardware/mass/budget.py`); 4.75 kg of 10 is unallocated. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
+- Done: wheel CAD (`hardware/wheel/`); body envelope with cells and stowed mast
+  (`hardware/body/`); mass budget and centre-of-mass range (`docs/mass-budget.md`); BOM skeleton
+  (`docs/bom.md`). The mass budget is a record of the original (4.75 kg of its 10 kg is
+  unallocated); the replica's own mass is free under the scope above.
+- Still to do, in rough order: choose and place the drive motors, the passive differential and
+  the electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
+  camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
+  the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
+  Closing the section 7 gaps is now optional: only chase a source when it changes one of the
+  five "must" items.
 
 ## Conventions
 - Hardware units are millimetres.
