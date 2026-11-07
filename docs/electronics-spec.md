@@ -90,7 +90,9 @@ product and evaluation pages: [BQ25798](https://www.ti.com/product/BQ25798), [LT
 Both sides: the BQ25798 and the others take one input, so the left and right strings meet at a pair of blocking diodes
 (`solar-spec.md` wiring) before the charger. A two-input charger was not found.
 
-Open: a breakout or board for the BQ25798, or a change to a buck-compatible cell option; the fuse and diode parts; the
+No ready-made BQ25798 board was found (`charger-board-spec.md`); the plan is a small custom board.
+
+Open: the board's schematic and layout; the fuse and diode parts; the
 firmware to set the BQ25798 over I2C if it is chosen.
 
 ## Mast stowing (deferred)
