@@ -1,20 +1,19 @@
 """al-maha chassis: T-slot aluminium frame behind sheet panels.
 
 Replica design. A frame of 20 x 20 mm T-slot extrusion (the 5-series, 6 mm slot, as
-Misumi HFS5-2020: 0.50 kg/m, 183 mm2) sits just inside the panels of body.py / interior.py.
-The panels (2 mm aluminium sheet on the sides, ends and floor, 3 mm on the deck) bolt to
-it through the slots. Members are modelled as plain 20 x 20 sections; the slots are
-ignored, and mass comes from the catalogue linear mass. All positions and the panel
-material are ASSUMPTION.
+Misumi HFS5-2020: 0.50 kg/m, 183 mm2) with the two bottom side rails in 20 x 40 (HFS5-2040:
+0.88 kg/m, 324 mm2), sits inside the side panels of body.py / interior.py. Members are modelled
+as plain sections; the slots are ignored, and mass comes from the catalogue linear mass.
+All positions and the panel material are ASSUMPTION.
 
 Frame (owner's sketch, 2026-11-07: every extrusion is vertical or horizontal; only the panels lean):
   * a STEPPED frame: a wide bottom frame (two side rails running the full length, joined by
-    two end cross rails). The bottom frame is centred on the pivot axis (z 145.7) so each pivot
-    shaft passes through a drilled hole in its side rail, which is a single member; a flanged
-    plain bushing at each end of the hole carries the shaft. The frame is raised above the floor
-    panel, which hangs under it on eight spacer blocks. A
-    narrow top frame (end cross rails, side rails and a mast cross rail under the deck), joined
-    by four vertical posts that stand on the bottom end cross rails
+    two end cross rails) and a narrow top frame (end cross rails, side rails and a mast cross
+    rail under the deck), joined by four vertical posts that stand on the bottom end cross rails
+  * each bottom side rail is a single 20 x 40 member (20 wide, 40 tall, z 126 to 166) with a 16 mm
+    hole drilled through it for the pivot shaft (a 12 mm tube), a flanged plain bushing at each
+    end of the hole; the shaft's second support is a bushing in the differential housing wall
+    (hardware/suspension/differential.py). The tall rail leaves 12 mm of wall above and below the hole.
   * two mid rails along X at z 175 between the posts, with two cross rails at x = +-28
     that carry the differential housing on printed cradles (not modelled)
   * the side panels (the solar panels, 2 mm) are separate sloped plates held PANEL_GAP off
@@ -47,11 +46,10 @@ import arms as A       # noqa: E402
 P = 20.0                 # extrusion section, 20 x 20             stated (catalogue)
 KG_PER_M = 0.50          # HFS5-2020 and a second 20 x 20 datasheet   stated (catalogue)
 TAN, COS = I.TAN, I.COS
-HOLE_D = 12.0            # hole drilled through each bottom side rail for the pivot shaft and its bushings   ASSUMPTION
-BUSH_OD, BUSH_L = 12.0, 8.0   # flanged plain bushing 8 mm ID x 12 mm OD, one at each end of the hole (replaces the 688 bearing)  ASSUMPTION
-ZB = A.PIVOT_Z           # centre height of the bottom frame: the pivot axis goes through the middle of the side rails
-SPACER_X = (160.0, 70.0) # floor spacer blocks under the bottom side rails at x = +-160, +-70   ASSUMPTION
-SPACER_KG = 0.010
+RAIL_H = 40.0            # the bottom side rails are 20 wide x 40 tall (HFS5-2040), standing on the floor, so the 16 mm pivot hole leaves 12 mm of wall above and below
+KG_PER_M_2040 = 0.88     # HFS5-2040 catalogue                              stated (catalogue)
+HOLE_D = 16.0            # hole drilled through each bottom side rail for the pivot shaft and its bushings   ASSUMPTION
+BUSH_ID, BUSH_OD, BUSH_L = 12.1, 16.0, 8.0   # flanged plain bushing for the 12 mm shaft, one at each end of the hole (replaces the 688 bearing)  ASSUMPTION
 EDGE = 0.2               # clearance to the end panels and the floor
 G = I.PANEL_GAP          # frame outer faces sit this far inside the side panels (at the top outer corner of the rails)
 PIV_X = 150.0            # pivot standoffs at x = +-150, near the corners   ASSUMPTION
@@ -76,17 +74,18 @@ def yin(z):
 
 
 YO = yin(Z_DECK) - G       # outer face of the top frame, posts and mid rails
-YB = yin(ZB + P / 2) - G   # outer face of the bottom frame
+YB = yin(Z_FLOOR + RAIL_H) - G   # outer face of the bottom frame
 
 
 def box(x0, x1, y0, y1, z0, z1):
     return Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(x1 - x0, y1 - y0, z1 - z0)
 
 
-def side_rail(sy, x0, x1, zc, yo=None):
-    """Rail along X, outer face vertical at y = +-yo (default YO)."""
+def side_rail(sy, x0, x1, zc, yo=None, h=None):
+    """Rail along X, outer face vertical at y = +-yo (default YO), h tall (default P)."""
     yc = (YO if yo is None else yo) - P / 2
-    return box(x0, x1, sy * yc - P / 2, sy * yc + P / 2, zc - P / 2, zc + P / 2)
+    h = P if h is None else h
+    return box(x0, x1, sy * yc - P / 2, sy * yc + P / 2, zc - h / 2, zc + h / 2)
 
 
 def cross_rail(xc, zc, yo=None):
@@ -99,7 +98,7 @@ def post(sx, sy):
     """Vertical post standing on the bottom end cross rail, up to the deck underside."""
     xc = sx * (X_END - P / 2 - EDGE)
     y0, y1 = (YO - P, YO) if sy > 0 else (-YO, -(YO - P))
-    return box(xc - P / 2, xc + P / 2, y0, y1, ZB + P / 2, Z_DECK)
+    return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK)
 
 
 def standoffs():
@@ -110,7 +109,7 @@ def standoffs():
     out = {}
     for sy in (1, -1):
         for sx in (1, -1):
-            for lvl, zc, yo in (("bottom", ZB, YB), ("top", Z_DECK - P / 2, YO)):
+            for lvl, zc, yo in (("bottom", Z_FLOOR + RAIL_H / 2, YB), ("top", Z_DECK - P / 2, YO)):
                 stud = Pos(sx * PIV_X, sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
                 out[f"pivot {lvl} {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = stud & cav
     return out
@@ -118,7 +117,8 @@ def standoffs():
 
 def build():
     m = {}
-    zb = ZB                                             # bottom frame centred on the pivot axis
+    zb = Z_FLOOR + P / 2                                # bottom end cross rails sit on the floor panel
+    zr = Z_FLOOR + RAIL_H / 2                           # the tall bottom side rails too
     zt = Z_DECK - P / 2                                 # top rails sit under the deck panel
     for sx in (1, -1):
         f = 'F' if sx > 0 else 'R'
@@ -130,7 +130,7 @@ def build():
     inner = X_END - P - 2 * EDGE                       # rails run between the end cross rails
     for sy in (1, -1):
         s = "L" if sy > 0 else "R"
-        rail = side_rail(sy, -(X_END - EDGE), X_END - EDGE, zb, YB)
+        rail = side_rail(sy, -(X_END - EDGE), X_END - EDGE, zr, YB, RAIL_H)
         m[f"bottom side {s}"] = rail - Pos(0, 0, A.PIVOT_Z) * Rot(90, 0, 0) * Cylinder(HOLE_D / 2, 400.0)   # the pivot shaft goes through
         m[f"top side {s}"] = side_rail(sy, -inner, inner, zt)
         m[f"mid side {s}"] = side_rail(sy, -inner, inner, MID_Z)
@@ -141,9 +141,9 @@ def build():
 
 
 def bushings():
-    """Per side: two flanged plain bushings (8 ID, 12 OD, 8 long) in the hole through the bottom side rail, one at each face."""
+    """Per side: two flanged plain bushings (12 ID, 16 OD, 8 long) in the hole through the bottom side rail, one at each face."""
     out = []
-    ring = Cylinder(BUSH_OD / 2, BUSH_L) - Cylinder(4.1, BUSH_L)
+    ring = Cylinder(BUSH_OD / 2, BUSH_L) - Cylinder(BUSH_ID / 2, BUSH_L)
     for sy in (1, -1):
         parts = []
         for face in (YB - P, YB):                      # inner and outer rail faces
@@ -153,21 +153,15 @@ def bushings():
     return out
 
 
-def floor_spacers():
-    """Eight spacer blocks (20 x 20) between the floor panel and the underside of the bottom side rails, 9.7 mm tall."""
-    out = {}
-    for sy in (1, -1):
-        for sx in (1, -1):
-            for x in SPACER_X:
-                yc = sy * (YB - P / 2)
-                out[f"spacer {'F' if sx > 0 else 'R'}{int(x)}{'L' if sy > 0 else 'R'}"] = box(sx * x - P / 2, sx * x + P / 2, yc - P / 2, yc + P / 2, Z_FLOOR, ZB - P / 2)
-    return out
+def member_kg(name, shape):
+    """Catalogue mass of a member: 0.88 kg/m for the 20 x 40 bottom side rails, 0.50 kg/m for the rest."""
+    return member_length(name, shape) / 1000.0 * (KG_PER_M_2040 if name.startswith("bottom side") else KG_PER_M)
 
 
 def member_length(name, shape):
     bb = shape.bounding_box()
     if name.startswith("post"):
-        return Z_DECK - ZB - P / 2
+        return Z_DECK - Z_FLOOR - P
     dims = sorted([bb.size.X, bb.size.Y, bb.size.Z], reverse=True)
     return dims[0]
 
@@ -177,27 +171,26 @@ if __name__ == "__main__":
     shell = I.shell(cav)
     members = build()
     bush = bushings()
-    spacers = floor_spacers()
     plates = []
-    diff = A.differential()["diff_housing"]
-    contents = {**I.placed_parts(), "differential housing": diff}
+    dh = A.differential()
+    contents = {**I.placed_parts(), **{("differential " + k.replace("diff_", "")): v for k, v in dh.items()}}
 
     print(f"profile {P:.0f} x {P:.0f}, {KG_PER_M} kg/m; panels {I.WALL_T:.0f} mm (side, end, floor), {B.DECK_T:.0f} mm deck")
     print("\nmember list (name, length mm)")
     total = 0.0
+    frame_kg = 0.0
     for n, s in members.items():
         L = member_length(n, s)
         total += L
+        frame_kg += member_kg(n, s)
         print(f"  {n:26s} {L:6.1f}")
-    print(f"  total {total / 1000:.2f} m  ->  {total / 1000 * KG_PER_M:.2f} kg")
+    print(f"  total {total / 1000:.2f} m  ->  {frame_kg:.2f} kg ({KG_PER_M_2040} kg/m for the 20 x 40 bottom side rails, {KG_PER_M} for the rest)")
 
     print("\ncontainment in the cavity (mm3 outside, want 0)")
     bad = [(n, s.volume - (s & cav).volume) for n, s in members.items() if s.volume - (s & cav).volume > 0.5]
     print("  members:", "all inside" if not bad else bad)
     badb = [round(sum(b.volume for b in bs) - (bs & cav).volume, 1) for bs in bush]
     print("  bushings outside:", badb)
-    bads = [n for n, v in spacers.items() if v.volume - (v & cav).volume > 0.5]
-    print("  floor spacers outside:", bads or "none")
 
     print("\nmember vs member overlaps (mm3, want 0 except where members meet end to end)")
     names = list(members)
@@ -212,7 +205,7 @@ if __name__ == "__main__":
         print("   ", h)
 
     print("\nframe vs contents (mm3, want 0)")
-    allm = Compound(list(members.values()) + list(spacers.values()))
+    allm = Compound(list(members.values()))
     for n, c in contents.items():
         v = (allm & c).volume
         print(f"  {n:42s}: {v:8.1f}")
@@ -264,11 +257,11 @@ if __name__ == "__main__":
     for n, v in list(st.items())[:2]:
         bb = v.bounding_box()
         print(f"  {n}: length {bb.size.Y:.1f} mm, z {bb.min.Z:.1f} to {bb.max.Z:.1f}")
-    clash = [(n, m_, round((v & mem).volume, 1)) for n, v in st.items() for m_, mem in {**members, **spacers}.items() if (v & mem).volume > 0.5]
-    print(f"  clashes with members and spacers: {clash or 'none'}")
+    clash = [(n, m_, round((v & mem).volume, 1)) for n, v in st.items() for m_, mem in members.items() if (v & mem).volume > 0.5]
+    print(f"  clashes with members: {clash or 'none'}")
     sides = I.side_panels()
-    allm_ = Compound(list(members.values()) + list(spacers.values()) + [x for bs in bush for x in bs])
-    print(f"  frame, spacers and bushings vs the side panels (mm3, want 0): {sum((allm_ & sp).volume for sp in sides):.1f}")
+    allm_ = Compound(list(members.values()) + [x for bs in bush for x in bs])
+    print(f"  frame and bushings vs the side panels (mm3, want 0): {sum((allm_ & sp).volume for sp in sides):.1f}")
 
     # ---- joint inventory (explicit, from the topology above) ----
     n_end_cross = sum("end cross" in n for n in members)
@@ -292,7 +285,7 @@ if __name__ == "__main__":
     def nbolts(names):
         return sum(max(2, math.ceil(L[n] / FIX_PITCH)) for n in names)
     pick = lambda *keys: [n for n in members if any(k in n for k in keys)]
-    floor_b = len(spacers)                              # the floor hangs on the 8 spacer blocks, one M4 each (ASSUMPTION)
+    floor_b = nbolts(pick("bottom side", "bottom end cross"))
     deck_b = nbolts(pick("top side", "top end cross", "top cross under mast"))
     end_b = (nbolts([n for n in members if n.endswith("cross F") and n.startswith(("bottom end", "top end"))] + pick("post FL", "post FR")) +
              nbolts([n for n in members if n.endswith("cross R") and n.startswith(("bottom end", "top end"))] + pick("post RL", "post RR")))
@@ -303,15 +296,12 @@ if __name__ == "__main__":
     print("  mast base: 4 M4 bolts through the base plate and deck into the mast cross rail (x 141) and front end rail (x 178), y +-30")
 
     # masses
-    plate_vol = sum(v.volume for v in spacers.values())
     sh_mass = (shell.volume + sum(sp.volume for sp in sides)) / 1e3 * ALU / 1000.0
     print(f"\npanels (floor, ends, deck and the two side panels of interior.py, {PANEL_MASS_NOTE}): {sh_mass:.2f} kg")
-    print(f"frame {total / 1000 * KG_PER_M:.2f} kg; floor spacers {plate_vol / 1e3 * ALU / 1000:.2f} kg; "
-          f"chassis total {sh_mass + total / 1000 * KG_PER_M + plate_vol / 1e3 * ALU / 1000:.2f} kg "
-          f"(original structure: 2 kg excluding mobility [S26])")
-    free = cav.volume - sum(s.volume for s in members.values()) - plate_vol
-    print(f"cavity {cav.volume / 1e6:.2f} L, frame and spacers occupy {(cav.volume - free) / 1e6:.2f} L")
+    print(f"frame {frame_kg:.2f} kg; chassis total {sh_mass + frame_kg:.2f} kg (original structure: 2 kg excluding mobility [S26])")
+    free = cav.volume - sum(s.volume for s in members.values())
+    print(f"cavity {cav.volume / 1e6:.2f} L, frame occupies {(cav.volume - free) / 1e6:.2f} L")
 
     out = HERE / "out"
     out.mkdir(exist_ok=True)
-    export_step(Compound(list(members.values()) + list(spacers.values()) + [x for bs in bush for x in bs] + list(st.values()) + [shell] + sides, label="al-maha-chassis"), str(out / "frame.step"))
+    export_step(Compound(list(members.values()) + [x for bs in bush for x in bs] + list(st.values()) + [shell] + sides, label="al-maha-chassis"), str(out / "frame.step"))

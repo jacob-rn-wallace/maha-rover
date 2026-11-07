@@ -56,7 +56,7 @@ lowest central part again. The plate hangs outside the wall, as the CAD shows.
 
 - **Inside the body.** The mounts and bearings are laid out in `frame-spec.md` and `interior-spec.md`; the gear train
   inside the housing is not designed. The wall at pivot height must stay clear of the cell field
-  (it starts at about 172 mm; the bottom rails top out at 156).
+  (it starts at about 172 mm; the bottom rails top out at 166).
 - **Shaft and differential strength.** Sizes are placeholders; no loads checked.
 - **Backlash.** A bevel differential's backlash lets the body rock a little, which a spring-free
   suspension has no way to damp. A pivoted bar linkage gives the same kinematics without gears and

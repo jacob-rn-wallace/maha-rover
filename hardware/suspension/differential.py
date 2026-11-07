@@ -32,7 +32,7 @@ MASS = 9.24              # kg, replica estimate (docs/replica-mass.md)
 SLOPE_DEG = 20.0
 MOTOR_CAP_A = 1.6        # A per motor: the firmware cap this design assumes (about 1.5 N.m)
 SIGMA_ALLOW = 200.0      # MPa bending, steel mitre gears: ASSUMPTION (depends on hardening; none verified)
-SHAFT_OD, SHAFT_ID = 2 * A.SHAFT_R, A.SHAFT_ID
+SHAFT_OD, SHAFT_ID = 2 * A.STUB_R, A.STUB_ID      # the gear stub (the 12 mm section outside the housing is checked in hardware/chassis/rail_check.py)
 
 
 def motor_torque_nm(i_amp):
@@ -97,8 +97,13 @@ def build():
     # housing: box shell with bores for the shafts
     outer = Box(A.DIFF_X, A.DIFF_Y, A.DIFF_Z)
     inner = Box(A.DIFF_X - 6.0, A.DIFF_Y - 6.0, A.DIFF_Z - 6.0)
-    shaft_bore = Rot(90, 0, 0) * Cylinder(4.2, A.DIFF_Y + 4.0)
-    housing = outer - inner - shaft_bore
+    bosses = [Pos(0, sy * (A.BOSS_Y0 + A.BOSS_Y1) / 2, 0) * Rot(90, 0, 0) * Cylinder(A.BOSS_R, A.BOSS_Y1 - A.BOSS_Y0) for sy in (1, -1)]
+    shaft_bore = Rot(90, 0, 0) * Cylinder(8.0, 2 * A.BOSS_Y1 + 2.0)       # 16 mm bore through wall and boss: a bushing, 12 ID x 16 OD x 11 long, carries the shaft
+    housing = outer - inner
+    for bs in bosses:
+        housing = housing + bs
+    housing = housing - shaft_bore
+    parts["housing bushings"] = Compound([Pos(0, sy * (A.STEP_Y + A.BOSS_Y1) / 2, 0) * Rot(90, 0, 0) * (Cylinder(8.0, A.BOSS_Y1 - A.STEP_Y) - Cylinder(6.05, A.BOSS_Y1 - A.STEP_Y)) for sy in (1, -1)])
     parts["housing"] = housing
     return parts
 
@@ -135,7 +140,7 @@ if __name__ == "__main__":
             continue
         out = p.volume - (p & Box(A.DIFF_X - 6.0, A.DIFF_Y - 6.0, A.DIFF_Z - 6.0)).volume
         inner_clear[n] = out
-    print("  gear parts outside the housing's inner cavity (mm3, want 0 except the cross pin ends and the hubs' bores):",
+    print("  gear parts outside the housing's inner cavity (mm3, want 0 except the cross pin ends, the hubs' bores and the housing bushings, which sit in the bosses outside the wall):",
           {k: round(v, 1) for k, v in inner_clear.items()})
     print(f"  housing {A.DIFF_X:.0f} x {A.DIFF_Y:.0f} x {A.DIFF_Z:.0f} mm; z {A.PIVOT_Z - A.DIFF_Z / 2:.1f} to {A.PIVOT_Z + A.DIFF_Z / 2:.1f} (floor top {B.UNDERSIDE_Z + 2:.0f}, cross rails from z 165)")
     steel = sum(p.volume for n, p in parts.items() if n != "housing") / 1e3 * 7.85 / 1000.0

@@ -1,6 +1,6 @@
 # What is modelled (2026-11-07)
 
-`hardware/assembly/rover.py` collects every modelled part into one assembly (175 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
+`hardware/assembly/rover.py` collects every modelled part into one assembly (168 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
 `docs/images/rover-assembly.png`: exterior from front-left and rear-right, a side view, a view with panels and cells hidden to show the frame and interior, a top view and a front
 view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
 
@@ -9,16 +9,16 @@ view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim pl
 | System | What is in the CAD | Where |
 |---|---|---|
 | Body shell | floor, two end walls and the deck as aluminium panels (2 mm, 3 mm deck); two separate 10 degree side panels (2 mm, with the 12 solar wire holes and the shaft clearance holes) | `body.py`, `interior.py` |
-| T-slot frame | 17 plain 20 x 20 members, all vertical or horizontal, in a stepped (wide bottom, narrow top) frame, each bottom side rail a single member with the pivot shaft through a drilled hole; 8 floor spacers; 8 pivot standoffs holding the two side panels off the frame; 4 bushings | `frame.py` |
+| T-slot frame | 17 plain members, all vertical or horizontal, in a stepped (wide bottom, narrow top) frame (the two bottom side rails 20 x 40, each a single member with the pivot shaft through a drilled hole); 8 pivot standoffs holding the two side panels off the frame; 4 bushings | `frame.py` |
 | Solar | 60 plain plates, 31 x 41.6 mm, two per slot on the original's 5 x 3 grid | `body.py`, `solar.py` |
 | Wheels | 4: hub tube, 10 ribs in two layers, rim band, 14 grousers | `wheel.py` |
 | Drive | 4 motor envelopes (gearbox, can, boss, shaft), 8 bearings, clamp rings, hub extensions, drive flanges, collars | `motor.py` |
-| Suspension | 2 link plates with bosses and motor sleeves, 2 hollow pivot shafts with their wire holes | `arms.py` |
-| Differential | the 48 x 50 x 36 mm housing, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
+| Suspension | 2 link plates with bosses and motor sleeves, 2 hollow stepped pivot shafts (12 / 8 tube, 8 / 5 stub) with their wire holes | `arms.py` |
+| Differential | the 48 x 50 x 36 mm housing with its two shaft bosses and bushings, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
 | Mast | 76 mm base plate, 40 x 40 T-slot extrusion, printed neck, C-arm, camera housing, tilt motor housing, CAM-1 tube | `mast.py` |
 | Interior (as boxes) | battery, BMS, fuse block, bus bar, servo regulator, rear-panel switch, charger module, Pi, two motor drivers, 5 V converter | `interior.py` |
 
-Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.5 kg with the centre of mass at z 207 mm.
+Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.8 kg with the centre of mass at z 206 mm.
 
 ## Not modelled, though designed in the docs
 

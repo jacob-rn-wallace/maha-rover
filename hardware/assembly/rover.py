@@ -28,7 +28,7 @@ import motor as M          # noqa: E402
 from build123d import Compound, Pos, Rot, export_step  # noqa: E402
 
 COLORS = {
-    "panels": (178, 184, 190), "frame": (96, 102, 112), "floor spacers": (150, 155, 160), "pivot standoffs": (236, 205, 90),
+    "panels": (178, 184, 190), "frame": (96, 102, 112), "bushings": (150, 155, 160), "pivot standoffs": (236, 205, 90),
     "solar pieces": (22, 32, 62), "wheels": (74, 78, 86), "motors": (196, 122, 62), "link plates": (118, 130, 150),
     "differential": (205, 180, 80), "differential housing": (160, 170, 182), "mast": (214, 217, 222), "camera": (30, 30, 34),
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
@@ -47,8 +47,6 @@ def collect():
     members = F.build()
     for n, s in members.items():
         add("frame", n, s)
-    for n, s in F.floor_spacers().items():
-        add("floor spacers", n, s)
     bearings = F.bushings()
     for i, p in enumerate(bearings):
         add("bearings", f"bearing {i}", p)

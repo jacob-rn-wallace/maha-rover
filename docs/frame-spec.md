@@ -16,18 +16,18 @@ vendor you buy from.
 
 ## Frame
 
-Revised 2026-11-07 from the owner's sketch and a second correction: **every extrusion is vertical or horizontal; only the side panels
-lean, and they are separate plates held off the frame on pivots.** The frame is **stepped**: a wide bottom frame centred on the pivot axis and a narrow
-top frame under the deck, joined by four vertical posts that stand on the bottom end cross rails. Members are modelled as plain 20 x 20
-sections (slots ignored).
+Revised 2026-11-07 from the owner's sketch and later corrections: **every extrusion is vertical or horizontal; only the side panels
+lean, and they are separate plates held off the frame on pivots.** The frame is **stepped**: a wide bottom frame on the floor and a narrow
+top frame under the deck, joined by four vertical posts that stand on the bottom end cross rails. Members are modelled as plain sections
+(slots ignored): 20 x 20 throughout, except the two bottom side rails, which are **20 x 40**.
 
-- **Bottom frame:** two side rails, each a **single member** the full length of the body, joined at the ends by two end cross rails (all four
-  corners closed). The frame is centred on the pivot axis, **z 145.7** (rails z 135.7 to 155.7), so each pivot shaft passes **through a 12 mm hole
-  drilled in its side rail** at x = 0, with a flanged plain bushing (8 ID x 12 OD x 8 long, ASSUMPTION) at each end of the hole. Outer faces at
-  y = plus or minus 103.4. The frame is therefore 9.7 mm above the floor panel, which hangs under it on eight 20 x 20 spacer blocks (x = plus or
-  minus 70 and 160, 0.010 kg each, ASSUMPTION).
+- **Bottom frame:** two side rails, each a **single 20 wide x 40 tall member** (HFS5-2040: 0.88 kg/m, 324 mm2) the full length of the body, standing on
+  the floor panel (z 126 to 166), joined at the ends by two 20 x 20 end cross rails (z 126 to 146; all four corners closed). Outer faces at
+  y = plus or minus 101.5. Each pivot shaft passes **through a 16 mm hole drilled in its side rail** at x = 0, z 145.7, with a flanged plain bushing
+  (12 ID x 16 OD x 8 long, ASSUMPTION) at each end of the hole. The rail is 40 mm tall so the hole leaves 12 mm of wall above and below it (an earlier
+  20 x 20 rail, raised to put the axle at its centre, could take only a 12 mm hole and left 4 mm of wall; the shaft has since grown, see below).
 - **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, plus the cross rail under the mast.
-- **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails (from z 155.7); they lie 33 mm inboard of the
+- **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails (from z 146); they lie 32 mm inboard of the
   bottom frame's outer face.
 
 The frame sits **10 mm inside the side panels** at the outer upper corner of each rail (`PANEL_GAP` in `interior.py`), so no member touches a
@@ -35,17 +35,17 @@ side panel.
 
 | Group | Members | Length (mm) |
 |---|---|---|
-| Vertical posts, on the bottom end rails | 4 | 189.3 |
-| Bottom end cross rails | 2 | 166.7 |
-| Bottom side rails, one each, with the pivot hole | 2 | 375.6 |
+| Vertical posts, on the bottom end rails | 4 | 199.0 |
+| Bottom end cross rails (20 x 20) | 2 | 163.1 |
+| Bottom side rails (20 x 40), one each, with the pivot hole | 2 | 375.6 |
 | Top end cross rails | 2 | 99.9 |
 | Cross rail under the mast base | 1 | 99.9 |
 | Top side rails | 2 | 335.2 |
 | Mid side rails (z 175, between the posts) | 2 | 335.2 |
 | Differential cross rails (x = plus or minus 28, z 175) | 2 | 99.9 |
 
-17 members, 3.68 m, **1.84 kg**. Every extrusion is cut square (zero-cut); the only machining is the 12 mm hole in each bottom side rail. A
-connectivity check in `frame.py` confirms the 17 members form one piece (each bottom side rail meets both bottom end cross rails).
+17 members, 3.71 m, **2.14 kg** (0.88 kg/m for the two 20 x 40 rails, 0.50 for the rest). Every extrusion is cut square (zero-cut); the only machining is the
+16 mm hole in each bottom side rail. A connectivity check in `frame.py` confirms the 17 members form one piece (each bottom side rail meets both bottom end cross rails).
 
 - **Side panels on pivot standoffs.** In the original the side panels stand proud of the body on spacers, apparently so that the heat
   the cells absorb does not reach the body (front view, [S18] Fig. 1; the gap reads about 10 mm by eye, uncertain by several mm; the
@@ -58,24 +58,26 @@ connectivity check in `frame.py` confirms the 17 members form one piece (each bo
   would add about 0.9 kg) but leaves the sides open to dust and light. A thin inner wall can be added later.
 - **Stiffness.** The panel is held at four points only, with 224 mm of 2 mm sheet between them, carrying the cells; no check has been made. A 3 mm sheet,
   a folded edge or a stiffener behind the cells are the options.
-- **Edges of the tub.** The floor lies on the bottom frame, wider than the rails by 13 mm on each side. The floor, end panels and side panels are
+- **Edges of the tub.** The floor lies on the bottom frame, wider than the rails by 17 mm on each side. The floor, end panels and side panels are
   not joined to each other along their seams; the end panels bolt to the end rails and posts. Closing the seams is not designed.
-- **Pivot hole (replaces the earlier bearing plate).** The shaft is an 8 mm tube; the hole is 12 mm and each end takes a flanged plain bushing
-  (8.2 mm ID), so the shaft is supported over the rail's 20 mm width, longer than the 688 bearing it replaces (5 mm). The shaft then passes through a
-  22 mm clearance hole in the side panel (the panel floats on its pivots) to the link plate at y = 133, about 30 mm beyond the rail face. The rail is
-  oriented with its slots facing out and in, so the hole passes through the slot openings and the central core, leaving about 4 mm of wall above
-  and below it on each face. **Strength check** (`hardware/chassis/rail_check.py`, a hand calculation on a simplified 2 mm-wall profile that is about 20 percent
-  under the catalogue stiffness, 6063-T5 typical values, 3 times the static load for impacts, wheel scrub at a friction coefficient of 0.6; all assumptions):
-  - **The rail as a beam is fine.** Midspan load of 140 N over 376 mm gives about 25 MPa at the hole against a 145 MPa yield (factor 5.9); the hole costs
-    only about 9 percent of the section's stiffness.
-  - **The bushings are the weak point.** The two bushings sit only 12 mm apart (one at each rail face), so the moment from the cantilevered link plate and the
-    wheel scrub (17.6 N.m in the design case) becomes a large couple: **1.5 kN** on each bushing, which tears out the 4 mm x 2 mm ligament of face wall
-    above or below the hole at 96 MPa shear against about 84 allowed. **That fails the 3x design case**; at the static load (0.5 kN, 32 MPa) it passes.
-  - **A second support fixes it.** If the shaft is also supported in the differential housing's wall (74 mm from the outer bushing), the reaction drops to 0.3 kN
-    and the tear-out to 19 MPa, which passes with a factor of 4. That needs a bore and bushing in the housing wall, which are not designed yet (the housing
-    hangs from the cross rails on printed cradles). Other options: clamp the face walls with a pressed steel sleeve and flanges, or use a thicker rail.
-  Plain bushings suit the slow oscillation of the differential (a few degrees), but the original 688 choice was for rolling friction under load; check
-  the bushing material and the shaft's surface.
+- **Pivot shaft, its supports and the rail (strength check).** The shaft is a **12 mm OD, 8 mm ID steel tube** (it was 8 / 5; see below) with two supports:
+  the pair of bushings in the rail hole, and a **bushing in the differential housing wall** (12 ID x 16 OD x 11 long, in a boss on the outside of the wall),
+  63 mm inboard of the rail. Beyond the housing wall the tube is turned down to 8 mm OD, 5 mm ID for the side gear. The shaft passes on through a 22 mm
+  clearance hole in the side panel (the panel floats on its pivots) to the link plate at y = 133. `hardware/chassis/rail_check.py` is a hand calculation
+  (typical material values, 3 times the static load for impacts, wheel scrub at a friction coefficient of 0.6, all assumptions). **The wheel load acts at y = 208,
+  100 mm outboard of the rail**, not at the link plate: an earlier version of this check used the link plate and understated the bending by a factor of two.
+  - **Reactions at 3x:** 600 N at the rail, 460 N at the housing wall, and a shaft bending moment of **29 N.m** at the rail's outer face (9.8 N.m static).
+  - **The 8 / 5 tube would fail.** It sees 695 MPa von Mises at 3x and 247 MPa static (with the torque at the 1.6 A cap), against about 355 MPa for S355 steel.
+  - **The 12 / 8 tube passes** at 218 MPa at 3x: a factor of 1.6 in S355 steel, 3.0 in 4140 quenched and tempered, and 1.0 in 304 stainless (so not stainless).
+    Static: 77 MPa. **Material to choose: 4140 or S355.**
+  - **No radial hole in the bent part.** The 3 mm wire holes at y = 60 and y = 125 are gone: they were at a stress concentration in the highest-moment zone.
+    The wires now leave the tube axially at the link plate end, and enter through one radial hole at y = 20 in the 8 mm stub inside the housing, where the bending
+    moment is nearly zero (torque alone, 158 MPa at the cap with the concentration).
+  - **The rail as a beam is fine:** 603 N at midspan over 376 mm gives 23 MPa net at the hole against about 200 for the alloy (factor 8.8); the 16 mm hole keeps
+    about 97 percent of the section's stiffness. **Tear-out** of the 12 mm of wall above the hole is 6 MPa per bushing (allow 116). **Without the housing support
+    the two bushings only 12 mm apart would each see about 2.4 kN** at 3x, which no 20 mm rail wall could take.
+  - **The housing now carries 460 N at 3x** (153 N static), down through its cradles into the differential cross rails; the cradles are not designed.
+  Plain bushings suit the slow oscillation of the differential (a few degrees); check the bushing material and the shaft's surface.
 - **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
   (not modelled), 1.3 mm above its top. They span the mid rails, y plus or minus 50.
 - **Mast.** The base plate (x 123 to 199) lies over the mast cross rail (x 131 to 151) and the front end rail
@@ -105,11 +107,11 @@ M4 button-head screws into T-nuts in the slot facing each panel, at about 100 mm
 
 | Panel | Screws and T-nuts |
 |---|---|
-| Floor (on 8 spacer blocks under the bottom side rails, one M4 each) | 8 |
+| Floor (on the bottom side and end rails) | 12 |
 | Deck (the lid) | 14 |
 | End panels (2) | 16 |
 | Side panels (2), by the 8 pivot standoffs | 8 |
-| **Total** | **46** |
+| **Total** | **50** |
 
 Panel holes are clearance holes; the T-nut sits in the frame.
 
@@ -135,37 +137,36 @@ about 0.6 kg lighter), or printed panels.
 
 ## Result of the checks
 
-- All 17 members, the bushings and the spacers lie inside the cavity (the space inside the side panels); no member touches another; the 17 form one connected frame.
-- Frame, spacers and bushings are clear of the side panels (0 mm3 overlap); the standoffs clear every member and spacer.
-- The pivot shafts pass through the rail holes and bushings with no overlap.
+- All 17 members and the bushings lie inside the cavity (the space inside the side panels); no member touches another; the 17 form one connected frame.
+- Frame and bushings are clear of the side panels (0 mm3 overlap); the standoffs clear every member.
+- The pivot shafts pass through the rail holes and bushings with no overlap, and the housing bosses clear the frame.
 - The frame does not touch the battery, controller, drivers, converter, differential housing, or the cable entry zone (15 x 40 x 30 mm, in the gap
-  under the mast). The master switch moved from y 45 to y 35 and from z 165 to z 172 to clear the post and the raised rear end rail.
+  under the mast). The tall rails now run through x = 0 at y 81 to 101, so the servo regulator moved to y -60 and the charger to y -65.
 - The 12 solar wire holes and the four terminal boards clear the frame.
-- Frame and spacers take about 1.5 L of the 16.35 L cavity.
+- Frame takes about 1.8 L of the 16.35 L cavity.
 
 ## Mass
 
 | Item | kg | Status |
 |---|---|---|
-| Frame | 1.84 | catalogue linear mass x lengths (the hole's removed metal ignored) |
+| Frame | 2.14 | catalogue linear mass x lengths (the hole's removed metal ignored) |
 | Panels | 2.41 | 2 mm sides, ends, floor; 3 mm deck |
-| Floor spacers | 0.08 | 8 x 0.010 kg, ASSUMPTION |
 | Pivot standoffs | 0.12 | 8 x 0.015 kg, ASSUMPTION |
 | Bushings | 0.02 | ASSUMPTION |
-| **Chassis** | **4.47** | the original's structure is 2 kg, excluding mobility [S26] |
+| **Chassis** | **4.69** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.54 kg** (`replica-mass.md`). Decision 2026-11-07: the first pass is not optimised for mass, and the motors, drivers,
-battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the build down to 10 kg if the real parts come out over. If it
-does, the first places to save mass are the link plates, the panel thickness, the redundant top and mid rails, and a 30 x 30 mast.
+Replica total from the CAD: **9.82 kg** (`replica-mass.md`), a margin of only 0.18 kg: the 20 x 40 rails add 0.35 kg and the 12 mm shafts 0.06 kg. Decision
+2026-11-07: the first pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass
+brings the build down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the
+redundant top and mid rails, and a 30 x 30 mast.
 
 ## Open
 
 - Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
-- The pivot hole: the bushings alone fail the 3x design case (see the strength check above). Needs a second shaft support in the differential housing wall, or a sleeve through the rail; plus the bushing material and fit.
-- The floor: eight spacers and eight screws hold it; its stiffness under the battery and the sealing of its edges are not designed.
+- The pivot: the shaft material (4140 or S355), the bushing material and fit, the shaft's step at the housing wall (turned or a separate gear stub), the link plate to
+  shaft joint, and the housing's cradles, which now carry 460 N at 3x.
 - The pivot standoffs: rod end, ball joint or hinge, how thermal expansion of the panel is taken up, whether four points hold a 2 mm sheet flat, and the true gap (about 10 mm by eye).
 - Sealing: no side wall, so the sides, the floor-to-panel seams and the end seams are open.
-- The cradles that hold the differential housing (printed) are not modelled.
 - The lid's gasket-free fit: no dust sealing, and no connector chosen for the mast cable.
 - Panel material and thickness.
 - Mid rails and top side rails may be partly unnecessary; no stiffness analysis has been done.

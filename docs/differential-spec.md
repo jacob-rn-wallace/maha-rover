@@ -49,11 +49,15 @@ modules 1 to 8, a KSM1.5-20 with an 8 mm bore). The 8 mm bore sets the shaft siz
 
 ## Shafts and bearings (changed from the first design)
 
-- **Shaft:** an **8 mm tube with a 5 mm bore** (was 10/6), to suit the 8 mm gear bore; the motor wires still run through it (four 22 AWG are about 3.4 mm across in a 2 x 2
-  bundle), through 3 mm radial holes inside the body (60 mm out) and in the gap outside the wall (125 mm out).
-- **Bearings:** **flanged plain bushings, 8 ID x 12 OD x 8 long (ASSUMPTION)**, one at each end of a 12 mm hole drilled through each bottom side rail (`frame-spec.md`); the shaft runs through the rail, so the earlier 688 bearing in a wall plate is gone. Check the bushing material and the strength of the drilled rail.
-- **Shear:** at the firmware cap the tube sees 52 MPa, and 157 MPa at the cross holes with a stress-concentration factor of 3; at the gearbox limit 84 and 251 MPa.
-  That is too high for plain steel at the holes, which is another reason for the cap. A heat-treated or stainless tube, or a thicker wall, would help. No material is chosen.
+- **Shaft (changed 2026-11-07):** a **12 mm OD, 8 mm ID steel tube** from the link plate to the housing wall, turned down to **8 mm OD, 5 mm ID** inside the housing for the 8 mm gear bore.
+  The earlier 8 / 5 tube was too thin for the bending of the wheel loads (`hardware/chassis/rail_check.py`: 695 MPa at 3x, 247 MPa static); the 12 / 8 tube sees 218 MPa
+  at 3x (factor 3.0 in 4140 Q&T, 1.6 in S355, 1.0 in 304 stainless, which is not enough). The motor wires (four 22 AWG, about 3.4 mm across in a 2 x 2 bundle) run
+  through the bore, leave axially at the link plate end, and enter through one 3 mm radial hole at y = 20 in the stub, inside the housing between the gear hub and the wall.
+- **Supports:** two flanged plain bushings (12 ID x 16 OD x 8 long, ASSUMPTION) in a 16 mm hole through the bottom side rail (`frame-spec.md`), and **a third bushing in the
+  housing wall** (12 ID x 16 OD x 11 long, in a 22 mm boss, 8 mm long outside the 3 mm wall), 63 mm inboard of the rail. The shoulder where the shaft steps down bears on
+  the wall's inner face. At 3x the housing bushing carries 460 N (153 N static); the housing hangs from the differential cross rails on printed cradles, which are not designed.
+- **Shear:** the 8 / 5 stub in torsion alone sees 53 MPa at the firmware cap, and 158 MPa at the cross hole with a stress-concentration factor of 3; at the gearbox limit 83 and 250 MPa.
+  That is too high for plain steel at the hole, which is another reason for the cap. The hole is where the bending moment is nearly zero. 4140 Q&T is the likely material.
 
 ## Open
 

@@ -79,11 +79,11 @@ Typical chassis ampacities are 16 AWG about 22 A, 18 AWG about 16 A, 22 AWG abou
 ## How the motors' wires cross the pivots
 
 The four motors sit on the moving link plates, and their wires must cross from the body to the plates. They run **through the pivot shafts**,
-which are now tubes: 8 mm outside, 5 mm inside, with a 3 mm radial hole inside the body (60 mm from the centreline) and another in the 16 mm gap
-outside the wall (125 mm out). Four 22 AWG wires (two motors a side) enter the shaft inside the body, run along its axis, leave in the gap, then follow
+which are now tubes: 12 mm outside and 8 mm inside from the link plate to the differential housing wall, then 8 mm outside and 5 mm inside in the housing, with a 3 mm radial hole
+in the stub inside the housing (20 mm from the centreline). Four 22 AWG wires (two motors a side) enter the shaft there, run along its axis, leave axially at the link plate end, then follow
 the inner face of the link plate to each motor's sleeve, which already covers the terminals. The shaft only turns about plus or minus 11 degrees,
-so the wires twist, not flex. In the CAD the hollow shaft clears the bearings, plates and frame; the differential's gears are not involved because the
-wires leave the shaft well before the housing. Not designed: the clips along the plate, the strain relief, the entry from the sleeves.
+so the wires twist, not flex. In the CAD the hollow shaft clears the bushings and frame; the wires enter the stub in the 4 mm gap between the gear hub and the housing wall,
+so the housing needs a gland or a slot for them (not designed). Not designed: the clips along the plate, the strain relief, the entry from the sleeves.
 
 ## Where the parts sit (all checked for fit and clashes in `interior.py` and `frame.py`)
 

@@ -98,16 +98,16 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
   check: `hardware/drive/motor.py`. Open: bearing loads, concentricity, can clamp.
-- Suspension decision (2026-11-07): passive bevel gear differential (decided 2026-11-07, `docs/differential-spec.md`: module 1.5 mitre gears, 8 mm tube shafts, a motor current
+- Suspension decision (2026-11-07): passive bevel gear differential (decided 2026-11-07, `docs/differential-spec.md`: module 1.5 mitre gears, 12 mm tube shafts (8 mm stub in the housing), a motor current
   cap of 1.6 A) inside the body joining two rigid side link plates, body as carrier. The plate and pivot position (about 147 mm above the ground
   line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
   clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
-- Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (17 members, all vertical or horizontal, 1.84 kg) behind 2 mm aluminium panels
-  (3 mm deck), the differential held by two cross rails, the pivot shafts running through 12 mm holes drilled in single bottom side rails (flanged plain bushings), the bottom frame centred on the pivot axis with the floor hung under it on spacers. Every
+- Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (17 members, all vertical or horizontal, 2.14 kg) behind 2 mm aluminium panels
+  (3 mm deck), the differential held by two cross rails, the pivot shafts (12 mm steel tubes, checked for bending in `hardware/chassis/rail_check.py`) running through 16 mm holes drilled in single 20 x 40 bottom side rails (flanged plain bushings) and supported again in the differential housing wall. Every
   extrusion is cut square and either vertical or horizontal (owner's sketch, 2026-11-07): a stepped frame, wide at the bottom and narrow at the top, joined by vertical posts. Only the side panels lean at 10 degrees: they are separate 2 mm plates (the solar panels) held about 10 mm off the frame on four pivot standoffs each near the corners, as the original's panels stand proud of its body (`original-dimensions.md` 3f). Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.5 kg; replica mass estimate from the CAD 9.54 kg, under the 10 kg target by 0.46 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 207 mm.
+  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 9.82 kg, under the 10 kg target by only 0.18 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 206 mm.
 - Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
   panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
   charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:
@@ -116,7 +116,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
   drive motor; design the differential's gear train; settle the cell mounting, the cradles that hold the differential,
-  a second shaft support in the differential housing (the drilled rail's bushings alone fail the 3x design case, `hardware/chassis/rail_check.py`), the bushing choice, and a connector for the mast cable; reassess the mass and centre of mass for the
+  the shaft material (4140 or S355) and the housing's cradles (they carry 460 N at 3x), the bushing choice, and a connector for the mast cable; reassess the mass and centre of mass for the
   replica's own parts; then a second pass to bring the total to 10 kg if the real parts come out over; fill the
   rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.

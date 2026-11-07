@@ -21,10 +21,10 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 - Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
   44 mm long) on printed cradles between them (`frame-spec.md`).
-- Each pivot shaft (an 8 mm tube) passes through a 12 mm hole drilled in the single bottom side rail at x = 0, z = 145.7 (the bottom frame is centred on the
-  pivot axis), with a flanged plain bushing at each end, then through a 22 mm clearance hole in the side panel, and enters the housing (`differential-spec.md`).
+- Each pivot shaft (a 12 mm tube) passes through a 16 mm hole drilled in the single 20 x 40 bottom side rail at x = 0, z = 145.7, with a flanged plain bushing at each end, then through a 22 mm
+  clearance hole in the side panel, and enters the housing through a boss and bushing in its wall, where it steps down to 8 mm (`differential-spec.md`, `frame-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
-  bearings. The rails top out at z 156, below the cell field (from about 172).
+  bearings. The rails top out at z 166, below the cell field (from about 172).
 
 ## Compartments
 

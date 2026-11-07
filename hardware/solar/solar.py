@@ -70,14 +70,14 @@ def holes_check():
     print(f"\nWire holes: {len(holes)} of {B.HOLE_D:.0f} mm at x = +-{B.HOLE_X}, one at each end of each row, under the end pieces "
           f"(end piece spans x {(B.N_COLS - 1) / 2 * B.PITCH_U + B.PIECE_GAP / 2:.1f} to {(B.N_COLS - 1) / 2 * B.PITCH_U + B.PIECE_GAP / 2 + B.PIECE_W:.1f})")
     members = F.build()
-    behind = {**members, **F.floor_spacers(), **F.standoffs()}
+    behind = {**members, **F.standoffs()}
     hits = []
     for k, cyl in enumerate(B.solar_holes(length=14.0, d=B.HOLE_D + 2.0)):
         for n, m in behind.items():
             v = (cyl & m).volume
             if v > 0.5:
                 hits.append((k, n, round(v, 1)))
-    print(f"  members, spacers or standoffs within 1 mm of a hole's edge, 14 mm deep: {hits or 'none'}")
+    print(f"  members or standoffs within 1 mm of a hole's edge, 14 mm deep: {hits or 'none'}")
     print(f"  nearest post face at x = +-{F.X_END - F.P:.0f}: {F.X_END - F.P - B.HOLE_X - B.HOLE_D / 2:.1f} mm from the hole edge")
     return holes
 
@@ -122,7 +122,7 @@ def boards(H):
             face = F.YO - F.P                                  # the post's inner face, vertical
             out[f"board {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = Pos(xc, sy * (face - BOARD[1] / 2), (z0 + z1) / 2) * Box(BOARD[0], BOARD[1], z1 - z0)
     members = F.build()
-    allf = list(members.values()) + list(F.floor_spacers().values()) + list(F.standoffs().values()) + list(I.placed_parts().values())
+    allf = list(members.values()) + list(F.standoffs().values()) + list(I.placed_parts().values())
     bad = [(n, round(sum((b & m).volume for m in allf), 1)) for n, b in out.items() if sum((b & m).volume for m in allf) > 0.5]
     print(f"\nTerminal boards ({BOARD[0]:.0f} x {BOARD[1]:.0f} x {BOARD[2]:.0f} mm, one per post, z {z0:.0f} to {z1:.0f}, on the post's cavity-facing face): clashes {bad or 'none'}")
     for n, b in out.items():

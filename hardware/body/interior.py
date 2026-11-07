@@ -40,9 +40,9 @@ PARTS = {
     "BMS board (2S, common port)": dict(size=(48.0, 20.0, 4.0), mass=0.012, at=(-65.0, 45.0)),     # about 48 x 20 x 4 mm from the 2S 20 A listings; mass ASSUMPTION
     "fuse block (4-way blade)":    dict(size=(60.0, 36.0, 20.0), mass=0.04, at=(-65.0, -45.0)),     # size class ASSUMPTION (mini 4-way)
     "bus bar (power node)":        dict(size=(40.0, 20.0, 15.0), mass=0.03, at=(-52.0, 0.0)),       # size class ASSUMPTION
-    "servo regulator (6 V)":       dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(-20.0, -75.0)),    # Pololu D24V22F6, 17.8 x 17.8 x 7.9, 2.3 g
-    "master switch (rear panel)":  dict(size=(20.0, 14.0, 28.0), mass=0.02, at=(-178.0, 35.0), z=172.0),   # panel-mount switch body behind the rear panel; ASSUMPTION
-    "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -70.0)),    # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; mass ASSUMPTION
+    "servo regulator (6 V)":       dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(-20.0, -60.0)),    # Pololu D24V22F6, 17.8 x 17.8 x 7.9, 2.3 g
+    "master switch (rear panel)":  dict(size=(20.0, 14.0, 28.0), mass=0.02, at=(-178.0, 35.0), z=165.0),   # panel-mount switch body behind the rear panel; ASSUMPTION
+    "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -65.0)),    # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; mass ASSUMPTION
 }
 PANEL_GAP = 10.0         # clearance between the side panels and the frame behind them. The original's side panels stand proud
                          # of its body on spacers (front view, [S18] Fig. 1; about 10 mm read by eye on a 1.10 mm/px scale, uncertain
