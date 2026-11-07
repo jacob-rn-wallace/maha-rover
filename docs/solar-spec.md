@@ -143,6 +143,49 @@ So the realistic route is to cut full cells to the 69 x 39 mm outline, as the co
 tile several small pre-cut cells behind a printed or laminated cover that draws the 69 x 39 mm outline, or let the
 real cells be smaller than the dummy cells, since from outside only the outline and the dark colour show.
 
+## Wiring (all options)
+
+Check and numbers: `hardware/solar/solar.py`. Hole ids: side L or R, row 1 (bottom) to 3 (top), end F (front, +x) or R
+(rear, -x), e.g. L2F. Rows are at z 194, 234 and 275; the holes at x = plus or minus 160.2.
+
+**Terminal boards.** One small board (20 x 8 x 60 mm, ASSUMPTION) lies on the cavity-facing face of each of the four posts at
+z 235, leaning with the post. Fit checked: no clash with the frame, strips, plates or contents. The front board of a side takes
+the three front holes of that side, the rear board the three rear holes, so each hole wire is 30 to 40 mm long. Holes are
+5 mm; a bundled pair of 24 AWG wires fits, with a grommet.
+
+**Silicon, F1 or F2: one 15-cell series string per side (serpentine).** Polarity is set by how the cells are tabbed.
+
+```
+row 3   rear  <-- jumper B --+                          front (+) --> lead + to the charger
+row 2   rear  --> ... -->  front  --- jumper A ---+
+row 1   rear (-) --> ... --> front -----------------+
+          ^ lead - to the charger
+```
+Row 1 runs rear to front, jumper A joins row 1's front hole to row 2's front hole, row 2 runs front to rear, jumper B joins
+row 2's rear hole to row 3's rear hole, and row 3 runs rear to front. Jumper A sits on the front board, jumper B on the
+rear board; the (-) lead leaves the rear board (hole 1R) and the (+) lead the front board (hole 3F). Lengths with
+30 percent slack: jumpers about 53 mm each; leads, left side 430 mm (-) and 289 mm (+), right side 366 mm (-) and
+198 mm (+), to the charge controller at the front floor. All 24 AWG; 15 cells at 1.03 A over 1.1 m of lead pair drops about
+0.10 V of 8.7 V (1.2 percent), using 84 milliohm per metre (the standard value for 24 AWG copper).
+
+**Silicon, F3 (tiled 52 x 19 mm cells).** The same serpentine, with 10 pieces per row (5 positions, 2 pieces each): 5 V per row
+at the listed 0.5 V, 15 V per side (20 V at the reviewer's 0.65 V). The alternative, the two pieces of each position in
+parallel and 15 positions in series, doubles the tabs in each row and gives 7.5 V and 0.8 A listed; the same six holes serve it.
+
+**Triple junction (option A).** Rows in parallel instead: each row of 5 is a string of its own, 11.5 V, 0.45 A. The three front
+holes become the plus side and the three rear holes the minus side: a plus bus on the front board with one blocking diode per row
+(so a shaded row is not driven backwards by the others) and a minus bus on the rear board. Side leads then carry 1.36 A: 24 AWG
+over 1.1 m drops 0.13 V of 11.5 V.
+
+**Both sides to the charger.** One side faces the sun at a time and the other may be dark or shaded, so the two sides cannot
+simply be joined: a dark side would load the lit one. Either a blocking diode in each side's plus lead (a Schottky drop, typically
+0.3 to 0.5 V from memory, costs about 3 to 6 percent of 8.7 V), then joined at the charger, or a charger with two inputs. The
+choice goes with the charger (`electronics-spec.md`).
+
+**Protection, not designed:** a fuse or resettable fuse in each side's plus lead; a bypass diode across each row so one shaded
+row does not throttle the string (the two ends of a row are 320 mm apart, so it needs a 420 mm wire back to the diode, and it
+is optional for a first pass); a connector between each side's boards and the charger so a panel can come off.
+
 ## Cost per panel (rough, prices seen 2026-11-07)
 
 "Panel" here is one side's 15 cells. Only the cell prices below were found; everything else is unpriced.

@@ -76,6 +76,77 @@ def silicon_options():
     return rows
 
 
+# ---- wiring plan --------------------------------------------------------------
+WIRE_R = 0.0842          # ohm per metre, 24 AWG copper (standard table value)
+SLACK = 1.3              # routing slack on straight-line wire lengths
+
+
+def hole_table():
+    """Hole id -> (x, y, z) of each of the 12 holes, on the inner face of the panel.
+    Id: side L/R, row 1..3 (bottom to top), end F (front, +x) or R (rear, -x)."""
+    holes = B.solar_holes(length=I.WALL_T / I.COS)       # starts at the outer face, runs inward by the panel thickness
+    names = []
+    for sy in ("L", "R"):
+        for j in (1, 2, 3):
+            for e in ("R", "F"):
+                names.append(f"{sy}{j}{e}")
+    # solar_holes order: for sy in (1,-1): for j: for sx in (1,-1) -> F then R
+    order = []
+    for sy in ("L", "R"):
+        for j in (1, 2, 3):
+            for e in ("F", "R"):
+                order.append(f"{sy}{j}{e}")
+    out = {}
+    for n, h in zip(order, holes):
+        bb = h.bounding_box()
+        c = h.center()
+        out[n] = (c.X, c.Y, c.Z)
+    return out
+
+
+def wiring_report():
+    H = hole_table()
+    ctrl = I.placed_parts()["solar charge controller"].center()
+    C = (ctrl.X, ctrl.Y, ctrl.Z)
+    d = lambda a, b: math.dist(a, b)
+    print("\nwire holes (x, y, z on the inner face of the panel)")
+    for n, p in H.items():
+        print(f"  {n}  ({p[0]:7.1f}, {p[1]:7.1f}, {p[2]:6.1f})")
+    print("\nserpentine for one side (silicon F1 or F2, 15 cells in series; row 1 is the bottom row)")
+    print("  row 1 rear (-)  ->  row 1 front  =jumper=  row 2 front  ->  row 2 rear  =jumper=  row 3 rear  ->  row 3 front (+)")
+    for sy in ("L", "R"):
+        j1 = SLACK * d(H[f"{sy}1F"], H[f"{sy}2F"])
+        j2 = SLACK * d(H[f"{sy}2R"], H[f"{sy}3R"])
+        lm = SLACK * d(H[f"{sy}1R"], C)
+        lp = SLACK * d(H[f"{sy}3F"], C)
+        print(f"  side {sy}: jumpers {j1:.0f} and {j2:.0f} mm; lead (-) from {sy}1R {lm:.0f} mm; lead (+) from {sy}3F {lp:.0f} mm")
+    # voltage drop at the option currents
+    for label, amps in (("silicon, 15 in series", 1.03), ("triple junction, three rows in parallel", 3 * 0.453), ("tiled 52 x 19, listed, 30 in series", 0.40)):
+        L = 2 * 0.55                                    # a typical lead pair, metres (+ and -)
+        print(f"  {label}: {amps:.2f} A over {L:.2f} m of 24 AWG drops {amps * L * WIRE_R:.2f} V")
+    return H
+
+
+BOARD = (20.0, 8.0, 60.0)    # terminal board on each post's cavity-facing face: x (the post width), y, z    ASSUMPTION
+BOARD_Z = 235.0              # centre height; the hole rows are at about 194, 234 and 275
+
+
+def terminal_boards():
+    """One terminal board per post (four per side pair would be two per side: front and rear), lying flat on the post's
+    cavity-facing face, which leans 10 degrees like the post."""
+    from build123d import Plane, Polygon, Pos, extrude
+    out = {}
+    z0, z1 = BOARD_Z - BOARD[2] / 2, BOARD_Z + BOARD[2] / 2
+    for sx in (1, -1):
+        for sy in (1, -1):
+            xc = sx * (F.X_END - F.P / 2 - F.EDGE)
+            face = lambda z: F.yin(z) - F.EDGE - F.P / F.COS
+            t = BOARD[1] / F.COS
+            pts = [(sy * face(z0), z0), (sy * face(z1), z1), (sy * (face(z1) - t), z1), (sy * (face(z0) - t), z0)]
+            out[f"board {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = Pos(xc, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=BOARD[0] / 2, both=True)
+    return out
+
+
 if __name__ == "__main__":
     # ---- stack and layout ----
     print(f"cell stack on the panel: {B.CELL_T:.1f} mm (dummy plates use the same); cell outline {B.CELL_W:.0f} x {B.CELL_H:.0f} mm, "
@@ -159,6 +230,21 @@ if __name__ == "__main__":
     print(f"    listed 0.5 V and 0.40 A: all {pieces} in series {pieces * 0.5:.0f} V, 0.40 A, {pieces * 0.5 * 0.4:.1f} W per side; "
           f"as measured by one reviewer (0.65 V, 0.14 A): {pieces * 0.65:.0f} V, {pieces * 0.65 * 0.14:.1f} W per side")
     print(f"    or {per_pos} pieces in parallel per position and 15 positions in series: 7.5 V, {per_pos * 0.4:.2f} A listed ({15 * 0.5 * per_pos * 0.4:.1f} W)")
+
+    H = wiring_report()
+    boards = terminal_boards()
+    members_ = F.build()
+    plates_, _ = F.bearing_plates()
+    cav = I.cavity()
+    allf = list(members_.values()) + plates_ + list(F.wedge_strips(members_).values()) + list(F.post_shims(members_).values()) + list(I.placed_parts().values())
+    bad = [(n, round(sum((b & m).volume for m in allf), 1)) for n, b in boards.items() if sum((b & m).volume for m in allf) > 0.5]
+    out_c = [n for n, b in boards.items() if b.volume - (b & cav).volume > 0.5]
+    print(f"\nterminal boards ({BOARD[0]:.0f} x {BOARD[1]:.0f} x {BOARD[2]:.0f} mm, one per post, on its cavity-facing face at z {BOARD_Z:.0f}): "
+          f"clashes {bad or 'none'}; outside the cavity {out_c or 'none'}")
+    for n, b in boards.items():
+        c = b.center()
+        near = min(math.dist((c.X, c.Y, c.Z), H[k]) for k in H if k[0] == ('L' if c.Y > 0 else 'R') and k[2] == ('F' if c.X > 0 else 'R'))
+        print(f"  {n}: nearest hole {near:.0f} mm from the board centre")
 
     # ---- sun angle ----
     print("\nsun on a near-vertical panel: the normal is 10 degrees above horizontal, so output = normal-incidence power x cos(sun elevation - 10 deg) x cos(azimuth off the panel normal)")
