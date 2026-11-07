@@ -20,7 +20,7 @@ note in this repo called it planetary; that was wrong.)
 | #2829 | 150:1 | 67 rpm | 57 mm | 65 kg·mm at max efficiency |
 
 Common to all of them: 37 mm gearbox (36.8), 34.8 mm motor can, 12 mm boss on the gearbox face,
-6 mm D-shaft 16 mm long, 6 x M3 on a 31 mm circle (3 mm thread depth), weight 175 to 195 g, 5.2 A
+6 mm D-shaft 16 mm long, 6 x M3 on a 31 mm circle (3 mm thread depth), weight 175 to 195 g, 5.5 A
 extrapolated stall at 12 V. Recommended limits: 100 kg·mm (0.98 N·m) continuous, 250 kg·mm
 (2.45 N·m) instantaneous. Prices seen for #4746 and #4744: US$38.95 each, less in quantity
 (price for the others not checked). The datasheet gives **no bearing or radial-load rating** for the output
