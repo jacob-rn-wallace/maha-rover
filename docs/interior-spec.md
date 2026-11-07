@@ -21,10 +21,10 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 - Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
   44 mm long) on printed cradles between them (`frame-spec.md`).
-- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate against the bottom rails at x = 0, z = 145.7, with a seat
-  for a 688 bearing (8 x 16 x 5, ISO size from memory), then through a 22 mm clearance hole in the side panel, and enters the housing (`differential-spec.md`).
+- Each pivot shaft (an 8 mm tube) passes through a 12 mm hole drilled in the single bottom side rail at x = 0, z = 145.7 (the bottom frame is centred on the
+  pivot axis), with a flanged plain bushing at each end, then through a 22 mm clearance hole in the side panel, and enters the housing (`differential-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
-  bearings. The plate tops out at z 164, below the cell field (from about 172).
+  bearings. The rails top out at z 156, below the cell field (from about 172).
 
 ## Compartments
 
@@ -53,7 +53,7 @@ replica's mass and centre of mass have not been recomputed.
   battery charge and protection board have no space reserved.
 - The mast is fixed and carries its own servos (`mast-spec.md`); only the cable entry through the deck and a clamp for the wires are reserved, as a 15 x 40 x 30 mm keep-out. The entry itself is not designed.
 - The way in to the cavity is the deck, as a lid with the mast attached (`frame-spec.md`); the walls need the shaft
-  holes in the bearing plates (modelled in `frame.py`).
+  holes in the bottom side rails (modelled in `frame.py`).
 - The cell fields are 0.5 mm plates on the wall; nothing is behind them, and their wiring and
   mounting are not designed.
 - Mass of the panels and frame: see `frame-spec.md`.

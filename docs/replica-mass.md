@@ -9,7 +9,7 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 ```
 group                                  kg   share      x      z
 panels                               2.41     25%     -0    236
-T-slot frame                         1.79     19%      4    224
+T-slot frame                         1.84     19%      4    224
 link plates, sleeves, shafts         1.15     12%      0    130
 wheels                               1.12     12%     -0    100
 mast, head and camera                0.80      8%    162    507
@@ -17,13 +17,14 @@ drive motors                         0.78      8%      0    100
 harness and fasteners                0.40      4%      0    190
 electronics                          0.39      4%    -71    142
 differential                         0.30      3%      0    146
-bearing plates                       0.14      1%     -0    145
-pivot standoffs                      0.12      1%      0    235
+pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
+floor spacers                        0.08      1%      0    131
 terminals, diodes, fuses             0.05      1%      0    255
-TOTAL                                9.53   target 10 kg: margin +0.47 kg
+bushings                             0.02      0%     -0    146
+TOTAL                                9.54   target 10 kg: margin +0.46 kg
 
-centre of mass: x 11.4, y -0.3, z 206.9 (mm, ground at the rim line)
+centre of mass: x 11.4, y -0.3, z 207.3 (mm, ground at the rim line)
 static tip angles: nose-down 36 deg, nose-up 31 deg, sideways 50 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
@@ -36,7 +37,7 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **9.5 kg against the 10 kg target: 0.5 kg of margin** (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **9.5 kg against the 10 kg target: 0.46 kg of margin** (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.

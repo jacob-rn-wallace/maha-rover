@@ -1,6 +1,6 @@
 """al-maha replica mass and centre of mass, from the CAD parts.
 
-Adds up the replica as designed so far (frame, panels, plates, link plates and sleeves, shafts, wheels, motors, mast,
+Adds up the replica as designed so far (frame, panels, floor spacers, link plates and sleeves, shafts, wheels, motors, mast,
 electronics, solar pieces) with densities and a few allowances. Where a part is not designed (the differential's gears,
 harness, fasteners) the value is an allowance, marked ASSUMPTION. Frame as in body.py.
 
@@ -47,9 +47,10 @@ def collect():
     add("panels", "floor, ends, deck", kg(sh.volume, AL), c(sh))
     for i, sp in enumerate(I.side_panels(cav)):
         add("panels", f"side panel {i}", kg(sp.volume, AL), c(sp))
-    plates, _ = F.bearing_plates()
-    for i, p in enumerate(plates):
-        add("bearing plates", f"plate {i}", kg(p.volume, AL), c(p))
+    for n, s in F.floor_spacers().items():
+        add("floor spacers", n, F.SPACER_KG, c(s))
+    for i, b in enumerate(F.bushings()):
+        add("bushings", f"bushings {i}", 0.01, c(b))      # two flanged bronze or plastic bushings, about 5 g each (ASSUMPTION)
     for n, s in F.standoffs().items():
         add("pivot standoffs", n, F.PIV_KG, c(s))
 

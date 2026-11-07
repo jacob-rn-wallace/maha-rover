@@ -17,15 +17,17 @@ vendor you buy from.
 ## Frame
 
 Revised 2026-11-07 from the owner's sketch and a second correction: **every extrusion is vertical or horizontal; only the side panels
-lean, and they are separate plates held off the frame on pivots.** The frame is **stepped**: a wide bottom frame on the floor and a narrow
+lean, and they are separate plates held off the frame on pivots.** The frame is **stepped**: a wide bottom frame centred on the pivot axis and a narrow
 top frame under the deck, joined by four vertical posts that stand on the bottom end cross rails. Members are modelled as plain 20 x 20
 sections (slots ignored).
 
-- **Bottom frame:** two side rails the full length of the body, joined at the ends by two end cross rails (so all four corners are
-  closed; an earlier version stopped the side rails short and left the corners unjoined). Outer faces at y = plus or minus 105.1. The
-  floor lies on it. The side rails are split at |x| < 35 for the pivot shafts, where a bearing plate bridges them.
+- **Bottom frame:** two side rails, each a **single member** the full length of the body, joined at the ends by two end cross rails (all four
+  corners closed). The frame is centred on the pivot axis, **z 145.7** (rails z 135.7 to 155.7), so each pivot shaft passes **through a 12 mm hole
+  drilled in its side rail** at x = 0, with a flanged plain bushing (8 ID x 12 OD x 8 long, ASSUMPTION) at each end of the hole. Outer faces at
+  y = plus or minus 103.4. The frame is therefore 9.7 mm above the floor panel, which hangs under it on eight 20 x 20 spacer blocks (x = plus or
+  minus 70 and 160, 0.010 kg each, ASSUMPTION).
 - **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, plus the cross rail under the mast.
-- **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails; they lie 35 mm inboard of the
+- **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails (from z 155.7); they lie 33 mm inboard of the
   bottom frame's outer face.
 
 The frame sits **10 mm inside the side panels** at the outer upper corner of each rail (`PANEL_GAP` in `interior.py`), so no member touches a
@@ -33,17 +35,17 @@ side panel.
 
 | Group | Members | Length (mm) |
 |---|---|---|
-| Vertical posts, on the bottom end rails | 4 | 199.0 |
-| Bottom end cross rails | 2 | 170.1 |
-| Bottom side rails, split at the pivot shafts | 4 | 152.8 |
+| Vertical posts, on the bottom end rails | 4 | 189.3 |
+| Bottom end cross rails | 2 | 166.7 |
+| Bottom side rails, one each, with the pivot hole | 2 | 375.6 |
 | Top end cross rails | 2 | 99.9 |
 | Cross rail under the mast base | 1 | 99.9 |
 | Top side rails | 2 | 335.2 |
 | Mid side rails (z 175, between the posts) | 2 | 335.2 |
 | Differential cross rails (x = plus or minus 28, z 175) | 2 | 99.9 |
 
-19 members, 3.59 m, **1.79 kg**. Every extrusion is cut square (zero-cut). A connectivity check in `frame.py` confirms the 19 members form one piece
-(each bottom side rail meets an end cross rail at one end and the bearing plate at the other).
+17 members, 3.68 m, **1.84 kg**. Every extrusion is cut square (zero-cut); the only machining is the 12 mm hole in each bottom side rail. A
+connectivity check in `frame.py` confirms the 17 members form one piece (each bottom side rail meets both bottom end cross rails).
 
 - **Side panels on pivot standoffs.** In the original the side panels stand proud of the body on spacers, apparently so that the heat
   the cells absorb does not reach the body (front view, [S18] Fig. 1; the gap reads about 10 mm by eye, uncertain by several mm; the
@@ -58,10 +60,14 @@ side panel.
   a folded edge or a stiffener behind the cells are the options.
 - **Edges of the tub.** The floor lies on the bottom frame, wider than the rails by 13 mm on each side. The floor, end panels and side panels are
   not joined to each other along their seams; the end panels bolt to the end rails and posts. Closing the seams is not designed.
-- **Bearing plates.** The pivot shafts at z 145.7 would pass through a bottom side rail, so those rails are split. On each side a 6 mm aluminium plate
-  (x plus or minus 60, z 126 to 164, 0.07 kg) lies in the XZ plane against the rails' outer faces, bolted over the rail ends, with a 16 mm bore
-  for a 688 bearing. The shaft passes on through a 22 mm clearance hole in the side panel (the panel floats on its pivots) to the link plate at
-  y = 133, about 25 mm beyond the bearing. There is now one bearing per side, as in the earlier design, and the shaft is cantilevered a little further.
+- **Pivot hole (replaces the earlier bearing plate).** The shaft is an 8 mm tube; the hole is 12 mm and each end takes a flanged plain bushing
+  (8.2 mm ID), so the shaft is supported over the rail's 20 mm width, longer than the 688 bearing it replaces (5 mm). The shaft then passes through a
+  22 mm clearance hole in the side panel (the panel floats on its pivots) to the link plate at y = 133, about 30 mm beyond the rail face. The rail is
+  oriented with its slots facing out and in, so the hole passes through the slot openings and the central core; this leaves about 4 mm of wall above
+  and below the hole at the rail's 20 mm depth. **That weakens a 20 x 20 section and has not been checked**; the rail is lightly loaded (it carries the
+  floor and the standoffs), but the pivot shaft's reaction goes through it. A 20 x 40 section, or a steel sleeve pressed through the rail, are the fixes.
+  Plain bushings suit the slow oscillation of the differential (a few degrees), but the original 688 choice was for rolling friction under load; check
+  the bushing material and the shaft's surface.
 - **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
   (not modelled), 1.3 mm above its top. They span the mid rails, y plus or minus 50.
 - **Mast.** The base plate (x 123 to 199) lies over the mast cross rail (x 131 to 151) and the front end rail
@@ -81,8 +87,7 @@ Every rail-to-rail and rail-to-post joint is a plain 90 degree butt joint with a
 | Mid side rail to post | 4 |
 | Differential cross rail to mid side rail | 4 |
 | Mast cross rail to top side rail | 2 |
-| Bottom side rail to bearing plate (the plate is bolted over the rail end) | 4 |
-| **Total** | **30 brackets, 60 T-nuts, 60 M4 bolts** |
+| **Total** | **26 brackets, 52 T-nuts, 52 M4 bolts** |
 
 Bracket sizes, T-nut type and bolt lengths are standard 20-series items, not chosen from a catalogue.
 
@@ -92,11 +97,11 @@ M4 button-head screws into T-nuts in the slot facing each panel, at about 100 mm
 
 | Panel | Screws and T-nuts |
 |---|---|
-| Floor (on the bottom rails and bottom end rails) | 12 |
+| Floor (on 8 spacer blocks under the bottom side rails, one M4 each) | 8 |
 | Deck (the lid) | 14 |
 | End panels (2) | 16 |
 | Side panels (2), by the 8 pivot standoffs | 8 |
-| **Total** | **50** |
+| **Total** | **46** |
 
 Panel holes are clearance holes; the T-nut sits in the frame.
 
@@ -122,34 +127,37 @@ about 0.6 kg lighter), or printed panels.
 
 ## Result of the checks
 
-- All 19 members and both bearing plates lie inside the cavity (the space inside the side panels); no member touches another; the 19 form one connected frame.
-- Frame and plates are clear of the side panels (0 mm3 overlap); the standoffs clear every member and plate.
+- All 17 members, the bushings and the spacers lie inside the cavity (the space inside the side panels); no member touches another; the 17 form one connected frame.
+- Frame, spacers and bushings are clear of the side panels (0 mm3 overlap); the standoffs clear every member and spacer.
+- The pivot shafts pass through the rail holes and bushings with no overlap.
 - The frame does not touch the battery, controller, drivers, converter, differential housing, or the cable entry zone (15 x 40 x 30 mm, in the gap
-  under the mast). The master switch moved from y 45 to y 35 to clear the post.
-- The 12 solar wire holes and the four terminal boards clear the frame; the pivot shafts clear every member and turn freely in the plate bores.
-- Frame and plates take about 1.5 L of the 16.35 L cavity.
+  under the mast). The master switch moved from y 45 to y 35 and from z 165 to z 172 to clear the post and the raised rear end rail.
+- The 12 solar wire holes and the four terminal boards clear the frame.
+- Frame and spacers take about 1.5 L of the 16.35 L cavity.
 
 ## Mass
 
 | Item | kg | Status |
 |---|---|---|
-| Frame | 1.79 | catalogue linear mass x lengths |
+| Frame | 1.84 | catalogue linear mass x lengths (the hole's removed metal ignored) |
 | Panels | 2.41 | 2 mm sides, ends, floor; 3 mm deck |
-| Bearing plates | 0.14 | |
+| Floor spacers | 0.08 | 8 x 0.010 kg, ASSUMPTION |
 | Pivot standoffs | 0.12 | 8 x 0.015 kg, ASSUMPTION |
-| **Chassis** | **4.46** | the original's structure is 2 kg, excluding mobility [S26] |
+| Bushings | 0.02 | ASSUMPTION |
+| **Chassis** | **4.47** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.53 kg** (`replica-mass.md`; was 9.20 kg before the T-slot mast, which adds 0.38 kg). Decision 2026-11-07: the first
-pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the build
-down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the redundant
-top and mid rails, and a 30 x 30 mast.
+Replica total from the CAD: **9.54 kg** (`replica-mass.md`). Decision 2026-11-07: the first pass is not optimised for mass, and the motors, drivers,
+battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the build down to 10 kg if the real parts come out over. If it
+does, the first places to save mass are the link plates, the panel thickness, the redundant top and mid rails, and a 30 x 30 mast.
 
 ## Open
 
 - Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
+- The pivot hole: strength of the drilled 20 x 20 rail, the bushing material and fit, and whether the 12 mm hole is right for the bushing flange.
+- The floor: eight spacers and eight screws hold it; its stiffness under the battery and the sealing of its edges are not designed.
 - The pivot standoffs: rod end, ball joint or hinge, how thermal expansion of the panel is taken up, whether four points hold a 2 mm sheet flat, and the true gap (about 10 mm by eye).
 - Sealing: no side wall, so the sides, the floor-to-panel seams and the end seams are open.
-- The bearing plate's fixing to the rails, and the cradles that hold the differential housing (printed), are not modelled.
+- The cradles that hold the differential housing (printed) are not modelled.
 - The lid's gasket-free fit: no dust sealing, and no connector chosen for the mast cable.
 - Panel material and thickness.
 - Mid rails and top side rails may be partly unnecessary; no stiffness analysis has been done.

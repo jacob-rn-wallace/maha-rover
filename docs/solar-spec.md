@@ -370,7 +370,7 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
   ends come inside the cavity, so the series and parallel wiring is chosen on a terminal block and either option
   above can be wired. The holes are under the dummy cells and so invisible; real cells will need their rear contact
   and a lead brought to the hole, which depends on the cell type.
-- **Clearance.** Nothing in the frame, standoffs, bearing plates or shaft path lies within 6 mm of any hole's axis,
+- **Clearance.** Nothing in the frame, standoffs, floor spacers or shaft path lies within 6 mm of any hole's axis,
   14 mm deep. The nearest member is the top side rail, 9 mm above the highest hole row (centre to rail); the mid rail is 50 mm below the lowest; the posts are 5 mm from the
   hole edges. Wires should pass between the panel and the mid rail and drop to the floor.
 - **Harness.** The longest straight run from a hole to the charge controller is 363 mm; allow about 470 mm of wire per

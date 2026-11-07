@@ -1,6 +1,6 @@
 # What is modelled (2026-11-07)
 
-`hardware/assembly/rover.py` collects every modelled part into one assembly (171 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
+`hardware/assembly/rover.py` collects every modelled part into one assembly (175 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
 `docs/images/rover-assembly.png`: exterior from front-left and rear-right, a side view, a view with panels and cells hidden to show the frame and interior, a top view and a front
 view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
 
@@ -9,7 +9,7 @@ view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim pl
 | System | What is in the CAD | Where |
 |---|---|---|
 | Body shell | floor, two end walls and the deck as aluminium panels (2 mm, 3 mm deck); two separate 10 degree side panels (2 mm, with the 12 solar wire holes and the shaft clearance holes) | `body.py`, `interior.py` |
-| T-slot frame | 19 plain 20 x 20 members, all vertical or horizontal, in a stepped (wide bottom, narrow top) frame; 8 pivot standoffs holding the two side panels off the frame; 2 bearing plates, 2 bearings | `frame.py` |
+| T-slot frame | 17 plain 20 x 20 members, all vertical or horizontal, in a stepped (wide bottom, narrow top) frame, each bottom side rail a single member with the pivot shaft through a drilled hole; 8 floor spacers; 8 pivot standoffs holding the two side panels off the frame; 4 bushings | `frame.py` |
 | Solar | 60 plain plates, 31 x 41.6 mm, two per slot on the original's 5 x 3 grid | `body.py`, `solar.py` |
 | Wheels | 4: hub tube, 10 ribs in two layers, rim band, 14 grousers | `wheel.py` |
 | Drive | 4 motor envelopes (gearbox, can, boss, shaft), 8 bearings, clamp rings, hub extensions, drive flanges, collars | `motor.py` |

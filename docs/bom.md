@@ -16,10 +16,10 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 |---|---|---|---|---|---|
 | Body wedge (side plates, floor) | 1 | Wedge, 10 degree sidewalls, side plates about 380 long, underside 124 and deck 348 above ground. Magnesium alloy, covered in ITO-coated MLI [S10]; CFRP, magnesium and aluminium per the manufacturer [S24] | stated / derived | Aluminium sheet panels, 2 mm (floor, sides, ends), on a T-slot frame (`frame-spec.md`) | panels 2.41 (all, incl. deck), ASSUMPTION |
 | Top plate (deck) | 1 | 401 long, about 164 wide | stated [S11] / derived | 3 mm aluminium sheet, 401 x 164 | in the panels above |
-| T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 19 members, 3.59 m, all vertical or horizontal (stepped frame) | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut square to the list in `frame-spec.md` | 1.79 |
-| Bearing plates | 2 | Not found | (unverified) | 6 mm aluminium, 688 bearing seat | 0.14 |
-| Corner brackets, 20-series | 30 | Not found | (unverified) | Standard 20-series L brackets (`frame-spec.md`) | not known |
-| T-nuts (M4) and M4 bolts | 110 each (60 for the brackets, 50 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
+| T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 17 members, 3.68 m, all vertical or horizontal (stepped frame); a 12 mm hole drilled through each bottom side rail | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut square to the list in `frame-spec.md` | 1.84 |
+| Floor spacer blocks | 8 | Not found | (unverified) | 20 x 20 x 9.7 mm aluminium or printed, under the bottom side rails | 0.08, ASSUMPTION |
+| Corner brackets, 20-series | 26 | Not found | (unverified) | Standard 20-series L brackets (`frame-spec.md`) | not known |
+| T-nuts (M4) and M4 bolts | 98 each (52 for the brackets, 46 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
 | Side panel pivot standoffs | 8 | Side panels stand proud of the body on spacers ([S18] Fig. 1; gap about 10 mm by eye) | derived | 8 mm stud, about 12.5 mm long, with a rod end or ball joint and M4 bolt; parts not chosen | about 0.12, ASSUMPTION |
 | Mast extrusion, 40 x 40 T-slot | 1 x 223 mm | About 58 mm square tube (ULTEM) [3j], [S19] | derived | Catalogue 40 x 40 profile, about 1.86 kg/m (catalogue entries differ), plus a 76 x 76 x 6 mm aluminium base plate | 0.41 + 0.09 |
 | Thermal blankets | - | ITO-coated MLI [S10] | stated | - | not known |
@@ -50,7 +50,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Fuse block and fuses | 1 block, 5 fuses | Not found | (unverified) | 4-way blade block plus a 15 A main; `power-spec.md` | 0.04, ASSUMPTION |
 | Power node (bus bar), master switch | 1 + 1 | Not found | (unverified) | bus bar about 40 x 20 x 15 mm; panel switch with a 15 A DC rating on the rear panel | 0.03 and 0.02, ASSUMPTION |
 | Servo regulator | 1 | Not found | (unverified) | Pololu D24V22F6, 6 V, 2.5 A, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
-| Pivot bearings | 2 | Not found | (unverified) | 688 (8 x 16 x 5), one per wall plate, ISO size from memory, verify | not known |
+| Pivot bushings | 4 | Not found | (unverified) | flanged plain bushings 8 ID x 12 OD x 8 long, two per bottom side rail, replacing the 688 bearings; verify material and fit | 0.02, ASSUMPTION |
 | Differential gears | 4 | A passive differential gear [S25] | stated; layout (unverified) | steel mitre gears, module 1.5, 16 teeth, 8 mm bore, 8 mm face: two side gears and two spiders, plus a 6 mm cross pin (`differential-spec.md`); RS PRO lists a hardened 8 mm-bore one | about 0.1 kg of steel with the pin |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline inside the body at pivot height 146, body as carrier, joined to two side plates (`suspension-spec.md`); a bar linkage is the alternative | not known |
