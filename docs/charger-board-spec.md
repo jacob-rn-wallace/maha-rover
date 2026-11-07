@@ -87,9 +87,36 @@ about 7.4 W (78 percent), at 8.4 V about 8.4 W (88 percent). Problems:
 This is a hobby shortcut that gives up 12 to 37 percent of the energy and some safety, for saving the charger. Not recommended
 for the first build; it could be tried later as an experiment.
 
+## Cheap buck 2S MPPT modules found (2026-11-07)
+
+For the arrays above a pack's 8.4 V (AnySolar 16.7 V; tiled pieces at 2 per slot, 18.8 V). Listings only; none bought or measured, and Amazon's
+pages did not load, so prices were not read.
+
+| Module | Chip | What the listings claim | Notes |
+|---|---|---|---|
+| BQ24650 MPPT charger, 50 x 25 x 17 mm ([Amazon](https://www.amazon.com/BQ24650-MPPT-Solar-Charger-Module/dp/B0H8P8P4TS), [AU listing for 2S to 4S](https://www.amazon.com.au/Charging-Portable-Controller-Intelligent-Temperature/dp/B0H4W46SX7)) | TI BQ24650 | 5 to 28 V in, up to 8 A, adjustable output (one says 4.2 to 28 V, another lists 7.2, 8.4, 12.6 and 16.8 V), 96 percent efficiency at 16 V in and 12 V out; recommends under 24 V in | the chip is documented; the 8 A is a board rating, not checked; the array draws only about 0.5 A |
+| CN3722 MPPT module ([LaskaKit MPPT-V08A](https://www.laskakit.cz/en/solarni-nabijecka-li-ion--lifepo4-clanku-mppt-v08a-cn3722/), [Circuit Mall, 5 A](https://circuitmall.ng/product/cn3722-5a-mppt-charge-controller-module/), AliExpress 2 A and 3 A versions) | Consonance CN3722 | 8 to 28 V in (one listing 9 to 24 V); 2, 3 or 5 A by listing; 2S output 8.4 V among the choices | a teardown found an adjustable voltage pot and an unpopulated fixed-resistor pad; a LaskaKit buyer called it "pseudo-MPPT"; board size not found |
+| eletechsup 9 V, 12 V, 18 V, 24 V MPPT module ([Amazon](https://www.amazon.com/clp/B0CKXLW4HL)) | not stated | 3.6 to 24 V in, 4 A, lithium and LiFePO4; selectable panel voltage 9, 12, 18 or 24 V | details not read: the 18 V setting is just above the AnySolar string's 16.7 V Vmpp |
+
+**What "MPPT" means on these.** The BQ24650 datasheet (SLUSA75B) says the input voltage is regulated to a set point you choose with a
+divider from the panel to the MPPSET pin (it regulates MPPSET to 1.2 V): a fixed-voltage method, not a search. BeyondLogic's review of a
+BQ24650 module says the same, and a DIY Solar Forum member says the CN3722 and BQ24650 modules advertising MPPT only regulate a
+constant input voltage (an opinion, not a measurement). The BQ24650's other facts from the datasheet: operating input 5 to 28 V; battery
+2.1 to 26 V; three-phase charging that ends at one tenth of the fast-charge current; it goes to sleep when the input falls
+below the battery voltage (the sleep threshold is about 100 mV, with 500 mV of hysteresis). A fixed point near the array's Vmpp is a
+fair approximation for a small panel but gives up some energy when the temperature or light moves the real Vmpp; the BQ25798 re-measures
+Voc every two minutes and tracks better. For scale: the AnySolar string's Vmpp falls about 1.3 V for a panel 25 K hotter (from the
+datasheet's -17.4 mV/K per module, three in series, assuming Vmpp moves like Voc), so a set point at 16.5 V would sit above the hot Vmpp;
+choosing about 15.5 V trades a little at STC for a little when hot (not computed).
+
+**What to check on a module before wiring a pack.** The output voltage with no battery (set it to 8.4 V first: a wrong chemistry setting
+overcharges the cells); the input set point (and change the divider resistors if needed: it is a fixed point); the termination current;
+and the input voltage under a lamp. No module here was found with a published test of its tracking. The pack's battery management board still
+guards the cells.
+
 ## Routes, in order
 
-1. **A cheap buck 2S MPPT module** (BQ24650 or CN3722 type, 5 to 28 V in; several found on Amazon and similar, none verified here).
+1. **A cheap buck 2S MPPT module** (BQ24650 or CN3722 type, 5 to 28 V in; listings in the section above, none verified).
    With the AnySolar string at 16.7 V (Voc 20.7 V, 23.1 V at -20 C) this is the simplest and cheapest route. Verify before buying
    that the MPPT is real (a forum thread warns that many are not), the 8.4 V cutoff setting, and the input limit.
 2. **An evaluation board.** The BQ25798EVM is the best electrical fit (about US$156, availability unclear; the Pi's I2C can run the
