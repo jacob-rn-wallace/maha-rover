@@ -266,7 +266,9 @@ The wheel interior also differs between [S5] Fig. 15 (about twelve petal-shaped 
 3d, for the final configuration.** The video values stay recorded as an earlier or promotional
 variant. Width over wheels and sidewall angle are not measurable from a side view, so those
 two values (520 mm and 19 degrees from the video, 9 degrees from 3a) remain open for the
-final model: see [S12] Fig. 1 (rear-right view) for a future measurement.
+final model. [S12] Fig. 1 is not a safe source for them: the hubs in its front-left view differ
+in apparent size by about 14% (near 34.6 px, far 30.4 px major axis), so it is a perspective
+view. The rear-right view could not be tested (its two hubs are at nearly equal depth).
 
 ## 4. Mast and cameras
 
