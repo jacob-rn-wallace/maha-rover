@@ -85,8 +85,11 @@ does not bind the replica; the original wins):
   (`hardware/body/`); mass budget and centre-of-mass range (`docs/mass-budget.md`); BOM skeleton
   (`docs/bom.md`). The mass budget is a record of the original (4.75 kg of its 10 kg is
   unallocated); the replica's own mass is free under the scope above.
-- Still to do, in rough order: choose and place the drive motors, the passive differential and
-  the electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
+- Drive decision (2026-11-07): 37 mm planetary DC gearmotors in the hubs, no encoders (only speed
+  and direction matter). Placeholder model and hub clearance check: `hardware/drive/motor.py`.
+  Open: how the wheel is supported (see below).
+- Still to do, in rough order: pick the exact motor, then place the passive differential and the
+  electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
   the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
   Closing the section 7 gaps is now optional: only chase a source when it changes one of the
