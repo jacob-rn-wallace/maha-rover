@@ -6,12 +6,14 @@ Status tags follow `original-dimensions.md`.
 
 ## What this does and does not show
 
-Only four things about the original's mass split are published: the 10 kg total [S1], the
-mast and gimbal (1.237 kg EM, under 1.4 kg flight [S19]) and the two cameras (210 g each
-[S12]). The wheel mass is the CAD model's own 398 g at an assumed alloy density, not a source.
-So **6.75 kg of the 10 kg is unallocated** (structure, panels, battery, electronics, motors,
-thermal blankets, harness, the other instruments). The script places that remainder at three
-heights inside the body, so the result is a **range** for the centre of mass, not a value.
+Five things about the original's mass split are published: the 10 kg total [S1], the
+structure (2 kg, excluding the mobility subsystem [S26]), the mast and gimbal (1.237 kg EM,
+under 1.4 kg flight [S19]) and the two cameras (210 g each [S12]). The wheel mass is the CAD
+model's own 398 g at an assumed alloy density, not a source, and excludes the motors.
+So **4.75 kg of the 10 kg is unallocated**: battery, electronics, the four drive motors and the
+passive differential [S25], harness, any panels and thermal blankets not counted in the 2 kg,
+and the other instruments. The script places that remainder at three heights inside the body,
+so the result is a **range** for the centre of mass, not a value.
 
 body envelope centroid z = 229 mm (solid wedge, deck included)
 
@@ -20,34 +22,36 @@ body envelope centroid z = 229 mm (solid wedge, deck included)
 | wheels x4 | 1.592 | ASSUMPTION: 398 g from wheel.py at AZ91E density; closed test wheel 1.18 kg [S4] is not the flight wheel |
 | mast + gimbal | 1.237 | stated [S19]: 1.237 kg EM, < 1.4 kg flight; assumed to exclude CAM-1 |
 | CAM-1 | 0.210 | stated [S12] |
+| structure | 2.000 | stated [S26]: 2 kg for the mechanical structure, excluding the mobility subsystem; placed at the body envelope centroid (ASSUMPTION) |
 | CAM-2 | 0.210 | stated [S12]; position: rear, axis 250 high (stated), x assumed at body rear |
-| Unallocated: structure, panels, battery, electronics, motors, MLI, harness, other instruments | 6.75 | (unverified): the rest of the stated 10 kg [S1] |
+| Unallocated: battery, electronics, drive motors and differential, harness, panels and MLI if not in the 2 kg, other instruments | 4.75 | (unverified): the rest of the stated 10 kg [S1] |
 | **Total** | **10.00** | stated [S1] |
 
 | Configuration | Remainder height | CoM x | CoM z | nose-down | nose-up | sideways |
 |---|---|---|---|---|---|---|
-| deployed | low (z=150) | 22 | 201 | 38 | 30 | 51 |
+| deployed | low (z=150) | 22 | 217 | 36 | 28 | 49 |
 | deployed | body centroid (z=229) | 22 | 254 | 32 | 24 | 44 |
-| deployed | high (z=300) | 22 | 302 | 28 | 21 | 39 |
-| stowed | low (z=150) | -7 | 177 | 36 | 39 | 54 |
+| deployed | high (z=300) | 22 | 288 | 29 | 22 | 41 |
+| stowed | low (z=150) | -7 | 193 | 34 | 37 | 52 |
 | stowed | body centroid (z=229) | -7 | 231 | 29 | 32 | 47 |
-| stowed | high (z=300) | -7 | 279 | 25 | 27 | 42 |
+| stowed | high (z=300) | -7 | 264 | 26 | 29 | 43 |
 
 Slope requirement: 20 degrees [S1][S3]. Tip angles are static, on a rigid chassis, wheels at the hub line.
 
 ## Reading the result
 
 - Every case clears the 20 degree slope requirement for nose-down and sideways tipping.
-- Nose-up (climbing) is the tightest: 21 degrees in the worst case (all unallocated mass
-  high, mast deployed), a margin of about 1 degree. With the remainder at the body centroid it is 24.
+- Nose-up (climbing) is the tightest: 22 degrees in the worst case (all unallocated mass
+  high, mast deployed), a margin of about 2 degrees. With the remainder at the body centroid it is 24.
 - That worst case depends on assumptions: CAM-2 at the body rear (x only is unverified), the
-  mast mass sitting at the tube midpoint, and the wheel mass. A heavier wheel lowers the CoM.
-- Static tip angles on a rigid chassis. The real rover has a differential or rocker linkage
-  (unresolved, see `original-dimensions.md` section 7), which changes the contact geometry
-  on a slope. Dynamic effects are not covered.
+  mast mass at the tube midpoint, the 2 kg structure at the body centroid, and the wheel mass.
+  A heavier wheel lowers the centre of mass.
+- Static tip angles on a rigid chassis. The suspension is a passive differential gear with
+  skid steering [S25], which couples the two sides' pitch and changes the contact geometry on a
+  slope; this is not modelled. Dynamic effects are not covered either.
 
 ## What would tighten it
 
 Battery capacity and mass, motor and gearbox mass, the flight wheel mass (asked of the thesis
-advisors, see `wheel-spec.md`), and any mass breakdown from MBRSC. Each reduces the 6.75 kg
+advisors, see `wheel-spec.md`), and any mass breakdown from MBRSC. Each reduces the 4.75 kg
 unallocated block and its height range.

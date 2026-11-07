@@ -40,17 +40,18 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Mast: about 300 mm, stowed along the top panel, spring hinge to vertical; CAM-1 on a
   pan and tilt gimbal. Both deployed and stowed (folded rearward, an assumption) envelopes are in the body model;
   the mast cross-section and gimbal head are placeholder sizes.
-- Drive: 4 in-wheel motors [S3], with a differential gear or linkage [S1] (unresolved).
+- Drive and suspension: 4 in-wheel motors [S3]; skid steering; passive differential gear
+  suspension, no rocker, no springs or dampers [S25]. Layout and motor type still unsourced.
+- Structure mass: 2 kg excluding mobility [S26].
 
-Still provisional, from earlier AI chat sessions, NOT checked against the original (they
-do not bind the replica; the original wins):
-- Suspension and steering: 4-wheel rocker with Nomad-style Double Ackermann. The original's
-  steering is not described, so do not carry Ackermann over.
+Still provisional, from earlier AI chat sessions, NOT checked against the original (it
+does not bind the replica; the original wins):
 - Frame: "zero-cut" box core of supplier-cut 40120 / 4040 aluminum extrusion with 1.5 mm
   cladding. The original is a magnesium alloy frame with MLI. Extrusions are ground and
   testbed hardware only, not a flight design.
-- Dropped: the 6U CubeSat envelope (100 x 200 x 340.5), 15 degree sidewalls, and the
-  170 x 112 mm PET panels, 4 per side.
+- Dropped: the 6U CubeSat envelope (100 x 200 x 340.5), 15 degree sidewalls, the
+  170 x 112 mm PET panels (4 per side), and the Nomad-style rocker with Double Ackermann
+  steering (the original is a passive differential with skid steering [S25]).
 
 ## Licensing
 - **Code** (scripts, firmware, tools): Apache-2.0 (`LICENSE`)
@@ -62,9 +63,9 @@ do not bind the replica; the original wins):
 - Done: first pass at sourcing the original's dimensions from MBRSC and
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
-- Still to do: close the remaining gaps in section 7 of that file (suspension and
-  drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
-  BOM. First mass budget and centre-of-mass range done (`docs/mass-budget.md`, `hardware/mass/budget.py`); 6.75 kg of 10 is unallocated. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
+- Still to do: close the remaining gaps in section 7 of that file (differential
+  placement and drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
+  BOM. First mass budget and centre-of-mass range done (`docs/mass-budget.md`, `hardware/mass/budget.py`); 4.75 kg of 10 is unallocated. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
 
 ## Conventions
 - Hardware units are millimetres.

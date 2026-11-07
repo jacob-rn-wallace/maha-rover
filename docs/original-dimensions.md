@@ -3,7 +3,7 @@
 Source of truth for the replica's dimensions. Where this file and the
 "provisional design" in `CLAUDE.md` disagree, this file wins.
 
-Units are millimetres unless stated. Last reviewed: 2026-11-06.
+Units are millimetres unless stated. Last reviewed: 2026-11-07.
 
 ## How to read this file
 
@@ -454,14 +454,17 @@ Heights are above ground, measured with wheels on a hard surface.
 | Panel size, cell size, cell count | not found | (unverified) | n/a |
 | Drive | 4 in-wheel electric motors | stated | [S3] |
 | Drive (alternative wording) | "four wheeled with differential gear" | stated, **unresolved** against the line above | [S1] |
-| Steering | Not found. Operators "steer" by joystick, but the mechanism is not described | (unverified) | [S3] |
+| Steering | Skid steering (four wheels, no steered axles) | stated | [S25], [S20] |
+| Suspension | Passive differential gear, not a rocker-type system; no springs or dampers | stated | [S25] |
+| Structure mass | 2 kg for the mechanical structure, excluding the mobility subsystem | stated | [S26] |
 | Battery | Small, capacity not found | (unverified) | [S3] |
 | Survival temperature range, design | -40 to +85 C for electronics | stated | [S16] |
 | Operating latitude | 37.5 to 52.5 N | stated | [S16] |
 
-The "differential gear" in [S1] and "four in-wheel electric motors" in [S3] may both be true
-(for example, a differential suspension linkage plus hub motors). This file does not resolve
-it. The thermal paper lists the mobility subsystem as "Wheels, Linkage, Gearbox" [S16].
+The "differential gear" in [S1] is now explained: [S25] says the suspension uses a passive
+differential gear. That does not conflict with four in-wheel drive motors [S3]: the differential
+is a suspension element that couples the two sides, not the drive. Its physical layout (where it
+sits, the arm lengths, the travel) is still not described anywhere found. The thermal paper lists the mobility subsystem as "Wheels, Linkage, Gearbox" [S16].
 
 ## 6. Reconciliation with the provisional design in CLAUDE.md
 
@@ -474,8 +477,8 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 | 170 x 112 mm PET panels, 4 per side | 2 panels (one per side), each 5 x 3 cells of about 69 x 39 mm at a pitch of about 71.6 x 41 mm (3g, derived) | Replace |
 | Wheels 200 x 80 mm, hub + TPU tire, chevron grousers | 200 x 80, 14 radial grousers of 15 mm, skeletonized, Mg alloy | Diameter and width agree. Grouser shape and construction need to change |
 | In-wheel planetary motors | 4 in-wheel motors [S3] | Plausibly consistent |
-| 4-wheel rocker, Nomad-style Double Ackermann | Differential gear / linkage, steering not described | Unverified. Do not carry Ackermann over |
-| 40120 / 4040 extrusion frame | Mg alloy frame with MLI | Ground-testbed hardware only |
+| 4-wheel rocker, Nomad-style Double Ackermann | Passive differential gear suspension, no rocker, skid steering, no springs or dampers (stated, [S25]) | Replace. No Ackermann, no steering servos |
+| 40120 / 4040 extrusion frame | Mg alloy frame with MLI; structure budget 2 kg excluding mobility (stated, [S26]) | Ground-testbed hardware only |
 | No mast | Rotating mast, about 300 long, CAM-1 on a pan and tilt gimbal | Add |
 
 ## 7. What is still missing
@@ -490,7 +493,9 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
    derived in 3g (15 cells per side, about 69 x 39 mm each, pitch about 71.6 x 41 mm); the
    absolute position of the field on the face and the cell part number remain open.
    Panel angle is stated as 80 degrees (3h).
-4. Suspension and drivetrain layout.
+4. Suspension and drivetrain layout. Concept now stated ([S25]: passive differential gear, skid
+   steering, no rocker, no springs). Still missing: where the differential sits, arm geometry,
+   travel, and the motor and gearbox type. The full text of [S25] would probably settle most of it.
 5. Wheel width is settled at about 80: 3a, 3d and the front view in 3f all give it, and
    168 is excluded.
    Wheel diameter: 3d and 3e give 200, matching the stated 200. The 228 from 3a is the
@@ -500,7 +505,8 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
    the panel grid detail.
 6. What 470 and 505 are measured over: the CAD (3e, 3f) says plan size over the wheel rims,
    474 and about 497 to 500, so now probably answered; a stated source would confirm it.
-7. Battery capacity, motor specifications.
+7. Battery capacity, motor specifications. [S27] describes a power model but its abstract gives
+   no figures; the full paper or its tables would.
 
 Candidate sources: the Els et al. 2025 rover science programme paper (cited by [S6] and
 [S12] as "this collection". Checked 2026-11-06: not on the Springer collection page (the
@@ -605,6 +611,24 @@ Journal for all Springer papers is *Space Science Reviews*.
   lists "wheel diameter with grousers" 0.215 m, which conflicts with the CAD (about 230). Finite
   element wheel geometry in Figs. 68 and 88 (ten ribs seen side-on; Fig. 88a is the 200 mm original, Wheel 13). Fig. 79 is a photograph of the engineering model
   driving in sand.
+- **[S25]** Busoud A, AlShehhi A, Al Mulla S (MBRSC). *Suspension System Design and Analysis of Rashid
+  Rover.* IAC-21, C2.7.13, paper 64684 (abstract only; full paper not located).
+  https://p.iafastro.directory/iac/paper/id/64684/abstract-pdf/IAC-21,C2,7,13,x64684.brief.pdf
+  Stated: Rashid is a four-wheeled rover using skid steering; its suspension "employs a passive
+  differential gear rather than a rocker-type suspension system"; springs and dampers are
+  rejected as adding complexity and mass; extensive testing shows the passive differential
+  stabilises the rover on rough terrain. The abstract's mention of six-wheel and four-wheel
+  rocker-arm differencing suspensions is a survey of other rovers, not Rashid.
+- **[S26]** Al Mulla S, AlShehhi A, Mohan SP (MBRSC). *Mechanical Structure Design and Analysis of
+  Rashid Rover.* IAC-21, C2.7.9, paper 64677 (abstract only).
+  https://p.iafastro.directory/iac/paper/id/64677/abstract-pdf/IAC-21,C2,7,9,x64677.brief.pdf
+  Stated: total mass not more than 10 kg, which "allows the mechanical structure to have only
+  2 kg's (excluding the Mobility subsystem)"; several materials are used to stiffen the structure;
+  panel incidence and mounting angles were chosen for a mid-latitude landing site.
+- **[S27]** Sharaf A (MBRSC). *A New Power Modelling Approach for a Small Rover Mission to the
+  Lunar Surface.* IAC-20, C3.IP.5, paper 58968 (abstract only). Describes a power budget model
+  (consumption, generation, storage). Gives no battery or panel figures.
+  https://iafastro.directory/iac/paper/id/58968/abstract-pdf/IAC-20,C3,IP,5,x58968.brief.pdf
 - **[S22]** Abubakar A, et al. *Advance Simulation Method for Wheel-Terrain Interactions of Space
   Rovers: A Case Study on the UAE Rashid Rover.* arXiv:2308.12431 (2023). Test-rig wheel model
   only; not used except for the grouser-count conflict above.

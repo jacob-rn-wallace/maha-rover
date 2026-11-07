@@ -1,6 +1,6 @@
 """al-maha mass budget and centre-of-mass check.
 
-Almost nothing about the original's mass split is published, so this is built
+Little about the original's mass split is published, so this is built
 to show what is sourced, what is assumed, and how much of the 10 kg is still
 unallocated. The unallocated remainder is placed at three bounding heights
 inside the body to give a CoM range, not a CoM.
@@ -21,11 +21,12 @@ TOTAL = 10.0            # design mass, incl. payload              stated [S1][S2
 SLOPE_LIMIT = 20.0      # degrees                                 stated [S1][S3]
 
 # (name, kg, status/source, (x, y, z) mm for deployed, stowed override or None)
-mast_c = B.MAST_X
+BODY_CENTROID_Z = B.body()[0].center().Z
 items = [
     ("wheels x4", 4 * 0.398, "ASSUMPTION: 398 g from wheel.py at AZ91E density; closed test wheel 1.18 kg [S4] is not the flight wheel", None),
     ("mast + gimbal", 1.237, "stated [S19]: 1.237 kg EM, < 1.4 kg flight; assumed to exclude CAM-1", None),
     ("CAM-1", 0.210, "stated [S12]", None),
+    ("structure", 2.0, "stated [S26]: 2 kg for the mechanical structure, excluding the mobility subsystem; placed at the body envelope centroid (ASSUMPTION)", None),
     ("CAM-2", 0.210, "stated [S12]; position: rear, axis 250 high (stated), x assumed at body rear", None),
 ]
 
@@ -40,7 +41,8 @@ def positions(stowed):
         mast = (B.MAST_X, 0.0, (B.DECK_TOP_Z + B.TOP_Z) / 2)
         cam1 = (B.CAM_X, B.CAM_Y, B.CAM_AXIS_Z)
     cam2 = (B.BODY_X0 - B.SIDE_PLATE_LEN / 2, 0.0, 250.0)
-    return {"wheels x4": wheels, "mast + gimbal": [mast], "CAM-1": [cam1], "CAM-2": [cam2]}
+    struct = (B.BODY_X0, 0.0, BODY_CENTROID_Z)
+    return {"structure": [struct], "wheels x4": wheels, "mast + gimbal": [mast], "CAM-1": [cam1], "CAM-2": [cam2]}
 
 
 def com(stowed, remainder_z):
@@ -76,7 +78,7 @@ if __name__ == "__main__":
     for n, kg, s, _ in items:
         print(f"| {n} | {kg:.3f} | {s} |")
     rem = TOTAL - sum(i[1] for i in items)
-    print(f"| Unallocated: structure, panels, battery, electronics, motors, MLI, harness, other instruments | {rem:.2f} | (unverified): the rest of the stated 10 kg [S1] |")
+    print(f"| Unallocated: battery, electronics, drive motors and differential, harness, panels and MLI if not in the 2 kg, other instruments | {rem:.2f} | (unverified): the rest of the stated 10 kg [S1] |")
     print(f"| **Total** | **{TOTAL:.2f}** | stated [S1] |\n")
 
     cases = {"low (z=150)": 150.0, f"body centroid (z={body_c.Z:.0f})": body_c.Z, "high (z=300)": 300.0}
