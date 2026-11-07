@@ -112,7 +112,7 @@ def wiring_report():
     print("\nwire holes (x, y, z on the inner face of the panel)")
     for n, p in H.items():
         print(f"  {n}  ({p[0]:7.1f}, {p[1]:7.1f}, {p[2]:6.1f})")
-    print("\nserpentine for one side (silicon F1 or F2, 15 cells in series; row 1 is the bottom row)")
+    print("\nserpentine for one side (15 cells in series; row 1 is the bottom row)")
     print("  row 1 rear (-)  ->  row 1 front  =jumper=  row 2 front  ->  row 2 rear  =jumper=  row 3 rear  ->  row 3 front (+)")
     for sy in ("L", "R"):
         j1 = SLACK * d(H[f"{sy}1F"], H[f"{sy}2F"])
@@ -121,7 +121,7 @@ def wiring_report():
         lp = SLACK * d(H[f"{sy}3F"], C)
         print(f"  side {sy}: jumpers {j1:.0f} and {j2:.0f} mm; lead (-) from {sy}1R {lm:.0f} mm; lead (+) from {sy}3F {lp:.0f} mm")
     # voltage drop at the option currents
-    for label, amps in (("silicon, 15 in series", 1.03), ("triple junction, three rows in parallel", 3 * 0.453), ("tiled 52 x 19, listed, 30 in series", 0.40)):
+    for label, amps in (("Futurlec, 15 in series, listed 0.28 A", 0.28), ("Futurlec, if 0.64 A at one sun", 0.64), ("silicon cut to 69 x 39, 15 in series", 1.03), ("triple junction, three rows in parallel", 3 * 0.453), ("tiled 52 x 19, listed, 30 in series", 0.40)):
         L = 2 * 0.55                                    # a typical lead pair, metres (+ and -)
         print(f"  {label}: {amps:.2f} A over {L:.2f} m of 24 AWG drops {amps * L * WIRE_R:.2f} V")
     return H
@@ -149,8 +149,8 @@ def terminal_boards():
 
 if __name__ == "__main__":
     # ---- stack and layout ----
-    print(f"cell stack on the panel: {B.CELL_T:.1f} mm (dummy plates use the same); cell outline {B.CELL_W:.0f} x {B.CELL_H:.0f} mm, "
-          f"clip {B.CLIP:.1f} mm; {CELLS_PER_ROW} x {ROWS} per side, row pitch {B.PITCH_U:.1f} x {B.PITCH_V:.1f}")
+    print(f"cell stack on the panel: {B.CELL_T:.1f} mm; plain cell {B.CELL_W:.0f} x {B.CELL_H:.0f} mm (Futurlec SZGD6030), "
+          f"{CELLS_PER_ROW} x {ROWS} per side on the original's grid, pitch {B.PITCH_U:.1f} x {B.PITCH_V:.1f}; gaps {B.PITCH_U - B.CELL_W:.1f} x {B.PITCH_V - B.CELL_H:.1f} mm")
     width_over_cells = 2 * (I.half_width(B.FIELD_Z) + B.CELL_T)
     print(f"body width over the cells at the middle of the field {width_over_cells:.1f}")
 
@@ -162,8 +162,21 @@ if __name__ == "__main__":
     print(f"  panel shell volume with holes {sh.volume / 1e3:.1f} cm3")
     # holes sit under the end cell: check the hole is within the end cell's x span
     end_cell_x = (B.N_COLS - 1) / 2 * B.PITCH_U
-    print(f"  end cell spans x {end_cell_x - B.CELL_W / 2:.1f}..{end_cell_x + B.CELL_W / 2:.1f}; hole at x {end_cell_x + B.HOLE_OFFSET:.1f} (under the cell: "
-          f"{'yes' if end_cell_x + B.HOLE_OFFSET < end_cell_x + B.CELL_W / 2 else 'no'})")
+    print(f"  end cell spans x {end_cell_x - B.CELL_W / 2:.1f}..{end_cell_x + B.CELL_W / 2:.1f}; each hole at x {end_cell_x + B.HOLE_OFFSET:.1f}, {B.HOLE_V:.1f} mm up the slope from its row's centre, "
+          f"in the gap above the row ({(B.PITCH_V - B.CELL_H):.0f} mm gap, hole {B.HOLE_D:.0f} mm; the cell edge is {B.CELL_H / 2:.0f} mm from the row centre)")
+    cells_ = [v for k, v in B.build_rover()[0].items() if k.startswith("cell")]
+    h_out = B.solar_holes(length=B.CELL_T + 2.0, d=B.HOLE_D)       # starts at the outer face, runs inward; the cells stand outside, so move the test out
+    from build123d import Pos
+    clash = 0.0
+    for h in B.solar_holes(length=B.CELL_T + 1.0, d=B.HOLE_D):
+        # extend the hole outward through the cell stack: shift by the stack thickness along the wall normal
+        n = (0.0, math.cos(math.radians(B.SIDEWALL_DEG)), math.sin(math.radians(B.SIDEWALL_DEG)))
+        c = h.center()
+        sy = 1 if c.Y > 0 else -1
+        moved = Pos(0, sy * n[1] * (B.CELL_T / 2 + 0.5), n[2] * (B.CELL_T / 2 + 0.5)) * h
+        for cell in cells_:
+            clash += (moved & cell).volume
+    print(f"  holes extended outward through the cell stack against the 30 cells: overlap {clash:.1f} mm3 (want 0)")
     # clearance behind the holes: a 12 mm clearance cylinder 14 mm deep must not meet the frame
     clear = B.solar_holes(length=14.0, d=12.0)
     members = F.build()
@@ -183,7 +196,7 @@ if __name__ == "__main__":
     rows_z = []
     for sy in (1,):
         for j in range(ROWS):
-            v = (j - (ROWS - 1) / 2) * B.PITCH_V
+            v = (j - (ROWS - 1) / 2) * B.PITCH_V + B.HOLE_V
             rows_z.append(B.FIELD_Z + v * math.cos(math.radians(B.SIDEWALL_DEG)))
     print(f"  hole rows at z {', '.join(f'{z:.0f}' for z in rows_z)}; the mid rail occupies z {mids - F.P / 2:.0f} to {mids + F.P / 2:.0f} "
           f"(and its wedge strip), the top rail z {F.Z_DECK - F.P:.0f} to {F.Z_DECK:.0f}; posts at x +-{F.X_END - F.P:.0f} to +-{F.X_END:.0f}")
@@ -213,6 +226,13 @@ if __name__ == "__main__":
     print(f"  all 15 cells of one side in one series string: {v_si:.1f} V, {i_p:.2f} A, {v_si * i_p:.1f} W; "
           f"that is close to the pack's 8.4 V, so a buck-boost MPPT charger is needed")
     print(f"  or three rows of 5 in parallel: {CELLS_PER_ROW * SI_V:.1f} V, {ROWS * i_p:.2f} A (too low for a 2S charge: a boost converter)")
+
+    # ---- decided option: Futurlec SZGD6030, plain ----
+    n = CELLS_PER_ROW * ROWS
+    print(f"\nDecided cell (2026-11-07): Futurlec SZGD6030, 60 x 30 x 2.8 mm mono, 0.48 V, 280 mA listed (test light not stated), 17 percent")
+    print(f"  {n} per side in series: {n * 0.48:.1f} V, 0.28 A listed = {n * 0.48 * 0.28:.1f} W per side; 60 x 30 mm = 18 cm2, so at one sun and 17 percent about "
+          f"{0.17 * 0.1 * 18 / 0.48:.2f} A and {n * 0.17 * 0.1 * 18:.1f} W per side if the listed current were a one-sun figure (arithmetic, unconfirmed)")
+    print(f"  both sides {2 * n} cells: US$1.50 each = {2 * n * 1.5:.0f}, US$1.35 from 25 = {2 * n * 1.35:.0f}")
 
     # ---- silicon fill options ----
     print("\nsilicon fill options for the 69 x 39 mm cell positions (one side = 15 positions, 15 pieces in series)")

@@ -28,7 +28,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | Dummy plates now (1.0 mm stack); real cells later: silicon cut to the 69 x 39 mm outline (decided, 2 mm tolerance; tiled 52 x 19 mm cells as the fallback); the cell product is still open (`solar-spec.md`) | not known |
+| Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | Futurlec SZGD6030 mono cell, 60 x 30 x 2.8 mm, 0.48 V, 280 mA listed, 17 percent, plain on the original's 5 x 3 grid (decided 2026-11-07), US$1.50 each, 30 cells (`solar-spec.md`) | not known |
 | Cover glass | 30 | 200 um cerium-doped borosilicate, Qioptiq [S10] | stated | - | not known |
 | Panel substrate | 2 | not found | (unverified) | The 2 mm aluminium side panels, with an insulating film under real cells and 6 wire holes each | in the panels |
 | Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P pack of four Samsung INR18650-30Q (3000 mAh nominal, 15 A, 48 g max each), about 43 Wh, with a 2S BMS (not chosen); see `electronics-spec.md` | 0.22, ASSUMPTION |

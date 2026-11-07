@@ -7,21 +7,26 @@ unless tagged; cell data are quoted from the sources noted, with their caveats.
 
 ## Decision (2026-11-07)
 
-- **Cells:** silicon (option B below). Triple-junction cells are not pursued: no price or supply was found, and the same holes
-  and stack would still serve them later.
-- **Fill:** **cut the cells to the 69 x 39 mm outline (F1) as the target.** A piece up to 2 mm undersize (65 x 35 mm or
-  larger, which is F2 at its 2 mm inset) is accepted rather than discarded, so the cutting tolerance is 2 mm per side.
-  The tiled small cells (F3) are the fallback if cutting fails. The 5 mm inset (F2 at 59 x 29 mm) is not used: it costs a third of
-  the output.
-- **Wiring:** one 15-cell series string per side, the serpentine below, 8.7 V.
-- **Charger:** a buck-boost, which is the BQ25798 on the shortlist (`electronics-spec.md`), because 8.7 V is too close to the
-  pack's 8.4 V for a buck.
-- **Still open:** which cell product. See "Which cell" below.
+- **Cells:** the **Futurlec SZGD6030**, a ready-made mono silicon cell, 60 x 30 x 2.8 mm, 0.48 V, 280 mA listed, 17 percent,
+  US$1.50 each (US$1.35 from 25, US$1.20 from 100); 30 are needed. No cutting.
+- **Look:** the cells go on **plain**: no printed cover, border or outline to imitate the original's 69 x 39 mm cells,
+  which would probably look worse. They keep the original's 5 x 3 grid positions, each cell centred in its slot, so the
+  gaps are 11.6 mm along the rows and 11.0 mm between rows. Corners are plain rectangles (the retailer does not state the shape).
+- **Wiring:** one 15-cell series string per side, the serpentine below, 7.2 V.
+- **Charger:** a buck-boost, the BQ25798 on the shortlist (`electronics-spec.md`): 7.2 V is below the pack's 8.4 V, so a buck
+  charger cannot work.
+- **Output:** uncertain, because the cell's test light is not stated. At the listed 280 mA a side gives 2.0 W; if that
+  were a one-sun figure, 17 percent of 18 cm2 per cell would give about 4.6 W a side (my arithmetic). The cells charge the pack;
+  they do not run the rover. Measure one cell under a lamp or in sun before building the panels.
+- **Thickness:** 2.8 mm plus 0.2 mm of adhesive, so the cell stack on the panel is 3.0 mm (the dummy plates were 1.0 mm); width
+  over the cells at the middle of the field is 209 mm, well inside the wheels.
+
+The sections below record how the choice was reached. The cutting, fill and triple-junction material still holds for anyone
+who wants cells closer to the original's look.
 
 ## Silicon: cutting is established practice (2026-11-07)
 
-Triple-junction cells stay possible later; the same holes and stack serve both. The three ways silicon can fill the 69 x 39 mm
-outline are compared in the next section; the decision above picks F1 with a 2 mm tolerance.
+Background for a build with cut cells; not used by the decided Futurlec build above.
 
 Cutting is established practice, in industry and among hobbyists:
 - **Industry:** half-cut cells are a standard format; laser cut-and-cleave is the usual method. Cutting leaves
@@ -222,14 +227,18 @@ real cells be smaller than the dummy cells, since from outside only the outline 
 ## Wiring (all options)
 
 Check and numbers: `hardware/solar/solar.py`. Hole ids: side L or R, row 1 (bottom) to 3 (top), end F (front, +x) or R
-(rear, -x), e.g. L2F. Rows are at z 194, 234 and 275; the holes at x = plus or minus 160.2.
+(rear, -x), e.g. L2F. Each hole sits in the 11 mm gap above its row, 20.5 mm up the slope from the row's centre, at x = plus or minus 160.2
+(z 214, 255 and 295). The holes clear every cell (checked against all 30 cells with the 3 mm stack) and are at least 28 mm from the
+mid rail and 30 mm from the top rail; the posts are 5 mm from the hole edges.
 
 **Terminal boards.** One small board (20 x 8 x 60 mm, ASSUMPTION) lies on the cavity-facing face of each of the four posts at
 z 235, leaning with the post. Fit checked: no clash with the frame, strips, plates or contents. The front board of a side takes
 the three front holes of that side, the rear board the three rear holes, so each hole wire is 30 to 40 mm long. Holes are
 5 mm; a bundled pair of 24 AWG wires fits, with a grommet.
 
-**Silicon, F1 or F2: one 15-cell series string per side (serpentine).** Polarity is set by how the cells are tabbed.
+**The decided build (Futurlec cells), and silicon cut to size: one 15-cell series string per side (serpentine).** Polarity is set
+by how the cells are wired. The Futurlec cell's leads or pads are not described on its page, so how a wire reaches each cell
+is open; the 11 mm gaps above and between the rows give room to take it from the cell to the hole.
 
 ```
 row 3   rear  <-- jumper B --+                          front (+) --> lead + to the charger
@@ -240,9 +249,10 @@ row 1   rear (-) --> ... --> front -----------------+
 Row 1 runs rear to front, jumper A joins row 1's front hole to row 2's front hole, row 2 runs front to rear, jumper B joins
 row 2's rear hole to row 3's rear hole, and row 3 runs rear to front. Jumper A sits on the front board, jumper B on the
 rear board; the (-) lead leaves the rear board (hole 1R) and the (+) lead the front board (hole 3F). Lengths with
-30 percent slack: jumpers about 53 mm each; leads, left side 430 mm (-) and 289 mm (+), right side 366 mm (-) and
-198 mm (+), to the charge controller at the front floor. All 24 AWG; 15 cells at 1.03 A over 1.1 m of lead pair drops about
-0.10 V of 8.7 V (1.2 percent), using 84 milliohm per metre (the standard value for 24 AWG copper).
+30 percent slack: jumpers about 53 mm each; leads, left side 433 mm (-) and 303 mm (+), right side 372 mm (-) and
+222 mm (+), to the charge controller at the front floor. All 24 AWG. Using 84 milliohm per metre (the standard value for 24 AWG
+copper), 15 Futurlec cells at 0.28 A over 1.1 m of lead pair drop 0.03 V of 7.2 V, and 0.06 V at 0.64 A (under 1 percent);
+silicon cut to 69 x 39 mm at 1.03 A would drop 0.10 V of 8.7 V.
 
 **Silicon, F3 (tiled 52 x 19 mm cells).** The same serpentine, with 10 pieces per row (5 positions, 2 pieces each): 5 V per row
 at the listed 0.5 V, 15 V per side (20 V at the reviewer's 0.65 V). The alternative, the two pieces of each position in

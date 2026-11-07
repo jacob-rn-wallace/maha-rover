@@ -59,16 +59,17 @@ CAM_TUBE = (73.0, 35.0, 35.0)   # L x W x H optical tube          stated [S12]
 
 # ---- Solar cells (section 3g, 3h, 5) -------------------------------------
 N_COLS, N_ROWS = 5, 3    # per side, all landscape               derived [3e, 3g]
-CELL_W, CELL_H = 69.0, 39.0     # true size on the sloped face    derived [3g]
-PITCH_U, PITCH_V = 71.6, 41.0   # along row / across rows         derived [3g]
-CLIP = 6.5               # 45 degree clip, both bottom corners    derived [3g]
-CELL_T = 1.0             # whole cell stack on the panel: insulating film, adhesive, cell,
-                         # 200 um cover glass [S10]. Real cells need about this; the dummy
-                         # cells use the same thickness                    ASSUMPTION
-HOLE_D = 5.0             # wire hole through the side panel, one beside each end of every cell
-                         # row, 17 mm outboard of the end cell's centre (solar provisions,
+CELL_W, CELL_H = 60.0, 30.0     # Futurlec SZGD6030 mono cell, plain (decision 2026-11-07); the
+                         # original's cell is 69 x 39 mm [3g]    stated (retailer)
+PITCH_U, PITCH_V = 71.6, 41.0   # the original's grid positions [3g]; each cell sits centred
+                         # in its original position               derived [3g]
+CLIP = 0.0               # corners not stated by the retailer: plain rectangles   ASSUMPTION
+CELL_T = 3.0             # the cell is 2.8 mm thick (retailer) plus 0.2 mm of adhesive    ASSUMPTION
+HOLE_D = 5.0             # wire hole through the side panel, at both ends of every cell row,
+                         # in the gap above the row (solar provisions,
                          # docs/solar-spec.md)                            ASSUMPTION
-HOLE_OFFSET = 17.0
+HOLE_OFFSET = 17.0       # along the row from the end cell's centre (x = +-160.2: clear of the posts)
+HOLE_V = PITCH_V / 2     # up the slope from the row's centre, into the gap above the row
 FIELD_Z = (UNDERSIDE_Z + DECK_TOP_Z - DECK_T) / 2
                          # field centre height on the face. The
                          # position on the face is open [7.3]     ASSUMPTION
@@ -108,7 +109,8 @@ def cells():
     c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
     hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
     W, H, k = CELL_W / 2, CELL_H / 2, CLIP
-    pts = [(-W + k, -H), (W - k, -H), (W, -H + k), (W, H), (-W, H), (-W, -H + k)]
+    pts = ([(-W + k, -H), (W - k, -H), (W, -H + k), (W, H), (-W, H), (-W, -H + k)] if k > 0
+           else [(-W, -H), (W, -H), (W, H), (-W, H)])
     cell = extrude(Polygon(*pts, align=None), amount=CELL_T)
     out = []
     for sy in (1, -1):
@@ -137,7 +139,7 @@ def solar_holes(length=6.0, d=None):
     for sy in (1, -1):
         n = Vector(0, sy * c, sn)
         for j in range(N_ROWS):
-            v = (j - (N_ROWS - 1) / 2) * PITCH_V
+            v = (j - (N_ROWS - 1) / 2) * PITCH_V + HOLE_V
             for sx in (1, -1):
                 u = sx * ((N_COLS - 1) / 2 * PITCH_U + HOLE_OFFSET)
                 o = Vector(BODY_X0 + u, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v

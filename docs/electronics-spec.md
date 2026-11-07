@@ -65,12 +65,13 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 ## Solar charge controller (shortlist, none bought)
 
 The pack is charged from the side panels' cells (`solar-spec.md`). Needed: an MPPT charger for a 2S lithium pack (8.4 V,
-constant current then constant voltage), fed by the chosen cell option, at least 2 A out for the triple-junction case, in the
+constant current then constant voltage), fed by the chosen cells (Futurlec, 7.2 V, 2 to 4.6 W a side), in the
 50 x 30 x 12 mm box reserved at the front floor. The deciding factor is the input voltage against the pack's 8.4 V:
 
 | Cell option | String voltage at maximum power | Charger topology it needs |
 |---|---|---|
-| Silicon, F1 or F2 (15 in series) | about 8.7 V | **buck-boost**: only 0.3 V above a full pack, too little for a buck |
+| Futurlec SZGD6030, decided (15 in series) | 7.2 V (15 x 0.48 V) | **buck-boost**: below a full pack's 8.4 V, so a buck cannot charge it |
+| Silicon cut to 69 x 39 mm (15 in series) | about 8.7 V | **buck-boost**: only 0.3 V above a full pack, too little for a buck |
 | Silicon, F3 (tiled, 30 in series) | 15 V listed, 20 V measured | buck is enough |
 | Triple junction (rows in parallel) | 11.5 V, up to 13 V open circuit | buck is enough |
 
@@ -78,7 +79,7 @@ The buck-only limit is my reasoning from the topology; the chips' headroom speci
 
 | Candidate | What it is | Figures read | Fits | Caveats |
 |---|---|---|---|---|
-| **TI BQ25798** (chosen for the silicon string, 2026-11-07) | buck-boost charger IC, 1 to 4 cells, built-in MPPT (open-circuit-voltage scaling), I2C control | input 3.6 to 24 V; 5 A; 2S charge voltage accuracy -0.25 to +0.65 percent | all three options | a 4 x 4 mm QFN chip, so it needs a custom board or a third-party breakout (none found); TI's evaluation modules need an EV2400 or USB2ANY adapter and stock listings disagree; I2C from the Pi Zero would set it up and read its telemetry |
+| **TI BQ25798** (chosen for the 7.2 V Futurlec string, 2026-11-07) | buck-boost charger IC, 1 to 4 cells, built-in MPPT (open-circuit-voltage scaling), I2C control | input 3.6 to 24 V; 5 A; 2S charge voltage accuracy -0.25 to +0.65 percent | all three options | a 4 x 4 mm QFN chip, so it needs a custom board or a third-party breakout (none found); TI's evaluation modules need an EV2400 or USB2ANY adapter and stock listings disagree; I2C from the Pi Zero would set it up and read its telemetry |
 | Analog Devices **LT3652** (or a module built on it) | buck charger with input-voltage regulation as its MPPT | input 4.95 to 32 V (40 V absolute maximum); up to 2 A, set by resistor; float voltage up to 14.4 V, so 8.4 V works | triple junction, tiled silicon | buck only; a 2 A limit is just enough for the triple-junction side (15.6 W at 8.4 V is 1.9 A); no 2S module found, and a module sold for one cell would need its output voltage reset |
 | Consonance **CN3722** (or a module built on it) | buck charge controller with MPPT for one or several lithium cells | input 7.5 to 28 V in one datasheet copy | triple junction, tiled silicon | the current rating differs between copies (the title says 5 A, not confirmed); buck only; copy of the datasheet to confirm before relying on it |
 
