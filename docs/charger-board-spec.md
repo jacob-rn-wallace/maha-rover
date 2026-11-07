@@ -62,6 +62,31 @@ rows to reach 5 x 5 cells would break the original's 5 x 3 grid, which is one of
 front right, where the charger placeholder is, clears the frame and the other parts (CAD check), and more if the
 other parts move. The EVMs' sizes were not found, so whether one fits is unknown.
 
+## Is a converter needed at all? (2026-11-07)
+
+Some kind of charger is needed with every cell option. The pack must be charged at constant current and then constant voltage to 8.4 V,
+and the panel's voltage moves with light and temperature. What changes with the cells is the type of charger:
+
+| Cells | String voltage at maximum power | What it needs |
+|---|---|---|
+| Futurlec, 15 in series | 7.2 V | a buck-boost (below the pack's 8.4 V) |
+| AnySolar SM261K10, 3 in series per column | 16.7 V | a buck is enough; no buck-boost board (this is what was meant earlier: the buck-boost goes, not the charger) |
+| Tiled back-contact pieces, 1 per slot, 15 in series | about 9.4 V | a buck-boost, or possibly none (below) |
+| Tiled back-contact pieces, 2 per slot, 30 in series | about 18.8 V | a buck is enough (Voc near 24 V when cold) |
+
+**The one case that could drop the converter: the tiled pieces, one per slot.** At 9.4 V the string is just above the pack, so a Schottky
+diode between the string and a 2S pack with its battery management board might charge it directly, with no MPPT: the pack
+voltage (6 to 8.4 V) holds the panel below its maximum power voltage, where the current is nearly flat, so the panel delivers about
+the pack voltage times its 1.0 A. My arithmetic: at a pack voltage of 6.0 V about 6 W of the 9.5 W maximum (63 percent), at 7.4 V
+about 7.4 W (78 percent), at 8.4 V about 8.4 W (88 percent). Problems:
+- the panel's Vmp falls about 0.2 percent per kelvin of heating: on a hot panel the string may not reach the 8.4 V plus the
+  diode's 0.3 V needed to finish the charge (the temperature coefficient and the real Vmp are not known for these cells);
+- when the pack is full and the BMS opens its charge switch, the panel's open-circuit voltage (about 10.5 V by my estimate) appears
+  across that switch: the BMS must tolerate it, and no 2S BMS rating was checked;
+- the BMS is then the only protection against overcharge, and there is no current control for a cold or deeply discharged pack.
+This is a hobby shortcut that gives up 12 to 37 percent of the energy and some safety, for saving the charger. Not recommended
+for the first build; it could be tried later as an experiment.
+
 ## Routes, in order
 
 1. **A cheap buck 2S MPPT module** (BQ24650 or CN3722 type, 5 to 28 V in; several found on Amazon and similar, none verified here).
