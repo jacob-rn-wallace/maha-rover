@@ -12,3 +12,6 @@ graphic-design/scripts/mosaic/*.png
 
 # generated CAD meshes (STEP is tracked)
 hardware/**/out/*.stl
+
+# generated full-assembly STEP (6 MB, regenerate with hardware/assembly/rover.py)
+hardware/assembly/out/*.step
