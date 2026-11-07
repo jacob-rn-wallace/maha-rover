@@ -62,6 +62,25 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
   lithium pack (8.4 V, constant current then constant voltage) taking the input of the chosen option, with at least
   2 A out for option A.
 
+## Cost per panel (rough, prices seen 2026-11-07)
+
+"Panel" here is one side's 15 cells. Only the cell prices below were found; everything else is unpriced.
+
+**Option B, silicon cut from C60-class cells.** Single C60 or E60 cells were listed at about US$3.60 to 3.80 each
+(a 150-cell pack at about $3.59 a cell; one retail 20-cell pack at about $7 a cell; bulk factory listings at $0.50 to $2.30
+but with minimum orders of 150 and up). Each 125 x 125 mm cell yields about 4 pieces of 69 x 39 mm (a simple packing, not
+optimised), so 15 pieces need 4 cells, about **US$15 per panel** with no breakage. Cutting silicon cells breaks many, so
+budget twice that: **US$30 per panel**. The same listings warn that the Gen III cells are no longer made, so supply may be thin.
+Not priced: tabbing ribbon, solder and flux, insulating film, adhesive, cover glass or encapsulant, and the 2 mm aluminium
+panel itself.
+
+**Option A, triple-junction cells.** No per-cell price was found for any supplier (CESI, CAVU Aerospace, Rikei, AZUR
+and others route requests to quotes). For scale only: NanoAvionics lists a complete 20 W CubeSat GaAs panel from
+EUR 12,800, about EUR 640 per watt. At that rate one 15.6 W side would be about EUR 10,000 (derived; a flight-qualified
+assembled panel, so not a bare-cell price). A bare-cell quote and minimum order size would be needed.
+
+**Shared, not per panel:** the charge controller, fuses, diodes and grommets.
+
 ## Open
 
 - Which cells: the electrical option, a supplier, and the real cell outline and rear contact. The 69 x 39 mm clipped
