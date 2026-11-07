@@ -354,8 +354,10 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 7. Battery capacity, motor specifications.
 
 Candidate sources: the Els et al. 2025 rover science programme paper (cited by [S6] and
-[S12] as "this collection", in preparation or recent; not in the local papers folder as of
-2026-11-06), any MBRSC dimensioned drawing, and photographs of the EM with a known
+[S12] as "this collection". Checked 2026-11-06: not on the Springer collection page (the
+project owner looked), not in Crossref or OpenAlex, and the latest collection paper ([S8],
+30 Oct 2025) still cites it without a DOI. Probably unpublished, or published under a
+different title; the citing papers disagree on year, volume and title wording), any MBRSC dimensioned drawing, and photographs of the EM with a known
 scale object (the EM sits in the MBRSC Moon Yard, [S13] Fig. 10).
 
 ## Sources
