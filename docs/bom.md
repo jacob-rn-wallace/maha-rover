@@ -34,8 +34,9 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
 | Wheel | 4 | 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy (`hardware/wheel/`, `wheel-spec.md`) | stated / derived | - | 0.398 each, ASSUMPTION (model volume at AZ91E density) |
-| Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | 37 mm planetary DC gearmotor, no encoder, open-loop speed and direction (decision 2026-11-07). Dimensions are placeholders, see `hardware/drive/motor.py` | 0.20 each, ASSUMPTION |
+| Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | Pololu 37D without encoder, candidate #4746 (131.25:1, spur/helical), open-loop speed and direction (decision 2026-11-07). See `drive-spec.md` | 0.195 each (vendor, upper bound) |
 | Motor driver | 2 | not found | (unverified) | Dual-channel brushed DC drivers, four channels in total, so pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | not known |
+| Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | - | not known |
 | Steering | none | Skid steering [S25], [S20] | stated | - | - |
 
