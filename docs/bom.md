@@ -48,7 +48,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | Printed square tube with a hinge pin, two pan and tilt servos (Feetech STS3215 C001) and a hinge drive: springs and a latch as modelled, or a bus servo (C044) as recommended (`mast-spec.md`, `electronics-spec.md`) | 1.237 (EM, stated [S19]); under 1.4 flight. Replica about 0.45, ASSUMPTION |
+| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | Printed square tube, fixed upright (stowing deferred), with two pan and tilt servos (Feetech STS3215 C001) (`mast-spec.md`, `electronics-spec.md`) | 1.237 (EM, stated [S19]); under 1.4 flight. Replica about 0.42, ASSUMPTION |
 | CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | Raspberry Pi Camera Module 3 (25 x 24 x 11.5 mm) in a printed 35 x 35 x 73 mm tube | 0.210 stated [S12] (replica not weighed) |
 | CAM-2 | 1 | Fixed, rear, axis about 250 high [S12] | stated | - | 0.210 stated [S12] |
 | CAM-M (microscope) | 1 | Front, aperture about 210 high [S13] | stated / derived | - | not known |

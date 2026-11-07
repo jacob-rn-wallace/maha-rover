@@ -13,7 +13,6 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 | Drive motor | Pololu 37D, #4746 (see `drive-spec.md`) | 4 | 37 dia x 57 | 175 to 195 g |
 | Motor driver | Pololu Dual MC33926 carrier, #1213 | 2 | 28 x 46 (1.10 x 1.8 in), height not found | 7 g (0.25 oz) |
 | Pan, tilt servo | Feetech STS3215 C001 (7.4 V) | 2 | 45.2 x 24.7 x 35 | 55 g |
-| Hinge servo (recommended, see below) | Feetech STS3215 C044 (7.4 V, 1/191) | 1 | 45.2 x 24.7 x 35 | 55 g |
 | 5 V supply | Pololu D24V22F5 | 1 | 17.8 x 17.8 x 7.9 | 2.3 g |
 | Cells | Samsung INR18650-30Q | 4 | 18.4 dia x 65.0 max | 48 g max each |
 | Battery management | generic 2S BMS with balancing | 1 | not chosen | not found |
@@ -61,24 +60,17 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 - A bus servo needs a half-duplex serial adapter between the controller and the bus; not chosen.
 - Pan range of the original is plus or minus 179 degrees [S19]; a bus servo at 360 degrees covers it,
   with a software limit to protect the camera cable.
-- Micro servo for a latch (MG90S class: 22.8 x 12.2 x 28.5 mm, about 13 g, 2.0 to 2.8 kg·cm at 4.8 to 6 V,
-  retailers' figures) is only needed if the spring-and-latch mast is kept; see the next section.
 
-## Mast hinge: the spring route does not fit
+## Mast stowing (deferred)
 
-The mast spec assumed two torsion springs and a latch. A hand check says the springs are too big.
-The mast lying flat needs about 0.86 N·m on Earth (`mast-spec.md`, from guessed masses). For two springs
-sharing a swing from 0.6 N·m down to 0.1 N·m over 90 degrees, the rate is about 0.32 N·m per radian each.
-With the textbook round-wire formula, k = E d^4 / (10.8 D N) (E = 200 GPa), a 2.0 mm wire (a bending stress of
-about 760 MPa at 0.6 N·m, which is acceptable) needs about 66 coils at a 14 mm mean diameter, or about 31
-coils at 30 mm. Either is longer or wider than the 28 mm pedestal and 102 mm width allow. This is a rough
-calculation, not a spring design.
-
-**Recommendation:** drive the hinge with a bus servo (C044, 27.4 kg·cm stall, so holding 0.86 N·m = 8.8 kg·cm
-is about a third of stall) instead of springs and a latch. It deploys and stows repeatedly and removes
-the latch servo. It changes the mast model: the pedestal must hold a 45 x 25 x 35 mm servo on the hinge axis,
-which the 28 mm pedestal cannot. That redesign is not done; it needs your go-ahead because it departs from the
-original's spring hinge. It is the main open mast question.
+The mast is fixed for now (`mast-spec.md`), so no hinge parts are chosen. For when stowing is wanted:
+the mast lying flat needed about 0.86 N.m on Earth with the earlier guessed masses. A hand check found that two
+torsion springs sharing a swing from 0.6 down to 0.1 N.m over 90 degrees would need a rate of about 0.32 N.m per
+radian each; with the textbook round-wire formula k = E d^4 / (10.8 D N) (E = 200 GPa) a 2.0 mm wire (about
+760 MPa at 0.6 N.m) needs about 66 coils at a 14 mm mean diameter, or about 31 at 30 mm, which does not fit a
+28 mm pedestal. That is a rough calculation, not a spring design. A bus servo on the hinge (Feetech C044,
+27.4 kg.cm stall, 1/191, so holding 0.86 N.m = 8.8 kg.cm is about a third of stall) would deploy and stow
+repeatedly but needs a pedestal that can hold a 45 x 25 x 35 mm servo on the hinge axis.
 
 ## Power
 
@@ -96,4 +88,4 @@ original's spring hinge. It is the main open mast question.
 - Battery management board, bus-servo adapter, fuses, switches, connectors, a charger for 2S: not chosen.
 - Pi Zero 2 W, camera module and driver masses and heights: not found.
 - The STS3215 datasheet and SKU voltage window; mounting hole pattern.
-- Wiring harness and the cable path across the mast hinge.
+- Wiring harness and the cable path from the mast head down into the body.

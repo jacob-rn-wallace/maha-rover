@@ -39,7 +39,7 @@ The bulkheads split the cavity into a front and rear compartment with a narrow c
 | Controller, Raspberry Pi Zero 2 W | 65 x 30 x 8 (height assumed) | 0.015 (assumed) | front compartment, on the floor |
 | Motor drivers, two Pololu MC33926 boards side by side | 46 x 56 x 12 (28 x 46 each; height assumed) | 0.014 | front compartment, on the floor |
 | 5 V converter, Pololu D24V22F5 | 18 x 18 x 8 | 0.0023 | front compartment, on the floor |
-| Keep-out under the deck | 70 x 70 x 60 | n/a | front, for the mast hinge and gimbal drive |
+| Keep-out under the mast base | 40 x 40 x 30 | n/a | front, for the cable entry from the mast |
 
 All of them fit the cavity and none clash with each other, the bulkheads or the housing. Together
 the electronics are about 0.25 kg with their centre at x -88, z 144, which puts the heavy mast
@@ -52,7 +52,7 @@ replica's mass and centre of mass have not been recomputed.
   assumption); runtime depends on the real motor and camera draw, which is untested.
 - The controller, camera, drivers and converter are not chosen; wiring runs, connectors and a
   battery charge and protection board have no space reserved.
-- The mast: hinge, pan and tilt drives, wiring through the deck. Only a keep-out box exists.
+- The mast is fixed and carries its own servos (`mast-spec.md`); only the cable entry through the deck and a clamp for the wires are reserved, as a 40 x 40 x 30 mm keep-out. The entry itself is not designed.
 - Cutouts: the bulkheads need wire passages; the walls need the shaft holes (the bosses) and a way
   in to the cavity (a lid or the deck) which is not designed.
 - The cell fields are 0.5 mm plates on the wall; nothing is behind them, and their wiring and

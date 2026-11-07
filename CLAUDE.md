@@ -11,11 +11,11 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
   1. Wedge body with 10 degree sidewalls (panels at 80 degrees).
   2. Skeletonized wheels, 200 x 80 mm, 14 radial grousers of 15 mm.
   3. 5 x 3 solar cell fields on both sloped faces (printed or dummy cells are fine).
-  4. Deployable mast and camera: stows flat along the top panel, rotates up to vertical.
+  4. Mast and camera: a square tube on the front deck carrying a pan-tilt head and camera at the stated
+     height. Fixed upright for now; the original's stow-and-deploy (flat under 120 mm, springs up) is deferred.
   5. Overall envelope: about 474 x 497 mm over the wheels, 700 mm tall with the mast up.
 - **Must work, roughly as the original does:** four driven wheels, skid steering, a passive
-  differential suspension (no rocker, no springs), a mast that deploys and pans and tilts, and a
-  live camera on it. No science payload instruments.
+  differential suspension (no rocker, no springs), a mast that pans and tilts, and a live camera on it. No science payload instruments.
 - **Free to differ:** materials (the original is magnesium alloy with MLI; the replica can be
   printed plastic, aluminium or whatever builds easily), internal structure, fasteners, motors,
   electronics and battery (choose off-the-shelf parts), the 10 kg mass, thermal and space
@@ -56,10 +56,9 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
   `hardware/body/body.py`. Their position on the face is an assumption (centred).
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
-- Mast: tube 58 x 58 mm centred 24.2 mm ahead of the front axle, stowed along the top panel by a
-  spring hinge, CAM-1 on a pan and tilt head (`docs/mast-spec.md`, `hardware/mast/mast.py`, built into
-  the body model). Sizes from the CAD figures (`original-dimensions.md` 3j); the mechanism is the
-  replica's own: torsion springs, a servo latch, two servos. Folded rearward (an assumption).
+- Mast: fixed upright, tube 58 x 58 mm centred 24.2 mm ahead of the front axle, pan-tilt head and CAM-1 at
+  the stated height (`docs/mast-spec.md`, `hardware/mast/mast.py`, built into the body model). Sizes from the
+  CAD figures (`original-dimensions.md` 3j). Stowing is deferred; the hinged design is in commit `20aec90`.
 - Drive and suspension: 4 in-wheel motors [S3]; skid steering; passive differential gear
   suspension, no rocker, no springs or dampers [S25]. Layout and motor type still unsourced.
 - Structure mass: 2 kg excluding mobility [S26].
@@ -83,7 +82,7 @@ does not bind the replica; the original wins):
 - Done: first pass at sourcing the original's dimensions from MBRSC and
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
-- Done: wheel CAD (`hardware/wheel/`); body envelope with cells and stowed mast
+- Done: wheel CAD (`hardware/wheel/`); body envelope with cells and mast
   (`hardware/body/`); mass budget and centre-of-mass range (`docs/mass-budget.md`); BOM skeleton
   (`docs/bom.md`). The mass budget is a record of the original (4.75 kg of its 10 kg is
   unallocated); the replica's own mass is free under the scope above.
@@ -99,12 +98,11 @@ does not bind the replica; the original wins):
 - Body interior (2026-11-07): 3 mm shell, two bulkheads holding the differential, 6800 bearings in wall
   bosses, battery rear and electronics front, keep-out under the deck for the mast drive. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
-- Still to do, in rough order: settle the mast hinge (a bus servo is recommended over springs, see
-  `docs/electronics-spec.md`) and update the mast CAD; confirm the electronics shortlist and the exact
-  drive motor; design the differential's gear train; turn the envelope body into a buildable one
-  (material, joints, cell mounting, a way into the cavity); reassess the mass and centre of mass for
-  the replica's own parts; fill the rest of the BOM's "Replica" column. Closing the section 7 gaps is
-  optional: only chase a source when it changes one of the five "must" items.
+- Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
+  drive motor; design the differential's gear train; turn the envelope body into a buildable one (material,
+  joints, cell mounting, a way into the cavity, the mast base joint and cable entry); reassess the mass and
+  centre of mass for the replica's own parts; fill the rest of the BOM's "Replica" column. Deferred: mast
+  stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.
 
 ## Conventions
 - Hardware units are millimetres.

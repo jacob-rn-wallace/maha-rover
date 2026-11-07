@@ -10,8 +10,8 @@ ASSUMPTION except the outer shape (body.py) and the pivot position (3i).
   * Each pivot shaft runs through a bearing boss in the side wall (a 6800 bearing,
     10 x 19 x 5, on the 10 mm shaft; ISO size from memory) and into the housing.
   * Rear compartment: battery pack on the floor. Front compartment: controller and
-    drivers on the floor, with a keep-out volume under the deck for the mast
-    hinge and gimbal drive. Part sizes follow docs/electronics-spec.md (candidates, not
+    drivers on the floor, with a keep-out volume under the deck, below the mast base, for the
+    cable entry (the mast is fixed; its servos are in the mast itself). Part sizes follow docs/electronics-spec.md (candidates, not
     bought); heights and masses marked ASSUMPTION are not sourced.
 
 Run:  .venv/bin/python hardware/body/interior.py
@@ -46,10 +46,8 @@ PARTS = {
     "motor drivers x2 (MC33926)": dict(size=(46.0, 56.0, 12.0), mass=0.014, at=(60.0, -30.0)),  # 28 x 46 each, side by side; height ASSUMPTION; 7 g each
     "5 V converter (D24V22F5)":   dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(130.0, 60.0)),   # 17.8 x 17.8 x 7.9, 2.3 g
 }
-KEEP_OUT = dict(size=(70.0, 70.0, 60.0),
-                at=(B.BODY_X0 + B.SIDE_PLATE_LEN / 2 - WALL_T - 35.0, 0.0))
-                # under the deck, as far forward as the cavity allows (a 70 mm box centred on the
-                # mast base, x = 161, would pass the front end wall)  ASSUMPTION
+KEEP_OUT = dict(size=(40.0, 40.0, 30.0), at=(B.MAST_X, 0.0))   # under the mast base, for the cable entry and a
+                                                               # clamp for the wires from the pan-tilt servos  ASSUMPTION
 
 
 def half_width(z):
@@ -99,7 +97,7 @@ def placed_parts():
         x, y = d["at"]
         out[n] = Pos(x, y, floor_z() + sz / 2) * Box(sx, sy, sz)
     kx, ky, kz = KEEP_OUT["size"]
-    out["keep-out: mast hinge and gimbal drive"] = Pos(KEEP_OUT["at"][0], KEEP_OUT["at"][1],
+    out["keep-out: mast cable entry"] = Pos(KEEP_OUT["at"][0], KEEP_OUT["at"][1],
                                                        B.DECK_TOP_Z - B.DECK_T - kz / 2) * Box(kx, ky, kz)
     return out
 

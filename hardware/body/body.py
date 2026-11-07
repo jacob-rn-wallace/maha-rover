@@ -2,7 +2,7 @@
 
 Replica of the Rashid-1 body, wheels and mast as a dimensional
 envelope: solid parts, thin solar cell plates, no internal structure, no
-suspension. Also builds the stowed mast (rover_stowed.step).
+suspension. 
 Millimetres. Rover frame: X forward, Y left, Z up, origin on the ground
 (wheel contact line) under the midpoint between the axles, on the centreline.
 
@@ -120,18 +120,17 @@ def cells():
     return out
 
 
-def mast(stowed=False):
-    """The replica mast, hinge and camera from hardware/mast/mast.py, deployed or stowed.
+def mast():
+    """The replica mast and camera from hardware/mast/mast.py (fixed upright).
     Imported here, not at the top, because mast.py imports this module."""
     sys.path.insert(0, str(Path(__file__).parent.parent / "mast"))
     import mast as mast_model
-    rot, fixed = mast_model.build(90.0 if stowed else 0.0)
-    return Compound(list(rot.values()) + list(fixed.values()))
+    return Compound(list(mast_model.parts().values()))
 
 
-def build_rover(stowed=False):
+def build_rover():
     b, bottom_w = body()
-    parts = {"body": b, "mast": mast(stowed)}
+    parts = {"body": b, "mast": mast()}
     for i, cl in enumerate(cells()):
         parts[f"cell{i}"] = cl
     for i, w in enumerate(wheels()):
@@ -147,15 +146,6 @@ if __name__ == "__main__":
     export_step(rover, str(out / "rover.step"))
     export_stl(rover, str(out / "rover.stl"))
 
-    sparts, _ = build_rover(stowed=True)
-    stowed = Compound(list(sparts.values()), label="al-maha-stowed")
-    export_step(stowed, str(out / "rover_stowed.step"))
-    export_stl(stowed, str(out / "rover_stowed.stl"))
-    sb = stowed.bounding_box()
-    sw = Compound([v for k, v in sparts.items() if k.startswith("wheel")]).bounding_box()
-    mb = sparts["mast"].bounding_box()
-    print(f"stowed: mast top {mb.max.Z - DECK_TOP_Z:.1f} above deck (limit {MAST_STOWED_MAX:.0f}, stated [S19]);"
-          f" overall height {sb.max.Z:.0f} (derived 468 [3h]); mast x {mb.min.X:.0f}..{mb.max.X:.0f}")
     print(f"cells: {sum(k.startswith('cell') for k in parts)} (target 30), "
           f"all valid {all(p.is_valid for k, p in parts.items() if k.startswith('cell'))}")
 

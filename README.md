@@ -11,11 +11,11 @@ An open-source, full-size replica of the UAE's **Rashid** lunar rover. It aims t
 > **Status: early.** Branding is done. The original's dimensions are recorded with sources in [`docs/original-dimensions.md`](docs/original-dimensions.md); most outer dimensions are sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid), and gaps remain in the suspension and drivetrain layout and the exact solar cell part. CAD exists for the wheel, the body with its interior, solar cells, mast, drive motor mounting and suspension. There is a mass budget and a skeleton parts list. Nothing has been built yet. Everything below says what exists and what doesn't.
 
 ## Goal
-A rover that a person can build and afford, at the original's size (about 470 x 500 mm, 200 mm wheels, 700 mm tall with the mast up), that is recognisably Rashid and drives, deploys a mast and shows a live camera view.
+A rover that a person can build and afford, at the original's size (about 470 x 500 mm, 200 mm wheels, 700 mm tall with the mast up), that is recognisably Rashid and drives, pans and tilts a mast-mounted camera and shows a live camera view. The mast is fixed for now; stowing it is deferred.
 
-**Matched to the original where the sources allow:** the wedge body with 10 degree sides, the skeletonized grouser wheels, the 5 x 3 solar cell fields on both sloped faces, the stowing and deploying mast, and the overall envelope. Where a dimension is known, it is used and cited; where it isn't, the choice is labelled as an assumption.
+**Matched to the original where the sources allow:** the wedge body with 10 degree sides, the skeletonized grouser wheels, the 5 x 3 solar cell fields on both sloped faces, the mast and its camera head, and the overall envelope. Where a dimension is known, it is used and cited; where it isn't, the choice is labelled as an assumption.
 
-**Free to differ:** materials, internal structure, motors, electronics and battery (off-the-shelf parts), and mass. The original is a 10 kg flight vehicle in magnesium alloy; the replica is not. Out of scope: flight qualification, thermal and vacuum fidelity, and the science instruments.
+**Free to differ:** materials, internal structure, motors, electronics and battery (off-the-shelf parts), and mass. The original is a 10 kg flight vehicle in magnesium alloy; the replica is not. Out of scope for now: stowing the mast. Out of scope: flight qualification, thermal and vacuum fidelity, and the science instruments.
 
 For reference, the primary sources (MBRSC conference material and the instrument teams' *Space Science Reviews* papers) give a 10 kg rover, 470 x 505 mm in plan and 700 mm tall with the mast deployed, on four wheels of 200 mm diameter and about 80 mm width. Each dimension in this repo cites its source or is marked unverified, and open conflicts are listed alongside.
 
