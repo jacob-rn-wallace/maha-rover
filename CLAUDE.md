@@ -107,7 +107,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. Every
   extrusion is cut square; printed wedges absorb the 10 degrees. Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.4 kg; first replica estimate about 9 kg, under the 10 kg target (every line a guess, see the spec).
+  `hardware/chassis/frame.py`. Chassis 4.4 kg; replica mass estimate from the CAD 9.2 kg, under the 10 kg target by 0.8 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 197 mm.
 - Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
