@@ -78,10 +78,11 @@ bends, would save three joints; not designed.
 A first replica total, with every line ASSUMPTION except the mast, motors and battery from the shortlist:
 chassis 4.4, side plates 1.1 (8 mm solid aluminium; thinner or printed plates would save most of it), wheels 1.6
 (the CAD model's 0.4 kg each), motors 0.8, mast 0.4, differential about 0.2, battery 0.2, electronics and fasteners
-about 0.4: **about 9 kg**. That is nearly twice the 5 kg used to size the motors (`drive-spec.md`): the slope torque
-per wheel becomes about 0.77 N.m (79 kg.mm), inside the gearmotor's 100 kg.mm continuous limit but above its
-60 kg.mm best-efficiency point, at about 0.9 A per motor. The first places to save mass are the side plates, the
-panel thickness and the redundant top and mid rails.
+about 0.4: **about 9 kg**, close to the 10 kg design target. Decision 2026-11-07: the first pass is not optimised for
+mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass brings the
+build down to 10 kg if the real parts come out over. Every line except the mast, motors and battery is a guess, so
+the real total may be above or below. If it is over, the first places to save mass are the side plates, the panel
+thickness and the redundant top and mid rails.
 
 ## Open
 
