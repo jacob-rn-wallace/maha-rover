@@ -50,7 +50,7 @@ replica's mass and centre of mass have not been recomputed.
 - The controller, camera, drivers and converter are not chosen; wiring runs, connectors and a
   battery charge and protection board have no space reserved.
 - The mast is fixed and carries its own servos (`mast-spec.md`); only the cable entry through the deck and a clamp for the wires are reserved, as a 15 x 40 x 30 mm keep-out. The entry itself is not designed.
-- The way in to the cavity (a lid on the deck or a removable end panel) is not designed; the walls need the shaft
+- The way in to the cavity is the deck, as a lid with the mast attached (`frame-spec.md`); the walls need the shaft
   holes in the bearing plates (modelled in `frame.py`).
 - The cell fields are 0.5 mm plates on the wall; nothing is behind them, and their wiring and
   mounting are not designed.

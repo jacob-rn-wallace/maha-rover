@@ -20,7 +20,7 @@ Members are modelled as plain 20 x 20 sections (slots ignored); each sits 0.2 mm
 
 | Group | Members | Length (mm) |
 |---|---|---|
-| Corner posts, 10 degrees from vertical, mitred both ends | 4 | 222.4 |
+| Corner posts, 10 degrees from vertical, square cut | 4 | 222.4 |
 | Bottom end cross rails | 2 | 229.7 |
 | Bottom side rails, split at the pivot shafts | 4 | 132.6 |
 | Top end cross rails | 2 | 166.6 |
@@ -29,19 +29,66 @@ Members are modelled as plain 20 x 20 sections (slots ignored); each sits 0.2 mm
 | Mid side rails (z 175) | 2 | 335.2 |
 | Differential cross rails (x = plus or minus 28, z 175) | 2 | 216.0 |
 
-19 members, 4.15 m, **1.92 kg**. Lengths are for the 10 degree geometry of `body.py`; the joints (corner brackets or
-end fasteners, T-nuts) are not modelled.
+19 members, 4.15 m, **1.92 kg**. Lengths are for the 10 degree geometry of `body.py`. Every extrusion is cut square (zero-cut).
 
-- **Posts.** The walls lean 10 degrees (stated [S20]), so the posts do too, and their ends must be cut at 10 degrees to
-  sit flat on the rails. The vendor's cut-to-length service lists only a 45 degree cut, so the mitres would be made by
-  hand, or the posts cut square with printed 10 degree shims at the ends. The wedge is small: over a 20 mm section it
-  is 3.5 mm. This breaks the earlier "zero-cut" idea; it is the one place it does.
+- **Posts.** The walls lean 10 degrees (stated [S20]), so the posts do too. They are cut square (the vendor's
+  cut-to-length service lists only 45 degree cuts, so there are no mitres): a square-cut end sits up to 3.5 mm short
+  of the floor and deck planes, which does not matter because the posts do not bear on those panels. Their length
+  along the axis is 222.4 mm at the outer edge.
 - **Bearing plates.** The pivot shafts at z 145.7 would pass through a bottom side rail, so those rails are split
   (no rail for |x| < 35 mm) and a 6 mm plate (0.04 kg each) bridges the gap, with a seat for the 6800 bearing.
 - **Differential.** Two cross rails at x = plus or minus 28 hold the 36 mm housing between them, on printed cradles
   (not modelled), 1.3 mm above its top.
 - **Mast.** The base block (x 122 to 200) lies over the mast cross rail (x 131 to 151) and the front end rail
   (x 168 to 188); a 17 mm gap between them is left for the cable entry.
+
+## Joints (decided 2026-11-07)
+
+Rails stay axis-aligned, so rail-to-rail joints are plain 90 degree butt joints with a standard 20-series
+**corner bracket** (2 T-nuts, 2 M4 bolts). The 10 degree lean shows up in only two places, each solved with a small
+printed part, so no extrusion needs an angle cut:
+
+- **End cross rail to post:** the post's inner face leans, leaving a 0 to 3.5 mm wedge at the rail end. A printed
+  **10 degree shim** fills it (8 shims), clamped by the bracket.
+- **Side panel to side rail:** a vertical rail face under a sloped panel leaves the same wedge. A printed **tapered
+  strip**, 20 mm wide and 0 to 3.5 mm thick (8 strips, 132 to 335 mm), fills it. The posts are flush with the panel
+  and need none.
+
+| Joint | Count |
+|---|---|
+| End cross rail to post (bracket and shim) | 8 |
+| Side rail to end cross rail | 8 |
+| Mid side rail to post | 4 |
+| Differential cross rail to mid side rail | 4 |
+| Mast cross rail to top side rail | 2 |
+| Bottom side rail to bearing plate | 4 |
+| **Total** | **30 brackets, 60 T-nuts, 60 M4 bolts** |
+
+The printed parts total about 72 cm3 (a few tens of grams). Bracket sizes, T-nut type and bolt lengths are standard
+20-series items, not chosen from a catalogue.
+
+## Panel fixing
+
+M4 button-head screws into T-nuts in the slot facing each panel, at about 100 mm pitch with at least two per
+member (ASSUMPTION). The count comes from the member lengths:
+
+| Panel | Screws and T-nuts |
+|---|---|
+| Floor | 12 |
+| Deck (the lid) | 14 |
+| End panels (2) | 20 |
+| Side panels (2) | 36 |
+| **Total** | **82** |
+
+The panels hang off the frame members that face them: the floor on the bottom rails, the deck on the top rails and
+the mast cross rail, the end panels on the end cross rails and the posts, and the sloped side panels on the posts and,
+through the tapered strips, the side rails. Panel holes are clearance holes; the T-nut sits in the frame.
+
+**Access to the cavity: the deck is the lid.** Undoing its 14 screws lifts off the deck with the mast attached
+(0.4 kg); the 160 mm wide opening reaches the battery, drivers and controller. The mast's wires need a connector
+at the lid so the two can be parted. The mast base is held by 4 M4 bolts through the base block and deck into the
+mast cross rail (x 141) and the front end rail (x 178), at y plus or minus 30, so removing the lid does not
+unbolt the mast. The 17 mm gap between those two rails (x 151 to 168) is the cable entry.
 
 ## Panels
 
@@ -86,8 +133,10 @@ thickness and the redundant top and mid rails.
 
 ## Open
 
-- The corner joints, fasteners and panel fixing are not designed. Neither is the way into the cavity (a lid on the
-  deck, or a removable end panel).
-- Panel material and thickness; whether the posts are mitred by hand or shimmed.
+- Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
+- The bearing plate's fixing to the wall panel, and the cradles that hold the differential housing (printed), are
+  not modelled.
+- The lid's gasket-free fit: no dust sealing, and no connector chosen for the mast cable.
+- Panel material and thickness.
 - Mid rails and top side rails may be partly unnecessary; no stiffness analysis has been done.
 - Cells: their mounting on the side panels (glued dummy cells) and any wiring are not designed.

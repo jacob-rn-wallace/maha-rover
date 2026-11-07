@@ -95,14 +95,15 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
   clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
 - Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, 1.92 kg) behind 2 mm aluminium panels
-  (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. The
-  posts need 10 degree mitres (the vendor cuts 45 only). Spec: `docs/frame-spec.md`; CAD and checks:
+  (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. Every
+  extrusion is cut square; printed wedges absorb the 10 degrees. Corner brackets join rails, M4 screws fix panels,
+  the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
   `hardware/chassis/frame.py`. Chassis 4.4 kg; first replica estimate about 9 kg, under the 10 kg target (every line a guess, see the spec).
 - Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
-  drive motor; design the differential's gear train; settle the chassis joints and panel fixing, cell mounting,
-  a way into the cavity, the mast base joint and cable entry; reassess the mass and centre of mass for the
+  drive motor; design the differential's gear train; settle the cell mounting, the cradles that hold the differential,
+  the bearing plate fixing and a connector for the mast cable; reassess the mass and centre of mass for the
   replica's own parts; then a second pass to bring the total to 10 kg if the real parts come out over; fill the
   rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.

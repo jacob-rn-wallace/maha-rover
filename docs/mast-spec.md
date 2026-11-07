@@ -50,5 +50,6 @@ walls on a 78 x 90 mm base; no stress check has been done.
 - Servos and camera module are candidates only (`electronics-spec.md`), none bought.
 - The wires from the head down the tube and into the body: where they enter the deck is reserved in
   `interior-spec.md` (a 40 x 40 x 30 mm zone under the base), but the entry is not designed.
-- Bolts, the base joint, and the tube's internal ribs are not modelled.
+- The base is held by 4 M4 bolts through the deck into two frame rails (`frame-spec.md`); the bolts themselves, the
+  tube's internal ribs and the base joint's strength are not modelled.
 - Stowing: deferred. The stowed height limit (120 mm above the deck [S19]) is not met by this mast.
