@@ -58,6 +58,7 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 - Its size, 45.2 x 24.7 x 35, matches the 45 x 24 x 35 placeholder in the mast model; the neck cavity
   (52 x 52 x 38) holds it with 3 mm of height to spare.
 - Free-run and stall current, and the mounting hole pattern, were not found.
+- **Supply:** a full 2S pack is 8.4 V, above the servos' 6 to 7.4 V listings, so they run from a 6 V regulator (`power-spec.md`).
 - A bus servo needs a half-duplex serial adapter between the controller and the bus; not chosen.
 - Pan range of the original is plus or minus 179 degrees [S19]; a bus servo at 360 degrees covers it,
   with a software limit to protect the camera cable.
@@ -115,7 +116,7 @@ repeatedly but needs a pedestal that can hold a 45 x 25 x 35 mm servo on the hin
 - **5 V supply:** D24V22F5, 5.3 to 36 V in, 5 V out, 2.5 A typical maximum at 24 V in (graphs for 7.4 V not
   read), minimum input about 5.8 V at 2.5 A. A fully discharged pack must stay above that: stop at 3.3 V a cell.
 - **Runtime estimate (rough):** driving at the 10 kg slope load: four motors at about 1.0 A and 7.4 V is about 30 W; the Pi
-  and camera, if they draw about 1 A at 5 V (an assumption), about 5 W; so about 35 W and roughly 1.2 h from 43 Wh. At rest
+  and camera, if they draw about 1 A at 5 V (an assumption), about 5 W; so about 35 W and roughly 1.1 to 1.2 h from 43 Wh (`power-spec.md` has the full current budget). At rest
   with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load, which is the worst case; flat driving takes far less.
 - **Solar:** the original's panels give 15 W peak [S3]; the replica's cells are dummies.
 
