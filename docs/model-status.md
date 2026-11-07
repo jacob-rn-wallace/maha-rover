@@ -13,16 +13,16 @@ view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim pl
 | Solar | 60 plain plates, 31 x 41.6 mm, two per slot on the original's 5 x 3 grid | `body.py`, `solar.py` |
 | Wheels | 4: hub tube, 10 ribs in two layers, rim band, 14 grousers | `wheel.py` |
 | Drive | 4 motor envelopes (gearbox, can, boss, shaft), 8 bearings, clamp rings, hub extensions, drive flanges, collars | `motor.py` |
-| Suspension | 2 link plates with bosses and motor sleeves, 2 hollow stepped pivot shafts (12 / 8 tube, 8 / 5 stub) with their wire holes | `arms.py` |
-| Differential | the 48 x 50 x 36 mm housing with its two shaft bosses and bushings, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
+| Suspension | 2 link plates with bosses and motor sleeves, 2 hollow pivot shafts (12 / 8 tube with a bonded 8 / 5 stub, bonded into the link plate bosses) with their wire holes | `arms.py` |
+| Differential | the 48 x 50 x 36 mm housing with its two shaft bosses, bushings and four mounting lugs, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
 | Mast | 76 mm base plate, 40 x 40 T-slot extrusion, printed neck, C-arm, camera housing, tilt motor housing, CAM-1 tube | `mast.py` |
 | Interior (as boxes) | battery, BMS, fuse block, bus bar, servo regulator, rear-panel switch, charger module, Pi, two motor drivers, 5 V converter | `interior.py` |
 
-Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.8 kg with the centre of mass at z 206 mm.
+Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.9 kg with the centre of mass at z 205 mm.
 
 ## Not modelled, though designed in the docs
 
-Gear teeth (the gears are tooth-tip envelopes, so the mesh overlaps); the differential's cradles, bushings and fasteners; the real battery cells and holder; every wire and the harness; fasteners, T-nuts and
+Gear teeth (the gears are tooth-tip envelopes, so the mesh overlaps); the differential's lug bolts and shim washers, the bushing flanges, sleeves' bonding and fasteners; the real battery cells and holder; every wire and the harness; fasteners, T-nuts and
 corner brackets; the clear laminate over the solar pieces and the tabbing on their backs; the mast's servos, camera module and cable entry; the terminal boards (checked in `solar.py`, not in the assembly).
 
 ## Not yet designed

@@ -45,19 +45,22 @@ modules 1 to 8, a KSM1.5-20 with an 8 mm bore). The 8 mm bore sets the shaft siz
 - **Size:** a box 48 (x) x 50 (y) x 36 (z) mm with 3 mm walls, centred on the pivot axis at z 145.7: z 127.7 to 163.7, between the floor panel's top (126) and the
   cross rails' underside (165), and x within 24 mm. The simplified gears (tooth-tip cones and hubs) fit inside with 2 mm to spare in height; the cross pin ends reach the walls.
 - **Mass:** about 0.09 kg of steel and 0.08 kg of aluminium (0.17 kg), with bushings, the pin and hardware taken as 0.30 kg in the mass estimate.
-- **Mounting:** the housing hangs from the two cross rails on printed cradles (not modelled); the bus bar moved to x -52 to keep 6 mm clear of it.
+- **Mounting:** the housing hangs from the two cross rails by four integral aluminium lugs, M4 into T-nuts (`frame-spec.md`); the bus bar moved to x -52 to keep 6 mm clear of it.
 
 ## Shafts and bearings (changed from the first design)
 
-- **Shaft (changed 2026-11-07):** a **12 mm OD, 8 mm ID steel tube** from the link plate to the housing wall, turned down to **8 mm OD, 5 mm ID** inside the housing for the 8 mm gear bore.
-  The earlier 8 / 5 tube was too thin for the bending of the wheel loads (`hardware/chassis/rail_check.py`: 695 MPa at 3x, 247 MPa static); the 12 / 8 tube sees 218 MPa
-  at 3x (factor 3.0 in 4140 Q&T, 1.6 in S355, 1.0 in 304 stainless, which is not enough). The motor wires (four 22 AWG, about 3.4 mm across in a 2 x 2 bundle) run
-  through the bore, leave axially at the link plate end, and enter through one 3 mm radial hole at y = 20 in the stub, inside the housing between the gear hub and the wall.
-- **Supports:** two flanged plain bushings (12 ID x 16 OD x 8 long, ASSUMPTION) in a 16 mm hole through the bottom side rail (`frame-spec.md`), and **a third bushing in the
-  housing wall** (12 ID x 16 OD x 11 long, in a 22 mm boss, 8 mm long outside the 3 mm wall), 63 mm inboard of the rail. The shoulder where the shaft steps down bears on
-  the wall's inner face. At 3x the housing bushing carries 460 N (153 N static); the housing hangs from the differential cross rails on printed cradles, which are not designed.
+- **Shaft (changed 2026-11-07):** a **12 mm OD, 8 mm ID** steel tube from the link plate to the housing wall, plus a **separate 8 mm OD, 5 mm ID stub tube** bonded 15 mm into its
+  end, which carries the side gear (an 8 mm bore cannot be turned down to an 8 mm OD, so the stub is not one piece with the tube). The earlier 8 / 5 tube was too thin for the
+  bending of the wheel loads (`hardware/chassis/rail_check.py`: 702 MPa at 3x, 249 MPa static); the 12 / 8 tube sees 220 MPa at 3x. **Material: 4130 chromoly tube, normalized
+  (factor 2.0 at 3x; size 12 x 2 unverified), fallback E355 precision tube (factor 1.6); 304 stainless is not enough (1.0).** The motor wires (four 22 AWG, about 3.4 mm across in a
+  2 x 2 bundle) run through the bore, leave axially at the link plate end, and enter through one 3 mm radial hole at y = 20 in the stub, inside the housing between the gear hub and the wall.
+- **Supports:** two igus GFM-1214-09 type flanged plain bushings (12 bore, 14 OD, 9 long) in a bonded 16 / 14 mm aluminium sleeve in a 16 mm hole through the bottom side rail
+  (`frame-spec.md`), and **a third bushing in the housing wall** (12 bore, 14 OD, 12 long, in a 14 mm H7 bore through the 3 mm wall and a 22 mm boss, 63 mm inboard of the rail). The
+  shoulder at the end of the 12 mm tube bears on the wall's inner face. At 3x the housing bushing carries 467 N (156 N static, 3.2 MPa); the housing hangs from the differential cross
+  rails by four integral lugs, M4 into T-nuts (about 360 N on the worst bolt at 3x with the torque at the gearbox limit).
 - **Shear:** the 8 / 5 stub in torsion alone sees 53 MPa at the firmware cap, and 158 MPa at the cross hole with a stress-concentration factor of 3; at the gearbox limit 83 and 250 MPa.
-  That is too high for plain steel at the hole, which is another reason for the cap. The hole is where the bending moment is nearly zero. 4140 Q&T is the likely material.
+  That is too high for plain steel at the hole, which is another reason for the cap. The hole is where the bending moment is nearly zero. The stub may be a stronger steel than the tube
+  (4140 Q&T would do); not chosen.
 
 ## Open
 

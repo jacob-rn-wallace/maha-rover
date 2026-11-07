@@ -46,14 +46,16 @@ PLATE_BOTTOM = B.HUB_Z + 5.0     # lower edge about 5 above the hub centre  deri
 PLATE_TOP_MID, PLATE_TOP_END = 178.0, 128.0   # upper outline           ASSUMPTION
 PAD_HALF, PAD_BOTTOM = 22.0, B.HUB_Z - 22.0   # tab behind each sleeve  ASSUMPTION
 PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPTION
-BOSS_D, BOSS_T = 48.0, 6.0       # pivot boss on the outer face         derived [3i], by eye
+BOSS_D, BOSS_T = 48.0, 12.0      # pivot boss on the outer face: diameter derived [3i], by eye; 12 thick (was 6) so the 12 mm shaft is bonded in 20 mm of plate and boss   ASSUMPTION
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
 SHAFT_R = 6.0            # pivot shaft radius: a 12 mm OD, 8 mm ID steel tube from the link plate to the differential housing wall, so it can carry the
                          # bending of the wheel loads (rail_check.py: the earlier 8 mm tube would see about 680 MPa at 3 g)   ASSUMPTION
 SHAFT_ID = 8.0           # the drive motors' wires run through it, and leave axially at the link plate end   ASSUMPTION
 STUB_R, STUB_ID = 4.0, 5.0   # inside the housing the tube is turned down to 8 mm OD, 5 mm ID to suit the 8 mm bore of the stock 1.5 module mitre gears   ASSUMPTION
 STEP_Y = 22.0            # the shoulder: the housing wall's inner face. The 12 mm section runs out from here
-BOSS_Y0, BOSS_Y1, BOSS_R = 25.0, 33.0, 11.0   # boss on the outside of each housing wall: with the 3 mm wall it carries an 11 mm long bushing (the shaft's second support)   ASSUMPTION
+BOSS_Y0, BOSS_Y1, BOSS_R = 25.0, 34.0, 11.0   # boss on the outside of each housing wall: with the 3 mm wall it carries a 12 mm long bushing (the shaft's second support)   ASSUMPTION
+STUB_INSERT = 15.0       # the 8 / 5 stub is a separate tube bonded 15 mm into the 12 / 8 tube (an 8 mm bore cannot be turned down to an 8 mm OD)   ASSUMPTION
+LUG_X0, LUG_X1, LUG_Y, LUG_W, LUG_T = 24.0, 34.0, 14.0, 14.0, 2.0   # four lugs on the housing top, bolted to the differential cross rails (x = +-28)   ASSUMPTION
 CROSS_D = 3.0            # radial wire holes in the tube: one inside the body, one in the gap outside the wall
 CROSS_Y_IN = 20.0          # one radial wire hole in the 8 mm stub, inside the housing between the gear hub (ends y 18) and the wall (y 22). There is no hole
                          # out in the bending zone: the wires leave axially at the link plate   ASSUMPTION
@@ -89,13 +91,16 @@ def side(sy):
     plate = Pos(0, (y_out if sy > 0 else -y_in), 0) * extrude(sk, amount=PLATE_T)
     boss = Pos(0, sy * (y_out + BOSS_T / 2 - OVERLAP / 2), PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BOSS_D / 2, BOSS_T + OVERLAP)
     shaft_y0 = 1.0   # the two shafts stop 2 mm apart inside the housing, at the side gears
-    y_end = y_in + OVERLAP
-    stub = Pos(0, sy * (shaft_y0 + STEP_Y) / 2, PIVOT_Z) * Rot(90, 0, 0) * (Cylinder(STUB_R, STEP_Y - shaft_y0) - Cylinder(STUB_ID / 2, STEP_Y - shaft_y0 + 2.0))
+    y_end = y_out + BOSS_T                               # the tube ends flush with the boss tip; the motor wires leave there
+    stub_y1 = STEP_Y + STUB_INSERT
+    stub = Pos(0, sy * (shaft_y0 + stub_y1) / 2, PIVOT_Z) * Rot(90, 0, 0) * (Cylinder(STUB_R, stub_y1 - shaft_y0) - Cylinder(STUB_ID / 2, stub_y1 - shaft_y0 + 2.0))
     longpart = Pos(0, sy * (STEP_Y + y_end) / 2, PIVOT_Z) * Rot(90, 0, 0) * (Cylinder(SHAFT_R, y_end - STEP_Y) - Cylinder(SHAFT_ID / 2, y_end - STEP_Y + 2.0))
     shaft = stub + longpart
     sleeves = {}
     fixed_m, rot_m, z = M.build_parts()
     clamp_face = abs(hub_y) - (-z["cl"][0])        # y of the clamp ring's inner face (z['cl'][0] is negative)
+    bore = Pos(0, sy * (y_in + y_end) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(SHAFT_R, y_end - y_in + 2.0)   # the shaft is bonded in a 12 mm bore through plate and boss
+    plate, boss = plate - bore, boss - bore
     for sx in (1, -1):
         y0, y1 = sy * y_out, sy * (clamp_face + OVERLAP)
         sleeves["F" if sx > 0 else "R"] = Pos(sx * hx, 0, B.HUB_Z) * ring(y0 - sy * OVERLAP, y1, SLEEVE_OD / 2, SLEEVE_ID / 2)
@@ -115,6 +120,9 @@ def differential():
     out = {"diff_housing": Pos(0, 0, PIVOT_Z) * Box(DIFF_X, DIFF_Y, DIFF_Z)}
     for sy in (1, -1):
         out["diff_boss " + ("L" if sy > 0 else "R")] = Pos(0, sy * (BOSS_Y0 + BOSS_Y1) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BOSS_R, BOSS_Y1 - BOSS_Y0)
+    for sx in (1, -1):
+        for sy in (1, -1):
+            out[f"diff_lug {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = Pos(sx * (LUG_X0 + LUG_X1) / 2, sy * LUG_Y, PIVOT_Z + DIFF_Z / 2 - LUG_T / 2) * Box(LUG_X1 - LUG_X0, LUG_W, LUG_T)
     return out
 
 

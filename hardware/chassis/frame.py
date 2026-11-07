@@ -48,8 +48,10 @@ KG_PER_M = 0.50          # HFS5-2020 and a second 20 x 20 datasheet   stated (ca
 TAN, COS = I.TAN, I.COS
 RAIL_H = 40.0            # the bottom side rails are 20 wide x 40 tall (HFS5-2040), standing on the floor, so the 16 mm pivot hole leaves 12 mm of wall above and below
 KG_PER_M_2040 = 0.88     # HFS5-2040 catalogue                              stated (catalogue)
+F_SLEEVE_L = 20.0
 HOLE_D = 16.0            # hole drilled through each bottom side rail for the pivot shaft and its bushings   ASSUMPTION
-BUSH_ID, BUSH_OD, BUSH_L = 12.1, 16.0, 8.0   # flanged plain bushing for the 12 mm shaft, one at each end of the hole (replaces the 688 bearing)  ASSUMPTION
+SLEEVE_OD, SLEEVE_ID = 16.0, 14.0   # aluminium sleeve, 20 long, bonded in the rail hole; it holds the bushings (a 2 mm extrusion wall cannot hold a press fit)   ASSUMPTION
+BUSH_ID, BUSH_OD, BUSH_L = 12.0, 14.0, 9.0   # one igus GFM-1214-09 type flanged plain bushing (12 bore, 14 OD, 9 long, H7 press fit) in each end of the sleeve (replaces the 688 bearing)  stated (retailer listing)
 EDGE = 0.2               # clearance to the end panels and the floor
 G = I.PANEL_GAP          # frame outer faces sit this far inside the side panels (at the top outer corner of the rails)
 PIV_X = 150.0            # pivot standoffs at x = +-150, near the corners   ASSUMPTION
@@ -141,11 +143,13 @@ def build():
 
 
 def bushings():
-    """Per side: two flanged plain bushings (12 ID, 16 OD, 8 long) in the hole through the bottom side rail, one at each face."""
+    """Per side: an aluminium sleeve (16 OD, 14 ID, 20 long) bonded in the hole through the bottom side rail, with a flanged plain
+    bushing (12 ID, 14 OD, 9 long) pressed into each end. The flanges are not modelled."""
     out = []
     ring = Cylinder(BUSH_OD / 2, BUSH_L) - Cylinder(BUSH_ID / 2, BUSH_L)
+    sleeve = Cylinder(SLEEVE_OD / 2, F_SLEEVE_L) - Cylinder(SLEEVE_ID / 2, F_SLEEVE_L)
     for sy in (1, -1):
-        parts = []
+        parts = [Pos(0, sy * (YB - P / 2), A.PIVOT_Z) * Rot(90, 0, 0) * sleeve]
         for face in (YB - P, YB):                      # inner and outer rail faces
             yc = face + BUSH_L / 2 if face == YB - P else face - BUSH_L / 2
             parts.append(Pos(0, sy * yc, A.PIVOT_Z) * Rot(90, 0, 0) * ring)
@@ -217,7 +221,7 @@ if __name__ == "__main__":
         print(f"  shaft {'L' if sy > 0 else 'R'} vs members {sum((sh & s).volume for s in members.values()):.1f}; "
               f"vs bushings {(sh & bush[0 if sy > 0 else 1]).volume:.1f}")
         rail = members[f"bottom side {'L' if sy > 0 else 'R'}"]
-        print(f"  rail hole {HOLE_D:.0f} mm: bushings vs rail {(bush[0 if sy > 0 else 1] & rail).volume:.1f} mm3; shaft clearance in the hole {(HOLE_D - 8) / 2:.1f} mm radial before the bushings (bush ID 8.2)")
+        print(f"  rail hole {HOLE_D:.0f} mm: bushings vs rail {(bush[0 if sy > 0 else 1] & rail).volume:.1f} mm3; sleeve OD {SLEEVE_OD:.0f} in a {HOLE_D:.0f} mm hole")
 
     print("\nmounting")
     mast_rail = members["top cross under mast"].bounding_box()

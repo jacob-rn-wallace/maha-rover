@@ -98,12 +98,13 @@ def build():
     outer = Box(A.DIFF_X, A.DIFF_Y, A.DIFF_Z)
     inner = Box(A.DIFF_X - 6.0, A.DIFF_Y - 6.0, A.DIFF_Z - 6.0)
     bosses = [Pos(0, sy * (A.BOSS_Y0 + A.BOSS_Y1) / 2, 0) * Rot(90, 0, 0) * Cylinder(A.BOSS_R, A.BOSS_Y1 - A.BOSS_Y0) for sy in (1, -1)]
-    shaft_bore = Rot(90, 0, 0) * Cylinder(8.0, 2 * A.BOSS_Y1 + 2.0)       # 16 mm bore through wall and boss: a bushing, 12 ID x 16 OD x 11 long, carries the shaft
+    lugs = [Pos(sx * (A.LUG_X0 + A.LUG_X1) / 2, sy * A.LUG_Y, A.DIFF_Z / 2 - A.LUG_T / 2) * Box(A.LUG_X1 - A.LUG_X0, A.LUG_W, A.LUG_T) for sx in (1, -1) for sy in (1, -1)]
+    shaft_bore = Rot(90, 0, 0) * Cylinder(7.0, 2 * A.BOSS_Y1 + 2.0)       # 14 mm bore through wall and boss (H7): an igus-type flanged bushing, 12 ID x 14 OD x 12 long, carries the shaft
     housing = outer - inner
-    for bs in bosses:
+    for bs in bosses + lugs:
         housing = housing + bs
     housing = housing - shaft_bore
-    parts["housing bushings"] = Compound([Pos(0, sy * (A.STEP_Y + A.BOSS_Y1) / 2, 0) * Rot(90, 0, 0) * (Cylinder(8.0, A.BOSS_Y1 - A.STEP_Y) - Cylinder(6.05, A.BOSS_Y1 - A.STEP_Y)) for sy in (1, -1)])
+    parts["housing bushings"] = Compound([Pos(0, sy * (A.STEP_Y + A.BOSS_Y1) / 2, 0) * Rot(90, 0, 0) * (Cylinder(7.0, A.BOSS_Y1 - A.STEP_Y) - Cylinder(6.0, A.BOSS_Y1 - A.STEP_Y)) for sy in (1, -1)])
     parts["housing"] = housing
     return parts
 

@@ -23,8 +23,7 @@ top frame under the deck, joined by four vertical posts that stand on the bottom
 
 - **Bottom frame:** two side rails, each a **single 20 wide x 40 tall member** (HFS5-2040: 0.88 kg/m, 324 mm2) the full length of the body, standing on
   the floor panel (z 126 to 166), joined at the ends by two 20 x 20 end cross rails (z 126 to 146; all four corners closed). Outer faces at
-  y = plus or minus 101.5. Each pivot shaft passes **through a 16 mm hole drilled in its side rail** at x = 0, z 145.7, with a flanged plain bushing
-  (12 ID x 16 OD x 8 long, ASSUMPTION) at each end of the hole. The rail is 40 mm tall so the hole leaves 12 mm of wall above and below it (an earlier
+  y = plus or minus 101.5. Each pivot shaft passes **through a 16 mm hole drilled in its side rail** at x = 0, z 145.7, in a bonded sleeve with a flanged plain bushing at each end (below). The rail is 40 mm tall so the hole leaves 12 mm of wall above and below it (an earlier
   20 x 20 rail, raised to put the axle at its centre, could take only a 12 mm hole and left 4 mm of wall; the shaft has since grown, see below).
 - **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, plus the cross rail under the mast.
 - **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails (from z 146); they lie 32 mm inboard of the
@@ -60,26 +59,35 @@ side panel.
   a folded edge or a stiffener behind the cells are the options.
 - **Edges of the tub.** The floor lies on the bottom frame, wider than the rails by 17 mm on each side. The floor, end panels and side panels are
   not joined to each other along their seams; the end panels bolt to the end rails and posts. Closing the seams is not designed.
-- **Pivot shaft, its supports and the rail (strength check).** The shaft is a **12 mm OD, 8 mm ID steel tube** (it was 8 / 5; see below) with two supports:
-  the pair of bushings in the rail hole, and a **bushing in the differential housing wall** (12 ID x 16 OD x 11 long, in a boss on the outside of the wall),
-  63 mm inboard of the rail. Beyond the housing wall the tube is turned down to 8 mm OD, 5 mm ID for the side gear. The shaft passes on through a 22 mm
-  clearance hole in the side panel (the panel floats on its pivots) to the link plate at y = 133. `hardware/chassis/rail_check.py` is a hand calculation
-  (typical material values, 3 times the static load for impacts, wheel scrub at a friction coefficient of 0.6, all assumptions). **The wheel load acts at y = 208,
-  100 mm outboard of the rail**, not at the link plate: an earlier version of this check used the link plate and understated the bending by a factor of two.
-  - **Reactions at 3x:** 600 N at the rail, 460 N at the housing wall, and a shaft bending moment of **29 N.m** at the rail's outer face (9.8 N.m static).
-  - **The 8 / 5 tube would fail.** It sees 695 MPa von Mises at 3x and 247 MPa static (with the torque at the 1.6 A cap), against about 355 MPa for S355 steel.
-  - **The 12 / 8 tube passes** at 218 MPa at 3x: a factor of 1.6 in S355 steel, 3.0 in 4140 quenched and tempered, and 1.0 in 304 stainless (so not stainless).
-    Static: 77 MPa. **Material to choose: 4140 or S355.**
-  - **No radial hole in the bent part.** The 3 mm wire holes at y = 60 and y = 125 are gone: they were at a stress concentration in the highest-moment zone.
-    The wires now leave the tube axially at the link plate end, and enter through one radial hole at y = 20 in the 8 mm stub inside the housing, where the bending
-    moment is nearly zero (torque alone, 158 MPa at the cap with the concentration).
-  - **The rail as a beam is fine:** 603 N at midspan over 376 mm gives 23 MPa net at the hole against about 200 for the alloy (factor 8.8); the 16 mm hole keeps
-    about 97 percent of the section's stiffness. **Tear-out** of the 12 mm of wall above the hole is 6 MPa per bushing (allow 116). **Without the housing support
-    the two bushings only 12 mm apart would each see about 2.4 kN** at 3x, which no 20 mm rail wall could take.
-  - **The housing now carries 460 N at 3x** (153 N static), down through its cradles into the differential cross rails; the cradles are not designed.
-  Plain bushings suit the slow oscillation of the differential (a few degrees); check the bushing material and the shaft's surface.
-- **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
-  (not modelled), 1.3 mm above its top. They span the mid rails, y plus or minus 50.
+- **Pivot shaft, its supports and the rail (strength check and design).** `hardware/chassis/rail_check.py` is a hand calculation (typical material values,
+  3 times the static load for impacts, wheel scrub at a friction coefficient of 0.6, all assumptions). **The wheel load acts at y = 208, 100 mm outboard of the
+  rail**, not at the link plate: an earlier version of this check used the link plate and understated the bending by a factor of two.
+  - **Shaft:** a **12 mm OD, 8 mm ID** steel tube from the link plate to the housing wall. At 3x the peak bending moment is 30 N.m (9.9 static) at the rail's outer
+    face, which gives 220 MPa von Mises with the torque at the 1.6 A cap (78 MPa static). The earlier 8 / 5 tube would see 702 MPa. **Material decided:** 4130
+    chromoly seamless tube, normalized (yield 435 MPa, the lowest of three supplier figures that disagree: 435, 460, 483), a factor of 2.0 at 3x and 5.6 static.
+    A 12 x 2 mm size was not found in the listings I saw, so availability is unverified; **fallback: E355 (DIN 2391) precision tube**, 12 x 2 mm, factor 1.6 at 3x and
+    4.5 static. 304 stainless (factor 1.0) is not strong enough. No radial hole in the 12 mm tube: wires leave axially at the boss tip.
+  - **Two supports.** (1) The rail: a 16 mm hole drilled through the 20 x 40 rail takes a **16 OD / 14 ID aluminium sleeve, 20 mm long, bonded in** (a bushing
+    pressed straight into the 2 mm extrusion walls would not stay put), and an **igus GFM-1214-09 type flanged plain bushing** (12 bore, 14 OD, 9 long, H7 press fit;
+    [listing](https://uk.rs-online.com/web/p/plain-bearings/2724568)) pressed into each end. (2) The differential housing wall: a 14 mm H7 bore through the wall and its
+    boss, with a **12 mm long** flanged bushing of the same family, 63 mm inboard. The flange diameter and the permissible surface pressure were not found in the listings; the
+    pressures here are 2.8 MPa (rail) and 3.2 MPa (housing) at 3x against a deliberately low 20 MPa limit. The shaft needs a hard, smooth surface (the listing gives h9 or
+    better; hardness and roughness not looked up), so a ground, hard-chromed or nitrided tube. **Plain bushings suit the slow oscillation of the differential (a few degrees).**
+  - **Rail and hole.** The 20 x 40 section's 40 mm face leaves 12 mm of wall above and below the 16 mm hole. The rail as a beam sees 23 MPa net at 3x (factor 8.7);
+    the face-wall tear-out is 6 MPa. **Check the hole against the profile drawing:** a 14 to 16 mm hole in the middle of the 40 mm face may fall across the two
+    6 mm slots (they are 20 mm apart, centre to centre), and the Misumi drawing has not been read for the web between them.
+  - **Housing mount.** The housing's four lugs (10 x 14 x 2 mm, integral to the aluminium housing, at x = 24 to 34, y = +-14) take M4 bolts into T-nuts in the bottom
+    slot of the differential cross rails (x = plus or minus 28), with 1.3 mm shim washers across the gap. At 3x with the torque at the gearbox limit the worst bolt pulls
+    360 N against an M4 8.8 proof load of about 5 kN. The cross rails see 16 MPa at 3x. These replace the "printed cradles" of the earlier text: printed plastic would
+    creep under the 460 N.
+  - **Link plate to shaft.** The shaft is **bonded with retaining compound into a 12 mm bore through the 8 mm plate and a 12 mm boss** (20 mm engagement, the boss grown from 6
+    mm). At 3x the moment at the plate face is 24 N.m, a peak contact pressure of 30 MPa on the aluminium (factor 8.0). The bond (15 MPa assumed shear; datasheet values
+    for retaining compounds run higher, not verified) carries 68 N.m against 7.1 N.m at the gearbox limit (factor 9.6). There are **no cross pins**: a cross hole at the plate
+    would see about three times the bending stress. The wires leave the open tube end at the boss tip and run back to the motor sleeves.
+  - **Shaft step.** An 8 mm bore cannot be turned down to an 8 mm OD, so the **8 / 5 gear stub is a separate tube**, bonded 15 mm into the 12 / 8 tube at the housing wall (the
+    12 mm end bears on the wall's inner face). The bond carries 22.6 N.m against 7.1 N.m at the gearbox limit (factor 3.2); a pin is not used because it would cross the
+    wire bore. The bending moment there is nearly zero.
+  - **The housing carries 467 N at 3x** (156 N static) at each wall. The CAD shows the bosses, bushings, stub insertion and lugs clear the frame.
 - **Mast.** The base plate (x 123 to 199) lies over the mast cross rail (x 131 to 151) and the front end rail
   (x 168 to 188); a 17 mm gap between them is left for the cable entry.
 
@@ -152,10 +160,10 @@ about 0.6 kg lighter), or printed panels.
 | Frame | 2.14 | catalogue linear mass x lengths (the hole's removed metal ignored) |
 | Panels | 2.41 | 2 mm sides, ends, floor; 3 mm deck |
 | Pivot standoffs | 0.12 | 8 x 0.015 kg, ASSUMPTION |
-| Bushings | 0.02 | ASSUMPTION |
+| Sleeves and bushings | 0.02 | ASSUMPTION |
 | **Chassis** | **4.69** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.82 kg** (`replica-mass.md`), a margin of only 0.18 kg: the 20 x 40 rails add 0.35 kg and the 12 mm shafts 0.06 kg. Decision
+Replica total from the CAD: **9.89 kg** (`replica-mass.md`), a margin of only 0.11 kg: the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
 2026-11-07: the first pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass
 brings the build down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the
 redundant top and mid rails, and a 30 x 30 mast.
@@ -163,8 +171,8 @@ redundant top and mid rails, and a 30 x 30 mast.
 ## Open
 
 - Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
-- The pivot: the shaft material (4140 or S355), the bushing material and fit, the shaft's step at the housing wall (turned or a separate gear stub), the link plate to
-  shaft joint, and the housing's cradles, which now carry 460 N at 3x.
+- The pivot: the 4130 tube size (12 x 2) is unverified; the drilled hole against the profile's slots; the bushing flange size and rated pressure; retaining compound grades
+  and the real bond strength; surface hardness and finish of the shaft; shim washers at the housing lugs; no gland or slot is designed for the wires entering the stub inside the housing.
 - The pivot standoffs: rod end, ball joint or hinge, how thermal expansion of the panel is taken up, whether four points hold a 2 mm sheet flat, and the true gap (about 10 mm by eye).
 - Sealing: no side wall, so the sides, the floor-to-panel seams and the end seams are open.
 - The lid's gasket-free fit: no dust sealing, and no connector chosen for the mast cable.

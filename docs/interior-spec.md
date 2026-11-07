@@ -20,7 +20,7 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 ## Differential mount and bearings
 
 - Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
-  44 mm long) on printed cradles between them (`frame-spec.md`).
+  44 mm long) by four integral lugs bolted to their lower slots (`frame-spec.md`).
 - Each pivot shaft (a 12 mm tube) passes through a 16 mm hole drilled in the single 20 x 40 bottom side rail at x = 0, z = 145.7, with a flanged plain bushing at each end, then through a 22 mm
   clearance hole in the side panel, and enters the housing through a boss and bushing in its wall, where it steps down to 8 mm (`differential-spec.md`, `frame-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
