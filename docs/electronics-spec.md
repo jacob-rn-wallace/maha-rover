@@ -38,9 +38,10 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
   0.525 V/A, PWM up to 20 kHz, 2.5 to 5.5 V logic, reverse-voltage protection on the motor supply. Size
   1.10 x 1.8 in; weight 0.25 oz; US$39.95. **Operation from 5 to 8 V reduces the maximum current**, and our
   2S pack runs 6 to 8.4 V, so expect less than 2.5 A. Pololu's test: 5 A for 5 s, then derated.
-- Fit to the load: the motor draws about 0.6 A at the 20 degree slope torque (0.74 A at 60 kg·mm, from the
-  datasheet; derived by proportion) and about 1.5 A at 1.2 N·m. Both are within one channel, so one dual
-  board drives each side with margin, **if the supply sags no lower than about 6 V**.
+- Fit to the load: at the 10 kg design mass the motor draws about 1.0 A at the 20 degree slope torque
+  (`drive-spec.md`) and about 2.4 A at the gearbox's instantaneous limit (2.45 N.m, interpolated). The slope load is
+  within one channel, so one dual board drives each side; the peaks sit at the 2.5 A rating (5 A for a few
+  seconds), **if the supply sags no lower than about 6 V**, where the rating falls.
 - The current-sense output gives stall detection for free, replacing encoders.
 - A cheaper option, the DRV8833 dual carrier (2.7 to 10.8 V, 1.2 A continuous per channel, 2 A peak), is
   enough for the slope but not for the 1.5 A obstacle case; not chosen.
@@ -78,9 +79,9 @@ repeatedly but needs a pedestal that can hold a 45 x 25 x 35 mm servo on the hin
   6.0 Ah at 7.2 V nominal, about 43 Wh, 8.4 V full, about 0.19 kg of cells.
 - **5 V supply:** D24V22F5, 5.3 to 36 V in, 5 V out, 2.5 A typical maximum at 24 V in (graphs for 7.4 V not
   read), minimum input about 5.8 V at 2.5 A. A fully discharged pack must stay above that: stop at 3.3 V a cell.
-- **Runtime estimate (rough):** driving: four motors at about 0.6 A and 7.4 V is about 18 W; the Pi and camera, if
-  they draw about 1 A at 5 V (an assumption), about 5 W; so about 23 W and roughly 1.9 h from 43 Wh. At rest
-  with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load; real use will differ. At a replica mass near 9 kg (`frame-spec.md`) the motor current rises to about 0.9 A each, so about 27 W driving, 32 W with the Pi, and about 1.3 h.
+- **Runtime estimate (rough):** driving at the 10 kg slope load: four motors at about 1.0 A and 7.4 V is about 30 W; the Pi
+  and camera, if they draw about 1 A at 5 V (an assumption), about 5 W; so about 35 W and roughly 1.2 h from 43 Wh. At rest
+  with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load, which is the worst case; flat driving takes far less.
 - **Solar:** the original's panels give 15 W peak [S3]; the replica's cells are dummies.
 
 ## Open

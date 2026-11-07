@@ -30,22 +30,29 @@ datasheets were not read.
 
 ## Sizing against the replica's targets
 
-Assuming a replica mass of about 5 kg (ASSUMPTION, see `CLAUDE.md` scope):
+Sized for the **10 kg design mass** (the original's mass [S1]; decision 2026-11-07: the first pass is not
+optimised for mass, then a second pass brings the build down to 10 kg if it comes out over).
 
 | Quantity | Value | Basis |
 |---|---|---|
-| Torque per wheel on a 20 degree slope | about 0.42 N·m (43 kg·mm) | 5 kg x 9.81 x sin 20 / 4 x 0.1 m, no losses |
-| #4746 continuous limit | 0.98 N·m (100 kg·mm) | datasheet |
-| #4746 instantaneous limit | 2.45 N·m (250 kg·mm) | datasheet; covers the 1.2 N·m obstacle target |
+| Torque per wheel on a 20 degree slope | about 0.84 N.m (86 kg.mm) | 10 kg x 9.81 x sin 20 / 4 x 0.1 m, no losses |
+| #4746 continuous limit | 0.98 N.m (100 kg.mm) | datasheet |
+| #4746 instantaneous limit | 2.45 N.m (250 kg.mm) | datasheet; 2.9 times the slope torque |
+| #4746 best-efficiency torque | 0.59 N.m (60 kg.mm), 0.74 A | datasheet |
+| Motor current at the slope torque | about 1.0 A | linear in torque between the datasheet's 0.2 A no-load and 0.74 A at 60 kg.mm; the stall line gives 1.2 A |
 | Wheel speed, no load, 12 V | 76 rpm = 0.80 m/s | wheel circumference 0.628 m |
 | Wheel speed, no load, 7.4 V (2S pack) | about 47 rpm = 0.49 m/s | no-load speed scales with voltage; derived |
 | Original's speed | 0.1 m/s = 9.5 rpm | [S1] |
 
-At the 9 kg first estimate in `frame-spec.md` the slope torque per wheel is about 0.77 N.m (79 kg.mm): inside the 100 kg.mm continuous limit, above the 60 kg.mm best-efficiency point, at about 0.9 A (the 5 kg figures above are the original sizing).
+At 10 kg the slope torque is inside the continuous limit but above the best-efficiency point, so the motors
+run warm on a long climb; there is about 15 percent of continuous margin. The torque for the original's
+100 mm obstacle depends on traction and the grousers and has not been estimated; the instantaneous limit is
+the ceiling. If tests show the motors short of torque, the next ratio steps are the 150:1 (#2829, 65 kg.mm
+best-efficiency) or a 24 V pack.
 
 The highest ratio is still fast. Running the 12 V motors from a 2S pack roughly halves the speed,
 and PWM brings it down further. Speed under load will be lower than these no-load numbers.
-Low-duty PWM on an unloaded-feedback brushed motor can stall under load, so test low speeds on the
+Low-duty PWM on a brushed motor with no encoder can stall under load, so test low speeds on the
 real rover.
 
 ## Wheel support concept (option 1)
