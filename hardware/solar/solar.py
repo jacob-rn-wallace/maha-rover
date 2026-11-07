@@ -47,6 +47,35 @@ def si():
     return i_piece, i_piece * SI_V, SIDES
 
 
+def pieces_per_cell(a, b, side=125.0, margin=2.0, kerf=0.5):
+    """Most a x b pieces that fit in a side x side cell by one guillotine split, with rotation, an edge
+    margin and a saw kerf. A simple packing, not an optimised one."""
+    W = side - 2 * margin
+    best = 0
+    step = 0.5
+    x = 0.0
+    while x <= W:
+        n1 = math.floor((x + kerf) / (a + kerf)) * math.floor((W + kerf) / (b + kerf))
+        n2 = math.floor((W - x + kerf) / (b + kerf)) * math.floor((W + kerf) / (a + kerf))
+        best = max(best, n1 + n2)
+        x += step
+    # and the pure rotated case
+    best = max(best, math.floor((W + kerf) / (b + kerf)) * math.floor((W + kerf) / (a + kerf)))
+    return best
+
+
+def silicon_options():
+    rows = []
+    j = SI_I / SI_AREA                       # A/cm2, whole C60-class cell at one sun
+    for name, a, b in (("full outline", 69.0, 39.0), ("inset 2 mm (65 x 35)", 65.0, 35.0), ("inset 5 mm (59 x 29)", 59.0, 29.0)):
+        area = (a * b - (2 * B.CLIP * B.CLIP / 2 if a == 69.0 else 0.0)) / 100.0   # cm2, the full outline loses its two clipped corners
+        n = pieces_per_cell(a, b)
+        i = j * area
+        cells = math.ceil(CELLS_PER_ROW * ROWS / n)
+        rows.append((name, a, b, area, n, i, SI_V * i, cells))
+    return rows
+
+
 if __name__ == "__main__":
     # ---- stack and layout ----
     print(f"cell stack on the panel: {B.CELL_T:.1f} mm (dummy plates use the same); cell outline {B.CELL_W:.0f} x {B.CELL_H:.0f} mm, "
@@ -113,6 +142,23 @@ if __name__ == "__main__":
     print(f"  all 15 cells of one side in one series string: {v_si:.1f} V, {i_p:.2f} A, {v_si * i_p:.1f} W; "
           f"that is close to the pack's 8.4 V, so a buck-boost MPPT charger is needed")
     print(f"  or three rows of 5 in parallel: {CELLS_PER_ROW * SI_V:.1f} V, {ROWS * i_p:.2f} A (too low for a 2S charge: a boost converter)")
+
+    # ---- silicon fill options ----
+    print("\nsilicon fill options for the 69 x 39 mm cell positions (one side = 15 positions, 15 pieces in series)")
+    print(f"  {'option':24s}{'piece mm':>10s}{'cm2':>7s}{'per cell':>9s}{'A':>7s}{'W/piece':>9s}{'side V':>8s}{'side W':>8s}{'cells/side':>11s}")
+    for name, a, b, area, n, i, p, cells in silicon_options():
+        print(f"  {name:24s}{a:5.0f} x {b:2.0f}{area:7.1f}{n:9d}{i:7.2f}{p:9.2f}{15 * SI_V:8.1f}{15 * p:8.1f}{cells:11d}")
+    j = SI_I / SI_AREA
+    print(f"  (per-cm2 current {j * 1000:.1f} mA at one sun from the C60-class entry; cut losses ignored; the pieces' voltage is taken as 0.582 V)")
+    # tiled small cells (52 x 19 mm, listed 0.5 V and 400 mA; one reviewer measured 0.65 V and 140 mA)
+    fit_x, fit_y = math.floor(69.0 / 52.0), math.floor(39.0 / 19.0)
+    per_pos = fit_x * fit_y
+    pieces = per_pos * CELLS_PER_ROW * ROWS
+    print(f"\n  tiled 52 x 19 mm cells: {per_pos} per position ({fit_x} across, {fit_y} down, covering {per_pos * 52 * 19 / (69 * 39) * 100:.0f} percent of the 69 x 39 outline), "
+          f"{pieces} per side, {2 * pieces} for both sides (a pack of 100 covers them)")
+    print(f"    listed 0.5 V and 0.40 A: all {pieces} in series {pieces * 0.5:.0f} V, 0.40 A, {pieces * 0.5 * 0.4:.1f} W per side; "
+          f"as measured by one reviewer (0.65 V, 0.14 A): {pieces * 0.65:.0f} V, {pieces * 0.65 * 0.14:.1f} W per side")
+    print(f"    or {per_pos} pieces in parallel per position and 15 positions in series: 7.5 V, {per_pos * 0.4:.2f} A listed ({15 * 0.5 * per_pos * 0.4:.1f} W)")
 
     # ---- sun angle ----
     print("\nsun on a near-vertical panel: the normal is 10 degrees above horizontal, so output = normal-incidence power x cos(sun elevation - 10 deg) x cos(azimuth off the panel normal)")

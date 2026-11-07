@@ -56,7 +56,8 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each, modelled as 1 mm plates in
   `hardware/body/body.py`. Their position on the face is an assumption (centred). Provisions for real cells
   (12 wire holes, charge controller space, electrical options): `docs/solar-spec.md`, `hardware/solar/solar.py`. Real cells: silicon
-  cut to the cell outline (decided; cutting is established practice), one 15-cell series string per side.
+  (cutting is established practice); how it fills the cell outline is open: cut to the full outline, smaller inset
+  cells, or tiled small pre-cut cells, compared in the spec.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
 - Mast: fixed upright, tube 58 x 58 mm centred 24.2 mm ahead of the front axle, pan-tilt head and CAM-1 at

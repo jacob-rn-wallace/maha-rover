@@ -5,10 +5,10 @@ cells can be fitted later, the cell data behind it, and what is still open. CAD 
 `hardware/solar/solar.py` (with `hardware/body/body.py` for the cells and holes). Everything here is ASSUMPTION
 unless tagged; cell data are quoted from the sources noted, with their caveats.
 
-## Decision: cut silicon cells (2026-11-07)
+## Silicon: cutting is established practice (2026-11-07)
 
-The baseline is **silicon cells cut to the 69 x 39 mm outline** (option B below). Triple-junction cells stay
-possible later; the same holes and stack serve both.
+Silicon is the practical baseline (option B below). Triple-junction cells stay possible later; the same holes and stack
+serve both. **How silicon fills the 69 x 39 mm outline is left open**: three ways are compared in the next section.
 
 Cutting is established practice, in industry and among hobbyists:
 - **Industry:** half-cut cells are a standard format; laser cut-and-cleave is the usual method. Cutting leaves
@@ -33,9 +33,43 @@ Practical steps: buy spares (at least twice the cells needed), cut test pieces f
 chosen cell before cutting, and measure the cut pieces' voltage and current under a lamp. Choosing a conventional
 front-and-back-contact cell instead of a back-contact one avoids the rear-pattern difficulty; this was not compared in detail.
 
-With the baseline chosen, the wiring is one series string of 15 cells per side: 8.7 V, 1.03 A and about 9 W at one sun
-(option B). The six holes per side serve a serpentine: row 1 left and row 3 right carry the two external leads, and the
-other four holes take the two jumpers between rows, which run inside the cavity.
+## Fill options for silicon
+
+Each cell position is 69 x 39 mm (the original's half-wafer size). From a 125 x 125 mm C60-class cell (2 mm edge margin,
+0.5 mm saw kerf, a simple packing), one side's 15 positions need:
+
+| Option | Piece | Active area | Pieces per cell | Cells per side | Output per side at one sun | Look from outside |
+|---|---|---|---|---|---|---|
+| F1. Full outline, "half-cut" | 69 x 39 mm, clipped corners | 26.5 cm2 | 4 | 4 | 8.7 V, 1.03 A, **9.0 W** | matches the original's cells |
+| F2. Smaller real cells, inset 2 mm | 65 x 35 mm | 22.8 cm2 | 4 | 4 | 8.7 V, 0.88 A, **7.7 W** | a 2 mm dark border |
+| F2. Smaller real cells, inset 5 mm | 59 x 29 mm | 17.1 cm2 | 8 | 2 | 8.7 V, 0.66 A, **5.8 W** | a 5 mm border |
+| F3. Tiled small pre-cut cells | 52 x 19 mm, 2 per position | 19.8 cm2 (73 percent of the outline) | bought pre-cut, 100 to a pack | 60 pieces for both sides | listed: 15 V, 0.40 A, 6.0 W; one reviewer measured 2.7 W | two small cells inside each outline |
+
+Output scales with area; the pieces' voltage is taken as 0.582 V and cutting losses are ignored. F3 uses the AOSHIKE-type
+polycrystalline micro cells (listed 0.5 V and 400 mA, one reviewer measured 0.65 V and 140 mA, so treat 2.7 to 6 W as the
+range); the other options use the C60-class entry. Wiring: F1 and F2 are one series string of 15 cells (8.7 V). F3 is
+30 pieces in series (15 V at the listed rating, 20 V at the measured one) or 2 in parallel per position with 15
+positions in series (7.5 V, 0.8 A listed).
+
+Trade-offs:
+- **F1** keeps the original's look and the highest output, but needs the most cuts and the tightest ones: every piece is
+  a full 69 x 39 mm with clipped corners, and breakage costs a whole cell's worth of pieces.
+- **F2** is the forgiving version: smaller pieces are easier to place, the border can hide cut edges and cell tolerances,
+  and a 5 mm inset gets 8 pieces per cell. The cost is output (6 to 8 W per side against 9 W) and, unless the border is
+  dark and matched to the cover, a different look. The outline is then drawn by a printed or laminated cover.
+- **F3** needs no cutting and no cutting skill, but is less well documented (the listed ratings look high for a
+  polycrystalline cell), covers only 73 percent of each outline, and takes 30 pieces per side to wire. It is the fallback if
+  cutting turns out badly.
+
+Cost per panel (cells only, prices seen): F1 and F2 at 2 mm need 4 cells, about US$15, and F2 at 5 mm needs 2 cells, about
+US$7.5; double each for breakage. No price for the F3 pack was found.
+
+None is chosen yet. Suggested order: cut a spare cell to F1 and F2 sizes, measure the pieces, and pick on the result;
+fall back to F3 if the cuts fail.
+
+With F1 or F2 the six holes per side serve a serpentine: row 1 left and row 3 right carry the two external leads, and the
+other four holes take the two jumpers between rows, which run inside the cavity. With F3 the same holes serve whichever
+series and parallel layout is chosen.
 
 ## What the original uses
 
@@ -53,7 +87,7 @@ borosilicate [S10]; the supplier is not named. The stated peak generation is 15 
 
 Availability and price of space-grade triple-junction cells were not looked up; they are sold for flight, so a hobby
 build would need surplus or a supplier willing to sell a few. Treat option A below as the original's choice, and option B
-as the practical one.
+as the practical one (with the fill options above).
 
 ## Electrical options (derived)
 
