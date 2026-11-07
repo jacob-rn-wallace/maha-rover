@@ -8,14 +8,14 @@ An open-source, full-size replica of the UAE's **Rashid** lunar rover. It aims t
 
 *Al-maha* (المَهَا) is the Arabian oryx, and also the word for the oryx's eyes in classical Arabic poetry.
 
-> **Status: early.** Branding is done. The original's dimensions are recorded with sources in [`docs/original-dimensions.md`](docs/original-dimensions.md); most outer dimensions are sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid), and gaps remain in the suspension and drivetrain layout and the exact solar cell part. CAD exists for the wheel, the body with its interior, solar cells, mast, drive motor mounting and suspension. There is a mass budget and a skeleton parts list. Nothing has been built yet. Everything below says what exists and what doesn't.
+> **Status: early design, nothing built yet.** Branding is done. The original's dimensions are recorded with sources in [`docs/original-dimensions.md`](docs/original-dimensions.md); most outer dimensions are sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid), and gaps remain in the original's suspension and drivetrain layout and the exact solar cell part. First-pass CAD exists for the wheel, the body and its T-slot chassis, solar cells, mast, drive motors and suspension, with checks that the parts fit and clear each other. There is an electronics and actuator shortlist, a mass budget and a parts list skeleton. Everything is a first pass: each spec says what is sourced and what is a guess. Joints, fasteners, panel fixing and most wiring are not designed.
 
 ## Goal
-A rover that a person can build and afford, at the original's size (about 470 x 500 mm, 200 mm wheels, 700 mm tall with the mast up), that is recognisably Rashid and drives, pans and tilts a mast-mounted camera and shows a live camera view. The mast is fixed for now; stowing it is deferred.
+A rover that a person can build and afford, at the original's size (about 470 x 500 mm, 200 mm wheels, 700 mm tall with the mast up), that is recognisably Rashid and drives, pans and tilts a mast-mounted camera and shows a live camera view. The mast is fixed for now; stowing it is deferred. The mass target is the original's 10 kg: the first pass is sized for 10 kg without optimising weight (the first estimate is about 9 kg, mostly guesses), and a second pass trims the build to 10 kg if the real parts come out over.
 
 **Matched to the original where the sources allow:** the wedge body with 10 degree sides, the skeletonized grouser wheels, the 5 x 3 solar cell fields on both sloped faces, the mast and its camera head, and the overall envelope. Where a dimension is known, it is used and cited; where it isn't, the choice is labelled as an assumption.
 
-**Free to differ:** materials, internal structure, motors, electronics and battery (off-the-shelf parts), and mass. The original is a 10 kg flight vehicle in magnesium alloy; the replica is not. Out of scope for now: stowing the mast. Out of scope: flight qualification, thermal and vacuum fidelity, and the science instruments.
+**Free to differ:** materials, internal structure, motors, electronics and battery (off-the-shelf parts). The original is a flight vehicle in magnesium alloy; the replica is a T-slot aluminium frame with sheet panels. Out of scope for now: stowing the mast. Out of scope: flight qualification, thermal and vacuum fidelity, and the science instruments.
 
 For reference, the primary sources (MBRSC conference material and the instrument teams' *Space Science Reviews* papers) give a 10 kg rover, 470 x 505 mm in plan and 700 mm tall with the mast deployed, on four wheels of 200 mm diameter and about 80 mm width. Each dimension in this repo cites its source or is marked unverified, and open conflicts are listed alongside.
 
@@ -24,9 +24,17 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 ## What's here
 | Path | Contents |
 |---|---|
-| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value; the replica's [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md) and [suspension](docs/suspension-spec.md), [chassis](docs/frame-spec.md), [body interior](docs/interior-spec.md) and [mast](docs/mast-spec.md) specifications; an [electronics shortlist](docs/electronics-spec.md); a [mass budget](docs/mass-budget.md); a [parts list skeleton](docs/bom.md) |
+| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value. The replica's specifications: [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md), [suspension](docs/suspension-spec.md), [chassis](docs/frame-spec.md), [body interior](docs/interior-spec.md), [mast](docs/mast-spec.md). Also an [electronics shortlist](docs/electronics-spec.md), a [mass budget](docs/mass-budget.md) of the original, and a [parts list skeleton](docs/bom.md) |
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
-| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output): [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), [mast](hardware/mast/mast.py), [T-slot chassis](hardware/chassis/frame.py), and the [mass budget script](hardware/mass/budget.py) |
+| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output) with built-in fit checks: [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py) and [interior](hardware/body/interior.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), [mast](hardware/mast/mast.py), [T-slot chassis](hardware/chassis/frame.py), and the [mass budget script](hardware/mass/budget.py) |
+
+## Running the CAD
+```
+python3 -m venv .venv
+.venv/bin/pip install -r hardware/wheel/requirements.txt     # build123d
+.venv/bin/python hardware/chassis/frame.py                   # or any script above
+```
+Each script prints its checks (fits, clearances, masses) and writes STEP files to an `out/` folder beside it. The scripts import one another (the body model builds the mast, the chassis builds on the interior), so run them from the repository root.
 
 ## Regenerating the graphics
 ```
