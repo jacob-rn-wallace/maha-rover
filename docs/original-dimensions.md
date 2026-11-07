@@ -64,6 +64,7 @@ photo or the overview paper.
 | Quantity | Value | Status | Source |
 |---|---|---|---|
 | Wheelbase | 270 ("27 cm") | stated, rounded | [S6] |
+| Wheelbase (final CAD, side view) | 273 | derived, agrees with 270 (see 3e) | [S5] Fig. 15 |
 | Track (FL to FR wheel centres) | 415.4 | derived (235.7 + 179.7 from camera offsets) | [S8] |
 | Width check | 415.4 + 80 = 495.4 vs stated 505 | derived, 10 mm gap unexplained | [S1], [S8] |
 | Body shape | Wedge. Sloped side faces carry the solar panels. Mast at the front | derived (figures only) | [S1], [S7], [S11] |
@@ -212,18 +213,60 @@ Notes on confidence.
   think the 228 figure was measured over grouser tips or had a scaling error. The open
   question in 3a is narrowed, not closed.
 - **Width over wheels is 3 to 4% over the stated 505, while the wheelbase is 7% under the
-  stated 270.** Both disagree in different directions, so a scale error does not explain
+  stated 270.** (Resolved in 3e: the video is a different revision from the final model.) Both disagree in different directions, so a scale error does not explain
   them. Either the video's model is a different revision from the one the figures describe,
   or what 470 and 505 are measured over differs from my edges (open item 6 in section 7).
   The first is supported by a visual difference the project owner noticed: the video's solar
   layout has one column of cells at the end set sideways, whereas other images of the rover
   show every cell horizontal. That suggests an earlier or later design iteration, so treat
-  the video as a possibly different revision for all of 3b, 3c and 3d (an observation by eye,
-  not yet checked image by image).
+  the video as a possibly different revision for all of 3b, 3c and 3d. Checked in the video
+  frames: the long panel face is a 4 x 4 grid of landscape cells plus one extra tall, narrow
+  column at the end, visible in frame f001 and in other turntable views. It is not yet
+  compared against other renders: the press render (Gulf News) is too low-resolution to show
+  whether that column exists there.
 - **Sidewall angle conflicts with 3a.** The dense slices give a half-width of about 115 mm at
   250 mm height narrowing to about 85 mm at 345 mm, which is about 19 degrees from
   vertical. The rear-view figure gave 9. The lower flank is hidden behind the wheels, so I
   could only measure the upper part. Do not use either value for design yet.
+
+### 3e. Final-configuration CAD figures [S5], [S12]
+
+The same CAD model appears in four papers: [S8] Fig. 1, [S7] Fig. 1, [S12] Fig. 1 (front-left
+and rear-right views) and [S5] Fig. 1. [S5] Fig. 15 is the useful one: a true side-on
+orthographic view with the ground line drawn. I measured it at its native 818 x 706 px
+resolution. Scale is the stated 700 mm height, taken from the ground line to the top of the
+CAM-1 head (644 px, so 1.087 mm per px). All values are derived.
+
+| Quantity | Value (mm) | Compare | Status |
+|---|---|---|---|
+| Wheel diameter (rim) | 201 (radius 92.6 px from hub; 93 px from hub to ground) | 200 stated | derived, **matches** |
+| Wheel diameter over grouser tips | about 230 | 228 from 3a | derived, **explains 3a** |
+| Wheelbase (hub to hub) | 273 | 270 stated "27 cm" | derived, **matches** |
+| Length over wheels (rim to rim) | 474 | 470 stated | derived, **matches** |
+| Hub height above ground | 101 | n/a | derived |
+| Body length (side plates) | about 380 | 380 from 3c; 397 from 3d | derived |
+| Deck top height above ground | 343 | 345 from 3d; 353 from 3a | derived |
+| Mast centre ahead of front axle | about 35 | n/a | derived, low confidence |
+| Solar face grid | 5 columns x 3 rows, all landscape cells | video: 4 x 4 plus a sideways column | derived |
+| Solar face, projected in the side view | about 357 x 120 (cell pitch about 71 x 40) | n/a | derived, low confidence |
+
+Three values (wheel diameter, wheelbase, length over wheels) match the stated figures with
+the scale set from height alone, so the scale is good to about 1 to 2% and this model is the
+one the stated figures describe. The 228 mm wheel diameter from 3a is the diameter over
+grouser tips, not a conflict: the rim is 200 and the tips reach about 230. The panel
+cell pitch is projected onto the side view, so the cell height is a minimum (the face is
+sloped). The panel count is also much larger than the provisional design's 4 per side of
+170 x 112 mm cells.
+
+**The video [S17] is a different revision.** Against this model the video has a 250 mm
+wheelbase (not 273), a 4 x 4 panel grid plus one sideways column (not 5 x 3), no vertical
+probe mast or antenna on the deck, and a flat grousered band with five spokes on each wheel.
+The wheel interior also differs between [S5] Fig. 15 (about twelve petal-shaped webs) and
+[S12] Fig. 1 (open spokes), but the rim diameter and grouser tips agree. **Use 3e, not 3b to
+3d, for the final configuration.** The video values stay recorded as an earlier or promotional
+variant. Width over wheels and sidewall angle are not measurable from a side view, so those
+two values (520 mm and 19 degrees from the video, 9 degrees from 3a) remain open for the
+final model: see [S12] Fig. 1 (rear-right view) for a future measurement.
 
 ## 4. Mast and cameras
 
@@ -287,9 +330,10 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 3. Panel size and the position of each panel on its sloped face.
 4. Suspension and drivetrain layout.
 5. Wheel width conflict (80 vs 168). Section 3a and the dense stereo in 3d both favour 80.
-   Wheel diameter: 3d gives 195 to 200, matching the stated 200, so only the 228 from 3a
-   is out of line. New: wheelbase is about 250 in the video against 270 stated, and the
-   sidewall angle is about 19 degrees in 3d against 9 degrees in 3a.
+   Wheel diameter: 3d and 3e give 200, matching the stated 200. The 228 from 3a is the
+   diameter over grouser tips (3e). The video (3b to 3d) is a different revision; use 3e.
+   Still open for the final model: width over wheels, sidewall angle (video 19 degrees,
+   3a 9 degrees) and the panel grid detail.
 6. What 470 and 505 are measured over.
 7. Battery capacity, motor specifications.
 
