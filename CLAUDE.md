@@ -10,7 +10,7 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
 - **Must be recognisably Rashid** (match the sourced dimensions and shape):
   1. Wedge body with 10 degree sidewalls (panels at 80 degrees).
   2. Skeletonized wheels, 200 x 80 mm, 14 radial grousers of 15 mm.
-  3. 5 x 3 solar cell fields on both sloped faces (printed or dummy cells are fine).
+  3. 5 x 3 solar cell fields on both sloped faces (dummy cells now, with provisions for real ones).
   4. Mast and camera: a square tube on the front deck carrying a pan-tilt head and camera at the stated
      height. Fixed upright for now; the original's stow-and-deploy (flat under 120 mm, springs up) is deferred.
   5. Overall envelope: about 474 x 497 mm over the wheels, 700 mm tall with the mast up.
@@ -53,8 +53,9 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
   about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
   plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
-- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each, modelled as thin plates in
-  `hardware/body/body.py`. Their position on the face is an assumption (centred).
+- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each, modelled as 1 mm plates in
+  `hardware/body/body.py`. Their position on the face is an assumption (centred). Provisions for real cells
+  (12 wire holes, charge controller space, electrical options): `docs/solar-spec.md`, `hardware/solar/solar.py`.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
 - Mast: fixed upright, tube 58 x 58 mm centred 24.2 mm ahead of the front axle, pan-tilt head and CAM-1 at

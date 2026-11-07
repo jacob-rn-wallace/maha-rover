@@ -62,6 +62,13 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 - Pan range of the original is plus or minus 179 degrees [S19]; a bus servo at 360 degrees covers it,
   with a software limit to protect the camera cable.
 
+## Solar charge controller (not chosen)
+
+The pack is charged from the side panels' cells (`solar-spec.md`). The charger must be an MPPT type for a 2S lithium
+pack (8.4 V, constant current then constant voltage), accepting 8.7 V (silicon option) or 11.5 V nominal with up to
+13 V open circuit (triple-junction option), and giving at least 2 A at 8.4 V for the larger case. No part has been looked up;
+a 50 x 30 x 12 mm box is reserved for it.
+
 ## Mast stowing (deferred)
 
 The mast is fixed for now (`mast-spec.md`), so no hinge parts are chosen. For when stowing is wanted:

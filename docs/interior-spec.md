@@ -36,6 +36,7 @@ The differential cross rails split the upper cavity; the floor is open from end 
 | Controller, Raspberry Pi Zero 2 W | 65 x 30 x 8 (height assumed) | 0.015 (assumed) | front compartment, on the floor |
 | Motor drivers, two Pololu MC33926 boards side by side | 46 x 56 x 12 (28 x 46 each; height assumed) | 0.014 | front compartment, on the floor |
 | 5 V converter, Pololu D24V22F5 | 18 x 18 x 8 | 0.0023 | front compartment, on the floor |
+| Solar charge controller (part not chosen) | 50 x 30 x 12 | 0.03 (assumed) | front compartment, on the floor at x 110, y -85 (`solar-spec.md`) |
 | Keep-out under the mast base | 15 x 40 x 30 | n/a | front, in the gap between the mast cross rail and the front end rail, for the cable entry from the mast |
 
 All of them fit the cavity and none clash with each other, the frame or the housing. Together

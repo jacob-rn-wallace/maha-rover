@@ -62,7 +62,13 @@ N_COLS, N_ROWS = 5, 3    # per side, all landscape               derived [3e, 3g
 CELL_W, CELL_H = 69.0, 39.0     # true size on the sloped face    derived [3g]
 PITCH_U, PITCH_V = 71.6, 41.0   # along row / across rows         derived [3g]
 CLIP = 6.5               # 45 degree clip, both bottom corners    derived [3g]
-CELL_T = 0.5             # cell plus cover glass, stood off face  ASSUMPTION
+CELL_T = 1.0             # whole cell stack on the panel: insulating film, adhesive, cell,
+                         # 200 um cover glass [S10]. Real cells need about this; the dummy
+                         # cells use the same thickness                    ASSUMPTION
+HOLE_D = 5.0             # wire hole through the side panel, one beside each end of every cell
+                         # row, 17 mm outboard of the end cell's centre (solar provisions,
+                         # docs/solar-spec.md)                            ASSUMPTION
+HOLE_OFFSET = 17.0
 FIELD_Z = (UNDERSIDE_Z + DECK_TOP_Z - DECK_T) / 2
                          # field centre height on the face. The
                          # position on the face is open [7.3]     ASSUMPTION
@@ -117,6 +123,26 @@ def cells():
                 o = Vector(BODY_X0, sy * hw(FIELD_Z), FIELD_Z) + up * v
                 pl = Plane(origin=o, x_dir=xdir, z_dir=normal)
                 out.append(pl * Pos(u, 0, 0) * cell)
+    return out
+
+
+def solar_holes(length=6.0, d=None):
+    """Cylinders along the wall normal at the 12 wire-hole positions (6 per side), starting at the outer
+    face and running `length` inward. Subtract from the shell to cut the holes."""
+    d = HOLE_D if d is None else d
+    t = math.tan(math.radians(SIDEWALL_DEG))
+    c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
+    hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
+    out = []
+    for sy in (1, -1):
+        n = Vector(0, sy * c, sn)
+        for j in range(N_ROWS):
+            v = (j - (N_ROWS - 1) / 2) * PITCH_V
+            for sx in (1, -1):
+                u = sx * ((N_COLS - 1) / 2 * PITCH_U + HOLE_OFFSET)
+                o = Vector(BODY_X0 + u, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v
+                pl = Plane(origin=o, z_dir=n)
+                out.append(pl * Pos(0, 0, -length / 2) * Cylinder(d / 2, length))
     return out
 
 
