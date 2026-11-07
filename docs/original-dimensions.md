@@ -46,11 +46,14 @@ Use [S1].
 | Grousers | 14, radial. [S22] says "twelve fixed grousers" for a simulated test-rig wheel (its table also gives a 0.1 m "diameter" and 7.5 mm width, so it is unreliable); 14 fits the 44 to 45 mm pitch and the 4.4 cm sample slot | stated, with one conflicting low-weight source | [S4], [S8], [S22] |
 | Grouser length, flight wheel | 15 | stated | [S4], [S23] |
 | Diameter over grouser tips | about 230 (CAD front and side views, 3e and 3f). [S23] lists 0.215 m, which looks like 200 + 15 and does not match the CAD | derived. [S23] value is (unverified) and conflicts | 3e, 3f, [S23] |
-| Ribs (spokes) | 6 in the [S23] finite element model (rim band, hub tube, 6 ribs with flared roots, flat grouser plates that stand wider than the rim). The petal-web wheel of 3e is a different web, see below | stated by the model figures; derived | [S23] Figs. 68, 77, 91 |
+| Ribs (spokes) | 10, equally spaced at 36 degrees, constant width about 14.5 (plus or minus 1.5) from hub to rim, flared at the rim root. Two sets of five on two axial layers per the project owner; the side view cannot show the layering | derived from [S23] Fig. 88a (scale from the 200 mm rim) and from the 36 degree spacing in the CAD side views | [S23], [S5] Fig. 15, [S18] Fig. 1 |
+| Hub tube diameter | about 50 | derived: [S23] Fig. 88a gives 50.1 (42.3 px at 0.845 px/mm); the CAD side views give about 50 independently | [S23], 3e, 3f |
+| Rim band thickness | about 3 (plus or minus 1), measured between the drawn edge lines | derived, coarse | [S23] Fig. 88a |
+| Grouser tip radius | 116 (tip diameter 232), so grouser height about 16 (stated 15) | derived from [S23] Fig. 88a; agrees with the CAD (about 230) and not with the 0.215 m in [S23] Table 3 | [S23], 3e, 3f |
 | Grouser length, test wheel | 20 (not the flight value) | stated | [S4] |
 | Grouser pitch | about 44 to 45 | derived (pi x 200 / 14 = 44.9), matches the "4 cm" separation in [S5] and the 4.4 cm slot in [S8] | [S5], [S8] |
 | Sample slot between grousers | about 44 x 80 | stated | [S8] |
-| Construction | Skeletonized (spoked); flight wheel is not the closed-sided test wheel | stated | [S4] |
+| Construction | Skeletonized (rim band, hub tube, ten ribs); flight wheel is not the closed-sided test wheel | stated; ribs derived | [S4], [S23] |
 | Material | Magnesium alloy AZ91E (wheels and body frame). [S23] says only "metal alloys" | stated | [S10], [S23] |
 | Wheel mass, flight | not found | (unverified) | n/a |
 | Wheel mass, closed test wheel | 1.18 kg (not the flight value) | stated | [S4] |
@@ -60,28 +63,24 @@ Width settled: [S9] prints 168 for the flight wheel, but [S4], [S8], [S23] give 
 CAD front view gives 81 (3f), and the PLATE samples in [S9] Fig. 4C (four 20 mm pieces side by
 side) fill an 80 mm tread. Use 80.
 
-**Wheel design variants.** Three kinds of wheel appear, and none can yet be tied to the
-flight hardware.
-1. **Open-spoke wheel** (rim band, a few spokes, flat grouser plates wider than the rim):
-   the [S23] finite element model (6 ribs, 2022), the turntable video, the press render, and
-   the perspective CAD views in [S12], [S10]. Fig. 68 of [S23] has the same grouser plates and
-   ribs as these views.
-2. **Petal-web wheel** (slim petal-shaped openings, short grouser ticks): the orthographic side
-   views in [S5] Fig. 15 and [S18] Fig. 1. The openings are spaced **36 degrees apart** (measured
-   36 plus or minus 1 in three wheels), so there are ten equal openings per turn. The project
-   owner reports that the hardware has five spokes on each side of the wheel with the inner and
-   outer sets rotated 36 degrees from each other, which gives exactly this ten-fold
-   side-on pattern; the side views cannot show the axial layering themselves. In the turntable
-   video's dense cloud the outer spoke layer is five-fold (strongest harmonic k=5), but the
-   sparse inner layer is roughly in phase with it, so that earlier model differs.
+**Wheel design.** The final wheel is one design, seen from different angles, plus earlier or
+test wheels.
+1. **Final wheel** (rim band, hub tube, ten constant-width ribs, flat grouser plates on the rim):
+   the finite element wheel in [S23] (Figs. 68 and 88), the orthographic CAD side views in [S5]
+   Fig. 15 and [S18] Fig. 1, and the perspective CAD views in [S12] and [S10]. Side-on, [S23]
+   Fig. 88a shows **ten ribs at 36 degree steps**, and the CAD side views show ten openings at
+   the same 36 degree spacing. The project owner reports that the hardware has five spokes on
+   each side of the wheel with the inner and outer sets rotated 36 degrees from each other;
+   that gives exactly this pattern, and in the perspective views only about five ribs of
+   the nearer layer stand out. The thesis model looks like six ribs in its perspective
+   figures, but its side-on Fig. 88a shows ten, and the CAD petal-web wheel is the same design.
+2. **Turntable video wheel**: the outer spoke layer is five-fold, but the sparse inner layer is
+   roughly in phase with it, so this earlier model differs (it also differs in body, 3b to 3d).
 3. **Closed wheels** (one side closed, stated for the single-wheel test wheel [S4]): the
    design-phase prototype in [S8] Fig. 2, and what look like closed discs on the
    engineering-model wheels in [S8] Fig. 8 and [S23] Fig. 79 (my reading of small photographs).
-All share the 200 mm rim diameter, 80 mm width, 14 grousers and 15 mm grouser height, so the
-envelope is not in doubt; only the web and the grouser plate shape differ. [S4] says the final
-wheel is "skeletonized", which fits 1 or 2. Variant 2 is the best-supported for the final
-rover: it matches the final CAD views and the owner's observation of the hardware. Use it for the
-replica unless a better source appears, and record the choice.
+All share the 200 mm rim diameter, 80 mm width, 14 grousers and 15 mm grouser height. [S4] says
+the final wheel is "skeletonized", which matches 1. Use 1 for the replica.
 
 ## 3. Layout and chassis
 
@@ -583,7 +582,7 @@ Journal for all Springer papers is *Space Science Reviews*.
   engineers). Table 3 and section 4.8: wheel diameter 0.2 m, width 0.08 m, radius 0.1 m, 14
   grousers of 0.015 m, rover mass 10 kg, 2.5 kg load per wheel in the validation case. Also
   lists "wheel diameter with grousers" 0.215 m, which conflicts with the CAD (about 230). Finite
-  element wheel geometry in Fig. 68 (6 ribs). Fig. 79 is a photograph of the engineering model
+  element wheel geometry in Figs. 68 and 88 (ten ribs seen side-on; Fig. 88a is the 200 mm original, Wheel 13). Fig. 79 is a photograph of the engineering model
   driving in sand.
 - **[S22]** Abubakar A, et al. *Advance Simulation Method for Wheel-Terrain Interactions of Space
   Rovers: A Case Study on the UAE Rashid Rover.* arXiv:2308.12431 (2023). Test-rig wheel model
