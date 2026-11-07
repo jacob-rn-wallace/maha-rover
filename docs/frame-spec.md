@@ -63,9 +63,17 @@ connectivity check in `frame.py` confirms the 17 members form one piece (each bo
 - **Pivot hole (replaces the earlier bearing plate).** The shaft is an 8 mm tube; the hole is 12 mm and each end takes a flanged plain bushing
   (8.2 mm ID), so the shaft is supported over the rail's 20 mm width, longer than the 688 bearing it replaces (5 mm). The shaft then passes through a
   22 mm clearance hole in the side panel (the panel floats on its pivots) to the link plate at y = 133, about 30 mm beyond the rail face. The rail is
-  oriented with its slots facing out and in, so the hole passes through the slot openings and the central core; this leaves about 4 mm of wall above
-  and below the hole at the rail's 20 mm depth. **That weakens a 20 x 20 section and has not been checked**; the rail is lightly loaded (it carries the
-  floor and the standoffs), but the pivot shaft's reaction goes through it. A 20 x 40 section, or a steel sleeve pressed through the rail, are the fixes.
+  oriented with its slots facing out and in, so the hole passes through the slot openings and the central core, leaving about 4 mm of wall above
+  and below it on each face. **Strength check** (`hardware/chassis/rail_check.py`, a hand calculation on a simplified 2 mm-wall profile that is about 20 percent
+  under the catalogue stiffness, 6063-T5 typical values, 3 times the static load for impacts, wheel scrub at a friction coefficient of 0.6; all assumptions):
+  - **The rail as a beam is fine.** Midspan load of 140 N over 376 mm gives about 25 MPa at the hole against a 145 MPa yield (factor 5.9); the hole costs
+    only about 9 percent of the section's stiffness.
+  - **The bushings are the weak point.** The two bushings sit only 12 mm apart (one at each rail face), so the moment from the cantilevered link plate and the
+    wheel scrub (17.6 N.m in the design case) becomes a large couple: **1.5 kN** on each bushing, which tears out the 4 mm x 2 mm ligament of face wall
+    above or below the hole at 96 MPa shear against about 84 allowed. **That fails the 3x design case**; at the static load (0.5 kN, 32 MPa) it passes.
+  - **A second support fixes it.** If the shaft is also supported in the differential housing's wall (74 mm from the outer bushing), the reaction drops to 0.3 kN
+    and the tear-out to 19 MPa, which passes with a factor of 4. That needs a bore and bushing in the housing wall, which are not designed yet (the housing
+    hangs from the cross rails on printed cradles). Other options: clamp the face walls with a pressed steel sleeve and flanges, or use a thicker rail.
   Plain bushings suit the slow oscillation of the differential (a few degrees), but the original 688 choice was for rolling friction under load; check
   the bushing material and the shaft's surface.
 - **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
@@ -153,7 +161,7 @@ does, the first places to save mass are the link plates, the panel thickness, th
 ## Open
 
 - Bracket, T-nut and bolt sizes are not picked from a catalogue; the screw pitch and counts are estimates.
-- The pivot hole: strength of the drilled 20 x 20 rail, the bushing material and fit, and whether the 12 mm hole is right for the bushing flange.
+- The pivot hole: the bushings alone fail the 3x design case (see the strength check above). Needs a second shaft support in the differential housing wall, or a sleeve through the rail; plus the bushing material and fit.
 - The floor: eight spacers and eight screws hold it; its stiffness under the battery and the sealing of its edges are not designed.
 - The pivot standoffs: rod end, ball joint or hinge, how thermal expansion of the panel is taken up, whether four points hold a 2 mm sheet flat, and the true gap (about 10 mm by eye).
 - Sealing: no side wall, so the sides, the floor-to-panel seams and the end seams are open.

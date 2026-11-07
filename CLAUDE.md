@@ -116,7 +116,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
   drive motor; design the differential's gear train; settle the cell mounting, the cradles that hold the differential,
-  the strength of the drilled rails and the bushing choice, and a connector for the mast cable; reassess the mass and centre of mass for the
+  a second shaft support in the differential housing (the drilled rail's bushings alone fail the 3x design case, `hardware/chassis/rail_check.py`), the bushing choice, and a connector for the mast cable; reassess the mass and centre of mass for the
   replica's own parts; then a second pass to bring the total to 10 kg if the real parts come out over; fill the
   rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.
