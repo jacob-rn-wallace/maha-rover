@@ -51,7 +51,7 @@ CROSS_X = 28.0           # differential cross rails at x = +-28
 MAST_RAIL_X = 140.7      # cross rail under the mast base; the base (x 122 to 200) also spans the front end rail  ASSUMPTION
 MID_Z = 175.0            # centre height of the mid rails          ASSUMPTION
 PLATE_T = 6.0            # bearing plate thickness                 ASSUMPTION
-BEARING_SEAT_R = 9.5     # 6800 outer radius (ISO size from memory)
+BEARING_SEAT_R = 8.0     # 688 outer radius (8 x 16 x 5, ISO size from memory)
 FIX_PITCH = 100.0        # panel screw pitch                      ASSUMPTION
 ALU = 2.70               # g/cm3, standard value for aluminium sheet
 PANEL_MASS_NOTE = "aluminium sheet at 2.70 g/cm3"
@@ -164,7 +164,7 @@ def bearing_plates():
         plates.append(plate - bore)
         # bearing ring, 5 mm wide, seated at the inner face of the plate
         y_in_face = yin(A.PIVOT_Z) - EDGE - PLATE_T / COS
-        b = Cylinder(BEARING_SEAT_R, 5.0) - Cylinder(5.2, 5.0)
+        b = Cylinder(BEARING_SEAT_R, 5.0) - Cylinder(4.2, 5.0)
         bearings.append(Pos(0, sy * (y_in_face + 2.5 + 0.5), A.PIVOT_Z) * Rot(90, 0, 0) * b)
     return plates, bearings
 

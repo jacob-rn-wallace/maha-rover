@@ -19,10 +19,10 @@ The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).
 
 ## Differential mount and bearings
 
-- Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (36 mm diameter,
+- Two extrusion cross rails at x = plus or minus 28, z 175, hold the differential housing (a 48 x 50 x 36 mm box,
   44 mm long) on printed cradles between them (`frame-spec.md`).
-- Each pivot shaft (10 mm) passes through a 6 mm bearing plate in the side wall at x = 0, z = 145.7, with a seat
-  for a 6800 bearing (10 x 19 x 5, ISO size from memory), and enters the housing.
+- Each pivot shaft (an 8 mm tube) passes through a 6 mm bearing plate in the side wall at x = 0, z = 145.7, with a seat
+  for a 688 bearing (8 x 16 x 5, ISO size from memory), and enters the housing (`differential-spec.md`).
 - Fit: the housing lies wholly inside the cavity; the shafts clear every frame member and turn freely in the
   bearings. The plate tops out at z 164, below the cell field (from about 172).
 

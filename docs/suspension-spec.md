@@ -29,7 +29,7 @@ rotates, is not shown. CAD and checks: `hardware/suspension/arms.py`.
 | Plate inner face from the centreline | 133 mm (body wall 116.8 at the pivot, so 16 mm gap; wheel inner face 167.7) | ASSUMPTION, from the front view [3i] |
 | Plate | 8 mm thick, lower edge 105 mm, rising to 178 mm at the middle, ends 22 mm past the hubs, a tab down to 78 behind each sleeve | lower edge derived [3i]; the rest ASSUMPTION |
 | Pivot boss | 48 mm diameter, 6 mm proud of the plate | derived by eye [3i] |
-| Differential housing | 36 mm diameter, 44 mm long, z 128 to 164, inside the body (a 40 mm one would touch the 2 mm floor panel) | ASSUMPTION |
+| Differential housing | 48 x 50 x 36 mm box, z 127.7 to 163.7, inside the body, a bevel gear train (`differential-spec.md`) | ASSUMPTION |
 | Plate angle for a 100 mm step under one front wheel | plate 21.5 degrees from level; body pitch 10.7; **10.7 degrees in the body frame**, front hub moves 25 mm | derived (wheelbase 273) |
 
 The 100 mm figure is the original's obstacle limit [S1].

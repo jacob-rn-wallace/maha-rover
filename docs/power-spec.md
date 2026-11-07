@@ -79,7 +79,7 @@ Typical chassis ampacities are 16 AWG about 22 A, 18 AWG about 16 A, 22 AWG abou
 ## How the motors' wires cross the pivots
 
 The four motors sit on the moving link plates, and their wires must cross from the body to the plates. They run **through the pivot shafts**,
-which are now tubes: 10 mm outside, 6 mm inside, with a 4 mm radial hole inside the body (60 mm from the centreline) and another in the 16 mm gap
+which are now tubes: 8 mm outside, 5 mm inside, with a 3 mm radial hole inside the body (60 mm from the centreline) and another in the 16 mm gap
 outside the wall (125 mm out). Four 22 AWG wires (two motors a side) enter the shaft inside the body, run along its axis, leave in the gap, then follow
 the inner face of the link plate to each motor's sleeve, which already covers the terminals. The shaft only turns about plus or minus 11 degrees,
 so the wires twist, not flex. In the CAD the hollow shaft clears the bearings, plates and frame; the differential's gears are not involved because the

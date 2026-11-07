@@ -36,8 +36,8 @@ Members are modelled as plain 20 x 20 sections (slots ignored); each sits 0.2 mm
   of the floor and deck planes, which does not matter because the posts do not bear on those panels. Their length
   along the axis is 222.4 mm at the outer edge.
 - **Bearing plates.** The pivot shafts at z 145.7 would pass through a bottom side rail, so those rails are split
-  (no rail for |x| < 35 mm) and a 6 mm plate (0.04 kg each) bridges the gap, with a seat for the 6800 bearing.
-- **Differential.** Two cross rails at x = plus or minus 28 hold the 36 mm housing between them, on printed cradles
+  (no rail for |x| < 35 mm) and a 6 mm plate (0.04 kg each) bridges the gap, with a seat for the 688 bearing.
+- **Differential.** Two cross rails at x = plus or minus 28 hold the 48 x 50 x 36 mm differential housing between them, on printed cradles
   (not modelled), 1.3 mm above its top.
 - **Mast.** The base block (x 122 to 200) lies over the mast cross rail (x 131 to 151) and the front end rail
   (x 168 to 188); a 17 mm gap between them is left for the cable entry.

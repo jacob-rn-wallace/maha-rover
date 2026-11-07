@@ -23,7 +23,7 @@ import wheel as W       # noqa: E402
 AL, STEEL, PETG = 2.70, 7.85, 1.27   # g/cm3: aluminium and steel standard; PETG typical (printed, solid)   ASSUMPTION for PETG
 WHEEL_DENSITY = PETG                 # replica wheel material is not chosen; solid printed PETG is the heavy case
 MOTOR = 0.195                        # kg each, vendor upper bound
-DIFFERENTIAL = 0.30                  # kg, housing, four gears and cross pin: not designed                    ASSUMPTION
+DIFFERENTIAL = 0.30                  # kg: housing, four steel gears, cross pin, bushings, hardware (differential.py: 0.17 kg of gears and housing)   ASSUMPTION
 HARNESS_FASTENERS = 0.40             # kg: wiring, T-nuts, brackets, bolts                                     ASSUMPTION
 SOLAR = 60 * 0.0015                  # kg: 60 pieces with adhesive and laminate, 1.5 g each                    ASSUMPTION
 TERMINALS = 0.05                     # kg: boards, diodes, fuses                                               ASSUMPTION

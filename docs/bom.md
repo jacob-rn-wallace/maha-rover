@@ -17,7 +17,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Body wedge (side plates, floor) | 1 | Wedge, 10 degree sidewalls, side plates about 380 long, underside 124 and deck 348 above ground. Magnesium alloy, covered in ITO-coated MLI [S10]; CFRP, magnesium and aluminium per the manufacturer [S24] | stated / derived | Aluminium sheet panels, 2 mm (floor, sides, ends), on a T-slot frame (`frame-spec.md`) | panels 2.41 (all, incl. deck), ASSUMPTION |
 | Top plate (deck) | 1 | 401 long, about 164 wide | stated [S11] / derived | 3 mm aluminium sheet, 401 x 164 | in the panels above |
 | T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 19 members, 4.15 m | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut square to the list in `frame-spec.md` | 1.92 |
-| Bearing plates | 2 | Not found | (unverified) | 6 mm aluminium, 6800 bearing seat | 0.08 |
+| Bearing plates | 2 | Not found | (unverified) | 6 mm aluminium, 688 bearing seat | 0.08 |
 | Corner brackets, 20-series | 30 | Not found | (unverified) | Standard 20-series L brackets (`frame-spec.md`) | not known |
 | T-nuts (M4) and M4 bolts | 142 each (60 for the brackets, 82 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
 | Printed wedge strips and post shims | 8 + 8 | Not in the original | n/a | 10 degree tapers, about 72 cm3 in total | about 0.09, density assumed |
@@ -49,7 +49,8 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Fuse block and fuses | 1 block, 5 fuses | Not found | (unverified) | 4-way blade block plus a 15 A main; `power-spec.md` | 0.04, ASSUMPTION |
 | Power node (bus bar), master switch | 1 + 1 | Not found | (unverified) | bus bar about 40 x 20 x 15 mm; panel switch with a 15 A DC rating on the rear panel | 0.03 and 0.02, ASSUMPTION |
 | Servo regulator | 1 | Not found | (unverified) | Pololu D24V22F6, 6 V, 2.5 A, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
-| Pivot bearings | 2 | Not found | (unverified) | 6800 (10 x 19 x 5), one per wall boss, ISO size from memory, verify | not known |
+| Pivot bearings | 2 | Not found | (unverified) | 688 (8 x 16 x 5), one per wall plate, ISO size from memory, verify | not known |
+| Differential gears | 4 | A passive differential gear [S25] | stated; layout (unverified) | steel mitre gears, module 1.5, 16 teeth, 8 mm bore, 8 mm face: two side gears and two spiders, plus a 6 mm cross pin (`differential-spec.md`); RS PRO lists a hardened 8 mm-bore one | about 0.1 kg of steel with the pin |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline inside the body at pivot height 146, body as carrier, joined to two side plates (`suspension-spec.md`); a bar linkage is the alternative | not known |
 | Side link plates | 2 | One plate per side joining the front and rear hubs, with a boss at the wheelbase midpoint about 147 above the ground line (3i, figures only) | derived; shape (unverified) | 8 mm plate with a sleeve to each motor's clamp ring, from `suspension-spec.md` | not known |

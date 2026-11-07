@@ -48,12 +48,13 @@ PAD_HALF, PAD_BOTTOM = 22.0, B.HUB_Z - 22.0   # tab behind each sleeve  ASSUMPTI
 PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPTION
 BOSS_D, BOSS_T = 48.0, 6.0       # pivot boss on the outer face         derived [3i], by eye
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
-SHAFT_R = 5.0            # pivot shaft radius                          ASSUMPTION
-SHAFT_ID = 6.0           # the shaft is a tube: the drive motors' wires run through it   ASSUMPTION
-CROSS_D = 4.0            # radial wire holes in the tube: one inside the body, one in the gap outside the wall
+SHAFT_R = 4.0            # pivot shaft radius: 8 mm tube, to suit the 8 mm bore of the stock 1.5 module mitre gears (differential.py)   ASSUMPTION
+SHAFT_ID = 5.0           # the shaft is a tube: the drive motors' wires run through it   ASSUMPTION
+CROSS_D = 3.0            # radial wire holes in the tube: one inside the body, one in the gap outside the wall
 CROSS_Y_IN, CROSS_Y_OUT = 60.0, 125.0   # distances from the centreline                  ASSUMPTION
-DIFF_R, DIFF_LEN = 18.0, 44.0   # differential housing, inside the body; r 18 keeps it
-                                # clear of the 2 mm floor panel (bottom z 127.7 vs floor top 126)  ASSUMPTION
+DIFF_X, DIFF_Y, DIFF_Z = 48.0, 50.0, 36.0   # differential housing, inside the body: x across the spider gears' pin, y along the shafts, z height.
+                                # 36 mm tall keeps it clear of the 2 mm floor panel (bottom z 127.7 against the floor top 126) and
+                                # of the cross rails (top z 163.7 against 165): see differential.py   ASSUMPTION
 OVERLAP = 0.5
 
 
@@ -105,7 +106,7 @@ def side(sy):
 
 
 def differential():
-    return {"diff_housing": Pos(0, 0, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(DIFF_R, DIFF_LEN)}
+    return {"diff_housing": Pos(0, 0, PIVOT_Z) * Box(DIFF_X, DIFF_Y, DIFF_Z)}
 
 
 def rotate_about_pivot(shape, deg):
@@ -131,7 +132,7 @@ if __name__ == "__main__":
           f"(gap {PLATE_Y0 - half_w_pivot:.0f}); wheel inner face y {B.TRACK / 2 + W.WIDTH / 2 - W.WIDTH:.1f}")
     inside = overlap(diff["diff_housing"], body_only) / diff["diff_housing"].volume
     print(f"differential housing inside the body envelope: {inside * 100:.0f} % of its volume "
-          f"(z {PIVOT_Z - DIFF_R:.0f}..{PIVOT_Z + DIFF_R:.0f}; belly {B.UNDERSIDE_Z:.0f})")
+          f"(z {PIVOT_Z - DIFF_Z / 2:.0f}..{PIVOT_Z + DIFF_Z / 2:.0f}; belly {B.UNDERSIDE_Z:.0f})")
 
     h = 100.0
     th = math.degrees(math.asin(h / B.WHEELBASE))

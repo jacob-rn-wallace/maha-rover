@@ -10,20 +10,20 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 group                                  kg   share      x      z
 panels                               2.41     26%      0    236
 T-slot frame                         1.92     21%      4    223
-link plates, sleeves, shafts         1.19     13%      0    131
+link plates, sleeves, shafts         1.15     13%      0    130
 wheels                               1.12     12%     -0    100
 drive motors                         0.78      8%      0    100
 mast, head and camera                0.42      5%    162    564
 harness and fasteners                0.40      4%      0    190
-electronics                          0.39      4%    -70    142
+electronics                          0.39      4%    -71    142
 differential                         0.30      3%      0    146
 printed wedges                       0.09      1%     -0    219
 solar pieces                         0.09      1%      0    255
-bearing plates                       0.08      1%     -0    145
+bearing plates                       0.08      1%      0    145
 terminals, diodes, fuses             0.05      1%      0    255
-TOTAL                                9.24   target 10 kg: margin +0.76 kg
+TOTAL                                9.20   target 10 kg: margin +0.80 kg
 
-centre of mass: x 5.4, y -0.3, z 197.0 (mm, ground at the rim line)
+centre of mass: x 5.4, y -0.3, z 197.3 (mm, ground at the rim line)
 static tip angles: nose-down 36 deg, nose-up 34 deg, sideways 51 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
@@ -36,9 +36,9 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **9.2 kg against the 10 kg target: 0.76 kg of margin.** The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **9.2 kg against the 10 kg target: 0.8 kg of margin.** The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
-  the differential and mounts are not designed. A margin this small could vanish; the levers below are the first things to
+  the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 1.9 kg are 47 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).

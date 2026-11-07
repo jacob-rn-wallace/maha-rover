@@ -98,13 +98,13 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
   check: `hardware/drive/motor.py`. Open: bearing loads, concentricity, can clamp.
-- Suspension decision (2026-11-07): passive bevel differential inside the body joining two rigid
-  side link plates, body as carrier. The plate and pivot position (about 147 mm above the ground
+- Suspension decision (2026-11-07): passive bevel gear differential (decided 2026-11-07, `docs/differential-spec.md`: module 1.5 mitre gears, 8 mm tube shafts, a motor current
+  cap of 1.6 A) inside the body joining two rigid side link plates, body as carrier. The plate and pivot position (about 147 mm above the ground
   line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
   clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
 - Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, 1.92 kg) behind 2 mm aluminium panels
-  (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. Every
+  (3 mm deck), the differential held by two cross rails, 688 bearings in 6 mm plates in the side walls. Every
   extrusion is cut square; printed wedges absorb the 10 degrees. Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
   `hardware/chassis/frame.py`. Chassis 4.4 kg; replica mass estimate from the CAD 9.2 kg, under the 10 kg target by 0.8 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 197 mm.
