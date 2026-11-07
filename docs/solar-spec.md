@@ -82,6 +82,27 @@ price is real, and double for breakage: **roughly US$30 to 100 for both panels, 
 - The look needs gaps of under 1 mm and, as with the AnySolar module, a clear laminate or coat over the pieces; nothing here has
   been built or photographed.
 
+### Cheapest total (cells and charger, no custom board), 2026-11-07
+
+Prices seen, not quoted orders; both panels (30 slots) unless noted. Charger prices: the LaskaKit CN3722 module is EUR 10.19 (sold out, restock
+date given), ended eBay listings for BQ24650 modules showed US$17.10 and EUR 11.88 (so about US$11 to 17); the BQ25798EVM is US$156.45 on TI's page
+(availability unclear). Two Schottky blocking diodes (one per side) and wire are about the same in every option and not priced.
+
+| Route | Cells | Charger | Total |
+|---|---|---|---|
+| **Tiled back-contact pieces, 2 per slot (18.8 V per side), with a cheap buck module** | **US$34 to 44** (15 third-cut strips needed, 30 with a margin for breakage: two LinkSolar lots of 20 at US$16.96 if that price is real, else 10 full cells at US$43.60) | **US$11 to 17** (BQ24650 or CN3722 buck module) | **about US$45 to 61** |
+| Tiled pieces, 1 per slot (9.4 V per side), direct charge through a diode and the BMS | US$34 to 44 | about US$0 (a diode) | about US$35 to 45, but gives up 12 to 37 percent of the energy and needs the BMS to tolerate the panel's open-circuit voltage |
+| Tiled pieces, 1 per slot, with the BQ25798EVM | US$34 to 44 | US$156 | about US$190 to 200 |
+| Futurlec, 60 x 30 mm (7.2 V per side), with the BQ25798EVM | US$40 to 45 | US$156 | about US$196 to 201 |
+| AnySolar SM261K10TF (16.7 V per side), with a buck module | US$415 to 490 | US$11 to 17 | about US$430 to 510 |
+
+**Cheapest route that keeps a proper charger: tiled back-contact pieces, two per slot, with a cheap BQ24650 or CN3722 buck module, about
+US$45 to 61.** The string (30 pieces per side in series, about 18.8 V at maximum power) is well above the pack, so a buck module works,
+and Voc stays inside a 28 V buck module's limit even cold (about 24 V at -20 C by my estimate; the BQ25798's 24 V would not).
+It costs a seventh to a tenth of the other routes that have a real charger. What it takes: cutting each third-cut strip into four
+31 x 41.6 mm pieces, and wiring 60 pieces. Futurlec and the single-piece tiling both need a buck-boost, and the cheapest off-the-shelf one found
+is the US$156 evaluation board, which is why they cost four times as much. A cheaper buck-boost was not found (the ZK-4KX has no MPPT and its price was not found).
+
 ### Wiring and pads for the SM261K10 (superseded: price)
 
 Hole ids in `solar.py`: side L or R, column 0 to 4 rear to front, row 0 to 2 bottom to top, pad + or -.
