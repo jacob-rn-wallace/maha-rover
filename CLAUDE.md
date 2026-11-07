@@ -23,7 +23,7 @@ rover's dimensions as faithfully as possible.
 
 ## Repo layout
 - `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model and `hardware/body/body.py` the body, wheels and deployed-mast envelope (build123d, venv in `.venv`).
-- `docs/`: sourced reference material. `mass-budget.md` is the generated mass and centre-of-mass check. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
+- `docs/`: sourced reference material. `mass-budget.md` is the generated mass and centre-of-mass check. `bom.md` is the BOM skeleton. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
 
@@ -65,7 +65,7 @@ does not bind the replica; the original wins):
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
 - Still to do: close the remaining gaps in section 7 of that file (differential
   placement and drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
-  BOM. First mass budget and centre-of-mass range done (`docs/mass-budget.md`, `hardware/mass/budget.py`); 4.75 kg of 10 is unallocated. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
+  filling in the BOM (`docs/bom.md`, skeleton only). First mass budget and centre-of-mass range done (`docs/mass-budget.md`, `hardware/mass/budget.py`); 4.75 kg of 10 is unallocated. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks suspension and internals, and its mast is a placeholder.
 
 ## Conventions
 - Hardware units are millimetres.
