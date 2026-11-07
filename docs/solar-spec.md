@@ -209,7 +209,7 @@ assembled panel, so not a bare-cell price). A bare-cell quote and minimum order 
 
 - Which cells: the electrical option, a supplier, and the real cell outline and rear contact. The 69 x 39 mm clipped
   outline holds for a half-cut triple-junction cell; silicon cut to that outline needs a cutting method.
-- The charge controller, fuses, per-string diodes, terminal blocks and the grommets.
+- The charge controller (shortlist in `electronics-spec.md`: a buck-boost is needed for the 8.7 V silicon string), fuses, diodes, terminal board parts and the grommets.
 - Bonding and insulating the cells, interconnect tabs, and cover glass or encapsulation.
 - Testing. Output at the actual sun angle on the panels is not measured; the table is arithmetic from datasheet values.
 - Whether to put a dark border and the clipped outline on the dummy cells so they look like the real ones; they are

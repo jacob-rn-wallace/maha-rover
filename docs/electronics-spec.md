@@ -62,12 +62,35 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 - Pan range of the original is plus or minus 179 degrees [S19]; a bus servo at 360 degrees covers it,
   with a software limit to protect the camera cable.
 
-## Solar charge controller (not chosen)
+## Solar charge controller (shortlist, none bought)
 
-The pack is charged from the side panels' cells (`solar-spec.md`). The charger must be an MPPT type for a 2S lithium
-pack (8.4 V, constant current then constant voltage), accepting 8.7 V (silicon option) or 11.5 V nominal with up to
-13 V open circuit (triple-junction option), and giving at least 2 A at 8.4 V for the larger case. No part has been looked up;
-a 50 x 30 x 12 mm box is reserved for it.
+The pack is charged from the side panels' cells (`solar-spec.md`). Needed: an MPPT charger for a 2S lithium pack (8.4 V,
+constant current then constant voltage), fed by the chosen cell option, at least 2 A out for the triple-junction case, in the
+50 x 30 x 12 mm box reserved at the front floor. The deciding factor is the input voltage against the pack's 8.4 V:
+
+| Cell option | String voltage at maximum power | Charger topology it needs |
+|---|---|---|
+| Silicon, F1 or F2 (15 in series) | about 8.7 V | **buck-boost**: only 0.3 V above a full pack, too little for a buck |
+| Silicon, F3 (tiled, 30 in series) | 15 V listed, 20 V measured | buck is enough |
+| Triple junction (rows in parallel) | 11.5 V, up to 13 V open circuit | buck is enough |
+
+The buck-only limit is my reasoning from the topology; the chips' headroom specifications were not read.
+
+| Candidate | What it is | Figures read | Fits | Caveats |
+|---|---|---|---|---|
+| **TI BQ25798** (recommended for silicon F1 or F2) | buck-boost charger IC, 1 to 4 cells, built-in MPPT (open-circuit-voltage scaling), I2C control | input 3.6 to 24 V; 5 A; 2S charge voltage accuracy -0.25 to +0.65 percent | all three options | a 4 x 4 mm QFN chip, so it needs a custom board or a third-party breakout (none found); TI's evaluation modules need an EV2400 or USB2ANY adapter and stock listings disagree; I2C from the Pi Zero would set it up and read its telemetry |
+| Analog Devices **LT3652** (or a module built on it) | buck charger with input-voltage regulation as its MPPT | input 4.95 to 32 V (40 V absolute maximum); up to 2 A, set by resistor; float voltage up to 14.4 V, so 8.4 V works | triple junction, tiled silicon | buck only; a 2 A limit is just enough for the triple-junction side (15.6 W at 8.4 V is 1.9 A); no 2S module found, and a module sold for one cell would need its output voltage reset |
+| Consonance **CN3722** (or a module built on it) | buck charge controller with MPPT for one or several lithium cells | input 7.5 to 28 V in one datasheet copy | triple junction, tiled silicon | the current rating differs between copies (the title says 5 A, not confirmed); buck only; copy of the datasheet to confirm before relying on it |
+
+None of the three was found as a ready-made 2S solar module. The sources for this table are the chip datasheets and TI's
+product and evaluation pages: [BQ25798](https://www.ti.com/product/BQ25798), [LT3652](https://www.analog.com/en/products/lt3652.html),
+[CN3722 datasheet](https://www.mikrocontroller.net/attachment/563792/CN3722-CONSONANCE.pdf).
+
+Both sides: the BQ25798 and the others take one input, so the left and right strings meet at a pair of blocking diodes
+(`solar-spec.md` wiring) before the charger. A two-input charger was not found.
+
+Open: a breakout or board for the BQ25798, or a change to a buck-compatible cell option; the fuse and diode parts; the
+firmware to set the BQ25798 over I2C if it is chosen.
 
 ## Mast stowing (deferred)
 

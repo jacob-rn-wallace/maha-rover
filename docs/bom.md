@@ -34,7 +34,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P pack of four Samsung INR18650-30Q (3000 mAh nominal, 15 A, 48 g max each), about 43 Wh, with a 2S BMS (not chosen); see `electronics-spec.md` | 0.22, ASSUMPTION |
 | Controller | 1 | Not found | (unverified) | Raspberry Pi Zero 2 W, 65 x 30 mm, CSI-2 camera port (`electronics-spec.md`), not bought | not found |
 | 5 V converter | 1 | Not found | (unverified) | Pololu D24V22F5, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
-| Solar charge controller | 1 | Not found | (unverified) | MPPT charger for a 2S lithium pack, size class 50 x 30 x 12 mm, not chosen (`solar-spec.md`) | 0.03, ASSUMPTION |
+| Solar charge controller | 1 | Not found | (unverified) | MPPT charger for a 2S lithium pack, size class 50 x 30 x 12 mm; shortlist in `electronics-spec.md` (BQ25798 buck-boost for silicon, LT3652 or CN3722 buck for the higher-voltage options), not bought | 0.03, ASSUMPTION |
 | Wire grommets, 5 mm | 12 | Not in the original | n/a | One per side-panel wire hole | not known |
 | Power electronics | - | Peak generation 15 W [S3]; no board data | (unverified) | - | not known |
 
