@@ -41,23 +41,41 @@ Use [S1].
 
 | Quantity | Value | Status | Source |
 |---|---|---|---|
-| Diameter | 200 (radius 100) | stated | [S4], [S7], [S8] |
-| Width | 80 | stated for the test wheel [S4]; consistent with the 8 cm grouser slot in [S8]. **A conflicting 168 is printed in [S9]** | [S4], [S8] |
-| Grousers | 14, radial | stated | [S4], [S8] |
-| Grouser length, flight wheel | 15 | stated | [S4] |
+| Diameter | 200 (radius 100); the rim diameter, with grouser tips beyond it | stated | [S4], [S7], [S8], [S23] |
+| Width | 80 | stated for the test wheel [S4]; consistent with the 8 cm grouser slot in [S8] and listed as 0.08 m in [S23]. A 168 printed in [S9] is excluded by the CAD front view (3f) | [S4], [S8], [S23] |
+| Grousers | 14, radial. [S22] says "twelve fixed grousers" for a simulated test-rig wheel (its table also gives a 0.1 m "diameter" and 7.5 mm width, so it is unreliable); 14 fits the 44 to 45 mm pitch and the 4.4 cm sample slot | stated, with one conflicting low-weight source | [S4], [S8], [S22] |
+| Grouser length, flight wheel | 15 | stated | [S4], [S23] |
+| Diameter over grouser tips | about 230 (CAD front and side views, 3e and 3f). [S23] lists 0.215 m, which looks like 200 + 15 and does not match the CAD | derived. [S23] value is (unverified) and conflicts | 3e, 3f, [S23] |
+| Ribs (spokes) | 6 in the [S23] finite element model (rim band, hub tube, 6 ribs with flared roots, flat grouser plates that stand wider than the rim). The petal-web wheel of 3e is a different web, see below | stated by the model figures; derived | [S23] Figs. 68, 77, 91 |
 | Grouser length, test wheel | 20 (not the flight value) | stated | [S4] |
 | Grouser pitch | about 44 to 45 | derived (pi x 200 / 14 = 44.9), matches the "4 cm" separation in [S5] and the 4.4 cm slot in [S8] | [S5], [S8] |
 | Sample slot between grousers | about 44 x 80 | stated | [S8] |
 | Construction | Skeletonized (spoked); flight wheel is not the closed-sided test wheel | stated | [S4] |
-| Material | Magnesium alloy AZ91E (wheels and body frame) | stated | [S10] |
+| Material | Magnesium alloy AZ91E (wheels and body frame). [S23] says only "metal alloys" | stated | [S10], [S23] |
 | Wheel mass, flight | not found | (unverified) | n/a |
 | Wheel mass, closed test wheel | 1.18 kg (not the flight value) | stated | [S4] |
 | Load per wheel, Earth / Moon | 24.5 N / 4.05 N | derived (10 kg x g / 4, 10 kg x 1.62 / 4) | [S4], [S7] |
 
-Open conflict: [S9] says the flight model's wheel width is 168. The 80 figure is supported by
-two other papers and by the 8 cm slot geometry [S8]. A 168 wheel would also be inconsistent
-with the 505 overall width. Treat 80 as working value, but this needs confirming from a
-photo or the overview paper.
+Width settled: [S9] prints 168 for the flight wheel, but [S4], [S8], [S23] give 80, the
+CAD front view gives 81 (3f), and the PLATE samples in [S9] Fig. 4C (four 20 mm pieces side by
+side) fill an 80 mm tread. Use 80.
+
+**Wheel design variants.** Three kinds of wheel appear, and none can yet be tied to the
+flight hardware.
+1. **Open-spoke wheel** (rim band, a few spokes, flat grouser plates wider than the rim):
+   the [S23] finite element model (6 ribs, 2022), the turntable video, the press render, and
+   the perspective CAD views in [S12], [S10]. Fig. 68 of [S23] has the same grouser plates and
+   ribs as these views.
+2. **Petal-web wheel** (many slim petal-shaped openings, short grouser ticks): only the
+   orthographic side views in [S5] Fig. 15 and [S18] Fig. 1.
+3. **Closed wheels** (one side closed, stated for the single-wheel test wheel [S4]): the
+   design-phase prototype in [S8] Fig. 2, and what look like closed discs on the
+   engineering-model wheels in [S8] Fig. 8 and [S23] Fig. 79 (my reading of small photographs).
+All share the 200 mm rim diameter, 80 mm width, 14 grousers and 15 mm grouser height, so the
+envelope is not in doubt; only the web and the grouser plate shape differ. [S4] says the final
+wheel is "skeletonized", which fits 1 or 2. For a replica, take the web pattern from the CAD
+side view (2) if fidelity to the final CAD matters, or from (1) if the thesis geometry is
+the better guide, and record the choice.
 
 ## 3. Layout and chassis
 
@@ -548,6 +566,29 @@ Journal for all Springer papers is *Space Science Reviews*.
 - **[S20]** Almaeeni S, Els SG, Almarzooqi H. *To a dusty Moon: Rashid's mission to observe lunar
   surface processes close-up.* 52nd LPSC 2021, abstract 1906 (LPI Contrib. 2548).
   https://www.hou.usra.edu/meetings/lpsc2021/pdf/1906.pdf
+
+- **[S21]** Els SG, Almaeeni S, Almarzooqi H. *The science instrumentation for the Rashid rover of the
+  Emirates Lunar Mission.* 52nd LPSC 2021, abstract 1905. https://www.hou.usra.edu/meetings/lpsc2021/pdf/1905.pdf
+  States: 10 kg, footprint "approximately 0.5 m x 0.5 m", mast raises the main camera to
+  "just under 70 cm", four wheels with grousers, MAD samples on the outer circumference of a wheel.
+  Corroborates [S1]; adds no new dimension.
+- **[S23]** Alhammadi M. *Lunar Rover Wheels Design & Analysis.* MSc thesis, Khalifa University
+  (2022). https://khazna.ku.ac.ae/en/studentTheses/lunar-rover-wheels-design-analysis-2/ (the author thanks MBRSC
+  engineers). Table 3 and section 4.8: wheel diameter 0.2 m, width 0.08 m, radius 0.1 m, 14
+  grousers of 0.015 m, rover mass 10 kg, 2.5 kg load per wheel in the validation case. Also
+  lists "wheel diameter with grousers" 0.215 m, which conflicts with the CAD (about 230). Finite
+  element wheel geometry in Fig. 68 (6 ribs). Fig. 79 is a photograph of the engineering model
+  driving in sand.
+- **[S22]** Abubakar A, et al. *Advance Simulation Method for Wheel-Terrain Interactions of Space
+  Rovers: A Case Study on the UAE Rashid Rover.* arXiv:2308.12431 (2023). Test-rig wheel model
+  only; not used except for the grouser-count conflict above.
+
+Press figure, not used: Spaceflight Now (2022-12-11) gives the rover as 53 x 53 cm, about 5%
+over the 470 x 505 mm of [S1] and the CAD (3e, 3f); it may include the grouser tips (about 504 mm
+over tips) or be rounded.
+
+Not located: Almarzooqi H, AlMaeeni S. *Rashid Rover: A Small Rover with Big Science Goals*,
+IAC-21 (paper 64706); only the title is public.
 
 Otherwise not used for Rashid dimensions: the rest of [S18] (Yakubu M, et al., *A Novel Mobility
 Concept for Terrestrial Wheel-Legged Lunar Rover*, apart from Fig. 1). Its Rashid model (Fig. 29) is a
