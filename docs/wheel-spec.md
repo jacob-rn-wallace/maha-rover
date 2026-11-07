@@ -22,7 +22,7 @@ minus 2 to 3%), **(unverified)** (no source, or sources disagree).
 | Material | Magnesium alloy AZ91E | stated | [S10] |
 | Wheel centre height above the rim's ground contact | 100 | derived (rim radius) | 3e |
 | Ribs | 10, equally spaced at 36 degrees (two sets of 5 on two axial layers per the project owner), constant width about 14.5, flared at the rim root | derived | [S23] Fig. 88a, [S5], [S18] |
-| Hub tube diameter | about 50 | derived (two independent sources agree) | [S23], 3e, 3f |
+| Hub tube diameter | about 50 (50 from the thesis drawing and the CAD; about 54 read from a photograph of the hardware, which reads high through perspective) | derived (three sources) | [S23], 3e, 3f, [S24] |
 | Rim band thickness | about 3 (plus or minus 1) | derived, coarse (drawn edge lines) | [S23] Fig. 88a |
 | Grouser plate thickness | about 0.8 (0.5 to 1.0) | derived (flight photographs with a built-in scale, and a second method) | [S8] Fig. 3, [S23] |
 | Slot width between grousers | about 43 (stated 44) | derived, stated | [S8] |
@@ -46,8 +46,8 @@ minus 2 to 3%), **(unverified)** (no source, or sources disagree).
 | Axial layering of the two rib sets | The owner reports five ribs on each side with the inner set rotated 36 degrees; the side views cannot show depth. The turntable video's earlier wheel has its two sets roughly in phase | stated by the owner, not yet measured from a figure |
 | Rib thickness | about 3 (2 to 4), very low confidence (one edge strip in one oblique thesis figure); not visible side-on, where only the 14.5 mm width shows | (unverified), rough estimate only |
 | Grouser plate width | In [S23] the plates stand wider than the rim band; in the CAD front view the whole wheel is 80 to 81 wide | (unverified) |
-| Wheel mass, flight | the closed test wheel is 1.18 kg ([S4]), not the flight wheel | (unverified) |
-| Hub tube length, bore and axle interface | outer diameter about 50 is known; the length, bore, fixing pattern and motor interface are not | (unverified) |
+| Wheel mass, flight | the closed test wheel is 1.18 kg ([S4]), not the flight wheel. The photographed wheels are machined, so a machined-magnesium mass estimate would be possible, but none is published | (unverified) |
+| Hub tube length, bore and axle interface | outer diameter about 50 is known. A hardware photograph shows a cup-shaped hub with a floor and four small screw holes, a flange with six bolt holes, and, nearby, black cylindrical housings with six-hole bolt circles and silver flanged adapters that may be the matching drive parts (not confirmed). Length, bore and exact bolt-circle sizes are not known | (unverified) |
 
 ## 4. Suggested choices for a first CAD model
 

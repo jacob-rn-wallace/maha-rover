@@ -51,12 +51,13 @@ Use [S1].
 | Rim band thickness | about 3 (plus or minus 1), measured between the drawn edge lines | derived, coarse | [S23] Fig. 88a |
 | Grouser tip radius | 116 (tip diameter 232), so grouser height about 16 (stated 15) | derived from [S23] Fig. 88a; agrees with the CAD (about 230) and not with the 0.215 m in [S23] Table 3 | [S23], 3e, 3f |
 | Grouser plate thickness | about 0.8 (0.5 to 1.0). From [S8] Fig. 3, photographs of the flight PRS plates in the wheel slot looking radially inward: the plate's top edge shows as a bright strip 6 to 8 px wide at 8.2 to 9.0 px/mm (scale from the known hole pitches of 1.5 to 2.25 mm). The side-on drawing in [S23] gives 0.6 plus or minus 0.4 independently | derived | [S8] Fig. 3, [S23] Fig. 88a |
+| Hub tube outer diameter, photograph | about 54 (scale from the 200 mm rim at 1.92 px/mm; the cup top is nearer the camera than the rim, so this reads high). Consistent with the 50 from [S23] and the CAD | derived, perspective-limited | [S24] |
 | Slot width between grouser plates (floor) | about 43 | derived from the same photographs; agrees with the stated 4.4 cm | [S8] |
 | Rib thickness | about 3 (2 to 4), very low confidence: one edge strip in one oblique figure, with the viewing tilt (about 22 degrees) estimated from the rim band depth. No figure in the 15 papers or the thesis gives a usable view | derived, very low confidence | [S23] Fig. 91 |
 | Grouser length, test wheel | 20 (not the flight value) | stated | [S4] |
 | Grouser pitch | about 44 to 45 | derived (pi x 200 / 14 = 44.9), matches the "4 cm" separation in [S5] and the 4.4 cm slot in [S8] | [S5], [S8] |
 | Sample slot between grousers | about 44 x 80 | stated | [S8] |
-| Construction | Skeletonized (rim band, hub tube, ten ribs); flight wheel is not the closed-sided test wheel | stated; ribs derived | [S4], [S23] |
+| Construction | Skeletonized (rim band, hub tube, ten ribs); flight wheel is not the closed-sided test wheel. A photograph of four wheels made by the manufacturer shows machined construction: a cup-shaped hub tube with a floor and four small screw holes, a flange with six bolt holes, ribs with flared roots, in two axial layers of five (clearest on the tilted wheel), and 14 thin tapered plates on the rim at 25.7 degrees | stated; observed in photograph | [S4], [S23], [S24] |
 | Material | Magnesium alloy AZ91E (wheels and body frame). [S23] says only "metal alloys" | stated | [S10], [S23] |
 | Wheel mass, flight | not found | (unverified) | n/a |
 | Wheel mass, closed test wheel | 1.18 kg (not the flight value) | stated | [S4] |
@@ -97,7 +98,7 @@ the final wheel is "skeletonized", which matches 1. Use 1 for the replica.
 | Body main dimensions | "about 20 x 20 x 40 cm" | stated, rounded. Now plausible: see 3a and 3b | [S6] |
 | Sidewall angle | 80 degrees panel mounting angle, i.e. 10 degrees from vertical (stated, [S20]). Front view 3f: about 10; rear view 3a and flight photo 3e: about 9 | stated, and derived from three views that agree | [S20], [S18] Fig. 1, [S3] Fig. 2, [S10] Fig. 1 |
 | Ground clearance | not stated. About 120 from the rear-view figure (see 3a) | derived from a figure, low confidence | [S3] Fig. 2 |
-| Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
+| Frame material | Magnesium alloy, covered in ITO-coated MLI [S10]. The manufacturer says the structure uses carbon fibre-reinforced plastic, magnesium alloy and aluminium [S24] | stated; the two accounts are compatible (a mixed structure) but not reconciled | [S10], [S24] |
 | Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
 
 ### 3a. Measurements from the rear-view CAD figure
@@ -580,6 +581,18 @@ Journal for all Springer papers is *Space Science Reviews*.
   States: 10 kg, footprint "approximately 0.5 m x 0.5 m", mast raises the main camera to
   "just under 70 cm", four wheels with grousers, MAD samples on the outer circumference of a wheel.
   Corroborates [S1]; adds no new dimension.
+- **[S24]** Sur A. "UAE's maiden Moon mission has a Chennai connection", *Moneycontrol*, 16 Dec 2022.
+  https://www.moneycontrol.com/news/business/uaes-maiden-moon-mission-has-a-namma-chennai-connection-9715801.html
+  Article text (interview with the founder of ST Advanced Composites, Chennai): the company made
+  about 90% of the rover's components, "its structure, wheels, solar panels, camera holder and so
+  on", about 40 components; structure in carbon fibre-reinforced plastic, magnesium alloy and
+  aluminium; development began at the end of December 2020, a ground test model was built by the end of
+  2021 (tested in France and the US), and the flight model was finished by June 2022. One photograph,
+  captioned "Various components of Rashid Rover that were made by ST Advanced Composites" (no photographer
+  credit shown on the page), shows four machined wheels with hub adapters, bevel gears, black
+  housings, a black frame and two aluminium rails; it is used for observation and a rough scale only.
+  The photograph is third-party, is kept in an untracked local folder and is not redistributed. It is
+  not stated whether the four wheels are the flight set or the ground test model.
 - **[S23]** Alhammadi M. *Lunar Rover Wheels Design & Analysis.* MSc thesis, Khalifa University
   (2022). https://khazna.ku.ac.ae/en/studentTheses/lunar-rover-wheels-design-analysis-2/ (the author thanks MBRSC
   engineers). Table 3 and section 4.8: wheel diameter 0.2 m, width 0.08 m, radius 0.1 m, 14
