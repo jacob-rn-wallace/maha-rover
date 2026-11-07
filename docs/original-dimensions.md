@@ -593,6 +593,11 @@ Journal for all Springer papers is *Space Science Reviews*.
   housings, a black frame and two aluminium rails; it is used for observation and a rough scale only.
   The photograph is third-party, is kept in an untracked local folder and is not redistributed. It is
   not stated whether the four wheels are the flight set or the ground test model.
+  Other copies of the same story (an ANI press release as carried by ThePrint, and News Bharati) repeat
+  the materials (magnesium alloy, carbon fibre, aluminium), a two-year effort and a rover "a little less
+  than 10 kg", and do not mention wheels; only this interview attributes the wheels to the company.
+  Business Standard, Composites Today and ANI direct block automated access, and the company site
+  (stadvancedcomposites.in) returned errors, so no further detail was read.
 - **[S23]** Alhammadi M. *Lunar Rover Wheels Design & Analysis.* MSc thesis, Khalifa University
   (2022). https://khazna.ku.ac.ae/en/studentTheses/lunar-rover-wheels-design-analysis-2/ (the author thanks MBRSC
   engineers). Table 3 and section 4.8: wheel diameter 0.2 m, width 0.08 m, radius 0.1 m, 14
