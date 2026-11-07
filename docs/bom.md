@@ -26,7 +26,9 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | - | not known |
 | Cover glass | 30 | 200 um cerium-doped borosilicate, Qioptiq [S10] | stated | - | not known |
 | Panel substrate | 2 | not found | (unverified) | - | not known |
-| Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | - | not known |
+| Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P 18650 pack, about 43 Wh (cell capacity assumed 3 Ah), placeholder size class, see `interior-spec.md` | 0.22, ASSUMPTION |
+| Controller | 1 | Not found | (unverified) | Zero-class single-board computer, not chosen | 0.015, ASSUMPTION |
+| 5 V converter | 1 | Not found | (unverified) | Placeholder size class, not chosen | 0.015, ASSUMPTION |
 | Power electronics | - | Peak generation 15 W [S3]; no board data | (unverified) | - | not known |
 
 ## Mobility
@@ -36,6 +38,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Wheel | 4 | 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy (`hardware/wheel/`, `wheel-spec.md`) | stated / derived | - | 0.398 each, ASSUMPTION (model volume at AZ91E density) |
 | Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | Pololu 37D without encoder, candidate #4746 (131.25:1, spur/helical), open-loop speed and direction (decision 2026-11-07). See `drive-spec.md` | 0.195 each (vendor, upper bound) |
 | Motor driver | 2 | not found | (unverified) | Dual-channel brushed DC drivers, four channels in total, so pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | not known |
+| Pivot bearings | 2 | Not found | (unverified) | 6800 (10 x 19 x 5), one per wall boss, ISO size from memory, verify | not known |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline inside the body at pivot height 146, body as carrier, joined to two side plates (`suspension-spec.md`); a bar linkage is the alternative | not known |
 | Side link plates | 2 | One plate per side joining the front and rear hubs, with a boss at the wheelbase midpoint about 147 above the ground line (3i, figures only) | derived; shape (unverified) | 8 mm plate with a sleeve to each motor's clamp ring, from `suspension-spec.md` | not known |

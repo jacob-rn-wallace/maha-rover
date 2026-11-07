@@ -94,9 +94,11 @@ does not bind the replica; the original wins):
   side link plates, body as carrier. The plate and pivot position (about 147 mm above the ground
   line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
-  clearance sweep: `hardware/suspension/arms.py`. Open: everything inside the body, strength, gears.
-- Still to do, in rough order: pick the exact motor, then design the differential's mounting inside the body and
-  choose the electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
+  clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
+- Body interior (2026-11-07): 3 mm shell, two bulkheads holding the differential, 6800 bearings in wall
+  bosses, battery rear and electronics front, keep-out under the deck for the mast drive. Spec:
+  `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Part choices not made.
+- Still to do, in rough order: pick the exact motor, then choose the electronics (off the shelf) and design the gear train in the differential; design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
   the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
   Closing the section 7 gaps is now optional: only chase a source when it changes one of the
