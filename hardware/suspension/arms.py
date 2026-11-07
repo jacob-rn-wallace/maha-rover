@@ -50,7 +50,7 @@ BOSS_D, BOSS_T = 48.0, 6.0       # pivot boss on the outer face         derived 
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
 SHAFT_R = 5.0            # pivot shaft radius                          ASSUMPTION
 DIFF_R, DIFF_LEN = 18.0, 44.0   # differential housing, inside the body; r 18 keeps it
-                                # clear of the 3 mm floor (bottom z 127.7 vs floor top 127)  ASSUMPTION
+                                # clear of the 2 mm floor panel (bottom z 127.7 vs floor top 126)  ASSUMPTION
 OVERLAP = 0.5
 
 

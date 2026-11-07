@@ -14,8 +14,11 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Body wedge (side plates, floor) | 1 | Wedge, 10 degree sidewalls, side plates about 380 long, underside 124 and deck 348 above ground. Magnesium alloy, covered in ITO-coated MLI [S10]; CFRP, magnesium and aluminium per the manufacturer [S24] | stated / derived | - (CAD: `hardware/body/`) | structure total 2.0 (stated [S26]) |
-| Top plate (deck) | 1 | 401 long, about 164 wide | stated [S11] / derived | - | in structure |
+| Body wedge (side plates, floor) | 1 | Wedge, 10 degree sidewalls, side plates about 380 long, underside 124 and deck 348 above ground. Magnesium alloy, covered in ITO-coated MLI [S10]; CFRP, magnesium and aluminium per the manufacturer [S24] | stated / derived | Aluminium sheet panels, 2 mm (floor, sides, ends), on a T-slot frame (`frame-spec.md`) | panels 2.41 (all, incl. deck), ASSUMPTION |
+| Top plate (deck) | 1 | 401 long, about 164 wide | stated [S11] / derived | 3 mm aluminium sheet, 401 x 164 | in the panels above |
+| T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 19 members, 4.15 m | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut to the list in `frame-spec.md`; posts need 10 degree mitres | 1.92 |
+| Bearing plates | 2 | Not found | (unverified) | 6 mm aluminium, 6800 bearing seat | 0.08 |
+| Corner brackets, T-nuts, bolts | not counted | Not found | (unverified) | Standard 20-series hardware, M4 | not known |
 | Thermal blankets | - | ITO-coated MLI [S10] | stated | - | not known |
 | Fasteners, harness | - | not found | (unverified) | - | not known |
 

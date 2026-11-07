@@ -41,6 +41,8 @@ Assuming a replica mass of about 5 kg (ASSUMPTION, see `CLAUDE.md` scope):
 | Wheel speed, no load, 7.4 V (2S pack) | about 47 rpm = 0.49 m/s | no-load speed scales with voltage; derived |
 | Original's speed | 0.1 m/s = 9.5 rpm | [S1] |
 
+At the 9 kg first estimate in `frame-spec.md` the slope torque per wheel is about 0.77 N.m (79 kg.mm): inside the 100 kg.mm continuous limit, above the 60 kg.mm best-efficiency point, at about 0.9 A (the 5 kg figures above are the original sizing).
+
 The highest ratio is still fast. Running the 12 V motors from a 2S pack roughly halves the speed,
 and PWM brings it down further. Speed under load will be lower than these no-load numbers.
 Low-duty PWM on an unloaded-feedback brushed motor can stall under load, so test low speeds on the

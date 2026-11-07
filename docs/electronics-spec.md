@@ -80,7 +80,7 @@ repeatedly but needs a pedestal that can hold a 45 x 25 x 35 mm servo on the hin
   read), minimum input about 5.8 V at 2.5 A. A fully discharged pack must stay above that: stop at 3.3 V a cell.
 - **Runtime estimate (rough):** driving: four motors at about 0.6 A and 7.4 V is about 18 W; the Pi and camera, if
   they draw about 1 A at 5 V (an assumption), about 5 W; so about 23 W and roughly 1.9 h from 43 Wh. At rest
-  with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load; real use will differ.
+  with the Pi alone, about 5 W and several hours. The motor figure assumes the slope load; real use will differ. At a replica mass near 9 kg (`frame-spec.md`) the motor current rises to about 0.9 A each, so about 27 W driving, 32 W with the Pi, and about 1.3 h.
 - **Solar:** the original's panels give 15 W peak [S3]; the replica's cells are dummies.
 
 ## Open

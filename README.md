@@ -24,9 +24,9 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 ## What's here
 | Path | Contents |
 |---|---|
-| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value; the replica's [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md) and [suspension](docs/suspension-spec.md), [body interior](docs/interior-spec.md) and [mast](docs/mast-spec.md) specifications; an [electronics shortlist](docs/electronics-spec.md); a [mass budget](docs/mass-budget.md); a [parts list skeleton](docs/bom.md) |
+| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value; the replica's [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md) and [suspension](docs/suspension-spec.md), [chassis](docs/frame-spec.md), [body interior](docs/interior-spec.md) and [mast](docs/mast-spec.md) specifications; an [electronics shortlist](docs/electronics-spec.md); a [mass budget](docs/mass-budget.md); a [parts list skeleton](docs/bom.md) |
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
-| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output): [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), [mast](hardware/mast/mast.py), and the [mass budget script](hardware/mass/budget.py) |
+| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output): [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), [mast](hardware/mast/mast.py), [T-slot chassis](hardware/chassis/frame.py), and the [mass budget script](hardware/mass/budget.py) |
 
 ## Regenerating the graphics
 ```

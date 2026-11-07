@@ -33,7 +33,7 @@ TOP_WIDTH = 164.0        # width just below the deck lip          derived [3f]
 SIDEWALL_DEG = 10.0      # from vertical, panels at 80 degrees    stated [S20], 3f
 SIDE_PLATE_LEN = 380.0   # body length (side plates)              derived [3e]
 DECK_LEN = 401.0         # top plate length                       stated [S11]
-DECK_T = 5.0             # top plate thickness                    ASSUMPTION
+DECK_T = 3.0             # top plate thickness (aluminium sheet, frame.py)   ASSUMPTION
 BODY_X0 = 0.0            # body centre along X vs the axle midpoint
                          #                                        (unverified; symmetric)
 

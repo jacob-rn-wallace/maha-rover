@@ -42,7 +42,7 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
 
 ## Repo layout
 - `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model and `hardware/body/body.py` the body, wheels and deployed-mast envelope (build123d, venv in `.venv`).
-- `docs/`: sourced reference material. `mass-budget.md` is the generated mass and centre-of-mass check. `bom.md` is the BOM skeleton. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
+- `docs/`: sourced reference material. `frame-spec.md` is the chassis (T-slot frame and panels). `mass-budget.md` is the generated mass and centre-of-mass check. `bom.md` is the BOM skeleton. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
 
@@ -63,14 +63,12 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
   suspension, no rocker, no springs or dampers [S25]. Layout and motor type still unsourced.
 - Structure mass: 2 kg excluding mobility [S26].
 
-Still provisional, from earlier AI chat sessions, NOT checked against the original (it
-does not bind the replica; the original wins):
-- Frame: "zero-cut" box core of supplier-cut 40120 / 4040 aluminum extrusion with 1.5 mm
-  cladding. The original is a magnesium alloy frame with MLI. Extrusions are ground and
-  testbed hardware only, not a flight design.
-- Dropped: the 6U CubeSat envelope (100 x 200 x 340.5), 15 degree sidewalls, the
-  170 x 112 mm PET panels (4 per side), and the Nomad-style rocker with Double Ackermann
-  steering (the original is a passive differential with skid steering [S25]).
+- Chassis: T-slot frame behind sheet panels (`docs/frame-spec.md`, `hardware/chassis/frame.py`).
+
+Dropped from the earlier sessions' provisional design (an AI-chat brainstorm, never checked against the
+original): the 6U CubeSat envelope (100 x 200 x 340.5), 15 degree sidewalls, the 170 x 112 mm PET panels
+(4 per side), and the Nomad-style rocker with Double Ackermann steering (the original is a passive
+differential with skid steering [S25]). The extrusion-frame idea from those sessions is back, resized.
 
 ## Licensing
 - **Code** (scripts, firmware, tools): Apache-2.0 (`LICENSE`)
@@ -95,8 +93,11 @@ does not bind the replica; the original wins):
   line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
   clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
-- Body interior (2026-11-07): 3 mm shell, two bulkheads holding the differential, 6800 bearings in wall
-  bosses, battery rear and electronics front, keep-out under the deck for the mast drive. Spec:
+- Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, 1.92 kg) behind 2 mm aluminium panels
+  (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. The
+  posts need 10 degree mitres (the vendor cuts 45 only). Spec: `docs/frame-spec.md`; CAD and checks:
+  `hardware/chassis/frame.py`. Chassis 4.4 kg, replica about 9 kg: heavy, see the spec.
+- Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
   drive motor; design the differential's gear train; turn the envelope body into a buildable one (material,

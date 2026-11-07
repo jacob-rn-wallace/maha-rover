@@ -14,7 +14,7 @@ ASSUMPTION. CAD and checks: `hardware/mast/mast.py`.
 | Item | Value | Status |
 |---|---|---|
 | Tube | 58 x 58 mm, z 420 to 577, centre 24.2 mm ahead of the front axle (x 160.7), 3 mm wall, 2 x 4 oval lightening slots on each side face | size and position derived [3j]; wall and slots ASSUMPTION |
-| Base block | 78 x 90 mm, deck (348) to z 420, bolted to the deck | height derived [3j]; about 90 fore-aft was measured, which would overhang the 401 mm deck front by 5 mm, so 78; width ASSUMPTION |
+| Base block | 78 x 90 mm, deck (348) to z 420, bolted through the deck into the mast cross rail and front end rail (`frame-spec.md`) | height derived [3j]; about 90 fore-aft was measured, which would overhang the 401 mm deck front by 5 mm, so 78; width ASSUMPTION |
 | Neck and C-arm | neck z 577 to 621; arm bar 50 x 45 mm at y +25 to +70, to z 690 | derived by eye [3j] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
 | Camera | CAM-1 35 x 35 x 73 mm, axis at z 660, lens front 77.9 ahead of the front axle | stated [S12], [S8] |
