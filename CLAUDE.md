@@ -117,6 +117,10 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.
 
+## Constraints
+- **Purchases deferred (owner, 2026-11-07), for the foreseeable future:** nothing is to be bought. Work is design, CAD and research; prices in the docs
+  are for planning only, and parts "chosen" are candidates. Do not recommend ordering anything or treat a purchase as the next step.
+
 ## Conventions
 - Hardware units are millimetres.
 - Label unverified facts as such. Do not state remembered figures as sourced.
