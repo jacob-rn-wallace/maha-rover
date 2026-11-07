@@ -453,6 +453,36 @@ is inside the body. It supports one link per side (a walking beam) rather than a
 separate bogie, and puts the pivot **inside the body wall, above the underside (124) and below the
 cell field**, not under the belly.
 
+### 3j. Mast, head and camera in the CAD figures [S5], [S18]
+
+Measured by pixel scan of the native images, scales as in 3e (1.087 mm per px) and 3f (1.10 mm per
+px). All values are derived.
+
+**Side view [S5] Fig. 15** (ground row 671, front hub centre at x = 391.7 px):
+- the mast tube is **59.8 mm** fore-aft, with a constant width from z about 430 to 610, and its
+  **centre is 24.2 mm ahead of the front axle** (this refines the 35 mm, low confidence, of 3e);
+- the blue base block below it has a fore-aft extent of about 90 mm, from the deck (348) to about
+  420 mm, so the tube itself runs from about 420 to about 577, then a neck to about 621, then the
+  head to 700 (the top plate, 697 to 700);
+- the lens barrel reaches **78.6 mm ahead of the front axle**, which agrees with the 77.9 of [S8]
+  (3 mm of 1.087 mm pixels): that offset is therefore to the lens front, not the tube centre. The
+  35 x 35 x 73 mm tube [S12] then centres about 36.5 mm behind it;
+- the camera axis is at about 664 mm (stated 660 [S12]).
+
+**Front view [S18] Fig. 1:**
+- the tube is **59 mm** wide and centred on the rover's centreline (tube centre 384 px against a
+  centreline of 385);
+- the neck bends towards the rover's left (+Y) into a C-arm about 45 mm wide at y +25 to +70, with
+  the pan-tilt motor (pink) at about y +10 to +50 and the camera housing to the rover's right, about
+  y -64 to +8, so the camera sits about 25 mm right of the centreline (28 stated in [S8]);
+- the head and arm span about 130 mm across (a thin plate on top is about 110 mm);
+- the tube has lightening slots (three columns visible from the side, two on the front view).
+
+**Hinge.** A ring on a bracket at the rear of the base block is seen in the [S18] side view, about
+30 mm above the deck (by eye, plus or minus 8 mm). With the mast folded rearward about a pin there,
+the head and base block rise 118 to 120 mm above the deck, equal to the stated limit of 120 [S19].
+This is a fit, not an independent confirmation.
+
 ## 4. Mast and cameras
 
 Heights are above ground, measured with wheels on a hard surface.
@@ -461,7 +491,7 @@ Heights are above ground, measured with wheels on a hard surface.
 |---|---|---|---|
 | Mast length | about 300 | stated, rounded | [S6] |
 | CAM-1 optical axis height | 660 (630 with grousers buried in regolith) | stated | [S12] |
-| CAM-1 offset from front wheel axis | 77.9 forward, 550.8 up | stated | [S8] |
+| CAM-1 offset from front wheel axis | 77.9 forward, 550.8 up | stated; the forward offset matches the lens front, see 3j | [S8] |
 | CAM-1 height from [S8] offsets | 550.8 + 100 (wheel radius) = 650.8 | derived, consistent with 660 | [S8] |
 | CAM-1 lateral position | 28 right of centreline | derived from [S8] offsets | [S8] |
 | Mast rotation | 320 degrees (azimuth -170 to +150) | stated | [S12] |

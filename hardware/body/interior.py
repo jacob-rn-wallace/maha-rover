@@ -49,7 +49,7 @@ PARTS = {
 KEEP_OUT = dict(size=(70.0, 70.0, 60.0),
                 at=(B.BODY_X0 + B.SIDE_PLATE_LEN / 2 - WALL_T - 35.0, 0.0))
                 # under the deck, as far forward as the cavity allows (a 70 mm box centred on the
-                # mast base, x = 171, would pass the front end wall)  ASSUMPTION
+                # mast base, x = 161, would pass the front end wall)  ASSUMPTION
 
 
 def half_width(z):

@@ -56,9 +56,10 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
   `hardware/body/body.py`. Their position on the face is an assumption (centred).
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
-- Mast: about 300 mm, stowed along the top panel, spring hinge to vertical; CAM-1 on a
-  pan and tilt gimbal. Both deployed and stowed (folded rearward, an assumption) envelopes are in the body model;
-  the mast cross-section and gimbal head are placeholder sizes.
+- Mast: tube 58 x 58 mm centred 24.2 mm ahead of the front axle, stowed along the top panel by a
+  spring hinge, CAM-1 on a pan and tilt head (`docs/mast-spec.md`, `hardware/mast/mast.py`, built into
+  the body model). Sizes from the CAD figures (`original-dimensions.md` 3j); the mechanism is the
+  replica's own: torsion springs, a servo latch, two servos. Folded rearward (an assumption).
 - Drive and suspension: 4 in-wheel motors [S3]; skid steering; passive differential gear
   suspension, no rocker, no springs or dampers [S25]. Layout and motor type still unsourced.
 - Structure mass: 2 kg excluding mobility [S26].
@@ -98,7 +99,7 @@ does not bind the replica; the original wins):
 - Body interior (2026-11-07): 3 mm shell, two bulkheads holding the differential, 6800 bearings in wall
   bosses, battery rear and electronics front, keep-out under the deck for the mast drive. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Part choices not made.
-- Still to do, in rough order: pick the exact motor, then choose the electronics (off the shelf) and design the gear train in the differential; design the mast, its deploy hinge and pan-tilt, and pick the
+- Still to do, in rough order: pick the exact motor, then choose the electronics and servos (off the shelf) and design the gear train in the differential; design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
   the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
   Closing the section 7 gaps is now optional: only chase a source when it changes one of the

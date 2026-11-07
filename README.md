@@ -8,7 +8,7 @@ An open-source, full-size replica of the UAE's **Rashid** lunar rover. It aims t
 
 *Al-maha* (المَهَا) is the Arabian oryx, and also the word for the oryx's eyes in classical Arabic poetry.
 
-> **Status: early.** Branding is done. The original's dimensions are recorded with sources in [`docs/original-dimensions.md`](docs/original-dimensions.md); most outer dimensions are sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid), and gaps remain in the suspension and drivetrain layout and the exact solar cell part. CAD exists for the wheel, the body, solar cells and mast (as a dimensional envelope), the drive motor mounting and the suspension. There is a mass budget and a skeleton parts list. Nothing has been built yet. Everything below says what exists and what doesn't.
+> **Status: early.** Branding is done. The original's dimensions are recorded with sources in [`docs/original-dimensions.md`](docs/original-dimensions.md); most outer dimensions are sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid), and gaps remain in the suspension and drivetrain layout and the exact solar cell part. CAD exists for the wheel, the body with its interior, solar cells, mast, drive motor mounting and suspension. There is a mass budget and a skeleton parts list. Nothing has been built yet. Everything below says what exists and what doesn't.
 
 ## Goal
 A rover that a person can build and afford, at the original's size (about 470 x 500 mm, 200 mm wheels, 700 mm tall with the mast up), that is recognisably Rashid and drives, deploys a mast and shows a live camera view.
@@ -24,9 +24,9 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 ## What's here
 | Path | Contents |
 |---|---|
-| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value; the replica's [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md) and [suspension](docs/suspension-spec.md) specifications; a [mass budget](docs/mass-budget.md); a [parts list skeleton](docs/bom.md) |
+| [`docs/`](docs/original-dimensions.md) | Sourced record of the original's dimensions, with a source tag and status on every value; the replica's [wheel](docs/wheel-spec.md), [drive](docs/drive-spec.md) and [suspension](docs/suspension-spec.md), [body interior](docs/interior-spec.md) and [mast](docs/mast-spec.md) specifications; a [mass budget](docs/mass-budget.md); a [parts list skeleton](docs/bom.md) |
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
-| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output): [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), and the [mass budget script](hardware/mass/budget.py) |
+| [`hardware/`](hardware/) | Parametric CAD (build123d, STEP output): [wheel](hardware/wheel/wheel.py), [body envelope](hardware/body/body.py), [drive motor mounting](hardware/drive/motor.py), [suspension](hardware/suspension/arms.py), [mast](hardware/mast/mast.py), and the [mass budget script](hardware/mass/budget.py) |
 
 ## Regenerating the graphics
 ```

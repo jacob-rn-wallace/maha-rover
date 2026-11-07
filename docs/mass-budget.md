@@ -29,12 +29,12 @@ body envelope centroid z = 229 mm (solid wedge, deck included)
 
 | Configuration | Remainder height | CoM x | CoM z | nose-down | nose-up | sideways |
 |---|---|---|---|---|---|---|
-| deployed | low (z=150) | 22 | 217 | 36 | 28 | 49 |
-| deployed | body centroid (z=229) | 22 | 254 | 32 | 24 | 44 |
-| deployed | high (z=300) | 22 | 288 | 29 | 22 | 41 |
-| stowed | low (z=150) | -7 | 193 | 34 | 37 | 52 |
-| stowed | body centroid (z=229) | -7 | 231 | 29 | 32 | 47 |
-| stowed | high (z=300) | -7 | 264 | 26 | 29 | 43 |
+| deployed | low (z=150) | 20 | 217 | 36 | 28 | 49 |
+| deployed | body centroid (z=229) | 20 | 254 | 32 | 25 | 44 |
+| deployed | high (z=300) | 20 | 288 | 28 | 22 | 41 |
+| stowed | low (z=150) | -9 | 193 | 33 | 37 | 52 |
+| stowed | body centroid (z=229) | -9 | 231 | 29 | 32 | 47 |
+| stowed | high (z=300) | -9 | 264 | 26 | 29 | 43 |
 
 Slope requirement: 20 degrees [S1][S3]. Tip angles are static, on a rigid chassis, wheels at the hub line.
 
@@ -42,7 +42,7 @@ Slope requirement: 20 degrees [S1][S3]. Tip angles are static, on a rigid chassi
 
 - Every case clears the 20 degree slope requirement for nose-down and sideways tipping.
 - Nose-up (climbing) is the tightest: 22 degrees in the worst case (all unallocated mass
-  high, mast deployed), a margin of about 2 degrees. With the remainder at the body centroid it is 24.
+  high, mast deployed), a margin of about 2 degrees. With the remainder at the body centroid it is 25.
 - That worst case depends on assumptions: CAM-2 at the body rear (x only is unverified), the
   mast mass at the tube midpoint, the 2 kg structure at the body centroid, and the wheel mass.
   A heavier wheel lowers the centre of mass.

@@ -48,8 +48,8 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | - | 1.237 (EM, stated [S19]); under 1.4 flight |
-| CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | - | 0.210 stated [S12] |
+| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | Printed square tube with a hinge pin, two torsion springs, a servo-pulled latch and two pan and tilt servos (`mast-spec.md`); parts not chosen | 1.237 (EM, stated [S19]); under 1.4 flight. Replica about 0.45, ASSUMPTION |
+| CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | Small camera module on the mast, not chosen | 0.210 stated [S12] |
 | CAM-2 | 1 | Fixed, rear, axis about 250 high [S12] | stated | - | 0.210 stated [S12] |
 | CAM-M (microscope) | 1 | Front, aperture about 210 high [S13] | stated / derived | - | not known |
 | CAM-T (thermal imager) | 1 | Rear [S2], [S12] | stated | - | not known |

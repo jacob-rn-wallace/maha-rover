@@ -1,6 +1,6 @@
 """al-maha body: parametric envelope model (build123d), first pass.
 
-Replica of the Rashid-1 body, wheels and deployed mast as a dimensional
+Replica of the Rashid-1 body, wheels and mast as a dimensional
 envelope: solid parts, thin solar cell plates, no internal structure, no
 suspension. Also builds the stowed mast (rover_stowed.step).
 Millimetres. Rover frame: X forward, Y left, Z up, origin on the ground
@@ -47,12 +47,13 @@ HUB_Z = 100.0            # = rim radius, ground at the rim line.
 
 # ---- Mast and cameras (section 4) ----------------------------------------
 TOP_Z = 700.0            # top of the CAM-1 head, mast deployed   stated [S1]
-MAST_X = WHEELBASE / 2 + 35.0   # mast centre ahead of the front axle (35,
-                         # low confidence)                        derived [3e]
-MAST_D = 20.0            # mast tube outer diameter               ASSUMPTION
-HEAD_W, HEAD_L, HEAD_H = 50.0, 50.0, 60.0   # gimbal head block   ASSUMPTION
-CAM_AXIS_Z = 650.8       # CAM-1 optical axis height              derived [S8]
-CAM_X = WHEELBASE / 2 + 77.9    # CAM-1 forward of front axle     derived [S8]
+MAST_X = WHEELBASE / 2 + 24.2   # mast tube centre ahead of the front axle; measured
+                         # on the native side view (3j), refines 35 of [3e]  derived
+MAST_D = 20.0            # old placeholder tube (used only by hardware/mass/budget.py)
+HEAD_W, HEAD_L, HEAD_H = 50.0, 50.0, 60.0   # old placeholder head (same)
+CAM_AXIS_Z = 660.0       # CAM-1 optical axis height              stated [S12]
+CAM_X = WHEELBASE / 2 + 77.9 - 36.5   # CAM-1 tube centre: the 77.9 of [S8] matches the
+                         # lens FRONT in the side view (3j), less half the 73 mm tube  derived
 CAM_Y = -28.0            # 28 right of centreline (Y is left)     derived [S8]
 CAM_TUBE = (73.0, 35.0, 35.0)   # L x W x H optical tube          stated [S12]
 
@@ -120,18 +121,12 @@ def cells():
 
 
 def mast(stowed=False):
-    base = DECK_TOP_Z
-    head_bot = TOP_Z - HEAD_H
-    tube = Pos(MAST_X, 0, (base + head_bot) / 2) * Cylinder(MAST_D / 2, head_bot - base)
-    head = Pos(MAST_X, 0, TOP_Z - HEAD_H / 2) * Box(HEAD_L, HEAD_W, HEAD_H)
-    cam = Pos(CAM_X, CAM_Y, CAM_AXIS_Z) * Box(*CAM_TUBE)
-    m = tube + head + cam
-    if stowed:
-        # fold about the mast base (a horizontal axis on the deck), then rest
-        # the widest part (the head block) on the deck
-        pivot = Pos(MAST_X, 0, DECK_TOP_Z)
-        m = Pos(0, 0, HEAD_W / 2) * pivot * Rot(0, STOW_DIR * 90, 0) * pivot.inverse() * m
-    return m
+    """The replica mast, hinge and camera from hardware/mast/mast.py, deployed or stowed.
+    Imported here, not at the top, because mast.py imports this module."""
+    sys.path.insert(0, str(Path(__file__).parent.parent / "mast"))
+    import mast as mast_model
+    rot, fixed = mast_model.build(90.0 if stowed else 0.0)
+    return Compound(list(rot.values()) + list(fixed.values()))
 
 
 def build_rover(stowed=False):
