@@ -69,6 +69,9 @@ photo or the overview paper.
 | Body shape | Wedge. Sloped side faces carry the solar panels. Mast at the front | derived (figures only) | [S1], [S7], [S11] |
 | Body main dimensions | "about 20 x 20 x 40 cm" | stated, rounded. Now plausible: see 3a and 3b | [S6] |
 | Sidewall angle | about 9 degrees from vertical in the rear view (see 3a). Not stated anywhere | derived from a figure, low confidence | [S3] Fig. 2 |
+| Ground clearance | not stated. About 120 from the rear-view figure (see 3a) | derived from a figure, low confidence | [S3] Fig. 2 |
+| Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
+| Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
 
 ### 3a. Measurements from the rear-view CAD figure
 
@@ -167,17 +170,60 @@ slice stays a mix of wheel and terrain points. The deck result did stabilise. Ac
 height bands and trim levels the deck comes out 0.50 to 0.52 units long and 0.20 to 0.22
 wide, which at 745 mm per unit is about 380 mm long and 159 mm wide. The 159 mm width
 matches the 157 mm from 3a. So the deck figures above stand, and further SfM on this
-video is unlikely to pay off. COLMAP's dense stereo needs CUDA, which this machine lacks.
+video is unlikely to pay off. (That turned out wrong for the dense stage: see 3d.)
 
 Note that this video gives a wheel diameter near 205 mm, close to 200 mm, whereas the CAD
 rear view gives 228 mm. The two disagree, and the open question in 3a stands.
-| Ground clearance | not found | (unverified) | n/a |
-| Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
-| Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
 
 The [S6] body figure of 20 x 20 x 40 cm is probably a rough description of something other than the
 main structure. It cannot be the full body width, since the wheels' centres are 415 apart.
 Do not use it until it is explained.
+
+### 3d. Dense stereo on the video [S17]
+
+The same 96 frames and the solved camera poses went through COLMAP dense stereo (patch
+match with geometric consistency, then fusion) on a Colab T4. The result is 1.28 million
+coloured points, and unlike the sparse cloud it resolves the whole rover: body ribs, the
+mast, the camera head and all four grousered wheels. I fitted the terrain around the rover
+as a plane (0.007 units scatter, 9 degree tilt), levelled the cloud, found the rover's yaw by
+minimum bounding box, and took the scale from the stated 700 mm mast-top height, as in 3c
+(745 mm per unit). All values are derived. The video is a render, so these are
+measurements of a CAD model, not of hardware. The point cloud stays out of the repo.
+
+| Quantity | Dense value (mm) | Compare | Status |
+|---|---|---|---|
+| Wheel diameter | 195 to 200 (four circle fits, 2 to 3 mm scatter) | 200 stated; 205 from 3b; 228 from 3a | derived, **agrees with the stated 200** |
+| Wheel width | about 80 (tread band, left side; right side 60 to 70, noisier) | 80 stated; 168 from the other figure | derived, **favours 80** |
+| Wheelbase | 247 to 251 | 250 from 3b; 270 stated "27 cm" | derived, **about 20 mm under the stated value** |
+| Length over wheels | about 450 (rim to rim) | 470 stated | derived, about 4% under |
+| Width over wheels | about 520 to 527 | 505 stated | derived, about 3 to 4% over |
+| Deck length (upper body) | about 397 | 380 from 3c; 370 to 410 from 3b | derived |
+| Deck width (top face) | about 170 | 159 from 3c; 157 from 3a | derived |
+| Deck top height above ground | about 345 | 335 from 3c; 353 from 3a | derived |
+| Body half-width at 250 mm height | about 115 | n/a | derived |
+| Sidewall angle (250 to 345 mm height) | about 19 degrees from vertical | **9 degrees from 3a** | derived, conflict |
+
+Notes on confidence.
+- **Scale.** Ground under the wheels sits about 15 to 20 mm above my fitted plane, so the
+  mast-top height above wheel contact is about 685 mm at 745 mm per unit. Setting that to 700
+  mm would raise every value by about 2%. Treat all values here as plus or minus 3%.
+- **Wheels agree with the stated 200 mm and 80 mm.** This is the first measurement that
+  does, and it is independent of the rear-view figure, which still gives 228 mm. I now
+  think the 228 figure was measured over grouser tips or had a scaling error. The open
+  question in 3a is narrowed, not closed.
+- **Width over wheels is 3 to 4% over the stated 505, while the wheelbase is 7% under the
+  stated 270.** Both disagree in different directions, so a scale error does not explain
+  them. Either the video's model is a different revision from the one the figures describe,
+  or what 470 and 505 are measured over differs from my edges (open item 6 in section 7).
+  The first is supported by a visual difference the project owner noticed: the video's solar
+  layout has one column of cells at the end set sideways, whereas other images of the rover
+  show every cell horizontal. That suggests an earlier or later design iteration, so treat
+  the video as a possibly different revision for all of 3b, 3c and 3d (an observation by eye,
+  not yet checked image by image).
+- **Sidewall angle conflicts with 3a.** The dense slices give a half-width of about 115 mm at
+  250 mm height narrowing to about 85 mm at 345 mm, which is about 19 degrees from
+  vertical. The rear-view figure gave 9. The lower flank is hidden behind the wheels, so I
+  could only measure the upper part. Do not use either value for design yet.
 
 ## 4. Mast and cameras
 
@@ -240,8 +286,10 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
    is about 370 to 410 mm from a video (section 3b, low confidence).
 3. Panel size and the position of each panel on its sloped face.
 4. Suspension and drivetrain layout.
-5. Wheel width conflict (80 vs 168). The figure scaling in section 3a favours 80.
-   Wheel diameter (200 rim vs about 228 over grousers) is a new open question.
+5. Wheel width conflict (80 vs 168). Section 3a and the dense stereo in 3d both favour 80.
+   Wheel diameter: 3d gives 195 to 200, matching the stated 200, so only the 228 from 3a
+   is out of line. New: wheelbase is about 250 in the video against 270 stated, and the
+   sidewall angle is about 19 degrees in 3d against 9 degrees in 3a.
 6. What 470 and 505 are measured over.
 7. Battery capacity, motor specifications.
 
