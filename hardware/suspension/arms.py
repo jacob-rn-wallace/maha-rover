@@ -1,21 +1,24 @@
-"""al-maha suspension: passive differential, side arms, and a clearance sweep.
+"""al-maha suspension: passive differential, side link plates, and a clearance sweep.
 
 Replica design, an INTERPRETATION of [S25] (passive differential gear in place of a
-rocker, four wheels, no springs). The original's layout is not published, so
-everything here is ASSUMPTION unless tagged.
+rocker, four wheels, no springs) guided by the CAD figures (original-dimensions.md
+section 3i): one plate per side joining the front and rear hubs, with a pivot boss at
+the wheelbase midpoint about 147 mm above the ground line and a short stub into the
+body wall at that height. The plate shape, thicknesses and everything inside the body
+are ASSUMPTION.
 
 Concept
-  * One rigid arm per side carries the front and rear wheel (a walking beam).
-  * Both arms pivot on one common axis along Y at x = 0, below the belly, and each
-    is joined by a shaft to a side gear of a bevel differential on the centreline.
-  * The differential housing is the carrier and is fixed to the body, so the body
-    pitches by the AVERAGE of the two arm angles; body roll is taken by the rigid
-    body, as in a rocker-bogie.
-  * Each arm is a low beam inboard of the wheels, joined to each motor's clamp ring
-    by a strap passing under the motor terminals.
+  * One rigid plate per side carries the front and rear wheel (a walking beam).
+  * The plates pivot on a common axis along Y at x = 0, z = 147, and each is joined by a
+    shaft through the body wall to a side gear of a bevel differential INSIDE the body.
+  * The differential housing (the carrier) is fixed to the body, so the body pitches by
+    the AVERAGE of the two plate angles. Body roll is taken by the rigid body.
+  * Each motor hangs on its plate through a sleeve joining the plate to the motor's
+    clamp ring; the sleeve covers the motor terminals.
 
-Frame as in body.py: X forward, Y left, Z up from the ground, origin under the
-axle midpoint. Wheel frame as in wheel.py / motor.py.
+Frame as in body.py: X forward, Y left, Z up from the ground, origin under the axle
+midpoint. Wheel frame as in wheel.py / motor.py. The body model is a solid envelope,
+so the shaft appears to overlap it where it would pass through a hole.
 
 Run:  .venv/bin/python hardware/suspension/arms.py
 Out:  hardware/suspension/out/rover_drive.step
@@ -24,7 +27,9 @@ import math
 import sys
 from pathlib import Path
 
-from build123d import Box, Compound, Cylinder, Pos, Rot, export_step
+from build123d import (
+    Box, Compound, Cylinder, Plane, Polygon, Pos, Rot, extrude, export_step,
+)
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent / "body"))
@@ -34,34 +39,56 @@ import body as B   # noqa: E402
 import motor as M  # noqa: E402
 import wheel as W  # noqa: E402
 
-PIVOT_Z = 76.0           # arm pivot axis height, along Y, x = 0   ASSUMPTION
-BEAM_Y0, BEAM_Y1 = 150.0, 158.0   # beam inboard of the motor terminals (160.5 from the axis)  ASSUMPTION
-BEAM_H = 10.0            # beam height                              ASSUMPTION
-STRAP_W = 20.0           # strap width along X                      ASSUMPTION
-STRAP_END = 172.5        # strap outer end (just short of the hub extension, 172.7)  ASSUMPTION
-SHAFT_R = 4.0            # pivot shaft radius                       ASSUMPTION
-DIFF_R, DIFF_LEN = 20.0, 44.0     # differential housing           ASSUMPTION
-POST = 20.0              # carrier post cross-section               ASSUMPTION
+PIVOT_Z = B.HUB_Z + 45.7  # boss 45.7 above the hub centres        derived [3i]
+PLATE_Y0, PLATE_T = 133.0, 8.0   # plate inner face from the centreline, thickness  ASSUMPTION
+                                 # (front view: plate about 30 mm inboard of the wheel's inner face)
+PLATE_BOTTOM = B.HUB_Z + 5.0     # lower edge about 5 above the hub centre  derived [3i]
+PLATE_TOP_MID, PLATE_TOP_END = 178.0, 128.0   # upper outline           ASSUMPTION
+PAD_HALF, PAD_BOTTOM = 22.0, B.HUB_Z - 22.0   # tab behind each sleeve  ASSUMPTION
+PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPTION
+BOSS_D, BOSS_T = 48.0, 6.0       # pivot boss on the outer face         derived [3i], by eye
+SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
+SHAFT_R = 5.0            # pivot shaft radius                          ASSUMPTION
+DIFF_R, DIFF_LEN = 20.0, 44.0   # differential housing, inside the body ASSUMPTION
 OVERLAP = 0.5
 
 
+def ring(y0, y1, r_out, r_in):
+    """Tube along Y between y0 and y1 (either order)."""
+    h = abs(y1 - y0)
+    return Pos(0, (y0 + y1) / 2, 0) * Rot(90, 0, 0) * (Cylinder(r_out, h) - Cylinder(r_in, h))
+
+
+def plate_outline():
+    e, hx = PLATE_END, B.WHEELBASE / 2
+    pb, pad = PLATE_BOTTOM, PAD_BOTTOM
+    x_in = hx - PAD_HALF
+    return [(-e, pad), (-x_in, pad), (-x_in, pb), (x_in, pb), (x_in, pad), (e, pad),
+            (e, PLATE_TOP_END), (70.0, PLATE_TOP_MID), (-70.0, PLATE_TOP_MID), (-e, PLATE_TOP_END)]
+
+
 def side(sy):
-    """Everything that rides on one arm, for side sy = +1 (left) or -1 (right):
-    arm parts, and the two wheels with their motors (fixed and rotating sets)."""
+    """Everything that rides on one plate, for side sy = +1 (left) or -1 (right):
+    plate parts, and the two wheels with their fixed motor parts."""
     hx = B.WHEELBASE / 2
     hub_y = sy * B.TRACK / 2
-    y0, y1 = sy * BEAM_Y0, sy * BEAM_Y1
-    beam = Pos(0, (y0 + y1) / 2, PIVOT_Z) * Box(B.WHEELBASE, BEAM_Y1 - BEAM_Y0, BEAM_H)
-    # the beam spans the full wheelbase, so it passes under each strap's inner end
-    straps = []
-    for sx in (1, -1):
-        ys = (sy * BEAM_Y0 + sy * STRAP_END) / 2
-        straps.append(Pos(sx * hx, ys, PIVOT_Z) * Box(STRAP_W, STRAP_END - BEAM_Y0, BEAM_H))
+    y_in, y_out = PLATE_Y0, PLATE_Y0 + PLATE_T
+    # plate: sketch in the XZ plane, extruded along Y
+    sk = Plane.XZ * Polygon(*plate_outline(), align=None)       # Plane.XZ normal is -Y
+    # Plane.XZ extrudes toward -Y from y = 0, so shift: sy=+1 occupies y_in..y_out, sy=-1 -y_out..-y_in
+    plate = Pos(0, (y_out if sy > 0 else -y_in), 0) * extrude(sk, amount=PLATE_T)
+    boss = Pos(0, sy * (y_out + BOSS_T / 2 - OVERLAP / 2), PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BOSS_D / 2, BOSS_T + OVERLAP)
     shaft_y0 = 1.0   # the two shafts stop 2 mm apart inside the housing, at the side gears
-    shaft = Pos(0, sy * (shaft_y0 + BEAM_Y0) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(SHAFT_R, BEAM_Y0 - shaft_y0 + OVERLAP)
-    arm = {"beam": beam, "strap_f": straps[0], "strap_r": straps[1], "shaft": shaft}
+    shaft = Pos(0, sy * (shaft_y0 + y_in + OVERLAP) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(SHAFT_R, y_in + OVERLAP - shaft_y0)
+    sleeves = {}
+    fixed_m, rot_m, z = M.build_parts()
+    clamp_face = abs(hub_y) - (-z["cl"][0])        # y of the clamp ring's inner face (z['cl'][0] is negative)
+    for sx in (1, -1):
+        y0, y1 = sy * y_out, sy * (clamp_face + OVERLAP)
+        sleeves["F" if sx > 0 else "R"] = Pos(sx * hx, 0, B.HUB_Z) * ring(y0 - sy * OVERLAP, y1, SLEEVE_OD / 2, SLEEVE_ID / 2)
+    arm = {"plate": plate, "boss": boss, "shaft": shaft,
+           "sleeveF": sleeves["F"], "sleeveR": sleeves["R"]}
 
-    fixed_m, rot_m, _ = M.build_parts()
     wheel = W.build_wheel()
     place = lambda sx: Pos(sx * hx, hub_y, B.HUB_Z) * Rot(-sy * 90, 0, 0)
     wheels = {f"wheel{'F' if sx > 0 else 'R'}": place(sx) * wheel for sx in (1, -1)}
@@ -71,10 +98,7 @@ def side(sy):
 
 
 def differential():
-    housing = Pos(0, 0, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(DIFF_R, DIFF_LEN)
-    top = PIVOT_Z + DIFF_R
-    post = Pos(0, 0, (top + B.UNDERSIDE_Z) / 2) * Box(POST, POST, B.UNDERSIDE_Z - top + OVERLAP)
-    return {"diff_housing": housing, "diff_post": post}
+    return {"diff_housing": Pos(0, 0, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(DIFF_R, DIFF_LEN)}
 
 
 def rotate_about_pivot(shape, deg):
@@ -87,52 +111,64 @@ def overlap(a, b):
 
 if __name__ == "__main__":
     body_parts, _ = B.build_rover()
-    body_group = Compound([v for k, v in body_parts.items() if k == "body" or k.startswith("cell")])
+    body_only = body_parts["body"]
+    cells = Compound([v for k, v in body_parts.items() if k.startswith("cell")])
+    body_group = Compound([body_only, cells])
     diff = differential()
 
     sides = {sy: side(sy) for sy in (1, -1)}
-    print(f"pivot axis z = {PIVOT_Z:.0f}; belly z = {B.UNDERSIDE_Z:.0f}; "
-          f"differential top z = {PIVOT_Z + DIFF_R:.0f}, bottom z = {PIVOT_Z - DIFF_R:.0f}")
-    print(f"beam y {BEAM_Y0:.0f}..{BEAM_Y1:.0f}; body half-width at belly {body_group.bounding_box().max.Y:.0f}; "
-          f"wheel inner face y {B.TRACK / 2 + W.WIDTH / 2 - W.WIDTH:.1f}")
+    half_w_pivot = B.TOP_WIDTH / 2 + (B.DECK_TOP_Z - B.DECK_T - PIVOT_Z) * math.tan(math.radians(B.SIDEWALL_DEG))
+    print(f"pivot axis z = {PIVOT_Z:.1f} (hub {B.HUB_Z:.0f} + 45.7, [3i]); belly z = {B.UNDERSIDE_Z:.0f}; "
+          f"cell field starts z = {B.FIELD_Z - (B.N_ROWS * B.PITCH_V) / 2:.0f}")
+    print(f"body half-width at the pivot {half_w_pivot:.1f}; plate inner face y {PLATE_Y0:.0f} "
+          f"(gap {PLATE_Y0 - half_w_pivot:.0f}); wheel inner face y {B.TRACK / 2 + W.WIDTH / 2 - W.WIDTH:.1f}")
+    inside = overlap(diff["diff_housing"], body_only) / diff["diff_housing"].volume
+    print(f"differential housing inside the body envelope: {inside * 100:.0f} % of its volume "
+          f"(z {PIVOT_Z - DIFF_R:.0f}..{PIVOT_Z + DIFF_R:.0f}; belly {B.UNDERSIDE_Z:.0f})")
 
-    # Arm travel needed. Step of height h under one front wheel: that arm tilts asin(h/wheelbase)
-    # from level, the other stays level, the body takes the average, so in the BODY frame
-    # each arm turns half of that.
     h = 100.0
     th = math.degrees(math.asin(h / B.WHEELBASE))
-    print(f"100 mm step under one front wheel: arm {th:.1f} deg from level, body pitch {th / 2:.1f} deg, "
-          f"arm {th / 2:.1f} deg in the body frame; front hub moves {B.WHEELBASE / 2 * math.sin(math.radians(th / 2)):.0f} mm in the body frame")
+    print(f"100 mm step under one front wheel: plate {th:.1f} deg from level, body pitch {th / 2:.1f} deg, "
+          f"plate {th / 2:.1f} deg in the body frame; front hub moves "
+          f"{B.WHEELBASE / 2 * math.sin(math.radians(th / 2)):.0f} mm in the body frame")
 
-    print("\nstatic overlaps at nominal (mm3, want 0 except bonded joints)")
+    print("\nstatic overlaps at nominal (mm3, want 0; the shaft passes through the body wall by design)")
     for sy, (arm, wheels, motors) in sides.items():
         tag = "L" if sy > 0 else "R"
-        arm_all = Compound(list(arm.values()))
+        arm_all = Compound([v for k, v in arm.items()])
         for n, p in {**wheels, **motors}.items():
-            if n.startswith("motor_clamp"):
-                continue
-            print(f"  {tag} arm vs {n:24s}: {overlap(arm_all, p):8.1f}")
+            v = overlap(arm_all, p)
+            if v > 0.01:
+                print(f"  {tag} arm vs {n:24s}: {v:8.1f}")
         for n, p in arm.items():
-            print(f"  {tag} {n:8s} vs body+cells        : {overlap(p, body_group):8.1f}")
-    print(f"  diff housing vs body+cells : {overlap(diff['diff_housing'], body_group):8.1f}")
-    print("  (the straps bond to the clamp rings on purpose: see below)")
+            v = overlap(p, body_group)
+            if v > 0.01:
+                print(f"  {tag} {n:8s} vs body+cells        : {v:8.1f}{'  (shaft through the wall)' if n == 'shaft' else '  <-- unexpected'}")
+    print("  (anything not listed is 0)")
     for sy, (arm, wheels, motors) in sides.items():
         for k in ("F", "R"):
-            strap = arm["strap_f" if k == "F" else "strap_r"]
-            print(f"  {'L' if sy > 0 else 'R'} strap_{k} vs clamp ring: {overlap(strap, motors['motor_clamp' + k]):.1f} (bonded joint, expect > 0)")
+            sl = arm["sleeve" + k]
+            print(f"  {'L' if sy > 0 else 'R'} sleeve_{k} vs clamp ring: {overlap(sl, motors['motor_clamp' + k]):.1f} (bonded joint, expect > 0)")
 
-    print("\nsweep, body frame: left arm +phi, right arm -phi (rigid with their wheels and motors)")
-    print(f"{'phi':>5s}  {'arm+wheels vs body/cells':>26s}  {'L vs R':>8s}")
+    print("\nsweep, body frame: left plate +phi, right plate -phi, each with its wheels and motors")
+    print(f"{'phi':>5s}  {'plate parts vs body+cells':>26s}  {'wheels,motors vs body':>22s}  {'L vs R':>7s}  {'min gap plate-body':>18s}")
     for phi in (-15, -10.7, -5, 0, 5, 10.7, 15):
-        tot_body = 0.0
+        t_plate = t_wm = 0.0
         groups = {}
+        gap = float("inf")
         for sy, (arm, wheels, motors) in sides.items():
-            parts = list(arm.values()) + list(wheels.values()) + list(motors.values())
-            moved = [rotate_about_pivot(p, phi * sy) for p in parts]
-            groups[sy] = Compound(moved)
-            tot_body += overlap(groups[sy], body_group)
-        lr = overlap(groups[1], groups[-1])
-        print(f"{phi:5.1f}  {tot_body:26.1f}  {lr:8.1f}")
+            plate_parts = [arm["plate"], arm["boss"], arm["sleeveF"], arm["sleeveR"]]
+            wm = list(wheels.values()) + list(motors.values())
+            mp = Compound([rotate_about_pivot(p, phi * sy) for p in plate_parts])
+            mw = Compound([rotate_about_pivot(p, phi * sy) for p in wm])
+            t_plate += overlap(mp, body_group)
+            t_wm += overlap(mw, body_group)
+            groups[sy] = Compound([mp, mw])
+            try:
+                gap = min(gap, mp.distance_to(body_group))
+            except Exception:
+                gap = float("nan")
+        print(f"{phi:5.1f}  {t_plate:26.1f}  {t_wm:22.1f}  {overlap(groups[1], groups[-1]):7.1f}  {gap:18.1f}")
 
     out = HERE / "out"
     out.mkdir(exist_ok=True)

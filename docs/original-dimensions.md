@@ -425,6 +425,34 @@ Stowed envelope: **about 474 x 497 x 468 mm**, with the height resting on the re
 and a perspective photograph (plus or minus about 4%). A dimensioned drawing would still
 be better.
 
+### 3i. The suspension link seen in the CAD figures [S5], [S18]
+
+The final-configuration CAD shows how the wheels attach, which no paper describes in text.
+All values are derived.
+
+**[S5] Fig. 15, side view** (native 818 x 706 px, 1.087 mm per px as in 3e). Between the wheels
+there is one plate per side, joining the front and rear hubs, with a circular boss at the
+midpoint of the wheelbase. Measured by pixel analysis of the native image:
+- hub centres (found by colour) 251.05 px apart = 272.9 mm, agreeing with the 273 in 3e;
+- the boss centre is at x = 265.2 px, the exact midpoint (265.16);
+- the boss centre is 42.0 px = **45.7 mm above the hub centres**, so about 147 mm above the
+  ground line (hub 101);
+- by eye (plus or minus 4 mm): the boss disc is about 48 mm across with a light hole about 16 mm
+  across; the plate's lower edge is about 5 mm above the hub centre height, and its upper part
+  merges with the lower edge of the body side plate.
+
+**[S18] Fig. 1, front view** (native 1136 x 714 px, 1.10 mm per px as in 3f). Read by eye on an
+enlargement (plus or minus 5 mm): from each wheel, an axle stub runs inboard about 30 mm to a
+flange that is the plate seen edge-on, and a short stub (about 25 mm) joins the plate to the lower
+corner of the body wall at about 45 to 50 mm above hub height, the same height as the boss.
+
+**Reading.** One plate per side with a central boss at about 147 mm height, and a short stub into
+the body there, fits a per-side link that pivots on the body, as [S25]'s "passive differential gear"
+would need. This is an interpretation: the figures do not show whether the boss rotates or what
+is inside the body. It supports one link per side (a walking beam) rather than a rocker with a
+separate bogie, and puts the pivot **inside the body wall, above the underside (124) and below the
+cell field**, not under the belly.
+
 ## 4. Mast and cameras
 
 Heights are above ground, measured with wheels on a hard surface.
@@ -477,7 +505,7 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 | 170 x 112 mm PET panels, 4 per side | 2 panels (one per side), each 5 x 3 cells of about 69 x 39 mm at a pitch of about 71.6 x 41 mm (3g, derived) | Replace |
 | Wheels 200 x 80 mm, hub + TPU tire, chevron grousers | 200 x 80, 14 radial grousers of 15 mm, skeletonized, Mg alloy | Diameter and width agree. Grouser shape and construction need to change |
 | In-wheel planetary motors | 4 in-wheel motors [S3] | Plausibly consistent |
-| 4-wheel rocker, Nomad-style Double Ackermann | Passive differential gear suspension, no rocker, skid steering, no springs or dampers (stated, [S25]) | Replace. No Ackermann, no steering servos |
+| 4-wheel rocker, Nomad-style Double Ackermann | Passive differential gear suspension, no rocker, skid steering, no springs or dampers (stated, [S25]) | Replace. No Ackermann, no steering servos. 3i: one link plate per side, pivot boss at the wheelbase midpoint |
 | 40120 / 4040 extrusion frame | Mg alloy frame with MLI; structure budget 2 kg excluding mobility (stated, [S26]) | Ground-testbed hardware only |
 | No mast | Rotating mast, about 300 long, CAM-1 on a pan and tilt gimbal | Add |
 
@@ -496,6 +524,7 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 4. Suspension and drivetrain layout. Concept now stated ([S25]: passive differential gear, skid
    steering, no rocker, no springs). Still missing: where the differential sits, arm geometry,
    travel, and the motor and gearbox type. The full text of [S25] would probably settle most of it.
+   Partly answered by 3i: one plate per side with a central boss about 147 mm above the ground line.
 5. Wheel width is settled at about 80: 3a, 3d and the front view in 3f all give it, and
    168 is excluded.
    Wheel diameter: 3d and 3e give 200, matching the stated 200. The 228 from 3a is the

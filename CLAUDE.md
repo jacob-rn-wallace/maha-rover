@@ -25,8 +25,9 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
 
 ## Dimensional record
 - The original's real dimensions remain the reference for the five "must" items above. Design
-  choices that affect them follow the sources, not the other way round. Where something is not
-  one of those items, choose for buildability, and say so.
+  choices that affect them follow the sources, not the other way round. Beyond those items,
+  accuracy is still preferred wherever a source exists and it does not make the build impractical;
+  where there is no source, or accuracy would cost too much, choose for buildability and say so.
 - Primary-source figures are recorded in `docs/original-dimensions.md`, with a source tag and a
   status (stated / derived / unverified) on every value. Check it before designing anything and
   update it when a new source is read. Headline: 10 kg; 470 x 505 mm footprint and 700 mm height
@@ -89,11 +90,12 @@ does not bind the replica; the original wins):
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
   check: `hardware/drive/motor.py`. Open: bearing loads, concentricity, can clamp.
-- Suspension decision (2026-11-07): passive bevel differential under the belly joining two rigid
-  side arms, body as carrier (an interpretation of [S25], not the original's layout). Spec:
-  `docs/suspension-spec.md`. CAD and clearance sweep: `hardware/suspension/arms.py`. Open: the
-  differential hangs below the belly and would snag a 100 mm rock; strength and gear choice unchecked.
-- Still to do, in rough order: pick the exact motor, then settle the differential's ground clearance and
+- Suspension decision (2026-11-07): passive bevel differential inside the body joining two rigid
+  side link plates, body as carrier. The plate and pivot position (about 147 mm above the ground
+  line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
+  differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
+  clearance sweep: `hardware/suspension/arms.py`. Open: everything inside the body, strength, gears.
+- Still to do, in rough order: pick the exact motor, then design the differential's mounting inside the body and
   choose the electronics (off the shelf); design the mast, its deploy hinge and pan-tilt, and pick the
   camera; turn the envelope body into a buildable one (material, joints, cell mounting); reassess
   the mass and centre of mass for the replica's own parts; fill the BOM's "Replica" column.
