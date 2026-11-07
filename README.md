@@ -45,13 +45,13 @@ cd graphic-design/scripts/mosaic && python3 header.py edge-coarse   # README hea
 Details and the other scripts are in [`graphic-design/README.md`](graphic-design/README.md).
 
 ## For builders
-The replica's panels use ready-made 60 x 30 mm silicon cells (Futurlec SZGD6030), wired plain on the original's 5 x 3 grid, so
-no cutting is needed. For a build that wants cells closer to the original's 69 x 39 mm outline, the cells can be cut: the how-to
+The replica's side panels use AnySolar SM261K10TF modules (64 x 45 mm, ten silicon cells each, soldered through holes behind the panel),
+laid out on the original's 5 x 3 grid. A cheaper fallback is the Futurlec SZGD6030 cell (60 x 30 mm), and a build that wants cells with the
+original's exact 69 x 39 mm outline can cut its own: the how-to
 [How to Split a Solar Cell Into Two](https://www.instructables.com/How-to-Split-a-Solar-Cell-Into-Two/) (Instructables; the same-titled
 article on [The DIY Life](https://www.the-diy-life.com/how-to-split-a-solar-cell-into-two/) describes a craft-knife score and snap, cutting
-parallel to the cell's tabs so each piece keeps them) is a good starting point. Cells are fragile and break often: buy at least twice the
-number you need and cut a spare first. Our notes on the cell choice, the wiring, the yields and the caveats are in
-[`docs/solar-spec.md`](docs/solar-spec.md).
+parallel to the cell's tabs so each piece keeps them) is a good starting point, though cells are fragile and break often. Our notes on the
+cell choice, the wiring, the yields and the caveats are in [`docs/solar-spec.md`](docs/solar-spec.md).
 
 ## Contributing
 Corrections to Rashid's dimensions are the most valuable contribution, ideally with a primary source (MBRSC material, mission documentation, or photographs with known scale). The most useful missing facts are listed in section 7 of [`docs/original-dimensions.md`](docs/original-dimensions.md). Arabic readers' feedback on wordmark legibility is also wanted.

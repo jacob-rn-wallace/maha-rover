@@ -5,24 +5,53 @@ cells can be fitted later, the cell data behind it, and what is still open. CAD 
 `hardware/solar/solar.py` (with `hardware/body/body.py` for the cells and holes). Everything here is ASSUMPTION
 unless tagged; cell data are quoted from the sources noted, with their caveats.
 
-## Decision (2026-11-07)
+## Decision (2026-11-07, revised)
 
-- **Cells:** the **Futurlec SZGD6030**, a ready-made mono silicon cell, 60 x 30 x 2.8 mm, 0.48 V, 280 mA listed, 17 percent,
-  US$1.50 each (US$1.35 from 25, US$1.20 from 100); 30 are needed. No cutting.
-- **Look:** the cells go on **plain**: no printed cover, border or outline to imitate the original's 69 x 39 mm cells,
-  which would probably look worse. They keep the original's 5 x 3 grid positions, each cell centred in its slot, so the
-  gaps are 11.6 mm along the rows and 11.0 mm between rows. Corners are plain rectangles (the retailer does not state the shape).
-- **Wiring:** one 15-cell series string per side, the serpentine below, 7.2 V.
-- **Charger:** a buck-boost, the BQ25798 on the shortlist (`electronics-spec.md`): 7.2 V is below the pack's 8.4 V, so a buck
-  charger cannot work.
-- **Output:** uncertain, because the cell's test light is not stated. At the listed 280 mA a side gives 2.0 W; if that
-  were a one-sun figure, 17 percent of 18 cm2 per cell would give about 4.6 W a side (my arithmetic). The cells charge the pack;
-  they do not run the rover. Measure one cell under a lamp or in sun before building the panels.
-- **Thickness:** 2.8 mm plus 0.2 mm of adhesive, so the cell stack on the panel is 3.0 mm (the dummy plates were 1.0 mm); width
-  over the cells at the middle of the field is 209 mm, well inside the wheels.
+The **AnySolar SM261K10TF is the primary cell**; the Futurlec SZGD6030 below is the fallback.
 
-The sections below record how the choice was reached. The cutting, fill and triple-junction material still holds for anyone
-who wants cells closer to the original's look.
+- **Module:** SM261K10TF, 64 x 45 x 1.2 mm (DigiKey lists 1.5 mm), 5.9 g, ten monocrystalline cells laminated in a 5 x 2 grid,
+  25 percent efficiency. Datasheet (Rev. May 2021, typical values at one sun, AM1.5, 25 C): Voc 6.91 V, Isc 109 mA,
+  **Vmpp 5.58 V, Impp 102 mA, Pmpp 571 mW**, fill factor above 70 percent, Voc -17.4 mV/K. Plain, no cover or outline.
+- **Layout:** the original's 5 x 3 positions: columns on the original's 71.6 mm pitch (7.6 mm gaps), rows at 46 mm instead of 41 so
+  the 45 mm modules clear (1 mm gaps). The field spans z 187.5 to 322.5 against the original's 196 to 314 (3k); the lowest row's
+  grouser-tip overlap with the wheels is slightly larger than in the original.
+- **Solder pads on the back:** each module has its two solder terminals on the BACK face, 22 mm either side of its centre at mid
+  height (datasheet drawing; "+" is 10 mm from one end). So the side panel is drilled behind every pad: **2 holes of 3.5 mm per
+  module, 30 per side, 60 in all**; the wires are soldered to the pads through the holes and the modules are bonded to the panel.
+  The modules are mounted with "+" toward the front on both walls.
+- **Soldering:** the laminate (EVA and polymer film) must not be reflowed. The datasheet allows hand soldering at under 260 C for 2 s,
+  or an oven-cured silver paste (it names LORD PC10678HV) at 100 C for 30 minutes.
+- **Wiring:** three modules in series per column (rows 1 to 3), the five columns in parallel: **Vmpp 16.74 V, Voc 20.73 V, 0.51 A,
+  8.5 W per side** at one sun (STC). The string is above the pack's 8.4 V, so a buck charger works.
+- **Charger:** with 16.7 V in, a cheap buck 2S MPPT module (5 to 28 V in) is now an option, as well as the BQ25798 (24 V input limit):
+  Voc rises with cold, to 22.0 V at 0 C and 23.1 V at -20 C, inside both limits. See `charger-board-spec.md`.
+- **Cost:** DigiKey lists the TF part at US$16.32 each, US$13.84 at 10 and US$10.58 at 500, 12 weeks' lead time, 93 in stock when
+  seen (the L part, 1.8 mm, is out of stock and its listing differs): 30 modules cost about **US$415 to 490**, against about US$45 for
+  the Futurlec cells.
+- **Check and numbers:** `hardware/solar/solar.py`; mockup: `docs/images/solar-cell-mockups.png`.
+
+The earlier decision (Futurlec, plain, fallback) and the material below it still stand as the fallback; the "Built in" and "Wiring"
+sections below describe the **Futurlec layout** (12 holes per panel between the rows) and no longer match the CAD, which now drills behind
+the SM261K10 pads. The section "Wiring and pads for the SM261K10" gives the primary layout.
+
+### Wiring and pads for the SM261K10 (primary)
+
+Hole ids in `solar.py`: side L or R, column 0 to 4 rear to front, row 0 to 2 bottom to top, pad + or -.
+
+- **Series within a column:** the + pad of the row-j module joins the - pad of the row-(j+1) module above it, behind the panel: ten
+  jumpers per side, each about 83 mm of 24 AWG wire with slack (the straight run is 64 mm).
+- **Buses:** the - pads of row 0 (bottom) are joined by a bus wire behind the panel, and so are the + pads of row 2 (top); each bus is
+  about 370 mm with slack. Both buses end at a terminal board on the front post (20 x 8 x 110 mm, z 200 to 310, clear of the frame
+  and contents; modelled in `solar.py`). The outermost holes (the + pad of the front column and the - pad of the rear column, at
+  x = plus or minus 165.2) are 1.1 mm from the post's inner face, so wires there leave away from the post.
+- **Leads:** from the board to the charger about 180 mm (right) or 260 mm (left); an array current of 0.51 A over 1 m of 24 AWG
+  pair drops 0.04 V of 16.7 V. A blocking diode per side joins them at the charger, as before (one side lit at a time).
+- **Clearance:** nothing in the frame, strips, plates or shim lies within 2.25 mm of a hole's axis, 14 mm deep; the mid rail ends at
+  z 185, 24 mm below the lowest pad holes; the top rail starts at z 325, above the top row's holes.
+- **Not designed:** how the 60 wires are held behind the panel, a harness for them, protection (fuses, bypass diodes per module
+  or column), and the blocking diodes' parts.
+- **Voltage limit:** the charger input limit (24 V for the BQ25798) is within 1 V of the string's Voc at -20 C; do not exceed a column
+  of three modules in series.
 
 ## Silicon: cutting is established practice (2026-11-07)
 

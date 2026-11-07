@@ -59,17 +59,16 @@ CAM_TUBE = (73.0, 35.0, 35.0)   # L x W x H optical tube          stated [S12]
 
 # ---- Solar cells (section 3g, 3h, 5) -------------------------------------
 N_COLS, N_ROWS = 5, 3    # per side, all landscape               derived [3e, 3g]
-CELL_W, CELL_H = 60.0, 30.0     # Futurlec SZGD6030 mono cell, plain (decision 2026-11-07); the
-                         # original's cell is 69 x 39 mm [3g]    stated (retailer)
-PITCH_U, PITCH_V = 71.6, 41.0   # the original's grid positions [3g]; each cell sits centred
-                         # in its original position               derived [3g]
-CLIP = 0.0               # corners not stated by the retailer: plain rectangles   ASSUMPTION
-CELL_T = 3.0             # the cell is 2.8 mm thick (retailer) plus 0.2 mm of adhesive    ASSUMPTION
-HOLE_D = 5.0             # wire hole through the side panel, at both ends of every cell row,
-                         # in the gap above the row (solar provisions,
-                         # docs/solar-spec.md)                            ASSUMPTION
-HOLE_OFFSET = 17.0       # along the row from the end cell's centre (x = +-160.2: clear of the posts)
-HOLE_V = PITCH_V / 2     # up the slope from the row's centre, into the gap above the row
+CELL_W, CELL_H = 64.0, 45.0     # AnySolar SM261K10TF module, plain (primary, 2026-11-07):
+                         # 64 x 45 x 1.2 mm, 10 cells inside in 5 x 2 (datasheet)   stated
+PITCH_U, PITCH_V = 71.6, 46.0   # columns on the original's pitch [3g]; rows at 46 so the 45 mm
+                         # modules clear (the original's row pitch is 41)    derived [3g] / ASSUMPTION
+CLIP = 0.0               # plain rectangles: the module has square corners (datasheet drawing)
+CELL_T = 1.7             # 1.5 mm (the DigiKey listing; datasheet 1.2 +- 0.3) plus 0.2 mm of adhesive   ASSUMPTION
+PAD_DX = 22.0            # each module has two solder pads on its BACK, 22 mm either side of its centre
+                         # along the long side, at mid height ("+" 10 mm from one end)  datasheet; the module is mounted
+                         # with + toward the front (+x) on both walls
+PAD_D = 3.5              # hole through the side panel behind each pad, for one wire     ASSUMPTION
 FIELD_Z = 255.0          # field centre height on the face: the cells span z 196 to 314 in the side view
                          # of the original ([S5] Fig. 15, pixel scan, 3k); was the mid-wall height
                          # 233.5, an assumption, which put the lowest row over the wheels   derived
@@ -129,22 +128,29 @@ def cells():
 
 
 def solar_holes(length=6.0, d=None):
-    """Cylinders along the wall normal at the 12 wire-hole positions (6 per side), starting at the outer
-    face and running `length` inward. Subtract from the shell to cut the holes."""
-    d = HOLE_D if d is None else d
+    """Cylinders along the wall normal behind every module pad (2 per module, 30 per side, 60 in all),
+    starting at the outer face and running `length` inward. Subtract from the shell to cut the holes."""
+    d = PAD_D if d is None else d
+    return [c for (_, _, _, _, c) in solar_pads(length, d)]
+
+
+def solar_pads(length=6.0, d=None):
+    """Every pad hole as (side, col, row, polarity '+' or '-', cylinder). Columns 0..4 run rear to front, rows 0..2 bottom to top."""
+    d = PAD_D if d is None else d
     t = math.tan(math.radians(SIDEWALL_DEG))
     c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
     hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
     out = []
     for sy in (1, -1):
         n = Vector(0, sy * c, sn)
-        for j in range(N_ROWS):
-            v = (j - (N_ROWS - 1) / 2) * PITCH_V + HOLE_V
-            for sx in (1, -1):
-                u = sx * ((N_COLS - 1) / 2 * PITCH_U + HOLE_OFFSET)
-                o = Vector(BODY_X0 + u, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v
-                pl = Plane(origin=o, z_dir=n)
-                out.append(pl * Pos(0, 0, -length / 2) * Cylinder(d / 2, length))
+        for i in range(N_COLS):
+            for j in range(N_ROWS):
+                u0 = (i - (N_COLS - 1) / 2) * PITCH_U
+                v = (j - (N_ROWS - 1) / 2) * PITCH_V
+                for pol, du in (("+", PAD_DX), ("-", -PAD_DX)):
+                    o = Vector(BODY_X0 + u0 + du, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v
+                    pl = Plane(origin=o, z_dir=n)
+                    out.append(("L" if sy > 0 else "R", i, j, pol, pl * Pos(0, 0, -length / 2) * Cylinder(d / 2, length)))
     return out
 
 

@@ -57,12 +57,14 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
   about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
   plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
-- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each, modelled as 3 mm plates in
-  `hardware/body/body.py`. Their position on the face is an assumption (centred). Provisions for real cells
-  (12 wire holes, charge controller space, electrical options): `docs/solar-spec.md`, `hardware/solar/solar.py`. Cells decided
-  2026-11-07: Futurlec SZGD6030 mono cells, 60 x 30 x 2.8 mm, plain (no cover or outline imitating the original's 69 x 39 mm
-  cells) on the original's 5 x 3 grid, 15 in series per side (7.2 V), charged through a buck-boost (BQ25798); no small ready-made board was found, so an evaluation board comes first and a custom board is the last resort (`docs/charger-board-spec.md`, `hardware/charger/init_bq25798.py`). Output is
-  uncertain (2 to 4.6 W a side): measure a cell first.
+- Solar: 2 panels, one per sloped side, 5 x 3 positions on the original's grid. Primary cells (decided 2026-11-07, revised): AnySolar
+  SM261K10TF modules, 64 x 45 x 1.2 mm, plain, columns on the original's pitch and rows at 46 mm; each module's two solder pads are on
+  its back, so the side panel is drilled behind them (60 holes, 3.5 mm). Wired three in series per column, five columns in parallel
+  per side: 16.7 V Vmpp, 20.7 V Voc, about 8.5 W at one sun. About US$415 to 490 for 30 modules. Fallback: Futurlec SZGD6030
+  (60 x 30 mm, 7.2 V per side, US$45). The cell field sits at z 196 to 314 as in the original (`original-dimensions.md` 3k). Specs and
+  numbers: `docs/solar-spec.md`, `hardware/solar/solar.py`, `docs/images/solar-cell-mockups.png`. Charger: the string is above the pack's
+  8.4 V, so a cheap buck 2S MPPT module or an evaluation board works (`docs/charger-board-spec.md`); a custom board is the last
+  resort; `hardware/charger/init_bq25798.py` sets the BQ25798 if one is used.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
 - Mast: fixed upright, tube 58 x 58 mm centred 24.2 mm ahead of the front axle, pan-tilt head and CAM-1 at

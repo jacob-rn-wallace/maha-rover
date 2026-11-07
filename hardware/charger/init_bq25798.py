@@ -4,7 +4,7 @@ Run on the Raspberry Pi after each power-up of the charger board. Register addre
 fields are from the BQ25798 datasheet SLUSDV2C (read 2026-11-07):
   REG00 (0x00)  minimal system voltage, bits 5:0, 2.5 V + 0.25 V per step (2.5 to 16 V)
   REG10 (0x10)  bits 2:0 WATCHDOG (reset 5h = 40 s; 0 = disabled); bits 7:4 are left as read
-  REG15 (0x15)  MPPT: bits 7:5 VOC_PCT (5h = 0.875), 4:3 VOC_DLY (1h = 300 ms),
+  REG15 (0x15)  MPPT: bits 7:5 VOC_PCT (4h = 0.8125, 5h = 0.875), 4:3 VOC_DLY (1h = 300 ms),
                 2:1 VOC_RATE (1h = 2 min), bit 0 EN_MPPT (reset 0)
 7-bit I2C address 0x6B. The cell count (2S: VREG 8.4 V, ICHG 1 A, VSYSMIN 7 V at power-up)
 comes from the PROG pin resistor on the board, not from this script.
@@ -14,7 +14,7 @@ What it does:
   * lowers the minimal system voltage to 6.0 V: MPPT cannot be enabled while the battery is
     below VSYSMIN (datasheet 7.3.6.3), and the default for 2S is 7 V, high for a pack that
     runs 6 to 8.4 V
-  * sets VOC_PCT to 0.875 (the string's Vmp/Voc = 7.2 / 8.25 = 0.873) and enables MPPT
+  * sets VOC_PCT to 0.8125 (the AnySolar string's Vmpp/Voc = 16.74 / 20.73 = 0.808) and enables MPPT
 
 Usage:  python3 init_bq25798.py [--dry-run] [--bus 1]
         --dry-run prints the writes without touching the bus (works anywhere)
@@ -26,7 +26,7 @@ ADDR = 0x6B
 REG_VSYSMIN, REG_CTRL1, REG_MPPT = 0x00, 0x10, 0x15
 
 VSYSMIN_V = 6.0
-VOC_PCT = 0x5               # 0.875
+VOC_PCT = 0x4               # 0.8125 (the reset default is 0.875, 5h, which suited the earlier 7.2 V Futurlec string)
 VOC_DLY, VOC_RATE = 0x1, 0x1
 
 

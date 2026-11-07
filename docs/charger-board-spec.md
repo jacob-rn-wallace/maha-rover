@@ -1,6 +1,8 @@
 # Solar charger board (BQ25798) specification
 
-The charger for the Futurlec string (7.2 V, `solar-spec.md`) into the 2S pack (8.4 V). No small ready-made board was found, in
+The charger for the primary cells' string (AnySolar SM261K10, 16.7 V Vmpp and 20.7 V Voc per side, `solar-spec.md`) into the 2S pack (8.4 V).
+The original plan assumed the 7.2 V Futurlec string, which only a buck-boost can charge from; the AnySolar string is above the
+pack, so a buck charger works and the options widen. The Futurlec fallback still needs the buck-boost. No small ready-made board was found, in
 two rounds of searching. **A custom board is the last resort** (the owner's call, 2026-11-07); the order of routes is under
 "Routes, in order" below. Everything marked "datasheet" was read in the BQ25798 datasheet SLUSDV2C (June 2026); other values
 are my choices. **No board has been designed in CAD or built.**
@@ -62,24 +64,24 @@ other parts move. The EVMs' sizes were not found, so whether one fits is unknown
 
 ## Routes, in order
 
-1. **Evaluation board, as the charger.** The BQ25798EVM is the best electrical fit (about US$156, availability unclear, the
-   Pi's I2C can run the settings in `hardware/charger/init_bq25798.py`). The BQ25756EVM is the alternative (price and size
-   not found). Check its size before buying. Try one on a real panel first; that also settles the open question about
-   the cell's output.
-2. **A buck 2S module with a higher-voltage string.** The Futurlec cells (7.2 V per side) cannot do this, but AnySolar's multi-cell
-   modules can: columns of three in series give about 17 to 21 V (`solar-spec.md`, AnySolar section), which suits the cheap 5 to 28 V
-   2S buck MPPT modules (BQ24650 or CN3722 type) with no buck-boost board. This would mean changing the cells.
+1. **A cheap buck 2S MPPT module** (BQ24650 or CN3722 type, 5 to 28 V in; several found on Amazon and similar, none verified here).
+   With the AnySolar string at 16.7 V (Voc 20.7 V, 23.1 V at -20 C) this is the simplest and cheapest route. Verify before buying
+   that the MPPT is real (a forum thread warns that many are not), the 8.4 V cutoff setting, and the input limit.
+2. **An evaluation board.** The BQ25798EVM is the best electrical fit (about US$156, availability unclear; the Pi's I2C can run the
+   settings in `hardware/charger/init_bq25798.py`); the BQ25756EVM is the alternative (price and size not found). Check the size
+   before buying. Trying one on a real panel also measures the panels' real output.
 3. **A bench stopgap** (ZK-4KX) for first tests only.
 4. **A custom board** around the BQ25798, as specified below: the last resort.
 
 ## Why the BQ25798 fits (datasheet)
 
 - Buck-boost, 1 to 4 cells, 5 A; VBUS operating range 3.6 to 24 V (absolute maximum 30 V when not switching; starts
-  switching at 3.4 V). The string's 7.2 V Vmp and 8.25 V Voc sit well inside it.
+  switching at 3.4 V). The Futurlec string's 7.2 V Vmp and 8.25 V Voc sit well inside it; the AnySolar string's 20.7 V Voc
+  (23.1 V at -20 C) fits, but only just.
 - Built-in MPPT by open-circuit-voltage scaling: it stops switching, waits 50 ms to 5 s (default 300 ms), measures Voc
   and sets the input voltage to a fraction of it, re-measuring every 30 s to 30 min (default 2 min). The fraction is selectable
-  from 0.5625 to 1.0; the default 0.875 matches the string's Vmp/Voc of 7.2/8.25 = 0.873. The datasheet says the MPP is
-  usually 70 to 90 percent of Voc.
+  from 0.5625 to 1.0; the default 0.875 would match the Futurlec string's Vmp/Voc of 7.2/8.25 = 0.873, and the AnySolar string's
+  16.74/20.73 = 0.808 calls for 0.8125. The datasheet says the MPP is usually 70 to 90 percent of Voc.
 - The 2S cell count comes from a resistor on the PROG pin: 8.2 kohm for 2S at 750 kHz (with a 2.2 uH inductor) or
   6.04 kohm for 2S at 1.5 MHz (with a 1 uH inductor). At power-up that sets VREG = 8.4 V, charge current 1 A and
   minimal system voltage 7 V.
@@ -117,7 +119,7 @@ own power, so the motors would not be supplied from it.
 
 `hardware/charger/init_bq25798.py` (untested; it has a dry-run) does three things over I2C after each power-up: disables the
 40 s watchdog (default 5h), lowers the minimal system voltage from the 2S default of 7 V to 6 V because MPPT cannot be
-enabled while the battery is below it and a 2S pack runs from 6 V, and sets VOC_PCT to 0.875 and enables MPPT. Until the Pi
+enabled while the battery is below it and a 2S pack runs from 6 V, and sets VOC_PCT to 0.8125 (for the AnySolar string; 0.875 for the Futurlec one) and enables MPPT. Until the Pi
 runs it, MPPT is off (the datasheet default), so the panel is loaded at the default input limit rather than tracked;
 a power-up service on the Pi would do it.
 

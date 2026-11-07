@@ -28,13 +28,13 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | Futurlec SZGD6030 mono cell, 60 x 30 x 2.8 mm, 0.48 V, 280 mA listed, 17 percent, plain on the original's 5 x 3 grid (decided 2026-11-07), US$1.50 each, 30 cells (`solar-spec.md`) | not known |
+| Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | AnySolar SM261K10TF module, 64 x 45 x 1.2 mm, 10 cells inside, 5.58 V and 102 mA at maximum power, 571 mW, plain on the original's 5 x 3 grid with rows at 46 mm (primary, 2026-11-07); 30 modules, DigiKey US$16.32 each (US$13.84 at 10), 12 weeks' lead time; solder pads on the back, 60 panel holes. Futurlec SZGD6030 (US$1.50 each) is the fallback (`solar-spec.md`) | 0.0059 each (datasheet), 0.18 for 30; Futurlec fallback not weighed |
 | Cover glass | 30 | 200 um cerium-doped borosilicate, Qioptiq [S10] | stated | - | not known |
 | Panel substrate | 2 | not found | (unverified) | The 2 mm aluminium side panels, with an insulating film under real cells and 6 wire holes each | in the panels |
 | Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P pack of four Samsung INR18650-30Q (3000 mAh nominal, 15 A, 48 g max each), about 43 Wh, with a 2S BMS (not chosen); see `electronics-spec.md` | 0.22, ASSUMPTION |
 | Controller | 1 | Not found | (unverified) | Raspberry Pi Zero 2 W, 65 x 30 mm, CSI-2 camera port (`electronics-spec.md`), not bought | not found |
 | 5 V converter | 1 | Not found | (unverified) | Pololu D24V22F5, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
-| Solar charge controller | 1 | Not found | (unverified) | MPPT charger for a 2S lithium pack: an evaluation board (TI BQ25798EVM about US$156, or BQ25756EVM), room for 84 x 66 x 30 mm at the front floor; a custom board only as the last resort; `charger-board-spec.md`; not bought | 0.03, ASSUMPTION |
+| Solar charge controller | 1 | Not found | (unverified) | MPPT charger for a 2S lithium pack: a cheap buck 2S MPPT module now works (the AnySolar string is 16.7 V; verify its MPPT), or an evaluation board (TI BQ25798EVM about US$156, BQ25756EVM); room for 84 x 66 x 30 mm at the front floor; a custom board only as the last resort; `charger-board-spec.md`; not bought | 0.03, ASSUMPTION |
 | Wire grommets, 5 mm | 12 | Not in the original | n/a | One per side-panel wire hole | not known |
 | Power electronics | - | Peak generation 15 W [S3]; no board data | (unverified) | - | not known |
 

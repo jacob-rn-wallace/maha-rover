@@ -27,13 +27,13 @@ X0, X1, Z0, Z1 = -265.0, 265.0, -8.0, 362.0
 TILE_W, TILE_H = int((X1 - X0) * S), int((Z1 - Z0) * S)
 LABEL_H = 74
 
-# name, cell w, cell h (on the face, mm), row pitch, stripes (cells in a module, along the long side) or 0, clipped corners, note
+# name, cell w, cell h (on the face, mm), row pitch, inner cell grid (columns, rows) drawn inside the module or (0, 0), clipped corners, note
 VARIANTS = [
-    ("Original (reference)", 69.0, 39.0, 41.0, 0, 6.5, "69 x 39 mm, clipped bottom corners [3g]"),
-    ("Futurlec SZGD6030 (decided)", 60.0, 30.0, 41.0, 0, 0.0, "60 x 30 x 2.8 mm, one cell each, plain"),
-    ("AnySolar SM141K10", 70.0, 23.0, 41.0, 10, 0.0, "70 x 23 mm, 10 cells in series per module"),
-    ("AnySolar SM261K10", 64.0, 45.0, 46.0, 10, 0.0, "64 x 45 mm, 10 cells; row pitch 46 so rows clear"),
-    ("AnySolar SM261K05", 67.0, 25.0, 41.0, 5, 0.0, "67 x 25 mm, 5 cells in series per module"),
+    ("AnySolar SM261K10TF (primary)", 64.0, 45.0, 46.0, (5, 2), 0.0, "64 x 45 x 1.2 mm, 10 cells in a 5 x 2 grid [datasheet]; row pitch 46"),
+    ("Futurlec SZGD6030 (fallback)", 60.0, 30.0, 41.0, (0, 0), 0.0, "60 x 30 x 2.8 mm, one cell each, plain"),
+    ("Original (reference)", 69.0, 39.0, 41.0, (0, 0), 6.5, "69 x 39 mm, clipped bottom corners [3g]"),
+    ("AnySolar SM141K10", 70.0, 23.0, 41.0, (10, 1), 0.0, "70 x 23 mm, 10 cells in series per module (inner layout assumed)"),
+    ("AnySolar SM261K05", 67.0, 25.0, 41.0, (5, 1), 0.0, "67 x 25 mm, 5 cells in series per module (inner layout assumed)"),
 ]
 
 BG = (250, 250, 247)
@@ -60,7 +60,7 @@ def px(x, z):
     return ((x - X0) * S * SS, (Z1 - z) * S * SS)
 
 
-def draw_tile(name, w, h, pitch, stripes, clip, note):
+def draw_tile(name, w, h, pitch, grid, clip, note):
     im = Image.new("RGB", (TILE_W * SS, TILE_H * SS), BG)
     d = ImageDraw.Draw(im)
     # ground
@@ -85,10 +85,13 @@ def draw_tile(name, w, h, pitch, stripes, clip, note):
                 d.polygon(pts, fill=CELL)
             else:
                 d.rectangle([px(x0, zb), px(x1, za)], fill=CELL)
-            if stripes:
-                for k in range(1, stripes):
-                    xs = x0 + w * k / stripes
-                    d.line([px(xs, zb), px(xs, za)], fill=CELL_LINE, width=SS)
+            gc, gr = grid
+            for k in range(1, gc):
+                xs = x0 + w * k / gc
+                d.line([px(xs, zb), px(xs, za)], fill=CELL_LINE, width=SS)
+            for k in range(1, gr):
+                zs = za + (zb - za) * k / gr
+                d.line([px(x0, zs), px(x1, zs)], fill=CELL_LINE, width=SS)
     # wheels in front: rim, grouser tips, hub, spokes
     for wx in (B.WHEELBASE / 2, -B.WHEELBASE / 2):
         cx, cz = wx, B.HUB_Z
@@ -135,10 +138,12 @@ def main():
         x, y = gap + c * (TILE_W + gap), 40 + gap + r * (TILE_H + LABEL_H + gap)
         t.text((x + 10, y + 10), "Notes", fill=TEXT, font=font(22))
         lines = [
-            "Cells sit on the original's 5 x 3 grid positions (pitch 71.6 x 41 mm).",
+            "Columns on the original's pitch (71.6 mm); rows 41 mm, 46 for the SM261K10.",
             "The wall leans 10 degrees; heights are drawn foreshortened by cos 10.",
-            "AnySolar parts are modules of several cells; the stripes are an",
-            "assumption (even spacing along the long side), as are all colours.",
+            "AnySolar parts are modules of several cells. The SM261K10's 5 x 2 inner",
+            "grid is from its datasheet drawing; the others' inner layout and all",
+            "colours are assumptions. On the SM261K10 the two solder pads are on",
+            "the back, so the panel is drilled behind each (60 holes).",
             "The field is at the original's height (z 196 to 314, 3k): the wheel",
             "rim tops just reach the lowest row's bottom edge and the grouser",
             "tips overlap it. The original's field and body sit about 14 mm",
