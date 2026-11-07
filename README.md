@@ -8,7 +8,7 @@ An open-source replica of the UAE's **Rashid** lunar rover, built to match the o
 
 *Al-maha* (المَهَا) is the Arabian oryx, and also the word for the oryx's eyes in classical Arabic poetry.
 
-> **Status: early.** Branding is done, and a first pass at the original's dimensions is recorded in [`docs/original-dimensions.md`](docs/original-dimensions.md). Gaps remain (stowed envelope, body height and sidewall angle, solar panel size, suspension). There is no CAD or BOM yet. Everything below says what exists and what doesn't.
+> **Status: early.** Branding is done, and a first pass at the original's dimensions is recorded in [`docs/original-dimensions.md`](docs/original-dimensions.md). Most outer dimensions are now sourced (wheels, plan, height, stowed envelope, sidewall angle, cell grid); gaps remain in the suspension and drivetrain layout and the exact solar cell part. There is no CAD or BOM yet. Everything below says what exists and what doesn't.
 
 ## Goal
 Reproduce Rashid (MBRSC, Dubai) at the original's dimensions. Primary sources (MBRSC conference material and the instrument teams' *Space Science Reviews* papers) give a 10 kg rover, 470 x 505 mm in plan and 700 mm tall with the mast deployed, on four wheels of 200 mm diameter and about 80 mm width. Each dimension in this repo cites its source or is marked unverified, and open conflicts are listed alongside.

@@ -15,8 +15,11 @@ rover's dimensions as faithfully as possible.
   diameter and about 80 mm width. Press figures (50 x 50 cm) agree roughly and
   are superseded.
 - Record every dimension with its source. Mark anything without one **(unverified)**.
-- Open conflicts and gaps are listed in that file (wheel width 80 vs 168 mm,
-  stowed envelope, sidewall angle, panel size, suspension). Do not paper over them.
+- Open gaps are listed in that file (section 7). Settled from the final-configuration CAD
+  and MBRSC statements: wheel 200 x 80 mm, width over wheels about 497 mm, sidewall 10 degrees
+  (panels at 80 degrees), 5 x 3 cells per side of about 69 x 39 mm, stowed envelope about
+  474 x 497 x 468 mm. Still open: suspension and drivetrain layout, the exact cell part,
+  battery and motor specifications. Do not paper over them.
 
 ## Repo layout
 - `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions.
@@ -49,10 +52,10 @@ PET panel size and count, the Ackermann steering, and the missing mast.
 - Done: first pass at sourcing the original's dimensions from MBRSC and
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
-- Still to do: close the gaps listed in section 7 of that file (stowed envelope,
-  body height and sidewall angle, panel size, suspension and drivetrain),
-  reconcile the provisional design, power and battery sizing, centre-of-mass
-  check, CAD, BOM.
+- Still to do: close the remaining gaps in section 7 of that file (suspension and
+  drivetrain layout, cell part, a dimensioned drawing), reconcile the provisional
+  design (sidewall angle, panels and mast already differ), power and battery sizing,
+  centre-of-mass check, CAD (the wheel is the natural first part), BOM.
 
 ## Conventions
 - Hardware units are millimetres.

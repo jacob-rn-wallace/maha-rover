@@ -27,7 +27,7 @@ All figures below describe the flight design unless noted.
 | Height, mast deployed | 700 | stated | [S1] |
 | Length | 470 | stated | [S1] |
 | Width | 505 | stated | [S1] |
-| Height, mast stowed | not found | (unverified) | n/a |
+| Height, mast stowed | about 468: deck top about 348 plus the stowed mast and camera, less than 120 above the top cover (requirement) | derived, see 3h | [S19], [S10] |
 | Mass, alternative figure | "about 11 kg" | (unverified), conflicts with 10 kg | [S6] |
 
 [S1] does not say what L and W are measured over. Length is probably **over the
@@ -69,7 +69,7 @@ photo or the overview paper.
 | Width check | 415.4 + 80 = 495.4 vs stated 505. Final CAD front view: about 497 (see 3f) | derived. The CAD agrees with 495.4 and is 1.6% under 505, so the gap is within scale uncertainty | [S1], [S8], [S18] |
 | Body shape | Wedge. Sloped side faces carry the solar panels. Mast at the front | derived (figures only) | [S1], [S7], [S11] |
 | Body main dimensions | "about 20 x 20 x 40 cm" | stated, rounded. Now plausible: see 3a and 3b | [S6] |
-| Sidewall angle | about 10 degrees from vertical (front view, 3f); 9 from the rear view (3a) and the flight photo (3e). Not stated anywhere | derived from figures, three views agree | [S18] Fig. 1, [S3] Fig. 2, [S10] Fig. 1 |
+| Sidewall angle | 80 degrees panel mounting angle, i.e. 10 degrees from vertical (stated, [S20]). Front view 3f: about 10; rear view 3a and flight photo 3e: about 9 | stated, and derived from three views that agree | [S20], [S18] Fig. 1, [S3] Fig. 2, [S10] Fig. 1 |
 | Ground clearance | not stated. About 120 from the rear-view figure (see 3a) | derived from a figure, low confidence | [S3] Fig. 2 |
 | Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
 | Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
@@ -373,6 +373,31 @@ so the outline cannot separate them, and a cell of 7 x 4 cm (AZUR 3G30C-Advanced
 list) is within 1.5% as well. Treat the exact catalogue part as (unverified); the size
 class is the finding. The CAD outline may be simplified.
 
+### 3h. Stowed configuration and panel angle [S19], [S20]
+
+**Stated.** [S19] (SENER and MBRSC, on the mast and gimbal) says the mast is fixed to the top
+panel and, during launch, approach and landing, is **stowed parallel to the top panel**,
+held by a fuse-wire hold-down. After landing the hold-down is released and a spring
+hinge rotates the mast **90 degrees** to vertical. Its volume requirement is a **maximum
+stowed height of less than 120 mm from the rover top cover**. Mast and gimbal mass is less
+than 1.4 kg (1.237 kg for the engineering model); gimbal azimuth is plus or minus 179
+degrees and elevation plus or minus 75 degrees. The mast is built from ULTEM 1010 (additive
+manufacture) with titanium and aluminium metal parts. Its figures show an earlier CAD
+body, so use them for the mechanism only.
+[S20] (MBRSC, LPSC 2021) says **the solar panels are mounted on both sides at 80 degrees**,
+which is 10 degrees from vertical, exactly the angle measured in 3f. It also gives
+a 20 degree slope limit, 10 cm obstacles and skid steering.
+
+**Derived.** In the [S10] flight-model photograph (mast stowed), taking the width over the
+wheels as 497 mm (3f) as the scale, the deck-to-underside height of the body is about
+231 mm (CAD 224 mm) and the camera head and mast stack stands about 120 mm above the
+deck, which matches the stated limit. With the deck top at about 348 mm (3f) the
+stowed height is **about 468 mm**. The mast lies along the top panel, so the stowed plan
+is the same as the deployed plan: about 474 mm over the wheel rims by about 497 to 505 mm.
+Stowed envelope: **about 474 x 497 x 468 mm**, with the height resting on the requirement
+and a perspective photograph (plus or minus about 4%). A dimensioned drawing would still
+be better.
+
 ## 4. Mast and cameras
 
 Heights are above ground, measured with wheels on a hard surface.
@@ -418,8 +443,8 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 | Provisional item | Original | Action |
 |---|---|---|
 | 6U CubeSat envelope 100 x 200 x 340.5 | 470 x 505 x 700 | Drop the envelope |
-| 15 degree sidewalls | Wedge sides exist, angle not found | Keep as a placeholder only until measured |
-| 170 x 112 mm PET panels, 4 per side | 2 panels, cell layout approximate | Replace once panel size is found |
+| 15 degree sidewalls | Panel faces mounted at 80 degrees, 10 degrees from vertical (stated, [S20]; measured 10 in 3f) | Change to 10 degrees |
+| 170 x 112 mm PET panels, 4 per side | 2 panels (one per side), each 5 x 3 cells of about 69 x 39 mm at a pitch of about 71.6 x 41 mm (3g, derived) | Replace |
 | Wheels 200 x 80 mm, hub + TPU tire, chevron grousers | 200 x 80, 14 radial grousers of 15 mm, skeletonized, Mg alloy | Diameter and width agree. Grouser shape and construction need to change |
 | In-wheel planetary motors | 4 in-wheel motors [S3] | Plausibly consistent |
 | 4-wheel rocker, Nomad-style Double Ackermann | Differential gear / linkage, steering not described | Unverified. Do not carry Ackermann over |
@@ -428,7 +453,8 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 
 ## 7. What is still missing
 
-1. Stowed envelope (mast down), which is also the envelope inside the lander bay.
+1. Stowed envelope: now about 474 x 497 x 468 mm (3h, derived from a stated height limit and a
+   photograph). Still want a dimensioned drawing, and the envelope inside the lander bay.
 2. Body height, body width, sidewall angle and ground clearance. Derived from CAD
    figures in 3a, 3e and 3f, which agree (sidewall about 10 degrees, underside about
    124 mm up, deck top about 348 mm, body top width about 164 mm). Still need a dimensioned
@@ -436,6 +462,7 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 3. Panel size and the position of each panel on its sloped face. Cell size and grid are now
    derived in 3g (15 cells per side, about 69 x 39 mm each, pitch about 71.6 x 41 mm); the
    absolute position of the field on the face and the cell part number remain open.
+   Panel angle is stated as 80 degrees (3h).
 4. Suspension and drivetrain layout.
 5. Wheel width is settled at about 80: 3a, 3d and the front view in 3f all give it, and
    168 is excluded.
@@ -515,6 +542,12 @@ Journal for all Springer papers is *Space Science Reviews*.
   Wheel-Legged Lunar Rover.* IEEE Access 13 (2025). doi:10.1109/ACCESS.2025.3529262. Used for
   Fig. 1 only (orthographic front and side views of the Rashid CAD, credited to [S16];
   the authors thank MBRSC for technical support).
+
+- **[S19]** Gonzalez G, Khalifa A (Busoud A). *Emirates Lunar Rover Navigation Camera Mast and
+  Gimbal.* ESMATS 2021 (SENER Aeroespacial and MBRSC). https://www.esmats.eu/esmatspapers/pastpapers/pdfs/2021/gonzalez.pdf
+- **[S20]** Almaeeni S, Els SG, Almarzooqi H. *To a dusty Moon: Rashid's mission to observe lunar
+  surface processes close-up.* 52nd LPSC 2021, abstract 1906 (LPI Contrib. 2548).
+  https://www.hou.usra.edu/meetings/lpsc2021/pdf/1906.pdf
 
 Otherwise not used for Rashid dimensions: the rest of [S18] (Yakubu M, et al., *A Novel Mobility
 Concept for Terrestrial Wheel-Legged Lunar Rover*, apart from Fig. 1). Its Rashid model (Fig. 29) is a
