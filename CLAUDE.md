@@ -61,7 +61,7 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
   `hardware/body/body.py`. Their position on the face is an assumption (centred). Provisions for real cells
   (12 wire holes, charge controller space, electrical options): `docs/solar-spec.md`, `hardware/solar/solar.py`. Cells decided
   2026-11-07: Futurlec SZGD6030 mono cells, 60 x 30 x 2.8 mm, plain (no cover or outline imitating the original's 69 x 39 mm
-  cells) on the original's 5 x 3 grid, 15 in series per side (7.2 V), charged through a buck-boost (BQ25798); no ready-made board exists, so a custom board is planned (`docs/charger-board-spec.md`, `hardware/charger/init_bq25798.py`). Output is
+  cells) on the original's 5 x 3 grid, 15 in series per side (7.2 V), charged through a buck-boost (BQ25798); no small ready-made board was found, so an evaluation board comes first and a custom board is the last resort (`docs/charger-board-spec.md`, `hardware/charger/init_bq25798.py`). Output is
   uncertain (2 to 4.6 W a side): measure a cell first.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).

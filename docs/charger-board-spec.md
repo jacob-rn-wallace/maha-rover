@@ -1,8 +1,9 @@
 # Solar charger board (BQ25798) specification
 
-The charger for the Futurlec string (7.2 V, `solar-spec.md`) into the 2S pack (8.4 V). Decided 2026-11-07: no ready-made
-board was found, so this is a small custom board around the TI BQ25798. Everything marked "datasheet" was read in SLUSDV2C
-(June 2026); other values are my choices. **No board has been designed in CAD or built.**
+The charger for the Futurlec string (7.2 V, `solar-spec.md`) into the 2S pack (8.4 V). No small ready-made board was found, in
+two rounds of searching. **A custom board is the last resort** (the owner's call, 2026-11-07); the order of routes is under
+"Routes, in order" below. Everything marked "datasheet" was read in the BQ25798 datasheet SLUSDV2C (June 2026); other values
+are my choices. **No board has been designed in CAD or built.**
 
 ## Search for an off-the-shelf board (2026-11-07)
 
@@ -24,6 +25,51 @@ Sources: the TI [BQ25798 page](https://www.ti.com/product/BQ25798) and [BQ25798E
 the [element14 post](https://community.element14.com/challenges-projects/design-challenges/eye-on-intelligence-challenge/b/blog/posts/adas-and-vehicle-monitoring-system-battery-charging-and-management),
 the [ZK-4KX manual](https://diydsolar.sytes.net/wp-content/uploads/2022/10/ZK-4KX_English_Castellano.pdf).
 
+## Broader search (2026-11-07, second round)
+
+Searched beyond the BQ25798: other buck-boost charger chips, solar modules for 2S packs, and chains of modules. Still **no
+small ready-made 2S buck-boost MPPT board**. What exists:
+
+| Found | What | Fit |
+|---|---|---|
+| TI BQ25756EVM | evaluation board, 1 to 14 cells, buck-boost controller, 4.2 to 55 V in, 10 A, built-in MPPT, resistor-programmable standalone mode plus I2C; price not stated; the page shows stock as both "in stock" and "out of stock on TI.com"; the page lists an EV2400 for communication | electrically fine; board size not stated, and built for far more power than needed |
+| TI BQ25798EVM | as above: US$156.45, availability unclear | electrically the best fit; I2C setup is needed for MPPT |
+| Analog Devices DC2703A-A-KIT | LT8491 demo board plus a USB-to-I2C controller; buck-boost, 6 to 80 V in; factory setup is a 12 V lead-acid battery at up to 16.6 A; DigiKey listing about US$32 with a 10 week lead time (a surprisingly low price: verify) | would need reconfiguring for 2S lithium; not confirmed; a larger board built for 200 W class |
+| Analog Devices DC2069A (LT8490 demo) | 17 to 54 V in, 12 V lead-acid out | input too high, no |
+| LTC4162 breakout from a Particle forum post | homemade, 1 to 4 cells, 35 V maximum input, about 6 years old | not a product; the LTC4162 is a buck charger, so it cannot charge 8.4 V from 7.2 V |
+| SparkFun Sunny Buddy (LT3652), Adafruit Solar Lipoly, Voltaic, Waveshare and DFRobot solar managers | single-cell lithium MPPT boards | wrong cell count, and buck |
+| Icstation MPPT buck module, 6 to 36 V in | adjustable output | buck, needs more than 8.4 V in |
+| An Amazon 6 V-panel board with 2 A | one lithium cell | wrong cell count |
+
+Sources: TI [BQ25756EVM](https://www.ti.com/tool/BQ25756EVM) and [BQ25756](https://www.ti.com/product/BQ25756), Analog Devices
+[DC2703A-A-KIT](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/dc2703a-a.html),
+[DC2069A](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/dc2069a.html), the
+[Particle forum post](https://community.particle.io/t/mppt-solar-charging-solution/58694), the
+[Sunny Buddy hookup guide](https://learn.sparkfun.com/tutorials/sunny-buddy-solar-charger-v13-hookup-guide-/all).
+
+**Chained modules.** A cheap boost module in front of a cheap 2S buck MPPT module (CN3722 or BQ24650 type, 5 to 28 V in, widely
+sold) is not supported by anything found. The buck stage would track its own source, the boost output, not the panel, so
+nothing tracks the panel's maximum power point; with irradiance changing, the boost stage's input could collapse and restart.
+TI's application note on solar chargers points to a single buck-boost stage instead.
+
+**Changing the panel instead.** A buck 2S module needs the string's Vmp above about 10.5 V, which is 22 or more Futurlec
+cells in series. Fifteen per side gives 7.2 V. Putting both sides in series does not work, since only one side is lit. Adding
+rows to reach 5 x 5 cells would break the original's 5 x 3 grid, which is one of the "must look like Rashid" features.
+
+**Space.** Evaluation boards are larger than a breakout, but the front floor has room: a box of 84 x 66 x 30 mm at the
+front right, where the charger placeholder is, clears the frame and the other parts (CAD check), and more if the
+other parts move. The EVMs' sizes were not found, so whether one fits is unknown.
+
+## Routes, in order
+
+1. **Evaluation board, as the charger.** The BQ25798EVM is the best electrical fit (about US$156, availability unclear, the
+   Pi's I2C can run the settings in `hardware/charger/init_bq25798.py`). The BQ25756EVM is the alternative (price and size
+   not found). Check its size before buying. Try one on a real panel first; that also settles the open question about
+   the cell's output.
+2. **A buck 2S module with a longer string,** if the 5 x 3 look can give. Not preferred.
+3. **A bench stopgap** (ZK-4KX) for first tests only.
+4. **A custom board** around the BQ25798, as specified below: the last resort.
+
 ## Why the BQ25798 fits (datasheet)
 
 - Buck-boost, 1 to 4 cells, 5 A; VBUS operating range 3.6 to 24 V (absolute maximum 30 V when not switching; starts
@@ -37,7 +83,7 @@ the [ZK-4KX manual](https://diydsolar.sytes.net/wp-content/uploads/2022/10/ZK-4K
   minimal system voltage 7 V.
 - I2C, 7-bit address 0x6B.
 
-## Board contents (from the datasheet's typical application, without the optional input mux)
+## Board contents, if a custom board is built (from the datasheet's typical application, without the optional input mux)
 
 | Item | Value | Source |
 |---|---|---|
@@ -75,9 +121,8 @@ a power-up service on the Pi would do it.
 
 ## Open
 
-- Layout: a KiCad schematic and board are not drawn; the datasheet's typical-application figure and the layout guidelines
-  were not studied beyond the values above. The first option is to buy the EVM to try the settings, then lay out the
-  board from the element14 breakout or from scratch.
+- Layout (only if route 4 is needed): a KiCad schematic and board are not drawn; the datasheet's typical-application figure
+  and layout guidelines were not studied beyond the values above.
 - The TS thermistor choice, the bootstrap and REGN capacitors, and the diode and inductor part numbers.
 - Whether the bench stopgap (the ZK-4KX) is worth buying.
 - Soldering a QFN-29 by hand needs hot air or a reflow oven; a board house assembly service is the alternative.
