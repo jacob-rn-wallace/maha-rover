@@ -29,8 +29,10 @@ LABEL_H = 74
 
 # name, cell w, cell h (on the face, mm), row pitch, inner cell grid (columns, rows) drawn inside the module or (0, 0), clipped corners, note
 VARIANTS = [
-    ("AnySolar SM261K10TF (primary)", 64.0, 45.0, 46.0, (5, 2), 0.0, "64 x 45 x 1.2 mm, 10 cells in a 5 x 2 grid [datasheet]; row pitch 46"),
-    ("Futurlec SZGD6030 (fallback)", 60.0, 30.0, 41.0, (0, 0), 0.0, "60 x 30 x 2.8 mm, one cell each, plain"),
+    ("AnySolar SM261K10TF (US$415-490)", 64.0, 45.0, 46.0, (5, 2), 0.0, "64 x 45 x 1.2 mm, 10 cells in a 5 x 2 grid [datasheet]; row pitch 46"),
+    ("Futurlec SZGD6030 (about US$45)", 60.0, 30.0, 41.0, (0, 0), 0.0, "60 x 30 x 2.8 mm, one cell each, plain"),
+    ("Tiled back-contact pieces, 1 per slot", 62.5, 41.6, 42.5, (0, 0), 0.0, "62.5 x 41.6 mm: a 1/3-cut strip halved; no front contacts"),
+    ("Tiled back-contact pieces, 2 per slot", 62.5, 41.6, 42.5, (2, 1), 0.0, "two 31 x 41.6 mm pieces side by side; 0.5 mm gap"),
     ("Original (reference)", 69.0, 39.0, 41.0, (0, 0), 6.5, "69 x 39 mm, clipped bottom corners [3g]"),
     ("AnySolar SM141K10", 70.0, 23.0, 41.0, (10, 1), 0.0, "70 x 23 mm, 10 cells in series per module (inner layout assumed)"),
     ("AnySolar SM261K05", 67.0, 25.0, 41.0, (5, 1), 0.0, "67 x 25 mm, 5 cells in series per module (inner layout assumed)"),

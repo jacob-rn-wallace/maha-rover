@@ -57,7 +57,8 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
   about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
   plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
-- Solar: 2 panels, one per sloped side, 5 x 3 positions on the original's grid. Primary cells (decided 2026-11-07, revised): AnySolar
+- Solar: 2 panels, one per sloped side, 5 x 3 positions on the original's grid. Cells (decision open again: the owner finds the AnySolar price too high; tiled back-contact pieces are being considered, see
+  `docs/solar-spec.md`). Last chosen: AnySolar
   SM261K10TF modules, 64 x 45 x 1.2 mm, plain, columns on the original's pitch and rows at 46 mm; each module's two solder pads are on
   its back, so the side panel is drilled behind them (60 holes, 3.5 mm). Wired three in series per column, five columns in parallel
   per side: 16.7 V Vmpp, 20.7 V Voc, about 8.5 W at one sun. About US$415 to 490 for 30 modules. Fallback: Futurlec SZGD6030

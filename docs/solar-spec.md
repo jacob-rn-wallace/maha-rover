@@ -7,7 +7,10 @@ unless tagged; cell data are quoted from the sources noted, with their caveats.
 
 ## Decision (2026-11-07, revised)
 
-The **AnySolar SM261K10TF is the primary cell**; the Futurlec SZGD6030 below is the fallback.
+**Status, later the same day: the owner finds the AnySolar price (US$415 to 490 for 30 modules) too high; the primary cell is again open.**
+The section "Tiling back-contact pieces" below is the cheaper way to the same look. The text that follows records the AnySolar decision as made.
+
+The **AnySolar SM261K10TF was chosen as the primary cell**; the Futurlec SZGD6030 below is the fallback.
 
 - **Module:** SM261K10TF, 64 x 45 x 1.2 mm (DigiKey lists 1.5 mm), 5.9 g, ten monocrystalline cells laminated in a 5 x 2 grid,
   25 percent efficiency. Datasheet (Rev. May 2021, typical values at one sun, AM1.5, 25 C): Voc 6.91 V, Isc 109 mA,
@@ -34,7 +37,52 @@ The earlier decision (Futurlec, plain, fallback) and the material below it still
 sections below describe the **Futurlec layout** (12 holes per panel between the rows) and no longer match the CAD, which now drills behind
 the SM261K10 pads. The section "Wiring and pads for the SM261K10" gives the primary layout.
 
-### Wiring and pads for the SM261K10 (primary)
+### Tiling back-contact pieces for the same look (2026-11-07, research)
+
+**What the AnySolar look is.** The SM261K10's front (datasheet drawing) is ten cells in a 5 x 2 grid of 0.3 to 0.78 mm gaps and no
+visible contacts; the solder pads are on the back. A conventional silicon cell cannot match that, because it carries silver busbars and
+fingers on the front. A **back-contact cell** (the SunPower "C60/E60/Maxeon" type) has no front metal, so the front is uniformly dark
+blue-black, and tiles of it with small gaps would look like the AnySolar module. (Whether the Futurlec cell has front contacts was not
+found; its page says only "black".) That AnySolar's own cells are back-contact was not confirmed: its Gen3 table has an "S" suffix for rear
+pad position, and the datasheet drawing shows rear pads.
+
+**What is on sale.**
+- LinkSolar (a small retailer): 125 mm SunPower-type IBC cells, full, 1/2, 1/3 and 1/6 cuts stocked; full cells US$43.60 for 10 (US$4.36
+  each), half cuts US$50.32 for 10, a 1/3-cut lot of 20 at US$16.96 (about US$0.85 each; it may be a listing error: verify). Full cell
+  3.78 W, 0.625 V, 6.05 A at standard conditions, as read from their guide ([product page](https://linksolar.net/products/sunpower-solar-cells-125mm-cut)).
+- Alibaba: 1/3-cut cells, **125 x 41.6 mm**, 24.8 percent, US$0.60 to 0.70 each, minimum 300 pieces (about US$198); generic
+  "Maxeon-style" listings whose authenticity was not checked ([example](https://www.alibaba.com/product-detail/sunpower-maxeon-gen-3-Solar-Cells_1700003963864.html)).
+- Retail 10-packs of C60/E60 full cells at about US$3.80 to 7 each (earlier notes).
+
+**Two layouts** (arithmetic from LinkSolar's full-cell figures scaled by area, so unverified; one side = 15 slots):
+
+| | One piece per slot | Two pieces per slot |
+|---|---|---|
+| Piece | 62.5 x 41.6 mm (a 1/3-cut strip cut in half) | 31 x 41.6 mm (a strip cut in four) |
+| Pieces per side | 15 | 30 |
+| Per piece | 0.63 W, 0.625 V, about 1.0 A | 0.31 W, 0.625 V, about 0.5 A |
+| One series string per side | 9.4 V, 1.0 A, about 9.5 W | 18.8 V, 0.5 A, about 9.5 W |
+| Charger | still below a safe buck margin (9.4 V against 8.4 V): a buck-boost | buck is enough (but Voc, near 21 V, rises to about 24 V at -20 C: at the BQ25798's limit) |
+| Pieces per full cell | 6 | 12 |
+| Cells per side, with no breakage | 2.5, so 3 | 2.5, so 3 |
+
+Rows would sit at 42.5 mm pitch (the strips are 41.6 mm tall); columns at the original 71.6 mm. Output is about the AnySolar's 8.5 W a side.
+
+**Cost.** About US$13 to 30 per pair of sides at the retail cell prices, or about US$34 for 40 pre-cut strips from the 1/3-cut lot if the
+price is real, and double for breakage: **roughly US$30 to 100 for both panels, against US$415 to 490 for AnySolar**.
+
+**Caveats.**
+- Back-contact cells are the hard ones to cut: a heavy copper backing, an interdigitated rear pattern, and each piece must keep access
+  to both polarities (see the cutting cautions above). Pre-cut 1/3 strips remove two of the cuts; the strips still have to be halved.
+- Each piece needs wires on its back: either soldered to the rear contacts and brought through the panel (as for the AnySolar) or
+  carried on a backing. The pad positions depend on the cell, so the holes cannot be drilled until a cell is chosen; drill them with a jig after
+  the pieces are laid out.
+- The authenticity and grading of "Maxeon-style" cells from marketplaces is not checked.
+- Clipped corners: only the pieces from the outer thirds of a pseudo-square cell have one; the middle strip has none.
+- The look needs gaps of under 1 mm and, as with the AnySolar module, a clear laminate or coat over the pieces; nothing here has
+  been built or photographed.
+
+### Wiring and pads for the SM261K10 (superseded: price)
 
 Hole ids in `solar.py`: side L or R, column 0 to 4 rear to front, row 0 to 2 bottom to top, pad + or -.
 
