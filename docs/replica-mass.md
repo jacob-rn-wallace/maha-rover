@@ -10,21 +10,21 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 group                                  kg   share      x      z
 panels                               2.41     26%      0    236
 T-slot frame                         1.92     21%      4    223
-link plates, sleeves, shafts         1.25     14%      0    131
+link plates, sleeves, shafts         1.19     13%      0    131
 wheels                               1.12     12%     -0    100
 drive motors                         0.78      8%      0    100
 mast, head and camera                0.42      5%    162    564
 harness and fasteners                0.40      4%      0    190
+electronics                          0.39      4%    -70    142
 differential                         0.30      3%      0    146
-electronics                          0.28      3%    -67    142
 printed wedges                       0.09      1%     -0    219
 solar pieces                         0.09      1%      0    255
 bearing plates                       0.08      1%     -0    145
 terminals, diodes, fuses             0.05      1%      0    255
-TOTAL                                9.19   target 10 kg: margin +0.81 kg
+TOTAL                                9.24   target 10 kg: margin +0.76 kg
 
-centre of mass: x 6.3, y -0.2, z 197.4 (mm, ground at the rim line)
-static tip angles: nose-down 36 deg, nose-up 33 deg, sideways 51 deg  (the slope requirement is 20 deg)
+centre of mass: x 5.4, y -0.3, z 197.0 (mm, ground at the rim line)
+static tip angles: nose-down 36 deg, nose-up 34 deg, sideways 51 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
 where a second pass could save mass (arithmetic on the numbers above):
@@ -36,14 +36,14 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **9.2 kg against the 10 kg target: 0.8 kg of margin.** The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **9.2 kg against the 10 kg target: 0.76 kg of margin.** The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
   the differential and mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 1.9 kg are 47 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).
-- **Centre of mass:** x 6 mm (forward of the axle midpoint), z 197 mm. The mast is only 5 percent of the mass, so the centre sits low.
-  Static tip angles: **nose-down 36, nose-up 33, sideways 51 degrees** against the 20 degree slope requirement: 13 degrees of margin
+- **Centre of mass:** x 5 mm (forward of the axle midpoint), z 197 mm. The mast is only 5 percent of the mass, so the centre sits low.
+  Static tip angles: **nose-down 36, nose-up 34, sideways 51 degrees** against the 20 degree slope requirement: 14 degrees of margin
   for climbing, better than the original record's range (`mass-budget.md`: 22 to 28 degrees nose-up).
   These are static, on a rigid chassis; the suspension (a pivoting link plate per side) and dynamics are not covered.
 - **Drive sizing:** the slope torque per wheel at 9.2 kg is 0.77 N.m, a little under the 0.84 N.m the motors were sized for.
@@ -59,5 +59,5 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Not covered
 
-The weight of the BMS board, fuses and connectors beyond the allowances; paint, labels and adhesive; the real differential and its mounts; battery
+The weight of the connectors and wire beyond the allowances (the BMS, fuse block, bus bar, servo regulator and master switch are now in the electronics line, at assumed masses); paint, labels and adhesive; the real differential and its mounts; battery
 pack wrap and holder; any cable between the mast and the body beyond the harness allowance. Nothing here has been weighed.

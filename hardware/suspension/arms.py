@@ -49,6 +49,9 @@ PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPT
 BOSS_D, BOSS_T = 48.0, 6.0       # pivot boss on the outer face         derived [3i], by eye
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
 SHAFT_R = 5.0            # pivot shaft radius                          ASSUMPTION
+SHAFT_ID = 6.0           # the shaft is a tube: the drive motors' wires run through it   ASSUMPTION
+CROSS_D = 4.0            # radial wire holes in the tube: one inside the body, one in the gap outside the wall
+CROSS_Y_IN, CROSS_Y_OUT = 60.0, 125.0   # distances from the centreline                  ASSUMPTION
 DIFF_R, DIFF_LEN = 18.0, 44.0   # differential housing, inside the body; r 18 keeps it
                                 # clear of the 2 mm floor panel (bottom z 127.7 vs floor top 126)  ASSUMPTION
 OVERLAP = 0.5
@@ -87,6 +90,9 @@ def side(sy):
     for sx in (1, -1):
         y0, y1 = sy * y_out, sy * (clamp_face + OVERLAP)
         sleeves["F" if sx > 0 else "R"] = Pos(sx * hx, 0, B.HUB_Z) * ring(y0 - sy * OVERLAP, y1, SLEEVE_OD / 2, SLEEVE_ID / 2)
+    shaft = shaft - Pos(0, sy * (shaft_y0 + y_in + OVERLAP) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(SHAFT_ID / 2, y_in + OVERLAP - shaft_y0 + 2.0)
+    for cy in (CROSS_Y_IN, CROSS_Y_OUT):
+        shaft = shaft - Pos(0, sy * cy, PIVOT_Z) * Cylinder(CROSS_D / 2, 2 * SHAFT_R + 2.0)
     arm = {"plate": plate, "boss": boss, "shaft": shaft,
            "sleeveF": sleeves["F"], "sleeveR": sleeves["R"]}
 

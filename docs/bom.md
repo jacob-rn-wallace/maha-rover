@@ -45,6 +45,10 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Wheel | 4 | 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy (`hardware/wheel/`, `wheel-spec.md`) | stated / derived | - | 0.398 each, ASSUMPTION (model volume at AZ91E density) |
 | Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | Pololu 37D without encoder, candidate #4746 (131.25:1, spur/helical), open-loop speed and direction (decision 2026-11-07). See `drive-spec.md` | 0.195 each (vendor, upper bound) |
 | Motor driver | 2 | not found | (unverified) | Pololu Dual MC33926 carrier (#1213), 2.5 A per channel, four channels in total; pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | 0.007 each (vendor) |
+| Battery management board | 1 | Not found | (unverified) | 2S, common port, balancing, 20 A class (listings: about 48 x 20 x 4 mm, 13 A continuous and 20 A peak on one); `power-spec.md` | 0.012, ASSUMPTION |
+| Fuse block and fuses | 1 block, 5 fuses | Not found | (unverified) | 4-way blade block plus a 15 A main; `power-spec.md` | 0.04, ASSUMPTION |
+| Power node (bus bar), master switch | 1 + 1 | Not found | (unverified) | bus bar about 40 x 20 x 15 mm; panel switch with a 15 A DC rating on the rear panel | 0.03 and 0.02, ASSUMPTION |
+| Servo regulator | 1 | Not found | (unverified) | Pololu D24V22F6, 6 V, 2.5 A, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
 | Pivot bearings | 2 | Not found | (unverified) | 6800 (10 x 19 x 5), one per wall boss, ISO size from memory, verify | not known |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline inside the body at pivot height 146, body as carrier, joined to two side plates (`suspension-spec.md`); a bar linkage is the alternative | not known |

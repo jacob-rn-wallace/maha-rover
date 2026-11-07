@@ -108,6 +108,10 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   extrusion is cut square; printed wedges absorb the 10 degrees. Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
   `hardware/chassis/frame.py`. Chassis 4.4 kg; replica mass estimate from the CAD 9.2 kg, under the 10 kg target by 0.8 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 197 mm.
+- Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
+  panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
+  charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:
+  `docs/power-spec.md`. Candidates only.
 - Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact

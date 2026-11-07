@@ -37,6 +37,11 @@ PARTS = {
     "controller (Pi Zero 2 W)": dict(size=(65.0, 30.0, 8.0), mass=0.015, at=(60.0, 35.0)),    # 65 x 30 stated; height and mass ASSUMPTION
     "motor drivers x2 (MC33926)": dict(size=(46.0, 56.0, 12.0), mass=0.014, at=(60.0, -30.0)),  # 28 x 46 each, side by side; height ASSUMPTION; 7 g each
     "5 V converter (D24V22F5)":   dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(130.0, 60.0)),   # 17.8 x 17.8 x 7.9, 2.3 g
+    "BMS board (2S, common port)": dict(size=(48.0, 20.0, 4.0), mass=0.012, at=(-65.0, 45.0)),     # about 48 x 20 x 4 mm from the 2S 20 A listings; mass ASSUMPTION
+    "fuse block (4-way blade)":    dict(size=(60.0, 36.0, 20.0), mass=0.04, at=(-65.0, -45.0)),     # size class ASSUMPTION (mini 4-way)
+    "bus bar (power node)":        dict(size=(40.0, 20.0, 15.0), mass=0.03, at=(-45.0, 0.0)),       # size class ASSUMPTION
+    "servo regulator (6 V)":       dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(-20.0, -75.0)),    # Pololu D24V22F6, 17.8 x 17.8 x 7.9, 2.3 g
+    "master switch (rear panel)":  dict(size=(20.0, 14.0, 28.0), mass=0.02, at=(-178.0, 45.0), z=165.0),   # panel-mount switch body behind the rear panel; ASSUMPTION
     "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -70.0)),    # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; mass ASSUMPTION
 }
 KEEP_OUT = dict(size=(15.0, 40.0, 30.0), at=(159.2, 0.0))   # under the mast base, in the gap between the mast cross rail
@@ -71,7 +76,7 @@ def placed_parts():
     for n, d in PARTS.items():
         sx, sy, sz = d["size"]
         x, y = d["at"]
-        out[n] = Pos(x, y, floor_z() + sz / 2) * Box(sx, sy, sz)
+        out[n] = Pos(x, y, d.get("z", floor_z() + sz / 2)) * Box(sx, sy, sz)
     kx, ky, kz = KEEP_OUT["size"]
     out["keep-out: mast cable entry"] = Pos(KEEP_OUT["at"][0], KEEP_OUT["at"][1],
                                             B.DECK_TOP_Z - B.DECK_T - kz / 2) * Box(kx, ky, kz)
@@ -113,7 +118,7 @@ if __name__ == "__main__":
 
     mass = sum(d["mass"] for d in PARTS.values())
     x = sum(d["mass"] * d["at"][0] for d in PARTS.values()) / mass
-    z = sum(d["mass"] * (floor_z() + d["size"][2] / 2) for d in PARTS.values()) / mass
+    z = sum(d["mass"] * d.get("z", floor_z() + d["size"][2] / 2) for d in PARTS.values()) / mass
     print(f"\nelectronics: {mass:.3f} kg, centre x {x:.0f}, z {z:.0f}")
 
     out = HERE / "out"
