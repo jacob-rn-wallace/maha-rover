@@ -483,6 +483,19 @@ px). All values are derived.
 the head and base block rise 118 to 120 mm above the deck, equal to the stated limit of 120 [S19].
 This is a fit, not an independent confirmation.
 
+### 3k. Position of the cell field in the side view [S5]
+
+Pixel scan of the dark cell areas in the native side view ([S5] Fig. 15, 818 x 706 px, 1.087 mm per px, ground row 671, front hub
+at x = 391.7 px). All values are derived.
+
+- Cell rows, as heights above the ground line: **196 to 234, 238 to 274 and 276 to 312 mm**, so the field spans z 196 to 314 (118.5 mm,
+  centre 255), each row about 37 mm tall in projection (about 38 on the face) with 3 to 4 mm gaps.
+- Field length along x: from 164 mm ahead of the axle midpoint to 192.5 mm behind it (356.5 mm), so its centre lies **about 14 mm
+  behind the midpoint between the axles**; the body in the same figure appears centred about 13 mm behind it too. The replica
+  model puts the body and field on the midpoint (`BODY_X0 = 0`, unverified); this offset is not modelled.
+- The field's lowest row starts at z 196, about where the wheel rim tops are (z about 200 for a 101 mm hub height), so in a side view
+  the rims just reach it and only the grouser tips (to about 215) overlap the bottom row.
+
 ## 4. Mast and cameras
 
 Heights are above ground, measured with wheels on a hard surface.

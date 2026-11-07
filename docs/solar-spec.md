@@ -147,6 +147,13 @@ This is an alternative, not a change of decision: the Futurlec build stays unles
   (the clips are not cut by it); and only bare, unlaminated cells can be cut. A fibre laser (as a university team used on
   SunPower cells) or a scribe cutter gives cleaner results than a knife, with no source for a breakage rate.
 
+## Where the field sits on the wall (corrected 2026-11-07)
+
+The model's cell field was centred on the wall (z 233.5), an assumption. A pixel scan of the original's side view ([S5] Fig. 15,
+`original-dimensions.md` 3k) puts the cells at **z 196 to 314**, centre 255, so the field moved up 21.5 mm. With the old position the
+lowest row sat well over the wheels in a side view (its bottom edge at 173 against the rim tops at 200); the original's bottom edge is at 196, just level with them. Hole rows, terminal boards and lead lengths below use the new
+position.
+
 ## Fill options for silicon
 
 Each cell position is 69 x 39 mm (the original's half-wafer size). From a 125 x 125 mm C60-class cell (2 mm edge margin,
@@ -229,14 +236,14 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
   and cover glass. The dummy plates use the same thickness, so the envelope will not change. Real cells need
   an insulating layer; the film and adhesive are not chosen.
 - **Wire holes.** Twelve 5 mm holes, six per side panel: one beside each end of each cell row, 17 mm outboard of the
-  end cell's centre (x = plus or minus 160.2, under the cell's outer half). Row heights z 194, 234 and 275. All string
+  end cell's centre (x = plus or minus 160.2, under the cell's outer half). Hole row heights z 235, 275 and 316. All string
   ends come inside the cavity, so the series and parallel wiring is chosen on a terminal block and either option
   above can be wired. The holes are under the dummy cells and so invisible; real cells will need their rear contact
   and a lead brought to the hole, which depends on the cell type.
 - **Clearance.** Nothing in the frame, wedge strips, bearing plates or shaft path lies within 6 mm of any hole's axis,
-  14 mm deep. The nearest member is the mid side rail, 9 mm below the lowest hole row; the posts are 5 mm from the
+  14 mm deep. The nearest member is the top side rail, 9 mm above the highest hole row (centre to rail); the mid rail is 50 mm below the lowest; the posts are 5 mm from the
   hole edges. Wires should pass between the panel and the mid rail and drop to the floor.
-- **Harness.** The longest straight run from a hole to the charge controller is 348 mm; allow about 450 mm of wire per
+- **Harness.** The longest straight run from a hole to the charge controller is 363 mm; allow about 470 mm of wire per
   lead. Grommets for the 12 holes are not chosen.
 - **Charge controller.** A 50 x 30 x 12 mm box is reserved in the front compartment of the interior (x 112, y -70,
   on the floor, 30 g assumed), clear of the other parts. The part is not chosen: it must be an MPPT charger for a 2S
@@ -262,11 +269,11 @@ real cells be smaller than the dummy cells, since from outside only the outline 
 
 Check and numbers: `hardware/solar/solar.py`. Hole ids: side L or R, row 1 (bottom) to 3 (top), end F (front, +x) or R
 (rear, -x), e.g. L2F. Each hole sits in the 11 mm gap above its row, 20.5 mm up the slope from the row's centre, at x = plus or minus 160.2
-(z 214, 255 and 295). The holes clear every cell (checked against all 30 cells with the 3 mm stack) and are at least 28 mm from the
-mid rail and 30 mm from the top rail; the posts are 5 mm from the hole edges.
+(z 235, 275 and 316). The holes clear every cell (checked against all 30 cells with the 3 mm stack); the top row's holes are 9 mm below
+the top side rail, the mid rail is 50 mm below the lowest holes, and the posts are 5 mm from the hole edges.
 
-**Terminal boards.** One small board (20 x 8 x 60 mm, ASSUMPTION) lies on the cavity-facing face of each of the four posts at
-z 235, leaning with the post. Fit checked: no clash with the frame, strips, plates or contents. The front board of a side takes
+**Terminal boards.** One small board (20 x 8 x 90 mm, ASSUMPTION) lies on the cavity-facing face of each of the four posts at
+z 275, leaning with the post. Fit checked: no clash with the frame, strips, plates or contents. The front board of a side takes
 the three front holes of that side, the rear board the three rear holes, so each hole wire is 30 to 40 mm long. Holes are
 5 mm; a bundled pair of 24 AWG wires fits, with a grommet.
 
@@ -283,8 +290,8 @@ row 1   rear (-) --> ... --> front -----------------+
 Row 1 runs rear to front, jumper A joins row 1's front hole to row 2's front hole, row 2 runs front to rear, jumper B joins
 row 2's rear hole to row 3's rear hole, and row 3 runs rear to front. Jumper A sits on the front board, jumper B on the
 rear board; the (-) lead leaves the rear board (hole 1R) and the (+) lead the front board (hole 3F). Lengths with
-30 percent slack: jumpers about 53 mm each; leads, left side 433 mm (-) and 303 mm (+), right side 372 mm (-) and
-222 mm (+), to the charge controller at the front floor. All 24 AWG. Using 84 milliohm per metre (the standard value for 24 AWG
+30 percent slack: jumpers about 53 mm each; leads, left side 438 mm (-) and 319 mm (+), right side 380 mm (-) and
+247 mm (+), to the charge controller at the front floor. All 24 AWG. Using 84 milliohm per metre (the standard value for 24 AWG
 copper), 15 Futurlec cells at 0.28 A over 1.1 m of lead pair drop 0.03 V of 7.2 V, and 0.06 V at 0.64 A (under 1 percent);
 silicon cut to 69 x 39 mm at 1.03 A would drop 0.10 V of 8.7 V.
 

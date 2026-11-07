@@ -127,8 +127,8 @@ def wiring_report():
     return H
 
 
-BOARD = (20.0, 8.0, 60.0)    # terminal board on each post's cavity-facing face: x (the post width), y, z    ASSUMPTION
-BOARD_Z = 235.0              # centre height; the hole rows are at about 194, 234 and 275
+BOARD = (20.0, 8.0, 90.0)    # terminal board on each post's cavity-facing face: x (the post width), y, z    ASSUMPTION
+BOARD_Z = 275.0              # centre height; the hole rows are at about 235, 275 and 316
 
 
 def terminal_boards():

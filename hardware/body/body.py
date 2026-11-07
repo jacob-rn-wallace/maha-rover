@@ -70,9 +70,9 @@ HOLE_D = 5.0             # wire hole through the side panel, at both ends of eve
                          # docs/solar-spec.md)                            ASSUMPTION
 HOLE_OFFSET = 17.0       # along the row from the end cell's centre (x = +-160.2: clear of the posts)
 HOLE_V = PITCH_V / 2     # up the slope from the row's centre, into the gap above the row
-FIELD_Z = (UNDERSIDE_Z + DECK_TOP_Z - DECK_T) / 2
-                         # field centre height on the face. The
-                         # position on the face is open [7.3]     ASSUMPTION
+FIELD_Z = 255.0          # field centre height on the face: the cells span z 196 to 314 in the side view
+                         # of the original ([S5] Fig. 15, pixel scan, 3k); was the mid-wall height
+                         # 233.5, an assumption, which put the lowest row over the wheels   derived
 
 # ---- Stowed mast (section 3h) --------------------------------------------
 MAST_STOWED_MAX = 120.0  # max stowed height above the top cover  stated [S19]
