@@ -66,10 +66,10 @@ photo or the overview paper.
 | Wheelbase | 270 ("27 cm") | stated, rounded | [S6] |
 | Wheelbase (final CAD, side view) | 273 | derived, agrees with 270 (see 3e) | [S5] Fig. 15 |
 | Track (FL to FR wheel centres) | 415.4 | derived (235.7 + 179.7 from camera offsets) | [S8] |
-| Width check | 415.4 + 80 = 495.4 vs stated 505 | derived, 10 mm gap unexplained | [S1], [S8] |
+| Width check | 415.4 + 80 = 495.4 vs stated 505. Final CAD front view: about 497 (see 3f) | derived. The CAD agrees with 495.4 and is 1.6% under 505, so the gap is within scale uncertainty | [S1], [S8], [S18] |
 | Body shape | Wedge. Sloped side faces carry the solar panels. Mast at the front | derived (figures only) | [S1], [S7], [S11] |
 | Body main dimensions | "about 20 x 20 x 40 cm" | stated, rounded. Now plausible: see 3a and 3b | [S6] |
-| Sidewall angle | about 9 degrees from vertical in the rear view (see 3a). Not stated anywhere | derived from a figure, low confidence | [S3] Fig. 2 |
+| Sidewall angle | about 10 degrees from vertical (front view, 3f); 9 from the rear view (3a) and the flight photo (3e). Not stated anywhere | derived from figures, three views agree | [S18] Fig. 1, [S3] Fig. 2, [S10] Fig. 1 |
 | Ground clearance | not stated. About 120 from the rear-view figure (see 3a) | derived from a figure, low confidence | [S3] Fig. 2 |
 | Frame material | Magnesium alloy, covered in ITO-coated MLI | stated | [S10] |
 | Obstacle / slope / speed | 100 mm obstacle, 20 degrees, 10 cm/s | stated | [S1], [S3] |
@@ -264,12 +264,13 @@ probe mast or antenna on the deck, and a flat grousered band with five spokes on
 The wheel interior also differs between [S5] Fig. 15 (about twelve petal-shaped webs) and
 [S12] Fig. 1 (open spokes), but the rim diameter and grouser tips agree. **Use 3e, not 3b to
 3d, for the final configuration.** The video values stay recorded as an earlier or promotional
-variant. Width over wheels and sidewall angle are not measurable from a side view. Sidewall
-angle is now about 9 degrees for the final model (see the flight-model photo below). Width
-over wheels (520 mm in the video) remains open for the final model. [S12] Fig. 1 is not a
-safe source for it: the hubs in its front-left view differ
+variant. Width over wheels and sidewall angle are not measurable from a side view; section 3f
+measures both from an orthographic front view (about 497 mm and about 10 degrees).
+[S12] Fig. 1 is not a safe source for them: the hubs in its front-left view differ
 in apparent size by about 14% (near 34.6 px, far 30.4 px major axis), so it is a perspective
 view. The rear-right view could not be tested (its two hubs are at nearly equal depth).
+A trial of fitting wheel-rim ellipses to both views gave a wheelbase constrained only to
+about plus or minus 12% and a track to about plus or minus 8%, so that method was dropped.
 
 **Flight-model photo [S10] Fig. 1 (right).** A real photograph of the flight model from the
 rear with the mast stowed (camera head folded over the top of the body). The body outline is
@@ -282,6 +283,49 @@ dimensioned source. The photo is a perspective view with the wheel bottoms cropp
 gives no scale and no stowed height. As a ratio, the body's top width is about 0.32 and its
 lower width about 0.44 of the width over the wheels, which at 505 mm gives about 160 and
 about 220 mm (circular, since it uses the stated 505).
+
+### 3f. Front and side orthographic views of the final CAD [S18]
+
+[S18] Fig. 1 (credited to [S16]) is a front view and a side view of the same CAD model as
+3e, drawn orthographically with NX axes: petal-web wheels, 5 x 3 panel grid, mast deployed.
+It is the first orthographic front view found. I measured the front view at its native
+1136 x 714 px resolution. Three independent scale cues agree within 1.3%: the stated 700
+mm mast height from wheel contact (1.109 mm per px), the 230 mm wheel height over grouser
+tips from 3e (1.095), and the 415.4 mm track from [S8] (1.102). I used **1.10 mm per px**.
+All values are derived.
+
+| Quantity | Value (mm) | Compare | Status |
+|---|---|---|---|
+| Width over wheels (outer faces) | 497 (495 to 500) | 495.4 derived from [S8]; 505 stated | derived, **matches [S8]**; 1.6% under the stated 505 |
+| Wheel width | 81 (74 px) | 80 stated; 168 printed in [S9] | derived, **matches 80; 168 excluded** (it would be 153 px) |
+| Track (wheel centre to centre) | 415 (413 to 418) | 415.4 from [S8] | derived, matches (scale partly set from this value) |
+| Wheel height over grouser tips | 232 | 230 from 3e | derived |
+| Sidewall angle | 10 (plus or minus 1) from vertical; left 10.3, right 9.7 | 9 from 3a; about 9.4 from the [S10] photo | derived, **resolves the conflict: about 10** |
+| Body top width, just below the deck lip | about 164 | 157 to 170 from 3a and 3d | derived |
+| Body width, 205 mm above ground | about 205 | n/a | derived |
+| Underside of body above ground | about 124 | 120 from 3a | derived |
+| Deck top above ground | about 348 | 343 from 3e | derived |
+| Mast and camera head above the deck | about 347 | 358 labelled in [S11] Fig. 6 | derived |
+
+The sloped panel faces appear edge-on as thin dark lines about 10 degrees from vertical,
+parallel to the body side plates, so the panel slope and the body wall slope are the same.
+**Width over wheels is about 497 mm, not the 520 mm of the video**, so the stated 505 mm is
+consistent with the final model to within 1.6%. The stated 470 x 505 mm is therefore the
+plan size over the wheel rims (474 and about 497 to 500 in the CAD); the 10 mm gap in
+section 3 is now within the scale uncertainty.
+
+Other figures reviewed for this section (all 293 raster images in the 14 Rashid papers; vector-only
+drawings are not covered):
+- **[S11] Fig. 6** is a simplified antenna model with labelled dimensions: a rover top panel
+  401 mm long and a mast with camera box 358 mm tall. The side view in 3e gives a top plate
+  of about 403 mm (side plates about 380 mm), so 401 matches the top plate. The text states
+  the mast is 290 mm from the dipole antenna (stated, [S11]).
+- **[S4] Fig. 1** photographs the experimental wheel next to the CAD. Its "200 mm" line
+  spans the disc and excludes the grousers, which stand proud of it. This supports 200 mm
+  as the rim diameter, with grouser tips beyond it.
+- Everything else was either another perspective view of the same CAD (Fig. 1 of [S5], [S7], [S8], [S6], [S10] and [S12]; the layout figure
+  in [S9]), a sandbox or gymnasium photograph of the engineering model, or science
+  data. None gives a further dimension.
 
 ## 4. Mast and cameras
 
@@ -339,18 +383,21 @@ The provisional design was inspired by Rashid, not copied from it. It does not b
 ## 7. What is still missing
 
 1. Stowed envelope (mast down), which is also the envelope inside the lander bay.
-2. Body height, body width, sidewall angle and ground clearance. Rough values now in
-   section 3a (derived from a figure). Still need a dimensioned source. Body length
-   is about 370 to 410 mm from a video (section 3b, low confidence).
+2. Body height, body width, sidewall angle and ground clearance. Derived from CAD
+   figures in 3a, 3e and 3f, which agree (sidewall about 10 degrees, underside about
+   124 mm up, deck top about 348 mm, body top width about 164 mm). Still need a dimensioned
+   source.
 3. Panel size and the position of each panel on its sloped face.
 4. Suspension and drivetrain layout.
-5. Wheel width conflict (80 vs 168). Section 3a and the dense stereo in 3d both favour 80.
+5. Wheel width is settled at about 80: 3a, 3d and the front view in 3f all give it, and
+   168 is excluded.
    Wheel diameter: 3d and 3e give 200, matching the stated 200. The 228 from 3a is the
    diameter over grouser tips (3e). The video (3b to 3d) is a different revision; use 3e.
-   Sidewall angle for the final model is about 9 degrees (3a and the [S10] flight photo;
-   the video's 19 is a different revision). Still open: width over wheels and the panel
-   grid detail.
-6. What 470 and 505 are measured over.
+   Sidewall angle for the final model is about 10 degrees (3a, [S10] photo and 3f; the
+   video's 19 is a different revision). Width over wheels is about 497 (3f). Still open:
+   the panel grid detail.
+6. What 470 and 505 are measured over: the CAD (3e, 3f) says plan size over the wheel rims,
+   474 and about 497 to 500, so now probably answered; a stated source would confirm it.
 7. Battery capacity, motor specifications.
 
 Candidate sources: the Els et al. 2025 rover science programme paper (cited by [S6] and
@@ -416,9 +463,14 @@ Journal for all Springer papers is *Space Science Reviews*.
   (`09-07-2021_t_d23fe02bec2c4765ae27f64a5d75389c_name_the__VKJ6.mp4`), is used for
   proportions only. Third-party, kept in an untracked local folder, not redistributed.
 
-Not used for Rashid dimensions: Yakubu M, et al. *A Novel Mobility Concept for Terrestrial
-Wheel-Legged Lunar Rover.* IEEE Access 13 (2025). Its Rashid model (Fig. 29) is a simplified
-simulation body, and its Table 3 gives Rashid a 0.10 m obstacle limit at a ratio of 2 to the
+- **[S18]** Yakubu M, Zweiri Y, Abuassi L, et al. *A Novel Mobility Concept for Terrestrial
+  Wheel-Legged Lunar Rover.* IEEE Access 13 (2025). doi:10.1109/ACCESS.2025.3529262. Used for
+  Fig. 1 only (orthographic front and side views of the Rashid CAD, credited to [S16];
+  the authors thank MBRSC for technical support).
+
+Otherwise not used for Rashid dimensions: the rest of [S18] (Yakubu M, et al., *A Novel Mobility
+Concept for Terrestrial Wheel-Legged Lunar Rover*, apart from Fig. 1). Its Rashid model (Fig. 29) is a
+simplified simulation body, and its Table 3 gives Rashid a 0.10 m obstacle limit at a ratio of 2 to the
 wheel radius, which implies a 50 mm radius and contradicts the stated 200 mm diameter. It
 confirms only the 10 kg mass (including payload).
 
