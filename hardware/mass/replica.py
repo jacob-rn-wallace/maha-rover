@@ -48,8 +48,8 @@ def collect():
     plates, _ = F.bearing_plates()
     for i, p in enumerate(plates):
         add("bearing plates", f"plate {i}", kg(p.volume, AL), c(p))
-    for n, s in F.ribs().items():
-        add("printed ribs", n, kg(s.volume, PETG), c(s))
+    for n, s in F.wedge_strips(members).items():
+        add("printed wedges", n, kg(s.volume, PETG), c(s))
 
     for sy in (1, -1):
         arm, wheels, motors = A.side(sy)

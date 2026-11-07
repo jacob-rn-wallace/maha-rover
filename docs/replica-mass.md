@@ -8,8 +8,8 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 
 ```
 group                                  kg   share      x      z
-panels                               2.41     25%      0    236
-T-slot frame                         1.79     19%      5    227
+panels                               2.41     26%      0    236
+T-slot frame                         1.82     19%      5    226
 link plates, sleeves, shafts         1.15     12%      0    130
 wheels                               1.12     12%     -0    100
 mast, head and camera                0.80      8%    162    507
@@ -17,13 +17,13 @@ drive motors                         0.78      8%      0    100
 harness and fasteners                0.40      4%      0    190
 electronics                          0.39      4%    -71    142
 differential                         0.30      3%      0    146
-bearing plates                       0.19      2%     -0    146
-printed ribs                         0.13      1%      0    198
 solar pieces                         0.09      1%      0    255
+bearing plates                       0.08      1%      0    145
+printed wedges                       0.05      1%      0    244
 terminals, diodes, fuses             0.05      1%      0    255
-TOTAL                                9.60   target 10 kg: margin +0.40 kg
+TOTAL                                9.44   target 10 kg: margin +0.56 kg
 
-centre of mass: x 11.5, y -0.1, z 206.8 (mm, ground at the rim line)
+centre of mass: x 11.7, y -0.3, z 207.6 (mm, ground at the rim line)
 static tip angles: nose-down 36 deg, nose-up 31 deg, sideways 50 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
@@ -36,17 +36,17 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **9.6 kg against the 10 kg target: 0.4 kg of margin** (was 9.2 kg and 0.8 kg before the T-slot mast and the vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **9.4 kg against the 10 kg target: 0.6 kg of margin** (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 1.8 kg are 44 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).
-- **Centre of mass:** x 11 mm (forward of the axle midpoint), z 207 mm. The mast is now 8 percent of the mass (0.80 kg), which moves the centre forward and up.
+- **Centre of mass:** x 12 mm (forward of the axle midpoint), z 208 mm. The mast is now 8 percent of the mass (0.80 kg), which moves the centre forward and up.
   Static tip angles: **nose-down 36, nose-up 31, sideways 50 degrees** against the 20 degree slope requirement: 11 degrees of margin
   for climbing, better than the original record's range (`mass-budget.md`: 22 to 28 degrees nose-up).
   These are static, on a rigid chassis; the suspension (a pivoting link plate per side) and dynamics are not covered.
-- **Drive sizing:** the slope torque per wheel at 9.6 kg is 0.81 N.m, a little under the 0.84 N.m the motors were sized for.
+- **Drive sizing:** the slope torque per wheel at 9.4 kg is 0.79 N.m, a little under the 0.84 N.m the motors were sized for.
 
 ## Levers for a second pass (arithmetic on the numbers above)
 

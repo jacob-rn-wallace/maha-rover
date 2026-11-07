@@ -16,11 +16,11 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 |---|---|---|---|---|---|
 | Body wedge (side plates, floor) | 1 | Wedge, 10 degree sidewalls, side plates about 380 long, underside 124 and deck 348 above ground. Magnesium alloy, covered in ITO-coated MLI [S10]; CFRP, magnesium and aluminium per the manufacturer [S24] | stated / derived | Aluminium sheet panels, 2 mm (floor, sides, ends), on a T-slot frame (`frame-spec.md`) | panels 2.41 (all, incl. deck), ASSUMPTION |
 | Top plate (deck) | 1 | 401 long, about 164 wide | stated [S11] / derived | 3 mm aluminium sheet, 401 x 164 | in the panels above |
-| T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 19 members, 3.58 m, all vertical or horizontal | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut square to the list in `frame-spec.md` | 1.79 |
-| Bearing plates with standoff tubes | 2 | Not found | (unverified) | 6 mm aluminium plate in the XZ plane plus a 22 mm tube out to the side panel, 688 bearing seats at both ends (4 bearings in all) | 0.19 |
+| T-slot frame, 20 x 20 mm (5 series, 6 mm slot) | 19 members, 3.64 m, all vertical or horizontal (stepped frame) | Not in the original | n/a | Catalogue 20 x 20 profile, 0.50 kg/m, cut square to the list in `frame-spec.md` | 1.82 |
+| Bearing plates | 2 | Not found | (unverified) | 6 mm aluminium, 688 bearing seat | 0.08 |
 | Corner brackets, 20-series | 30 | Not found | (unverified) | Standard 20-series L brackets (`frame-spec.md`) | not known |
-| T-nuts (M4) and M4 bolts | 106 each (60 for the brackets, 46 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
-| Printed ribs (side panel standoffs) | 4 | Not in the original | n/a | 6 mm trapezoids, about 25 cm3 each, with heat-set M3 inserts; 24 M3 screws fix the side panels | 0.13, PETG density assumed |
+| T-nuts (M4) and M4 bolts | 122 each (60 for the brackets, 62 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
+| Printed tapered strips | 6 | Not in the original | n/a | 10 degree tapers, 0 to 3.5 mm, about 42 cm3 in total | about 0.05, density assumed |
 | Mast extrusion, 40 x 40 T-slot | 1 x 223 mm | About 58 mm square tube (ULTEM) [3j], [S19] | derived | Catalogue 40 x 40 profile, about 1.86 kg/m (catalogue entries differ), plus a 76 x 76 x 6 mm aluminium base plate | 0.41 + 0.09 |
 | Thermal blankets | - | ITO-coated MLI [S10] | stated | - | not known |
 | Fasteners, harness | - | not found | (unverified) | - | not known |

@@ -103,11 +103,11 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   line, at the wheelbase midpoint) come from the CAD figures (`original-dimensions.md` 3i); the
   differential itself is an interpretation of [S25]. Spec: `docs/suspension-spec.md`. CAD and
   clearance sweep: `hardware/suspension/arms.py`. Gear train, strength still open.
-- Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, all vertical or horizontal, 1.79 kg) behind 2 mm aluminium panels
-  (3 mm deck), the differential held by two cross rails, 688 bearings in 6 mm plates with standoff tubes out to the side walls. Every
-  extrusion is cut square and either vertical or horizontal (decided 2026-11-07); only the panels lean at 10 degrees, standing off the frame on printed ribs. Corner brackets join rails, M4 screws fix panels,
+- Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, all vertical or horizontal, 1.82 kg) behind 2 mm aluminium panels
+  (3 mm deck), the differential held by two cross rails, 688 bearings in 6 mm plates in the side walls. Every
+  extrusion is cut square and either vertical or horizontal (owner's sketch, 2026-11-07): a stepped frame, wide at the bottom and narrow at the top, joined by vertical posts; only the panels lean at 10 degrees, spanning the bottom and top side rails, with thin printed strips taking up the angle. Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.5 kg; replica mass estimate from the CAD 9.6 kg, under the 10 kg target by 0.4 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 207 mm.
+  `hardware/chassis/frame.py`. Chassis 4.4 kg; replica mass estimate from the CAD 9.4 kg, under the 10 kg target by 0.6 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 208 mm.
 - Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
   panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
   charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:

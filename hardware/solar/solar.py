@@ -71,14 +71,14 @@ def holes_check():
           f"(end piece spans x {(B.N_COLS - 1) / 2 * B.PITCH_U + B.PIECE_GAP / 2:.1f} to {(B.N_COLS - 1) / 2 * B.PITCH_U + B.PIECE_GAP / 2 + B.PIECE_W:.1f})")
     members = F.build()
     plates, _ = F.bearing_plates()
-    behind = {**members, **{f"plate {i}": p for i, p in enumerate(plates)}, **F.ribs()}
+    behind = {**members, **{f"plate {i}": p for i, p in enumerate(plates)}, **F.wedge_strips(members)}
     hits = []
     for k, cyl in enumerate(B.solar_holes(length=14.0, d=B.HOLE_D + 2.0)):
         for n, m in behind.items():
             v = (cyl & m).volume
             if v > 0.5:
                 hits.append((k, n, round(v, 1)))
-    print(f"  members, plates or ribs within 1 mm of a hole's edge, 14 mm deep: {hits or 'none'}")
+    print(f"  members, plates or strips within 1 mm of a hole's edge, 14 mm deep: {hits or 'none'}")
     print(f"  nearest post face at x = +-{F.X_END - F.P:.0f}: {F.X_END - F.P - B.HOLE_X - B.HOLE_D / 2:.1f} mm from the hole edge")
     return holes
 
@@ -124,7 +124,7 @@ def boards(H):
             out[f"board {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = Pos(xc, sy * (face - BOARD[1] / 2), (z0 + z1) / 2) * Box(BOARD[0], BOARD[1], z1 - z0)
     members = F.build()
     plates, _ = F.bearing_plates()
-    allf = list(members.values()) + plates + list(F.ribs().values()) + list(I.placed_parts().values())
+    allf = list(members.values()) + plates + list(F.wedge_strips(members).values()) + list(I.placed_parts().values())
     bad = [(n, round(sum((b & m).volume for m in allf), 1)) for n, b in out.items() if sum((b & m).volume for m in allf) > 0.5]
     print(f"\nTerminal boards ({BOARD[0]:.0f} x {BOARD[1]:.0f} x {BOARD[2]:.0f} mm, one per post, z {z0:.0f} to {z1:.0f}, on the post's cavity-facing face): clashes {bad or 'none'}")
     for n, b in out.items():
