@@ -98,6 +98,40 @@ pieces cannot be cut. It needs the border and the printed cover of F2 to look li
 over the 39 mm cell height), so three cells a side. Two more cuts per cell than F1 would need, but all parallel or
 perpendicular to the busbars, and only the four corner pieces would have a clipped corner.
 
+## AnySolar modules close to 69 x 39 mm (2026-11-07)
+
+Checked AnySolar's full Gen3 list ([anysolar.biz/Gen3](https://anysolar.biz/Gen3): 83 standard 1.8 mm and 67 thin 1.2 mm parts, all
+listed at 25 percent cell efficiency) and the Gen2 list ([anysolar.biz/Gen2](https://anysolar.biz/Gen2)). AnySolar sells
+monocrystalline **modules of several cells in series**, not single cells, so the voltage is 0.69 V times the cell count (Voc).
+**No part is 69 x 39 mm.** The closest, by size:
+
+| Part (standard 1.8 mm / thin 1.2 mm) | Size (mm) | Cells in series | Voc | Pmax (listed) | Against the 69 x 39 slot |
+|---|---|---|---|---|---|
+| SM261K10L / SM261K10TF | 64 x 45 | 10 | 6.91 V | 571 mW | 5 mm short, 6 mm tall: the best match by shape and area (28.8 against 26.9 cm2), but 4 mm taller than the 41 mm row pitch |
+| SM141K10L / SM141K10TF | 70 x 23 | 10 | 6.91 V | 307 mW | 1 mm long, 16 mm short in height; fits the slot, length exact |
+| SM261K05L / SM261K05TF | 67 x 25 | 5 | 3.45 V | 285 mW | 2 mm short, 14 mm short in height |
+| SM401K08L / SM401K08TF | 90 x 40 | 8 | 5.53 V | 702 mW | height right (40 against 39), 21 mm too long |
+| SM351K09L / SM351K09TF | 57 x 64 | 9 | 6.22 V | 695 mW | too tall |
+| SM531K08L / SM531K08TF | 89 x 52 | 8 | 5.53 V | 913 mW | too long and tall |
+
+Other sizes near it are smaller (SM101K12L 45 x 32, SM141K10LV 45 x 36) or wider (SM531K10L 89 x 65). The thin (TF) parts are 1.2 mm
+thick against 1.8 mm, and the Futurlec cell's 2.8 mm. Prices were not found (DigiKey's pages returned an error); the parts are
+sold through DigiKey. One DigiKey listing gives a thickness of 1.50 mm for the SM811K08TF where AnySolar's table gives 1.2 mm.
+
+What this changes if AnySolar were used instead of the Futurlec cells (my arithmetic from the listed values):
+- **Output:** 15 x SM141K10 gives 4.6 W per side at the listed rating (one sun, presumably standard test conditions), at 25 percent
+  efficiency; 15 x SM261K10 would give 8.6 W. The Futurlec build is 2 to 4.6 W with an unstated test light.
+- **Voltage, so the charger:** each module is already 3.4 to 6.9 V open-circuit. Three SM141K10 in series (a column of 3) give
+  about 20.7 V Voc and, taking Vmp at 0.81 of Voc as for the SM451K08L (4.46 V of 5.53 V), about 16.8 V; five columns in parallel
+  per side would make the 5 x 3 grid one string per column. That is well above the pack's 8.4 V, **so a cheap buck 2S MPPT module
+  (BQ24650 or CN3722 type, 5 to 28 V in) would work, with no buck-boost board** (the BQ25798's 24 V input limit would
+  also hold, with 20.7 V Voc). It removes the charger problem in `charger-board-spec.md`.
+- **Look:** each module shows several small cells in a row with the module's own outline; the module is 23 mm tall against the
+  original's 39 mm cell, leaving 18 mm gaps above and below each in its slot, or one of the 64 x 45 parts nearly fills it.
+- **Not checked:** each module's Vmp and Imp, its terminals (the datasheets would say), and price.
+
+This is an alternative, not a change of decision: the Futurlec build stays unless chosen otherwise.
+
 ## For builders: cutting references
 
 - **"How to Split a Solar Cell Into Two"**, Instructables ([link](https://www.instructables.com/How-to-Split-a-Solar-Cell-Into-Two/)).

@@ -66,7 +66,9 @@ other parts move. The EVMs' sizes were not found, so whether one fits is unknown
    Pi's I2C can run the settings in `hardware/charger/init_bq25798.py`). The BQ25756EVM is the alternative (price and size
    not found). Check its size before buying. Try one on a real panel first; that also settles the open question about
    the cell's output.
-2. **A buck 2S module with a longer string,** if the 5 x 3 look can give. Not preferred.
+2. **A buck 2S module with a higher-voltage string.** The Futurlec cells (7.2 V per side) cannot do this, but AnySolar's multi-cell
+   modules can: columns of three in series give about 17 to 21 V (`solar-spec.md`, AnySolar section), which suits the cheap 5 to 28 V
+   2S buck MPPT modules (BQ24650 or CN3722 type) with no buck-boost board. This would mean changing the cells.
 3. **A bench stopgap** (ZK-4KX) for first tests only.
 4. **A custom board** around the BQ25798, as specified below: the last resort.
 
