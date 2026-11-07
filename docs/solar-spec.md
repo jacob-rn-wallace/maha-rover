@@ -62,6 +62,37 @@ The yields above assume a cell can be cut anywhere. Real cells constrain the cut
 Choosing the cell is the next decision: look for a conventional mono cell near 125 to 156 mm with its busbar spacing and
 purchase price, then recompute the pieces per cell.
 
+## Search for cells that need one cut or none (2026-11-07)
+
+Looked for silicon cells that give the 69 x 39 mm outline by cutting in half, or already have clipped corners.
+
+**No such cell was found.** A half of a standard cell is far larger than 69 x 39 mm (125 x 125 gives 125 x 62.5; 78 x 78 gives
+78 x 39, 9 mm too long; 156 x 156 gives 156 x 78). A half that is 69 x 39 mm would need a parent cell of about 69 x 78 or
+138 x 39 mm, which was not found on sale. On clipped corners: a pseudo-square cell has four clipped corners, so a half cut
+across its middle keeps two on one long edge, like the original's half-wafer cells (my geometry, not a source); that only
+helps if the half is the right size.
+
+Nearest products found (retailer pages; none states corner clips):
+
+| Product | Size | Rating | Cuts needed | Fit |
+|---|---|---|---|---|
+| Futurlec SZGD6030, mono, black | 60 x 30 x 2.8 mm | 0.48 V, 280 mA, 17 percent; Isc 302 mA; test light not stated; US$1.50 each, US$1.35 from 25, US$1.20 from 100 | none | 4.5 mm smaller than the outline on every side (the F2 5 mm class); 2.8 mm thick against the 1.0 mm stack, so it stands 1.8 mm proud |
+| Conrad 19 12 93, mono | 96 x 66 mm, 24 g | 0.5 V, 800 mA (2008 datasheet) | one cut across the long side gives 66 x 48 mm | 3 mm short and 9 mm too tall; the datasheet forbids modifying the product "for safety reasons"; availability not checked |
+| Silicon Solar laser-cut cell | 156 x 60 mm | 0.55 V, 2500 mA | one cut gives 78 x 60 mm | 9 mm long and 21 mm tall; no good |
+
+([Futurlec](https://futurlec.com/solar/szgd6030.shtml), [Conrad datasheet](https://asset.conrad.com/media10/add/160267/c1/-/gl/000191293DS01/tehnicni-podatki-191293-conrad-components-yh-66x96-solarni-modul.pdf))
+The Silicon Solar 0.55 V, 200 mA cell page returned an error and was not read.
+
+**New option F4: Futurlec SZGD6030, no cutting.** 15 per side, 30 in all, about US$40 to 45. Wired as the serpentine: 7.2 V
+(15 x 0.48 V), which the BQ25798's 3.6 to 24 V input accepts. Output is uncertain because the test light is not stated:
+at the listed 280 mA it is 2.0 W a side; if that rating is at one sun, 17 percent of 18 cm2 would give about 0.64 A and
+about 4.6 W a side (my arithmetic). The 2.8 mm thickness suggests an encapsulated cell on a substrate, which also means the
+pieces cannot be cut. It needs the border and the printed cover of F2 to look like a 69 x 39 mm cell.
+
+**Another route, not off the shelf:** cut a 125 mm cell into six pieces of about 60 x 40 mm (2 across, 3 down; 40 mm is 1 mm
+over the 39 mm cell height), so three cells a side. Two more cuts per cell than F1 would need, but all parallel or
+perpendicular to the busbars, and only the four corner pieces would have a clipped corner.
+
 ## For builders: cutting references
 
 - **"How to Split a Solar Cell Into Two"**, Instructables ([link](https://www.instructables.com/How-to-Split-a-Solar-Cell-Into-Two/)).
