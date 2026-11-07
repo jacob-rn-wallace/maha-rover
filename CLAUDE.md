@@ -18,9 +18,10 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
   differential suspension (no rocker, no springs), a mast that pans and tilts, and a live camera on it. No science payload instruments.
 - **Free to differ:** materials (the original is magnesium alloy with MLI; the replica can be
   printed plastic, aluminium or whatever builds easily), internal structure, fasteners, motors,
-  electronics and battery (choose off-the-shelf parts), the 10 kg mass, thermal and space
-  hardware. Document each substitution in `docs/bom.md`.
-- **Out of scope:** flight qualification, vacuum or thermal fidelity, exact mass, the science
+  electronics and battery (choose off-the-shelf parts), thermal and space hardware. **Mass:** the target is
+  the original's 10 kg. The first pass is not optimised for mass: size the system (motors, drivers, battery,
+  bearings, shafts) for 10 kg. A second pass brings the build down to 10 kg where it comes out over. Document each substitution in `docs/bom.md`.
+- **Out of scope:** flight qualification, vacuum or thermal fidelity, the science
   instruments (Langmuir probes, microscope, thermal camera, sampler).
 
 ## Dimensional record
@@ -83,7 +84,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
 - Done: wheel CAD (`hardware/wheel/`); body envelope with cells and mast
   (`hardware/body/`); mass budget and centre-of-mass range (`docs/mass-budget.md`); BOM skeleton
   (`docs/bom.md`). The mass budget is a record of the original (4.75 kg of its 10 kg is
-  unallocated); the replica's own mass is free under the scope above.
+  unallocated); the replica's own mass target is 10 kg (see the scope above).
 - Drive decision (2026-11-07): Pololu 37D gearmotors (spur/helical, not planetary) in the hubs, no
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
@@ -96,13 +97,14 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
 - Chassis (2026-11-07): the earlier T-slot extrusion idea returns, resized from 4040 to 20 x 20: a T-slot aluminium frame (19 members, 1.92 kg) behind 2 mm aluminium panels
   (3 mm deck), the differential held by two cross rails, 6800 bearings in 6 mm plates in the side walls. The
   posts need 10 degree mitres (the vendor cuts 45 only). Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.4 kg, replica about 9 kg: heavy, see the spec.
+  `hardware/chassis/frame.py`. Chassis 4.4 kg; first replica estimate about 9 kg, under the 10 kg target (every line a guess, see the spec).
 - Body interior (2026-11-07): battery rear and electronics front, cable-entry keep-out under the mast base. Spec:
   `docs/interior-spec.md`. Fit check: `hardware/body/interior.py`. Electronics follow the shortlist in `docs/electronics-spec.md` (candidates, not bought).
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
-  drive motor; design the differential's gear train; turn the envelope body into a buildable one (material,
-  joints, cell mounting, a way into the cavity, the mast base joint and cable entry); reassess the mass and
-  centre of mass for the replica's own parts; fill the rest of the BOM's "Replica" column. Deferred: mast
+  drive motor; design the differential's gear train; settle the chassis joints and panel fixing, cell mounting,
+  a way into the cavity, the mast base joint and cable entry; reassess the mass and centre of mass for the
+  replica's own parts; then a second pass to bring the total to 10 kg if the real parts come out over; fill the
+  rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.
 
 ## Conventions
