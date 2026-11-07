@@ -62,6 +62,21 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
   lithium pack (8.4 V, constant current then constant voltage) taking the input of the chosen option, with at least
   2 A out for option A.
 
+## Off-the-shelf silicon cells near 69 x 39 mm (searched 2026-11-07)
+
+No cell of about 69 x 39 mm was found. The nearest products:
+
+| Product | Size | Rating | Notes |
+|---|---|---|---|
+| Silicon Solar, laser-cut monocrystalline cell | 156 x 60 mm | 0.55 V, 2500 mA, 1.38 W | sold in small or large quantities; yields only 2 pieces of 69 x 39 mm (against about 4 from a 125 x 125 mm cell) |
+| AOSHIKE-type micro cell, 100-pack | 52 x 19 mm | 0.5 V, 400 mA listed | polycrystalline; one reviewer measured 0.65 V and 140 mA under bright light, so the listed current is doubtful |
+| Full cells (C60-class, Maxeon Gen III) | 125 x 125 mm, 150 um thick | 0.58 V, 5.9 A | no pre-cut versions found; Gen III is no longer manufactured |
+| Industry 1/3-cut and shingled cells | not found in small lots | | these exist in modules but were not found as loose cells for hobby use |
+
+So the realistic route is to cut full cells to the 69 x 39 mm outline, as the cost estimate assumes. Alternatives:
+tile several small pre-cut cells behind a printed or laminated cover that draws the 69 x 39 mm outline, or let the
+real cells be smaller than the dummy cells, since from outside only the outline and the dark colour show.
+
 ## Cost per panel (rough, prices seen 2026-11-07)
 
 "Panel" here is one side's 15 cells. Only the cell prices below were found; everything else is unpriced.
