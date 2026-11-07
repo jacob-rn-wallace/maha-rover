@@ -66,16 +66,22 @@ flight hardware.
    the [S23] finite element model (6 ribs, 2022), the turntable video, the press render, and
    the perspective CAD views in [S12], [S10]. Fig. 68 of [S23] has the same grouser plates and
    ribs as these views.
-2. **Petal-web wheel** (many slim petal-shaped openings, short grouser ticks): only the
-   orthographic side views in [S5] Fig. 15 and [S18] Fig. 1.
+2. **Petal-web wheel** (slim petal-shaped openings, short grouser ticks): the orthographic side
+   views in [S5] Fig. 15 and [S18] Fig. 1. The openings are spaced **36 degrees apart** (measured
+   36 plus or minus 1 in three wheels), so there are ten equal openings per turn. The project
+   owner reports that the hardware has five spokes on each side of the wheel with the inner and
+   outer sets rotated 36 degrees from each other, which gives exactly this ten-fold
+   side-on pattern; the side views cannot show the axial layering themselves. In the turntable
+   video's dense cloud the outer spoke layer is five-fold (strongest harmonic k=5), but the
+   sparse inner layer is roughly in phase with it, so that earlier model differs.
 3. **Closed wheels** (one side closed, stated for the single-wheel test wheel [S4]): the
    design-phase prototype in [S8] Fig. 2, and what look like closed discs on the
    engineering-model wheels in [S8] Fig. 8 and [S23] Fig. 79 (my reading of small photographs).
 All share the 200 mm rim diameter, 80 mm width, 14 grousers and 15 mm grouser height, so the
 envelope is not in doubt; only the web and the grouser plate shape differ. [S4] says the final
-wheel is "skeletonized", which fits 1 or 2. For a replica, take the web pattern from the CAD
-side view (2) if fidelity to the final CAD matters, or from (1) if the thesis geometry is
-the better guide, and record the choice.
+wheel is "skeletonized", which fits 1 or 2. Variant 2 is the best-supported for the final
+rover: it matches the final CAD views and the owner's observation of the hardware. Use it for the
+replica unless a better source appears, and record the choice.
 
 ## 3. Layout and chassis
 

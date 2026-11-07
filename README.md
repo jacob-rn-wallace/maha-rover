@@ -18,7 +18,7 @@ This is an independent hobby project, not affiliated with or endorsed by MBRSC.
 ## What's here
 | Path | Contents |
 |---|---|
-| [`docs/`](docs/original-dimensions.md) | Sourced record of the original rover's dimensions, with a source tag and status on every value |
+| [`docs/`](docs/original-dimensions.md) | Sourced record of the original rover's dimensions, with a source tag and status on every value, and a [wheel specification](docs/wheel-spec.md) for CAD |
 | [`graphic-design/`](graphic-design/README.md) | Square Kufic wordmark and an Earthset mosaic poster, plus the Python scripts that generate them |
 | `hardware/` | *Not yet created.* Planned home for CAD, drawings and the BOM |
 

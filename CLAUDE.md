@@ -22,7 +22,7 @@ rover's dimensions as faithfully as possible.
   battery and motor specifications. Do not paper over them.
 
 ## Repo layout
-- `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions.
+- `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
 
