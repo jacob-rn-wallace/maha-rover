@@ -37,7 +37,7 @@ PARTS = {
     "controller (Pi Zero 2 W)": dict(size=(65.0, 30.0, 8.0), mass=0.015, at=(60.0, 35.0)),    # 65 x 30 stated; height and mass ASSUMPTION
     "motor drivers x2 (MC33926)": dict(size=(46.0, 56.0, 12.0), mass=0.014, at=(60.0, -30.0)),  # 28 x 46 each, side by side; height ASSUMPTION; 7 g each
     "5 V converter (D24V22F5)":   dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(130.0, 60.0)),   # 17.8 x 17.8 x 7.9, 2.3 g
-    "solar charge controller":    dict(size=(50.0, 30.0, 12.0), mass=0.03, at=(112.0, -70.0)),    # size class and mass ASSUMPTION; part not chosen
+    "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -70.0)),    # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; mass ASSUMPTION
 }
 KEEP_OUT = dict(size=(15.0, 40.0, 30.0), at=(159.2, 0.0))   # under the mast base, in the gap between the mast cross rail
                                                            # and the front end rail (frame.py), for the cable entry  ASSUMPTION

@@ -1,6 +1,10 @@
 # Solar charger board (BQ25798) specification
 
-The charger for the primary cells' string (AnySolar SM261K10, 16.7 V Vmpp and 20.7 V Voc per side, `solar-spec.md`) into the 2S pack (8.4 V).
+**Decision (2026-11-07): the charger is a cheap buck 2S MPPT module (BQ24650 or CN3722 type), not a custom board and not an evaluation board.**
+It charges the 2S pack (8.4 V) from the tiled-pieces string (30 pieces per side in series: about 18.75 V at maximum power, 21 V open-circuit, `solar-spec.md`).
+The rest of this document is the background: the options considered, and the BQ25798 route kept as a fallback.
+
+Previously: the charger for the AnySolar string (16.7 V Vmpp and 20.7 V Voc per side, `solar-spec.md`) into the 2S pack (8.4 V).
 The original plan assumed the 7.2 V Futurlec string, which only a buck-boost can charge from; the AnySolar string is above the
 pack, so a buck charger works and the options widen. The Futurlec fallback still needs the buck-boost. No small ready-made board was found, in
 two rounds of searching. **A custom board is the last resort** (the owner's call, 2026-11-07); the order of routes is under

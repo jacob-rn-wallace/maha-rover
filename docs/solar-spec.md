@@ -1,14 +1,46 @@
 # Solar cells: provisions for real cells (replica)
 
-The replica's 30 cells (5 x 3 on each sloped side) are dummy plates today. This records what is built in so real
-cells can be fitted later, the cell data behind it, and what is still open. CAD and checks:
-`hardware/solar/solar.py` (with `hardware/body/body.py` for the cells and holes). Everything here is ASSUMPTION
-unless tagged; cell data are quoted from the sources noted, with their caveats.
+The replica's side panels carry silicon cells in the original's 5 x 3 grid. This is the specification of the current design, then the record
+of how it was reached. **Where a later section conflicts with "Current design", the current design wins**; the sections after it are history
+and comparison. CAD and checks: `hardware/solar/solar.py` and `hardware/body/body.py`; mockups: `docs/images/solar-cell-mockups.png`.
+Everything is ASSUMPTION unless tagged; cell figures are the retailer's and have not been measured.
 
-## Decision (2026-11-07, revised)
+## Current design (decided 2026-11-07): tiled back-contact pieces, two per slot, buck module
 
-**Status, later the same day: the owner finds the AnySolar price (US$415 to 490 for 30 modules) too high; the primary cell is again open.**
-The section "Tiling back-contact pieces" below is the cheaper way to the same look. The text that follows records the AnySolar decision as made.
+- **Cells:** SunPower-type back-contact silicon (no front busbars: the front is uniformly dark blue-black, as the AnySolar modules look).
+  Buy third-cut strips, 125 x 41.6 mm (LinkSolar lots of 20 at US$16.96, which may be a listing error; else full 125 mm cells at US$43.60 for 10 and cut
+  thirds). Cut each strip in four: **31 x 41.6 mm pieces, 60 in all, 30 per side**. About 15 strips with no breakage; buy 30.
+- **Layout:** the original's 5 x 3 slots, columns on its 71.6 mm pitch, rows at 42.5 mm (the strips are 41.6 mm tall); two pieces per slot, 0.5 mm apart
+  (slot width 62.5 mm). The field spans z 192.7 to 317.3 against the original's 196 to 314 (3k). Pieces are plain rectangles 0.8 mm thick (piece,
+  adhesive and a clear laminate over it).
+- **Electrical (retailer's full-cell figures, 0.625 V and 6.05 A, scaled by piece area):** a piece is 0.625 V, 0.51 A, 0.32 W at one sun; **30 in series per side
+  is 18.75 V, 0.51 A, 9.6 W** (three rows of ten at 6.25 V). Voc is assumed 0.70 V a cell: 21.0 V at 25 C, 23.7 V at -20 C (under a buck module's
+  28 V, and under the 24 V the listings recommend). Vmp is about 17.3 V on a panel 25 K hotter.
+- **Charger:** a cheap buck 2S MPPT module, BQ24650 or CN3722 type (`charger-board-spec.md`): US$11 to 17. The string is well above the pack's 8.4 V.
+  Set its input set point near 17.5 V, between the cold and hot Vmp. Two Schottky blocking diodes (one per side) join the sides at the module's input.
+- **Assembly:** tab the pieces on the rear (back-contact cells have both polarities there) into rows of ten, bond them to the panel and put a clear
+  laminate or coat over them; each row's two ends come inside through the 5 mm holes. Cutting back-contact cells is the hard part: see the cutting
+  notes below.
+- **Holes:** **12 holes of 5 mm per rover, 6 per side panel**, at x = plus or minus 160.2, one at each end of each row, under the end piece, at the row's
+  centre height (z 213, 255, 297). Nothing in the frame lies within 1 mm of a hole's edge, 14 mm deep; the posts are 5.3 mm from the hole edges.
+  The real pieces' rear contact positions are not known until a sample arrives, so the holes may move.
+- **Wiring:** one series string per side as a serpentine through the six holes: row 1 rear (-) to row 1 front, jumper A (55 mm with slack) to row 2 front,
+  row 2 to its rear, jumper B (55 mm) to row 3 rear, row 3 to its front (+). Terminal boards (20 x 8 x 100 mm, one per post, z 205 to 305, on the posts'
+  cavity-facing faces; no clashes) hold the jumpers and leads: the front board takes jumper A and the (+) lead, the rear board jumper B and the (-) lead;
+  each hole wire is about 31 mm. Leads to the charger: left side 432 mm (-) and 301 mm (+), right side 370 mm (-) and 220 mm (+), 24 AWG; 0.51 A over 1.1 m
+  of lead pair drops 0.05 V of 18.8 V.
+- **Cost:** about **US$34 to 44 for the cells and US$11 to 17 for the charger: US$45 to 61**, against US$430 to 510 for AnySolar.
+- **Not designed:** protection (a fuse in each side's plus lead, bypass diodes per row), the clear laminate, how pieces are held while tabbing, the
+  connector between the boards and the charger.
+- **Open:** the authenticity of "Maxeon-style" cells from marketplaces, the real pieces' rear pad layout, the true Voc and temperature coefficient, and a
+  working cutting method (see the cutting sections below). Buy a few cells first and measure them under a lamp.
+
+Fallbacks, in order: the Futurlec SZGD6030 (US$45, needs the US$156 buck-boost evaluation board), then the one-piece-per-slot tiling.
+
+## Earlier decision: AnySolar (2026-11-07, superseded by the current design above)
+
+**Status: superseded. The owner found the AnySolar price (US$415 to 490 for 30 modules) too high and chose the tiled pieces (current design above).**
+The text that follows records the AnySolar decision as made.
 
 The **AnySolar SM261K10TF was chosen as the primary cell**; the Futurlec SZGD6030 below is the fallback.
 
@@ -363,7 +395,7 @@ So the realistic route is to cut full cells to the 69 x 39 mm outline, as the co
 tile several small pre-cut cells behind a printed or laminated cover that draws the 69 x 39 mm outline, or let the
 real cells be smaller than the dummy cells, since from outside only the outline and the dark colour show.
 
-## Wiring (all options)
+## Wiring for the Futurlec fallback and single-cell options (history; the current design's wiring is above)
 
 Check and numbers: `hardware/solar/solar.py`. Hole ids: side L or R, row 1 (bottom) to 3 (top), end F (front, +x) or R
 (rear, -x), e.g. L2F. Each hole sits in the 11 mm gap above its row, 20.5 mm up the slope from the row's centre, at x = plus or minus 160.2

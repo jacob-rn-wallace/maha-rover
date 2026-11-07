@@ -29,11 +29,11 @@ LABEL_H = 74
 
 # name, cell w, cell h (on the face, mm), row pitch, inner cell grid (columns, rows) drawn inside the module or (0, 0), clipped corners, note
 VARIANTS = [
+    ("Tiled back-contact pieces, 2 per slot (decided)", 62.5, 41.6, 42.5, (2, 1), 0.0, "two 31 x 41.6 mm pieces per slot, 0.5 mm gap; no front contacts; 30 a side"),
+    ("Original (reference)", 69.0, 39.0, 41.0, (0, 0), 6.5, "69 x 39 mm, clipped bottom corners [3g]"),
     ("AnySolar SM261K10TF (US$415-490)", 64.0, 45.0, 46.0, (5, 2), 0.0, "64 x 45 x 1.2 mm, 10 cells in a 5 x 2 grid [datasheet]; row pitch 46"),
     ("Futurlec SZGD6030 (about US$45)", 60.0, 30.0, 41.0, (0, 0), 0.0, "60 x 30 x 2.8 mm, one cell each, plain"),
     ("Tiled back-contact pieces, 1 per slot", 62.5, 41.6, 42.5, (0, 0), 0.0, "62.5 x 41.6 mm: a 1/3-cut strip halved; no front contacts"),
-    ("Tiled back-contact pieces, 2 per slot", 62.5, 41.6, 42.5, (2, 1), 0.0, "two 31 x 41.6 mm pieces side by side; 0.5 mm gap"),
-    ("Original (reference)", 69.0, 39.0, 41.0, (0, 0), 6.5, "69 x 39 mm, clipped bottom corners [3g]"),
     ("AnySolar SM141K10", 70.0, 23.0, 41.0, (10, 1), 0.0, "70 x 23 mm, 10 cells in series per module (inner layout assumed)"),
     ("AnySolar SM261K05", 67.0, 25.0, 41.0, (5, 1), 0.0, "67 x 25 mm, 5 cells in series per module (inner layout assumed)"),
 ]
@@ -115,9 +115,9 @@ def draw_tile(name, w, h, pitch, grid, clip, note):
     t.text((10, 8), name, fill=TEXT, font=font(22))
     t.text((10, 38), note, fill=(80, 80, 80), font=font(15))
     # field extent and fill
-    n = B.N_COLS * B.N_ROWS
-    area = n * w * h / 100.0
-    t.text((10, 56), f"15 per side, {area:.0f} cm2 of cell area per side", fill=(80, 80, 80), font=font(13))
+    n = B.N_COLS * B.N_ROWS * (2 if grid == (2, 1) and w > 60 else 1)
+    area = B.N_COLS * B.N_ROWS * w * h / 100.0
+    t.text((10, 56), f"{area:.0f} cm2 of cell area per side", fill=(80, 80, 80), font=font(13))
     return tile
 
 
@@ -140,7 +140,8 @@ def main():
         x, y = gap + c * (TILE_W + gap), 40 + gap + r * (TILE_H + LABEL_H + gap)
         t.text((x + 10, y + 10), "Notes", fill=TEXT, font=font(22))
         lines = [
-            "Columns on the original's pitch (71.6 mm); rows 41 mm, 46 for the SM261K10.",
+            "Columns on the original's pitch (71.6 mm); rows 41 mm, 42.5 for the tiled",
+            "pieces, 46 for the SM261K10. Tiled pieces: gap 0.5 mm, drawn as one slot.",
             "The wall leans 10 degrees; heights are drawn foreshortened by cos 10.",
             "AnySolar parts are modules of several cells. The SM261K10's 5 x 2 inner",
             "grid is from its datasheet drawing; the others' inner layout and all",

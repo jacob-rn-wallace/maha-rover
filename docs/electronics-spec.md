@@ -65,12 +65,13 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 ## Solar charge controller (shortlist, none bought)
 
 The pack is charged from the side panels' cells (`solar-spec.md`). Needed: an MPPT charger for a 2S lithium pack (8.4 V,
-constant current then constant voltage), fed by the chosen cells (AnySolar SM261K10: 16.7 V Vmpp, 20.7 V Voc, 8.5 W a side at one sun; the Futurlec fallback is 7.2 V, 2 to 4.6 W), in the
+constant current then constant voltage), fed by the chosen cells (tiled back-contact pieces: 18.75 V Vmpp, about 21 V Voc, 9.6 W a side at one sun; decided: a cheap BQ24650 or CN3722 buck module, `charger-board-spec.md`), in the
 50 x 30 x 12 mm box reserved at the front floor. The deciding factor is the input voltage against the pack's 8.4 V:
 
 | Cell option | String voltage at maximum power | Charger topology it needs |
 |---|---|---|
-| AnySolar SM261K10TF, primary (3 in series per column, 5 columns in parallel) | 16.7 V Vmpp, 20.7 V Voc | buck is enough: well above 8.4 V |
+| Tiled back-contact pieces, 2 per slot, decided (30 in series) | 18.75 V Vmpp, about 21 V Voc | buck is enough: well above 8.4 V; a cheap BQ24650 or CN3722 module |
+| AnySolar SM261K10TF (3 in series per column, 5 columns in parallel) | 16.7 V Vmpp, 20.7 V Voc | buck is enough: well above 8.4 V |
 | Futurlec SZGD6030, fallback (15 in series) | 7.2 V (15 x 0.48 V) | **buck-boost**: below a full pack's 8.4 V, so a buck cannot charge it |
 | Silicon cut to 69 x 39 mm (15 in series) | about 8.7 V | **buck-boost**: only 0.3 V above a full pack, too little for a buck |
 | Silicon, F3 (tiled, 30 in series) | 15 V listed, 20 V measured | buck is enough |

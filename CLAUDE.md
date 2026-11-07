@@ -57,15 +57,13 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
 - Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
   about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
   plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
-- Solar: 2 panels, one per sloped side, 5 x 3 positions on the original's grid. Cells (decision open again: the owner finds the AnySolar price too high; tiled back-contact pieces are being considered, see
-  `docs/solar-spec.md`). Last chosen: AnySolar
-  SM261K10TF modules, 64 x 45 x 1.2 mm, plain, columns on the original's pitch and rows at 46 mm; each module's two solder pads are on
-  its back, so the side panel is drilled behind them (60 holes, 3.5 mm). Wired three in series per column, five columns in parallel
-  per side: 16.7 V Vmpp, 20.7 V Voc, about 8.5 W at one sun. About US$415 to 490 for 30 modules. Fallback: Futurlec SZGD6030
-  (60 x 30 mm, 7.2 V per side, US$45). The cell field sits at z 196 to 314 as in the original (`original-dimensions.md` 3k). Specs and
-  numbers: `docs/solar-spec.md`, `hardware/solar/solar.py`, `docs/images/solar-cell-mockups.png`. Charger: the string is above the pack's
-  8.4 V, so a cheap buck 2S MPPT module or an evaluation board works (`docs/charger-board-spec.md`); a custom board is the last
-  resort; `hardware/charger/init_bq25798.py` sets the BQ25798 if one is used.
+- Solar (decided 2026-11-07): 2 panels, one per sloped side, on the original's 5 x 3 slots. Cells: SunPower-type back-contact silicon (no front
+  contacts, so a uniform dark look), tiled **two 31 x 41.6 mm pieces per slot** (cut from 125 x 41.6 mm third-cut strips), 30 pieces per side in
+  one series string: 18.75 V Vmpp, about 21 V Voc, about 9.6 W at one sun (retailer's figures, scaled). Columns on the original's 71.6 mm pitch, rows at 42.5 mm;
+  field at z 193 to 317 (the original's 196 to 314, `original-dimensions.md` 3k). Six 5 mm wire holes per side panel at the row ends (12 in all). Charger: a
+  cheap BQ24650 or CN3722 buck 2S MPPT module (`docs/charger-board-spec.md`); no custom board. About US$45 to 61 for cells and charger. Specs and checks:
+  `docs/solar-spec.md`, `hardware/solar/solar.py`, `docs/images/solar-cell-mockups.png`. Fallbacks: Futurlec SZGD6030, then one piece per slot. Open: real cells'
+  authenticity and rear pad layout, the cutting method, protection.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
 - Mast: fixed upright, tube 58 x 58 mm centred 24.2 mm ahead of the front axle, pan-tilt head and CAM-1 at

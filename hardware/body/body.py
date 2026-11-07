@@ -58,17 +58,19 @@ CAM_Y = -28.0            # 28 right of centreline (Y is left)     derived [S8]
 CAM_TUBE = (73.0, 35.0, 35.0)   # L x W x H optical tube          stated [S12]
 
 # ---- Solar cells (section 3g, 3h, 5) -------------------------------------
-N_COLS, N_ROWS = 5, 3    # per side, all landscape               derived [3e, 3g]
-CELL_W, CELL_H = 64.0, 45.0     # AnySolar SM261K10TF module, plain (primary, 2026-11-07):
-                         # 64 x 45 x 1.2 mm, 10 cells inside in 5 x 2 (datasheet)   stated
-PITCH_U, PITCH_V = 71.6, 46.0   # columns on the original's pitch [3g]; rows at 46 so the 45 mm
-                         # modules clear (the original's row pitch is 41)    derived [3g] / ASSUMPTION
-CLIP = 0.0               # plain rectangles: the module has square corners (datasheet drawing)
-CELL_T = 1.7             # 1.5 mm (the DigiKey listing; datasheet 1.2 +- 0.3) plus 0.2 mm of adhesive   ASSUMPTION
-PAD_DX = 22.0            # each module has two solder pads on its BACK, 22 mm either side of its centre
-                         # along the long side, at mid height ("+" 10 mm from one end)  datasheet; the module is mounted
-                         # with + toward the front (+x) on both walls
-PAD_D = 3.5              # hole through the side panel behind each pad, for one wire     ASSUMPTION
+N_COLS, N_ROWS = 5, 3    # slots per side, all landscape          derived [3e, 3g]
+PIECES_PER_SLOT = 2      # tiled back-contact pieces per slot (decided 2026-11-07)
+PIECE_W, PIECE_H = 31.0, 41.6   # a 125 x 41.6 mm third-cut strip cut in four (31.25 less the kerf)  stated (retailer) / derived
+PIECE_GAP = 0.5          # gap between the two pieces of a slot   ASSUMPTION
+SLOT_W = PIECES_PER_SLOT * PIECE_W + (PIECES_PER_SLOT - 1) * PIECE_GAP   # 62.5 mm
+CELL_W, CELL_H = PIECE_W, PIECE_H   # one plate per piece
+PITCH_U, PITCH_V = 71.6, 42.5   # slot columns on the original's pitch [3g]; rows at 42.5 so the 41.6 mm
+                         # strips clear (the original's row pitch is 41)    derived [3g] / ASSUMPTION
+CLIP = 0.0               # plain rectangles (pieces from the outer thirds of a cell have one clipped corner: not modelled)
+CELL_T = 0.8             # piece (about 0.15 mm) plus adhesive and a clear laminate over it       ASSUMPTION
+HOLE_D = 5.0             # wire hole through the side panel at both ends of every row, under the end piece,
+                         # for the ribbon or wire that carries the row's string end inside   ASSUMPTION
+HOLE_X = 160.2           # x of those holes (clear of the posts at |x| > 168)
 FIELD_Z = 255.0          # field centre height on the face: the cells span z 196 to 314 in the side view
                          # of the original ([S5] Fig. 15, pixel scan, 3k); was the mid-wall height
                          # 233.5, an assumption, which put the lowest row over the wheels   derived
@@ -103,14 +105,12 @@ def wheels():
 
 
 def cells():
-    """Two 5 x 3 cell fields, one per sloped side face (thin plates)."""
+    """Two fields of 5 x 3 slots, two pieces each, one per sloped side face (thin plates, 60 in all)."""
     t = math.tan(math.radians(SIDEWALL_DEG))
     c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
     hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
-    W, H, k = CELL_W / 2, CELL_H / 2, CLIP
-    pts = ([(-W + k, -H), (W - k, -H), (W, -H + k), (W, H), (-W, H), (-W, -H + k)] if k > 0
-           else [(-W, -H), (W, -H), (W, H), (-W, H)])
-    cell = extrude(Polygon(*pts, align=None), amount=CELL_T)
+    W, H = PIECE_W / 2, PIECE_H / 2
+    piece = extrude(Polygon((-W, -H), (W, -H), (W, H), (-W, H), align=None), amount=CELL_T)
     out = []
     for sy in (1, -1):
         # plane y axis runs up the slope; z is the outward normal
@@ -118,39 +118,32 @@ def cells():
         xdir = Vector(-sy, 0, 0)
         for i in range(N_COLS):
             for j in range(N_ROWS):
-                u, v = (i - (N_COLS - 1) / 2) * PITCH_U, (j - (N_ROWS - 1) / 2) * PITCH_V
-                # origin: face point at the field centre, moved up-slope by v
+                u0, v = (i - (N_COLS - 1) / 2) * PITCH_U, (j - (N_ROWS - 1) / 2) * PITCH_V
                 up = Vector(0, -sy * sn, c)
                 o = Vector(BODY_X0, sy * hw(FIELD_Z), FIELD_Z) + up * v
                 pl = Plane(origin=o, x_dir=xdir, z_dir=normal)
-                out.append(pl * Pos(u, 0, 0) * cell)
+                for k in range(PIECES_PER_SLOT):
+                    du = (k - (PIECES_PER_SLOT - 1) / 2) * (PIECE_W + PIECE_GAP)
+                    out.append(pl * Pos(u0 + du, 0, 0) * piece)
     return out
 
 
 def solar_holes(length=6.0, d=None):
-    """Cylinders along the wall normal behind every module pad (2 per module, 30 per side, 60 in all),
-    starting at the outer face and running `length` inward. Subtract from the shell to cut the holes."""
-    d = PAD_D if d is None else d
-    return [c for (_, _, _, _, c) in solar_pads(length, d)]
-
-
-def solar_pads(length=6.0, d=None):
-    """Every pad hole as (side, col, row, polarity '+' or '-', cylinder). Columns 0..4 run rear to front, rows 0..2 bottom to top."""
-    d = PAD_D if d is None else d
+    """Cylinders along the wall normal at the 12 wire holes (6 per side: both ends of each of the 3 rows, under the
+    end pieces), starting at the outer face and running `length` inward. Subtract from the shell to cut the holes."""
+    d = HOLE_D if d is None else d
     t = math.tan(math.radians(SIDEWALL_DEG))
     c, sn = math.cos(math.radians(SIDEWALL_DEG)), math.sin(math.radians(SIDEWALL_DEG))
     hw = lambda z: TOP_WIDTH / 2 + (DECK_TOP_Z - DECK_T - z) * t
     out = []
     for sy in (1, -1):
         n = Vector(0, sy * c, sn)
-        for i in range(N_COLS):
-            for j in range(N_ROWS):
-                u0 = (i - (N_COLS - 1) / 2) * PITCH_U
-                v = (j - (N_ROWS - 1) / 2) * PITCH_V
-                for pol, du in (("+", PAD_DX), ("-", -PAD_DX)):
-                    o = Vector(BODY_X0 + u0 + du, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v
-                    pl = Plane(origin=o, z_dir=n)
-                    out.append(("L" if sy > 0 else "R", i, j, pol, pl * Pos(0, 0, -length / 2) * Cylinder(d / 2, length)))
+        for j in range(N_ROWS):
+            v = (j - (N_ROWS - 1) / 2) * PITCH_V
+            for sx in (1, -1):
+                o = Vector(BODY_X0 + sx * HOLE_X, sy * hw(FIELD_Z), FIELD_Z) + Vector(0, -sy * sn, c) * v
+                pl = Plane(origin=o, z_dir=n)
+                out.append(pl * Pos(0, 0, -length / 2) * Cylinder(d / 2, length))
     return out
 
 
@@ -180,7 +173,7 @@ if __name__ == "__main__":
     export_step(rover, str(out / "rover.step"))
     export_stl(rover, str(out / "rover.stl"))
 
-    print(f"cells: {sum(k.startswith('cell') for k in parts)} (target 30), "
+    print(f"cells: {sum(k.startswith('cell') for k in parts)} (target 60), "
           f"all valid {all(p.is_valid for k, p in parts.items() if k.startswith('cell'))}")
 
     bb = rover.bounding_box()
