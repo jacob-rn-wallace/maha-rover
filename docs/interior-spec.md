@@ -3,8 +3,8 @@
 Layout inside the body: shell, differential mount, shaft bearings through the wall, and where
 the battery and electronics go. Replica design, all ASSUMPTION except the outer shape
 (`original-dimensions.md`) and the pivot position (3i). CAD and fit checks:
-`hardware/body/interior.py`. Part choices for the electronics are **not made**; the boxes below are
-placeholders for the size class.
+`hardware/body/interior.py`. The electronics follow the candidates in `electronics-spec.md` (not bought);
+the battery box is still a size class.
 
 ## Shell
 
@@ -36,13 +36,13 @@ The bulkheads split the cavity into a front and rear compartment with a narrow c
 | Item | Size class (mm) | Mass (kg) | Placed |
 |---|---|---|---|
 | Battery, 2S2P 18650 | 68 x 38 x 38 | 0.22 | rear compartment, on the floor |
-| Controller (Zero-class) | 65 x 30 x 8 | 0.015 | front compartment, on the floor |
-| Motor drivers, two dual boards | 50 x 70 x 15 | 0.05 | front compartment, on the floor |
-| 5 V converter | 40 x 20 x 12 | 0.015 | front compartment, on the floor |
+| Controller, Raspberry Pi Zero 2 W | 65 x 30 x 8 (height assumed) | 0.015 (assumed) | front compartment, on the floor |
+| Motor drivers, two Pololu MC33926 boards side by side | 46 x 56 x 12 (28 x 46 each; height assumed) | 0.014 | front compartment, on the floor |
+| 5 V converter, Pololu D24V22F5 | 18 x 18 x 8 | 0.0023 | front compartment, on the floor |
 | Keep-out under the deck | 70 x 70 x 60 | n/a | front, for the mast hinge and gimbal drive |
 
 All of them fit the cavity and none clash with each other, the bulkheads or the housing. Together
-the electronics are about 0.30 kg with their centre at x -61, z 143, which puts the heavy mast
+the electronics are about 0.25 kg with their centre at x -88, z 144, which puts the heavy mast
 (front, high) opposite the battery (rear, low). This is a first placement, not a balance: the
 replica's mass and centre of mass have not been recomputed.
 

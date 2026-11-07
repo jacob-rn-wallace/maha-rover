@@ -26,9 +26,9 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Solar cells | 30 (15 per side, 5 x 3) | About 69 x 39 mm, 6.5 mm clipped bottom corners, pitch 71.6 x 41; the size matches a 26.5 cm2 half-wafer cell. Exact part not named | derived [3g]; part (unverified) | - | not known |
 | Cover glass | 30 | 200 um cerium-doped borosilicate, Qioptiq [S10] | stated | - | not known |
 | Panel substrate | 2 | not found | (unverified) | - | not known |
-| Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P 18650 pack, about 43 Wh (cell capacity assumed 3 Ah), placeholder size class, see `interior-spec.md` | 0.22, ASSUMPTION |
-| Controller | 1 | Not found | (unverified) | Zero-class single-board computer, not chosen | 0.015, ASSUMPTION |
-| 5 V converter | 1 | Not found | (unverified) | Placeholder size class, not chosen | 0.015, ASSUMPTION |
+| Battery | 1 | "Small", capacity not found [S3]. Power model in [S27] gives no figures | (unverified) | 2S2P pack of four Samsung INR18650-30Q (3000 mAh nominal, 15 A, 48 g max each), about 43 Wh, with a 2S BMS (not chosen); see `electronics-spec.md` | 0.22, ASSUMPTION |
+| Controller | 1 | Not found | (unverified) | Raspberry Pi Zero 2 W, 65 x 30 mm, CSI-2 camera port (`electronics-spec.md`), not bought | not found |
+| 5 V converter | 1 | Not found | (unverified) | Pololu D24V22F5, 17.8 x 17.8 x 7.9 mm | 0.0023 (vendor) |
 | Power electronics | - | Peak generation 15 W [S3]; no board data | (unverified) | - | not known |
 
 ## Mobility
@@ -37,7 +37,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 |---|---|---|---|---|---|
 | Wheel | 4 | 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy (`hardware/wheel/`, `wheel-spec.md`) | stated / derived | - | 0.398 each, ASSUMPTION (model volume at AZ91E density) |
 | Drive motor | 4 | In-wheel electric motors [S3]; type, size and gearing not found | stated qty; spec (unverified) | Pololu 37D without encoder, candidate #4746 (131.25:1, spur/helical), open-loop speed and direction (decision 2026-11-07). See `drive-spec.md` | 0.195 each (vendor, upper bound) |
-| Motor driver | 2 | not found | (unverified) | Dual-channel brushed DC drivers, four channels in total, so pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | not known |
+| Motor driver | 2 | not found | (unverified) | Pololu Dual MC33926 carrier (#1213), 2.5 A per channel, four channels in total; pairs can be commanded together or separately. Heading hold from an IMU later if the rover drifts | 0.007 each (vendor) |
 | Pivot bearings | 2 | Not found | (unverified) | 6800 (10 x 19 x 5), one per wall boss, ISO size from memory, verify | not known |
 | Wheel bearings | 8 | Not found | (unverified) | 4 x 6807 (35 x 47 x 7) inboard, 4 x 6701 (12 x 18 x 4) outboard, see `drive-spec.md`. ISO sizes from memory, verify | not known |
 | Differential | 1 | Passive differential gear, in place of a rocker; no springs or dampers [S25]. Layout not found | stated; layout (unverified) | Bevel differential on the centreline inside the body at pivot height 146, body as carrier, joined to two side plates (`suspension-spec.md`); a bar linkage is the alternative | not known |
@@ -48,8 +48,8 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | Printed square tube with a hinge pin, two torsion springs, a servo-pulled latch and two pan and tilt servos (`mast-spec.md`); parts not chosen | 1.237 (EM, stated [S19]); under 1.4 flight. Replica about 0.45, ASSUMPTION |
-| CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | Small camera module on the mast, not chosen | 0.210 stated [S12] |
+| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | Printed square tube with a hinge pin, two pan and tilt servos (Feetech STS3215 C001) and a hinge drive: springs and a latch as modelled, or a bus servo (C044) as recommended (`mast-spec.md`, `electronics-spec.md`) | 1.237 (EM, stated [S19]); under 1.4 flight. Replica about 0.45, ASSUMPTION |
+| CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | Raspberry Pi Camera Module 3 (25 x 24 x 11.5 mm) in a printed 35 x 35 x 73 mm tube | 0.210 stated [S12] (replica not weighed) |
 | CAM-2 | 1 | Fixed, rear, axis about 250 high [S12] | stated | - | 0.210 stated [S12] |
 | CAM-M (microscope) | 1 | Front, aperture about 210 high [S13] | stated / derived | - | not known |
 | CAM-T (thermal imager) | 1 | Rear [S2], [S12] | stated | - | not known |

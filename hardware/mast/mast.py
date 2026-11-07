@@ -47,7 +47,7 @@ CAM_AXIS_Z = 660.0                 # CAM-1 optical axis height                  
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]
 CAM_TUBE = B.CAM_TUBE              # 73 x 35 x 35                                 stated [S12]
 TILT_R, TILT_LEN = 22.0, 40.0      # tilt motor housing between housing and arm   derived [3j], by eye
-SERVO = (45.0, 24.0, 35.0)         # pan and tilt servo size class                ASSUMPTION
+SERVO = (45.2, 24.7, 35.0)         # Feetech STS3215 (retailers' figures, docs/electronics-spec.md)
 SLOTS = dict(cols=2, rows=4, w=10.0, l=24.0)    # lightening slots on the +-Y faces  ASSUMPTION
 
 # ---- Fixed parts on the deck ------------------------------------------------

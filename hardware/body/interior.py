@@ -11,8 +11,8 @@ ASSUMPTION except the outer shape (body.py) and the pivot position (3i).
     10 x 19 x 5, on the 10 mm shaft; ISO size from memory) and into the housing.
   * Rear compartment: battery pack on the floor. Front compartment: controller and
     drivers on the floor, with a keep-out volume under the deck for the mast
-    hinge and gimbal drive. Part choices are NOT made: the boxes are placeholders
-    for the size class.
+    hinge and gimbal drive. Part sizes follow docs/electronics-spec.md (candidates, not
+    bought); heights and masses marked ASSUMPTION are not sourced.
 
 Run:  .venv/bin/python hardware/body/interior.py
 Out:  hardware/body/out/interior.step
@@ -42,9 +42,9 @@ COS = math.cos(math.radians(B.SIDEWALL_DEG))
 # placeholder part sizes (x, y, z), mass kg: size classes, NOT chosen parts
 PARTS = {
     "battery 2S2P 18650":  dict(size=(68.0, 38.0, 38.0), mass=0.22, at=(-110.0, 0.0)),
-    "controller (Zero-class)": dict(size=(65.0, 30.0, 8.0), mass=0.015, at=(60.0, 35.0)),
-    "motor drivers x2":    dict(size=(50.0, 70.0, 15.0), mass=0.05, at=(60.0, -30.0)),
-    "5 V converter":       dict(size=(40.0, 20.0, 12.0), mass=0.015, at=(130.0, 60.0)),
+    "controller (Pi Zero 2 W)": dict(size=(65.0, 30.0, 8.0), mass=0.015, at=(60.0, 35.0)),    # 65 x 30 stated; height and mass ASSUMPTION
+    "motor drivers x2 (MC33926)": dict(size=(46.0, 56.0, 12.0), mass=0.014, at=(60.0, -30.0)),  # 28 x 46 each, side by side; height ASSUMPTION; 7 g each
+    "5 V converter (D24V22F5)":   dict(size=(18.0, 18.0, 8.0), mass=0.0023, at=(130.0, 60.0)),   # 17.8 x 17.8 x 7.9, 2.3 g
 }
 KEEP_OUT = dict(size=(70.0, 70.0, 60.0),
                 at=(B.BODY_X0 + B.SIDE_PLATE_LEN / 2 - WALL_T - 35.0, 0.0))

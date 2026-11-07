@@ -22,13 +22,15 @@ the replica's material is not chosen (a printed tube is the obvious candidate).
 
 ## Mechanism (replica)
 
-- **Deploy:** torsion springs on the hinge pin swing the mast up through 90 degrees to a stop; a
-  servo-pulled latch holds it down. This copies [S19]'s spring hinge and hold-down, with a servo in
+- **Deploy (as modelled; under review):** torsion springs on the hinge pin swing the mast up through 90 degrees
+  to a stop; a servo-pulled latch holds it down. A hand check in `electronics-spec.md` finds the springs
+  too long for the 28 mm pedestal and recommends a bus-servo hinge instead; the CAD still shows springs. This copies [S19]'s spring hinge and hold-down, with a servo in
   place of the fuse wire. Re-stowing is by hand against the springs.
 - **Pan and tilt:** two servos, one in the neck (vertical axis) and one in the arm (horizontal axis),
   for the original's pan of plus or minus 179 degrees and tilt of plus or minus 75 degrees [S19]. The
-  neck cavity is 52 x 52 x 38 mm and the arm cavity 44 x 39 x 63 mm, both larger than a 45 x 24 x 35 mm
-  servo size class. Servos are not chosen, and the CAD neck and arm are solid, so this is a size check only.
+  neck cavity is 52 x 52 x 38 mm and the arm cavity 44 x 39 x 63 mm; the candidate Feetech STS3215 is
+  45.2 x 24.7 x 35 mm (`electronics-spec.md`), which fits with 3 mm of height spare in the neck. The CAD neck
+  and arm are solid, so this is a size check only.
 - **Camera:** a small module on the mast, wired down the tube. Not chosen.
 
 ## CAD checks
@@ -54,7 +56,7 @@ helps as the mast rises. The mass figures are guesses; weigh the real parts and 
 
 ## Open
 
-- Springs, latch servo, pan and tilt servos, camera module: none chosen.
+- Candidates are in `electronics-spec.md`; none bought. The hinge mechanism (springs or servo) is undecided.
 - Wiring from the head through the hinge to the body (a flexing loop at the pin) is not designed.
 - The base block's inside, the hinge pin hole and the stop block are not modelled.
 - The keep-out under the deck (`interior-spec.md`) is reserved for the mast drive, but this design
