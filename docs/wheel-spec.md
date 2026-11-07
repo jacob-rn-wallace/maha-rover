@@ -22,6 +22,7 @@ minus 2 to 3%), **(unverified)** (no source, or sources disagree).
 | Material | Magnesium alloy AZ91E | stated | [S10] |
 | Wheel centre height above the rim's ground contact | 100 | derived (rim radius) | 3e |
 | Ribs | 10, equally spaced at 36 degrees (two sets of 5 on two axial layers per the project owner), constant width about 14.5, flared at the rim root | derived | [S23] Fig. 88a, [S5], [S18] |
+| Rib cross-section | T-section: a flat plate (the 14.5 wide face) with a web standing off one face only, the outboard face, and none on the inboard face. Seen in [S23] Fig. 68a (undeformed geometry) and Fig. 91 and 92 (FE views); no figure looks along a rib, so web height and thickness are not measured. Not cruciform | observed in figures, (unverified) | [S23] |
 | Hub tube diameter | about 50 (50 from the thesis drawing and the CAD; about 54 read from a photograph of the hardware, which reads high through perspective) | derived (three sources) | [S23], 3e, 3f, [S24] |
 | Rim band thickness | about 3 (plus or minus 1) | derived, coarse (drawn edge lines) | [S23] Fig. 88a |
 | Grouser plate thickness | about 0.8 (0.5 to 1.0) | derived (flight photographs with a built-in scale, and a second method) | [S8] Fig. 3, [S23] |
@@ -44,7 +45,8 @@ minus 2 to 3%), **(unverified)** (no source, or sources disagree).
 | Item | What is known | Status |
 |---|---|---|
 | Axial layering of the two rib sets | The owner reports five ribs on each side with the inner set rotated 36 degrees; the side views cannot show depth. The turntable video's earlier wheel has its two sets roughly in phase | stated by the owner, not yet measured from a figure |
-| Rib thickness | about 3 (2 to 4), very low confidence (one edge strip in one oblique thesis figure); not visible side-on, where only the 14.5 mm width shows | (unverified), rough estimate only |
+| Rib plate thickness, web height and web thickness | The earlier estimate of about 3 (2 to 4) came from one edge strip in [S23] Fig. 91. With the ribs now read as T-sections, that strip may be the web and not the plate, so plate thickness, web height and web thickness are each unknown. Not visible side-on, where only the 14.5 mm width shows | (unverified), no estimate |
+| Whether both rib layers are built the same way | The project owner's working assumption is that the inner side of the wheel mirrors the outer side: each layer has its web on the face pointing away from the wheel mid-plane. Not checked against any figure | assumption |
 | Grouser plate width | In [S23] the plates stand wider than the rim band; in the CAD front view the whole wheel is 80 to 81 wide | (unverified) |
 | Wheel mass, flight | the closed test wheel is 1.18 kg ([S4]), not the flight wheel. The photographed wheels are machined, so a machined-magnesium mass estimate would be possible, but none is published | (unverified) |
 | Hub tube length, bore and axle interface | outer diameter about 50 is known. A hardware photograph shows a cup-shaped hub with a floor and four small screw holes, a flange with six bolt holes, and, nearby, black cylindrical housings with six-hole bolt circles and silver flanged adapters that may be the matching drive parts (not confirmed). Length, bore and exact bolt-circle sizes are not known | (unverified) |
@@ -57,11 +59,11 @@ the co-advisor was copied). No answer yet. Record any reply here with a "persona
 
 These are choices, not facts, and each should be changed if a better source appears.
 
-1. **Web:** two sets of five constant-width ribs (14.5 mm wide), the inner set rotated 36 degrees
-   from the outer, flared at the rim root, on a 50 mm hub tube. This is the wheel in [S23] Fig. 88a and the
+1. **Web:** two sets of five constant-width T-section ribs (14.5 mm wide plate with a web on the outboard
+   face), the inner set rotated 36 degrees from the outer, flared at the rim root, on a 50 mm hub tube. This is the wheel in [S23] Fig. 88a and the
    final CAD views.
 2. **Thicknesses:** rim band about 3 mm and grouser plates about 0.8 mm (thin sheet) are derived from
-   figures; the ribs are about 3 mm at best. A replica may need thicker plates than 0.8 mm for its own
+   figures; the rib plate and web sizes are not known. A replica may need thicker plates than 0.8 mm for its own
    material, so treat the original values as a target and record any change in the BOM.
 3. **Envelope:** hold the rim diameter, width, 14 grousers, 15 mm grouser height and the 100 mm
    centre height exactly; they are the values that carry fidelity.
@@ -83,8 +85,11 @@ A first parametric model is in [`hardware/wheel/wheel.py`](../hardware/wheel/whe
 `out/wheel.stl`). Axle along Z, one grouser on +X. It follows section 4 and checks to 230 mm over the
 grouser tips and 80 mm wide, as one valid solid.
 
+Ribs are T-sections: a flat plate with a web on the face pointing away from the wheel mid-plane, the
+two layers mirrored about it (`WEB_H`, `WEB_T`; set `WEB_H = 0` for flat plates).
+
 Modelling choices with no source (marked ASSUMPTION or unverified in the script): the two rib sets sit
 at z = plus and minus 10 mm; hub tube 40 mm long with a 3 mm wall; rim band 80 mm wide (flush with the
 grousers); rib root flare 10 mm long opening to 24 mm; grousers 15 mm tall (tip radius 115, against the
-derived 116). The script prints a mass of about 384 g at AZ91E density. That follows from the assumed
+derived 116). Web height 6 mm and web thickness 2 mm are guesses. The script prints a mass of about 398 g at AZ91E density. That follows from the assumed
 dimensions and is not a flight figure.

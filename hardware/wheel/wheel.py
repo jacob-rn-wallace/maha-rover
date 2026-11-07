@@ -33,7 +33,11 @@ RIM_T = 3.0              # rim band thickness, +-1                  derived, coa
 GROUSER_T = 0.8          # plate thickness, 0.5-1.0                 derived
 
 # ---- (unverified) / ASSUMPTION -------------------------------------------
-RIB_T = 3.0              # rib thickness along the axle (2-4)       (unverified)
+RIB_T = 3.0              # rib plate thickness along the axle       (unverified)
+WEB_H = 6.0              # T web height off the plate face; 0 gives
+                         # a flat plate. Web seen on one face only
+                         # in [S23] Fig. 68a/91/92                  ASSUMPTION
+WEB_T = 2.0              # T web thickness                          ASSUMPTION
 RIB_LAYER_Z = 10.0       # two rib sets at z = +-RIB_LAYER_Z        ASSUMPTION
 HUB_LEN = 40.0           # hub tube length                          ASSUMPTION
 HUB_WALL = 3.0           # hub tube wall; bore not known            ASSUMPTION
@@ -46,7 +50,9 @@ OVERLAP = 0.5            # unions overlap this much so solids fuse
 
 
 def rib(angle_deg: float, z: float):
-    """One rib plate: constant width, flared at the rim root."""
+    """One T-section rib: flat plate (constant width, flared at the rim root)
+    with a web on the face pointing away from the wheel mid-plane (sign of z).
+    The two layers are mirror images about z = 0 (assumed)."""
     r0 = HUB_D / 2 - OVERLAP
     r1 = RIM_R - RIM_T + OVERLAP
     rf = r1 - FLARE_LEN
@@ -54,6 +60,13 @@ def rib(angle_deg: float, z: float):
     pts = [(r0, -hw), (rf, -hw), (r1, -FLARE_HALF_W),
            (r1, FLARE_HALF_W), (rf, hw), (r0, hw)]
     plate = extrude(Polygon(*pts, align=None), amount=RIB_T / 2, both=True)
+    if WEB_H > 0:
+        # web: runs from the hub to the start of the flare, centred on the rib
+        side = 1 if z > 0 else -1
+        web_len = rf - r0
+        web = Pos(r0 + web_len / 2, 0, side * (RIB_T / 2 + WEB_H / 2 - OVERLAP / 2)) * Box(
+            web_len, WEB_T, WEB_H + OVERLAP)
+        plate = plate + web
     return Rot(0, 0, angle_deg) * Pos(0, 0, z) * plate
 
 
