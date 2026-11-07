@@ -2,7 +2,8 @@
 
 Collects the parts of body.py, interior.py, frame.py, arms.py, differential.py, mast.py, wheel.py and motor.py into one
 colour-coded assembly (rover frame: X forward, Y left, Z up, origin on the ground under the axle midpoint). Renders orthographic
-views with a small painter's-algorithm shader (no GPU needed) to docs/images/rover-assembly.png.
+views with a small painter's-algorithm shader (no GPU needed) to docs/images/rover-assembly.png, including two sectioned
+close-ups of the left pivot (shaft, sleeve and bushings, rail, housing boss, link plate boss).
 
 Run:  .venv/bin/python hardware/assembly/rover.py
 Out:  hardware/assembly/out/rover_assembly.step (not tracked: large), docs/images/rover-assembly.png
@@ -25,7 +26,7 @@ import differential as D   # noqa: E402
 import mast as MAST        # noqa: E402
 import wheel as W          # noqa: E402
 import motor as M          # noqa: E402
-from build123d import Compound, Pos, Rot, export_step  # noqa: E402
+from build123d import Box, Compound, Pos, Rot, export_step  # noqa: E402
 
 COLORS = {
     "panels": (178, 184, 190), "frame": (96, 102, 112), "bushings": (150, 155, 160), "pivot standoffs": (236, 205, 90),
@@ -33,6 +34,12 @@ COLORS = {
     "differential": (205, 180, 80), "differential housing": (160, 170, 182), "mast": (214, 217, 222), "camera": (30, 30, 34),
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
     "switch": (60, 60, 64), "bearings": (225, 225, 230), "wheel hardware": (110, 112, 120),
+    "pivot shaft": (40, 150, 165), "pivot boss": (150, 110, 190),
+}
+LEGEND_NAMES = {
+    "frame": "20 x 40 rail and cross rails", "bearings": "sleeve and bushings", "pivot shaft": "shaft and stub", "link plates": "link plate",
+    "pivot boss": "link plate boss", "differential housing": "differential housing, bosses, lugs", "differential": "gears and pin",
+    "panels": "side panel",
 }
 
 
@@ -89,7 +96,7 @@ def mesh(shape, tol=0.4, ang=0.4):
     return np.array([(p.X, p.Y, p.Z) for p in v], dtype=float), np.array(t, dtype=int)
 
 
-def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None):
+def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None, legend=(), legend_left=False):
     """Orthographic z-buffer render, flat shaded, two-sided. azim: camera angle about Z from +X toward +Y, elev above the horizon."""
     a, e = math.radians(azim), math.radians(elev)
     d = np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])      # toward the camera
@@ -154,7 +161,39 @@ def render(meshes, azim, elev, size, hide=(), label=None, zoom=1.0, center=None)
             except OSError:
                 continue
         t.text((10, 8), label, fill=(30, 30, 30), font=f)
+        f2 = ImageFont.truetype(f.path, 14) if hasattr(f, "path") else f
+        for k, (name, col) in enumerate(legend):
+            y0 = H_ - 22 - 20 * (len(legend) - 1 - k)
+            x0 = 12 if legend_left else W_ - 270
+            t.rectangle((x0, y0, x0 + 16, y0 + 13), fill=tuple(col), outline=(60, 60, 60))
+            t.text((x0 + 24, y0 - 1), name, fill=(30, 30, 30), font=f2)
     return im
+
+
+def pivot_detail(items, region, skip=()):
+    """Left-side pivot parts clipped to a box (x0, x1, y0, y1, z0, z1): the shaft, bosses, sleeve and bushings, rail, differential and
+    cross rails. Each part is cut by the box, so the cut faces are closed solids. Returns [(group, shape)]."""
+    x0, x1, y0, y1, z0, z1 = region
+    box = Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(x1 - x0, y1 - y0, z1 - z0)
+    keep = lambda g, n: (
+        (g == "frame" and (n.startswith("bottom side L") or n.startswith("differential cross") or n.startswith("mid side L") or n.startswith("bottom end cross")))
+        or (g == "bearings" and n == "bearing 0")
+        or (g in ("differential", "differential housing"))
+        or (g == "link plates" and n.endswith(" L") and n.split()[0] in ("plate", "boss", "shaft"))
+        or (g == "panels" and n == "side panel 0"))
+    out = []
+    for g, n, sh in items:
+        if not keep(g, n) or n in skip:
+            continue
+        try:
+            c = sh & box
+            if c.volume < 1e-3:
+                continue
+        except Exception:
+            continue
+        gg = "pivot shaft" if (g == "link plates" and n.startswith("shaft")) else "pivot boss" if (g == "link plates" and n.startswith("boss")) else g
+        out.append((gg, c))
+    return out
 
 
 def main():
@@ -185,7 +224,24 @@ def main():
     for lab, az, el, hide, zm in views:
         # side views: the camera azimuth about Z measured from +X: for the side view we look along -Y from +Y: azim 90
         imgs.append(render(meshes, az, el, size, hide=hide, label=lab, zoom=zm))
-    cols, rows = 2, 3
+    # ---- pivot detail panels (left side), sectioned ----
+    def detail(region, az, el, label, zoom=1.0, skip=(), legend_left=False):
+        parts = pivot_detail(items, region, skip)
+        ms = []
+        for g, sh in parts:
+            v, t = mesh(sh)
+            ms.append((g, v, t, COLORS[g]))
+        seen = []
+        for g, v, t, col in ms:
+            if g not in [x[0] for x in seen]:
+                seen.append((g, col))
+        leg = [(LEGEND_NAMES.get(g, g), col) for g, col in seen]
+        return render(ms, az, el, size, label=label, zoom=zoom, legend=leg, legend_left=legend_left)
+    zc = A.PIVOT_Z
+    imgs.append(detail((-72, 72, 0, 165, 100, zc), 0, 90, "Pivot detail, left: section at the shaft axis (z 145.7), from above", 0.98, legend_left=True))
+    imgs.append(detail((0, 72, 0, 122, 100, 200), 150, 30, "Pivot detail, left: section at x = 0 from the rear left (panel and link plate removed)", 0.9,
+                       skip=("side panel 0", "plate L", "boss L", "mid side L")))
+    cols, rows = 2, 4
     gap = 12
     sheet = Image.new("RGB", (cols * size[0] + (cols + 1) * gap, rows * size[1] + (rows + 1) * gap + 34), (255, 255, 255))
     t = ImageDraw.Draw(sheet)

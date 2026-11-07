@@ -2,7 +2,7 @@
 
 `hardware/assembly/rover.py` collects every modelled part into one assembly (168 parts, a 6 MB STEP file it writes to `hardware/assembly/out/`, not tracked) and renders
 `docs/images/rover-assembly.png`: exterior from front-left and rear-right, a side view, a view with panels and cells hidden to show the frame and interior, a top view and a front
-view. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
+view, then two sectioned close-ups of the left pivot (a cut at the shaft axis seen from above, and a cut at x = 0 seen from the rear left, with the panel and link plate removed) showing the shaft, its bonded stub, the rail's sleeve and bushings, the housing boss and the link plate boss. In the close-ups the lugs share the housing's colour and the bushing flanges are not modelled. Overall extent over the grouser tips: 503 x 495 x 712 mm (the wheel-rim plan is 473 x 495 and the height with the mast up is 700). Shapes are simplified; nothing has been built.
 
 ## Modelled, with simplified geometry
 
