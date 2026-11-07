@@ -55,9 +55,9 @@ For the 2S pack (8.4 V full, 43 Wh) a side delivers roughly 9 to 16 W at best, a
 - **Clearance.** Nothing in the frame, wedge strips, bearing plates or shaft path lies within 6 mm of any hole's axis,
   14 mm deep. The nearest member is the mid side rail, 9 mm below the lowest hole row; the posts are 5 mm from the
   hole edges. Wires should pass between the panel and the mid rail and drop to the floor.
-- **Harness.** The longest straight run from a hole to the charge controller is 353 mm; allow about 460 mm of wire per
+- **Harness.** The longest straight run from a hole to the charge controller is 348 mm; allow about 450 mm of wire per
   lead. Grommets for the 12 holes are not chosen.
-- **Charge controller.** A 50 x 30 x 12 mm box is reserved in the front compartment of the interior (x 110, y -85,
+- **Charge controller.** A 50 x 30 x 12 mm box is reserved in the front compartment of the interior (x 112, y -70,
   on the floor, 30 g assumed), clear of the other parts. The part is not chosen: it must be an MPPT charger for a 2S
   lithium pack (8.4 V, constant current then constant voltage) taking the input of the chosen option, with at least
   2 A out for option A.
