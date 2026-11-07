@@ -22,26 +22,33 @@ rover's dimensions as faithfully as possible.
   battery and motor specifications. Do not paper over them.
 
 ## Repo layout
-- `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model (build123d, venv in `.venv`).
+- `hardware/`: CAD. `hardware/wheel/wheel.py` is the parametric wheel model and `hardware/body/body.py` the body, wheels and deployed-mast envelope (build123d, venv in `.venv`).
 - `docs/`: sourced reference material. `original-dimensions.md` is the record of the original rover's dimensions. `wheel-spec.md` is the wheel specification for CAD, built from it.
 - `graphic-design/`: wordmark and poster. Has its own README. Separate from the rover engineering.
 - `previous-context-do-not-track/`: notes from earlier sessions. Background only. Gitignored, so it never goes on GitHub. Do not edit.
 
-## Provisional design (from earlier sessions, NOT checked against the original)
-These came from earlier AI chat sessions. They describe a rover *inspired by*
-Rashid, before the project became a faithful replica. They do not bind the
-replica. Where they conflict with the original rover's dimensions, the original
-wins. `docs/original-dimensions.md` section 6 compares each item. Known
-mismatches: the 6U CubeSat envelope (the original is 470 x 505 x 700 mm), the
-PET panel size and count, the Ackermann steering, and the missing mast.
-- Body: tapered trapezoidal prism with 15 degree sidewalls, sized around a
-  6U CubeSat envelope of 100 x 200 x 340.5 mm. The 15 degree angle and the envelope are unverified.
-- Frame: "zero-cut" box core of supplier-cut 40120 / 4040 aluminum extrusion
-  with 1.5 mm cladding for the wedge.
-- Solar: 170 x 112 mm PET panels, 4 per side.
-- Wheels: 200 x 80 mm, hub plus TPU tire with chevron grousers, in-wheel planetary motors.
-- Suspension and steering: 4-wheel rocker with Nomad-style Double Ackermann, one servo per side.
-- Extrusions are ground and testbed hardware only. This is not a flight design.
+## Design status
+Settled from the final-configuration CAD and MBRSC statements (sources in
+`docs/original-dimensions.md`; section 6 there is the item-by-item comparison):
+- Body: wedge with 10 degree sidewalls (panels at 80 degrees, stated [S20]), underside
+  about 124 mm and deck top about 348 mm above ground, top width about 164 mm, side
+  plates about 380 mm, top plate 401 mm. Envelope model: `hardware/body/body.py`.
+- Solar: 2 panels, one per sloped side, 5 x 3 cells of about 69 x 39 mm each. Not yet modelled.
+- Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
+  (`hardware/wheel/`).
+- Mast: about 300 mm, stowed along the top panel, spring hinge to vertical; CAM-1 on a
+  pan and tilt gimbal. Deployed envelope is in the body model; stowed form is not.
+- Drive: 4 in-wheel motors [S3], with a differential gear or linkage [S1] (unresolved).
+
+Still provisional, from earlier AI chat sessions, NOT checked against the original (they
+do not bind the replica; the original wins):
+- Suspension and steering: 4-wheel rocker with Nomad-style Double Ackermann. The original's
+  steering is not described, so do not carry Ackermann over.
+- Frame: "zero-cut" box core of supplier-cut 40120 / 4040 aluminum extrusion with 1.5 mm
+  cladding. The original is a magnesium alloy frame with MLI. Extrusions are ground and
+  testbed hardware only, not a flight design.
+- Dropped: the 6U CubeSat envelope (100 x 200 x 340.5), 15 degree sidewalls, and the
+  170 x 112 mm PET panels, 4 per side.
 
 ## Licensing
 - **Code** (scripts, firmware, tools): Apache-2.0 (`LICENSE`)
@@ -54,9 +61,8 @@ PET panel size and count, the Ackermann steering, and the missing mast.
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
   rover from 2023 was looked for and is gone (hosted on 8th Wall, now offline).
 - Still to do: close the remaining gaps in section 7 of that file (suspension and
-  drivetrain layout, cell part, a dimensioned drawing), reconcile the provisional
-  design (sidewall angle, panels and mast already differ), power and battery sizing,
-  centre-of-mass check, BOM. First wheel CAD model done (`hardware/wheel/`); refine its unsourced choices as sources arrive.
+  drivetrain layout, cell part, a dimensioned drawing), power and battery sizing,
+  centre-of-mass check, BOM. First wheel CAD model (`hardware/wheel/`) and first body envelope model (`hardware/body/`) done; refine their unsourced choices as sources arrive. Body model still lacks the solar cell field, stowed mast, suspension and internals.
 
 ## Conventions
 - Hardware units are millimetres.
