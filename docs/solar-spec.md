@@ -5,10 +5,23 @@ cells can be fitted later, the cell data behind it, and what is still open. CAD 
 `hardware/solar/solar.py` (with `hardware/body/body.py` for the cells and holes). Everything here is ASSUMPTION
 unless tagged; cell data are quoted from the sources noted, with their caveats.
 
+## Decision (2026-11-07)
+
+- **Cells:** silicon (option B below). Triple-junction cells are not pursued: no price or supply was found, and the same holes
+  and stack would still serve them later.
+- **Fill:** **cut the cells to the 69 x 39 mm outline (F1) as the target.** A piece up to 2 mm undersize (65 x 35 mm or
+  larger, which is F2 at its 2 mm inset) is accepted rather than discarded, so the cutting tolerance is 2 mm per side.
+  The tiled small cells (F3) are the fallback if cutting fails. The 5 mm inset (F2 at 59 x 29 mm) is not used: it costs a third of
+  the output.
+- **Wiring:** one 15-cell series string per side, the serpentine below, 8.7 V.
+- **Charger:** a buck-boost, which is the BQ25798 on the shortlist (`electronics-spec.md`), because 8.7 V is too close to the
+  pack's 8.4 V for a buck.
+- **Still open:** which cell product. See "Which cell" below.
+
 ## Silicon: cutting is established practice (2026-11-07)
 
-Silicon is the practical baseline (option B below). Triple-junction cells stay possible later; the same holes and stack
-serve both. **How silicon fills the 69 x 39 mm outline is left open**: three ways are compared in the next section.
+Triple-junction cells stay possible later; the same holes and stack serve both. The three ways silicon can fill the 69 x 39 mm
+outline are compared in the next section; the decision above picks F1 with a 2 mm tolerance.
 
 Cutting is established practice, in industry and among hobbyists:
 - **Industry:** half-cut cells are a standard format; laser cut-and-cleave is the usual method. Cutting leaves
@@ -32,6 +45,37 @@ Cautions found, none of them showstoppers:
 Practical steps: buy spares (at least twice the cells needed), cut test pieces first, check the rear contact layout of the
 chosen cell before cutting, and measure the cut pieces' voltage and current under a lamp. Choosing a conventional
 front-and-back-contact cell instead of a back-contact one avoids the rear-pattern difficulty; this was not compared in detail.
+
+## Which cell (open)
+
+The yields above assume a cell can be cut anywhere. Real cells constrain the cuts, so the cell product matters:
+- **Conventional front-and-back-contact cells** carry two or three full-width busbars (tabs) on the front. A cut piece must keep a
+  segment of a busbar for each polarity: the how-to below says to cut parallel to the tab lines so each piece keeps full tabs.
+  Cutting a three-busbar cell into three strips parallel to the busbars and then across them keeps a busbar on every piece, but
+  the strips are about 41 mm wide and 125 mm long, so a strip gives one full 69 mm piece plus a short one: about 3 full pieces
+  per cell rather than 4, which would make 5 cells per side. This reasoning is mine, not from a source.
+- **Back-contact cells** (the C60 class) have all contacts on the rear, in an interdigitated pattern and with a heavy copper
+  backing; cutting them is harder and each piece must keep access to both polarities (see the cautions above), and Gen III is
+  no longer made.
+- **Pre-cut candidate:** the 156 x 60 mm laser-cut cell (0.55 V, 2500 mA) is already cut, but only gives 2 pieces of 69 x 39 mm.
+
+Choosing the cell is the next decision: look for a conventional mono cell near 125 to 156 mm with its busbar spacing and
+purchase price, then recompute the pieces per cell.
+
+## For builders: cutting references
+
+- **"How to Split a Solar Cell Into Two"**, Instructables ([link](https://www.instructables.com/How-to-Split-a-Solar-Cell-Into-Two/)).
+  The page body could not be fetched here (only its title and its three-step structure came through), so it was not read. The
+  same-titled article on The DIY Life by Michael Klements, 2016, was read
+  ([link](https://www.the-diy-life.com/how-to-split-a-solar-cell-into-two/)); it appears to be the same guide, but that is not confirmed.
+  Its method: lay the cell face down, lay a ruler along the line, run a sharp craft knife lightly and repeatedly along the ruler
+  until the cell begins to part, then lift the ruler and break it along the line. It warns not to press hard, that cells are
+  "extremely fragile", and to cut parallel to the tabs so each half keeps its full tabs; a half produces half the power at the
+  same voltage. It gives no soldering advice and names no cell type; it is for small cells.
+- Limits for this project: a craft-knife score is a hand cut, so expect ragged edges and a millimetre or two of error,
+  which is why a 2 mm tolerance is accepted above; it describes cutting a cell in two, not into four pieces with clipped corners
+  (the clips are not cut by it); and only bare, unlaminated cells can be cut. A fibre laser (as a university team used on
+  SunPower cells) or a scribe cutter gives cleaner results than a knife, with no source for a breakage rate.
 
 ## Fill options for silicon
 
@@ -64,8 +108,9 @@ Trade-offs:
 Cost per panel (cells only, prices seen): F1 and F2 at 2 mm need 4 cells, about US$15, and F2 at 5 mm needs 2 cells, about
 US$7.5; double each for breakage. No price for the F3 pack was found.
 
-None is chosen yet. Suggested order: cut a spare cell to F1 and F2 sizes, measure the pieces, and pick on the result;
-fall back to F3 if the cuts fail.
+Decision: F1 as the target, with F2 at a 2 mm inset as the accepted tolerance, and F3 as the fallback if cutting fails.
+Before cutting for the panel, cut a spare cell to the F1 size, measure the pieces under a lamp, and count how many are
+within 2 mm of the outline.
 
 With F1 or F2 the six holes per side serve a serpentine: row 1 left and row 3 right carry the two external leads, and the
 other four holes take the two jumpers between rows, which run inside the cavity. With F3 the same holes serve whichever

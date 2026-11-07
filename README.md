@@ -44,6 +44,13 @@ cd graphic-design/scripts/mosaic && python3 header.py edge-coarse   # README hea
 ```
 Details and the other scripts are in [`graphic-design/README.md`](graphic-design/README.md).
 
+## For builders
+Cutting silicon cells is how the replica's solar panels are made. The how-to
+[How to Split a Solar Cell Into Two](https://www.instructables.com/How-to-Split-a-Solar-Cell-Into-Two/) (Instructables; the same-titled
+article on [The DIY Life](https://www.the-diy-life.com/how-to-split-a-solar-cell-into-two/) describes a craft-knife score and snap, cutting
+parallel to the cell's tabs so each piece keeps them) is a good starting point. Cells are fragile and break often: buy at least twice the
+number you need and cut a spare first. Our notes, with the wiring, the yield and the caveats, are in [`docs/solar-spec.md`](docs/solar-spec.md).
+
 ## Contributing
 Corrections to Rashid's dimensions are the most valuable contribution, ideally with a primary source (MBRSC material, mission documentation, or photographs with known scale). The most useful missing facts are listed in section 7 of [`docs/original-dimensions.md`](docs/original-dimensions.md). Arabic readers' feedback on wordmark legibility is also wanted.
 
