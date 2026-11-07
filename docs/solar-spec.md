@@ -5,6 +5,38 @@ cells can be fitted later, the cell data behind it, and what is still open. CAD 
 `hardware/solar/solar.py` (with `hardware/body/body.py` for the cells and holes). Everything here is ASSUMPTION
 unless tagged; cell data are quoted from the sources noted, with their caveats.
 
+## Decision: cut silicon cells (2026-11-07)
+
+The baseline is **silicon cells cut to the 69 x 39 mm outline** (option B below). Triple-junction cells stay
+possible later; the same holes and stack serve both.
+
+Cutting is established practice, in industry and among hobbyists:
+- **Industry:** half-cut cells are a standard format; laser cut-and-cleave is the usual method. Cutting leaves
+  unpassivated edges that lower open-circuit voltage; the loss is about 1.2 percent of fill factor before edge
+  passivation in one study and about 0.1 percent with an optimised thermal laser separation process in another (lab and
+  pilot studies, not one benchmark; higher-efficiency cells lose more) ([pv magazine](https://pv-magazine.com/2021/10/09/the-weekend-read-half-cut-solar-cells-on-edge), [TU Delft](https://repository.tudelft.nl/file/File_867bbb9d-ee6d-4abe-88e9-a94e0b4430a9?preview=1)).
+- **Hobbyists:** a university solar-car team cut SunPower back-contact cells into thirds with a fiber laser marker,
+  found the settings by trial and error, snapped the pieces apart by hand and estimated about 1 percent loss; an
+  Instructables guide and forums describe scoring a bare cell and snapping it; PowerFilm reports a cell cut in three
+  gave about 89 percent of its power when the pieces were recombined ([DIY guide](https://www.the-diy-life.com/how-to-split-a-solar-cell-into-two/), [PowerFilm](https://blog.powerfilmsolar.com/education/the-horizon-blog/2018/11/30/whole-cells-vs-cut-cells-whats-the-difference), [forum](https://diydrones.com/forum/topics/breaking-solar-cells-into-pieces)).
+
+Cautions found, none of them showstoppers:
+- Only bare cells can be cut; a laminated cell cannot.
+- SunPower back-contact cells have a heavy copper backing and an interdigitated rear pattern, which make cutting harder,
+  and each piece must keep access to both polarities. Their warranty covers whole cells only. A cut cell can lose fill
+  factor badly if cut badly (one example fell to about 15 percent efficiency).
+- Forum opinion is split on whether micro-cracks from a home cut spread over time; factory cuts are annealed.
+- Scoring with a disc glass cutter was reported to crack cells; a hard scribe or a laser is better.
+- No published breakage rate was found for home cutting, so the cost estimate's doubling is a guess.
+
+Practical steps: buy spares (at least twice the cells needed), cut test pieces first, check the rear contact layout of the
+chosen cell before cutting, and measure the cut pieces' voltage and current under a lamp. Choosing a conventional
+front-and-back-contact cell instead of a back-contact one avoids the rear-pattern difficulty; this was not compared in detail.
+
+With the baseline chosen, the wiring is one series string of 15 cells per side: 8.7 V, 1.03 A and about 9 W at one sun
+(option B). The six holes per side serve a serpentine: row 1 left and row 3 right carry the two external leads, and the
+other four holes take the two jumpers between rows, which run inside the cavity.
+
 ## What the original uses
 
 The cell grid is 5 x 3 per side of about 69 x 39 mm with 6.5 mm clipped bottom corners (`original-dimensions.md` 3g,
