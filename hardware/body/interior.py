@@ -7,7 +7,7 @@ and the differential (T-slot frame, bearing plates) is in hardware/chassis/frame
 Everything here is ASSUMPTION except the outer shape (body.py) and the pivot (3i).
 
   * Rear compartment: battery pack on the floor. Front compartment: controller and
-    drivers on the floor, with a keep-out under the mast base for the cable entry.
+    drivers on the floor, (the mast's cable hangs loose and enters at a gland hole in the deck).
   * Part sizes follow docs/electronics-spec.md (candidates, not bought); heights and
     masses marked ASSUMPTION are not sourced.
 
@@ -32,8 +32,7 @@ _MODELS = None
 
 WALL_T = 2.0             # side wall and end wall panels (aluminium sheet)   ASSUMPTION
 FLOOR_T = 2.0            # floor panel                              ASSUMPTION
-RECESS_X = B.WHEELBASE / 2   # lower end panels (below the ledge) stand back to the wheel axle line, x = +-136.5: owner's reading of the CAD models, 2026-11-08 (original-dimensions.md 3n)
-LEDGE_Z = 245.0          # underside of the overhanging upper end box, from the front view (z 234 to 247) and the dense cloud (step between 250 and 265)   derived
+RECESS_X = B.WHEELBASE / 2   # the end panels (full height) stand back to the wheel axle line, x = +-136.5: owner's reading of the CAD models, 2026-11-08 (original-dimensions.md 3n); the deck and the side panels keep their stated lengths and overhang them
 TAN = math.tan(math.radians(B.SIDEWALL_DEG))
 COS = math.cos(math.radians(B.SIDEWALL_DEG))
 
@@ -61,8 +60,6 @@ PANEL_GAP = 10.0         # clearance between the side panels and the frame behin
                          # by several mm)                                                     derived, by eye
 PIVOT_HOLE_D = 22.0      # clearance hole in each side panel for the pivot shaft (the panel floats on its pivots)  ASSUMPTION
 DECK_HOLE_X, DECK_HOLE_Y, DECK_HOLE_D = 112.0, -36.0, 16.0   # Ø16 gland hole in the deck beside the mast base plate, over the Rx board's jack, for the round camera-link cable (plug 13.5 x 12 mm) (2026-11-08)
-KEEP_OUT = dict(size=(15.0, 40.0, 30.0), at=(159.2, 0.0))   # under the mast base, in the gap between the mast cross rail
-                                                           # and the front end rail (frame.py), for the cable entry  ASSUMPTION
 
 
 def half_width(z):
@@ -82,8 +79,8 @@ def cavity():
            (inner_half_width(z1), z1), (-inner_half_width(z1), z1)]
     length = B.SIDE_PLATE_LEN - 2 * WALL_T
     cav = Pos(B.BODY_X0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=length / 2, both=True)
-    for sx in (1, -1):                                 # below the ledge the cavity ends at the recessed end panels
-        cav = cav - Pos(sx * (RECESS_X - WALL_T + 100.0), 0, LEDGE_Z / 2) * Box(200.0, 400.0, LEDGE_Z)
+    for sx in (1, -1):                                 # the cavity ends at the recessed end panels
+        cav = cav - Pos(sx * (RECESS_X - WALL_T + 100.0), 0, 200.0) * Box(200.0, 400.0, 400.0)
     return cav
 
 
@@ -126,9 +123,6 @@ def placed_parts():
             sx, sy, sz = d["size"]
             x, y = d["at"]
             out[n] = Pos(x, y, d.get("z", floor_z() + sz / 2)) * Box(sx, sy, sz)
-    kx, ky, kz = KEEP_OUT["size"]
-    out["keep-out: mast cable entry"] = Pos(KEEP_OUT["at"][0], KEEP_OUT["at"][1],
-                                            B.DECK_TOP_Z - B.DECK_T - kz / 2) * Box(kx, ky, kz)
     return out
 
 
@@ -161,8 +155,8 @@ def shell(cav):
     slab = Pos(B.BODY_X0, 0, (z0 + z1) / 2) * Box(B.SIDE_PLATE_LEN + 20, 2 * B.TOP_WIDTH, z1 - z0)
     walls = (outer & slab) - cav_long
     sh = (outer - cav) - walls
-    for sx in (1, -1):                                 # the end panels below the ledge stand back to RECESS_X; the 2 mm shelf under the overhang stays
-        sh = sh - Pos(sx * (RECESS_X + 100.0), 0, (LEDGE_Z - WALL_T) / 2) * Box(200.0, 400.0, LEDGE_Z - WALL_T)
+    for sx in (1, -1):                                 # the end panels stand back to RECESS_X (full height); the deck above keeps its length
+        sh = sh - Pos(sx * (RECESS_X + 100.0), 0, z1 / 2) * Box(200.0, 400.0, z1)
     d = PARTS["master switch (rear panel)"]
     cut = Pos(d["at"][0] + 3.0, d["at"][1], d["z"]) * Rot(0, 90, 0) * Cylinder(SWITCH_CUTOUT_D / 2, 12.0)
     deck_hole = Pos(DECK_HOLE_X, DECK_HOLE_Y, B.DECK_TOP_Z - B.DECK_T / 2) * Cylinder(DECK_HOLE_D / 2, B.DECK_T + 2.0)

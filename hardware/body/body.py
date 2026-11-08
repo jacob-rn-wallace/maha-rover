@@ -70,7 +70,7 @@ CLIP = 0.0               # plain rectangles (pieces from the outer thirds of a c
 CELL_T = 0.8             # piece (about 0.15 mm) plus adhesive and a clear laminate over it       ASSUMPTION
 HOLE_D = 5.0             # wire hole through the side panel at both ends of every row, under the end piece,
                          # for the ribbon or wire that carries the row's string end inside   ASSUMPTION
-HOLE_X = 160.2           # x of those holes (clear of the posts at |x| > 168)
+HOLE_X = 107.1           # x of those holes: in the 9.7 mm gap between the 4th and 5th cell columns, clear of the posts (x 114 to 134) and inside the recessed end panels (136.5)
 FIELD_Z = 255.0          # field centre height on the face: the cells span z 196 to 314 in the side view
                          # of the original ([S5] Fig. 15, pixel scan, 3k); was the mid-wall height
                          # 233.5, an assumption, which put the lowest row over the wheels   derived

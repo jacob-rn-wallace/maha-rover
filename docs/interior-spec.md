@@ -7,7 +7,7 @@ the battery and electronics go. Replica design, all ASSUMPTION except the outer 
 the battery box is still a size class.
 
 ## Recessed ends (2026-11-08)
-Below a ledge at z 245 the cavity ends at x = +-134.5 (the end panels at the wheel axle line, `frame-spec.md`); above it the cavity runs the full length, with the electronics on the deck's underside there. Moved: battery x -100, bus bar -44, 5 V converter 124, solar charge controller 108, master switch on the recessed rear panel at x -136.5. `interior.py` reports 0 mm3 outside the cavity and no clashes.
+The cavity ends at x = +-134.5, the end panels standing at the wheel axle line over their full height (`frame-spec.md`). Moved: battery x -100, bus bar -44, 5 V converter 124, solar charge controller 108, master switch on the recessed rear panel at x -136.5. The mast-base keep-out is gone. `interior.py` reports 0 mm3 outside the cavity and no clashes.
 
 ## Panels
 
@@ -49,7 +49,6 @@ The differential cross rails split the upper cavity; the floor is open from end 
 | CSI extender Rx board (Arducam kit) | about 35 x 25 board, jack 13 tall (placeholder) | 0.010 (assumed) | under the deck, x 104, y -36, beside the Pi (2026-11-08); a Ø16 gland hole in the deck at x 112, y -36, over its jack, admits the loose camera-link cable |
 | Servo bus adapter (Waveshare Bus Servo Adapter A) | 44 x 33 x 16 with posts | 0.021 (retailer) | under the deck, x 104, y -3, beside the Pi: a short USB lead (2026-11-08) |
 | Solar charge controller (part not chosen) | 50 x 30 x 12 | 0.03 (assumed) | front compartment, on the floor at x 112, y -65, between the drivers and the bottom side rail (`solar-spec.md`) |
-| Keep-out under the mast base | 15 x 40 x 30 | n/a | front, in the gap between the mast cross rail and the front end rail, for the cable entry from the mast |
 
 All of them fit the cavity and none clash with each other, the frame or the housing. Together
 the electronics are about 0.28 kg with their centre at x -67, z 142, which puts the heavy mast

@@ -8,8 +8,8 @@ All positions and the panel material are ASSUMPTION.
 
 Frame (owner's sketch, 2026-11-07: every extrusion is vertical or horizontal; only the panels lean):
   * a STEPPED frame: a wide bottom frame (two side rails running the full length, joined by
-    two end cross rails) and a narrow top frame (end cross rails, side rails and a mast cross
-    rail under the deck), joined by four vertical posts that stand on the bottom end cross rails
+    two end cross rails) and a narrow top frame (end cross rails and side rails under the deck; no
+    rail under the mast: the mast base bolts to the deck alone, 2026-11-08), joined by four vertical posts that stand on the bottom end cross rails
   * each bottom side rail is a single 20 x 40 member (20 wide, 40 tall, z 126 to 166) with a 16 mm
     hole drilled through it for the pivot shaft (a 12 mm tube), a flanged plain bushing at each
     end of the hole; the shaft's second support is a bushing in the differential housing wall
@@ -54,11 +54,10 @@ SLEEVE_OD, SLEEVE_ID = 16.0, 14.0   # aluminium sleeve, 20 long, bonded in the r
 BUSH_ID, BUSH_OD, BUSH_L = 12.0, 14.0, 9.0   # one igus GFM-1214-09 type flanged plain bushing (12 bore, 14 OD, 9 long, H7 press fit) in each end of the sleeve (replaces the 688 bearing)  stated (retailer listing)
 EDGE = 0.2               # clearance to the end panels and the floor
 G = I.PANEL_GAP          # frame outer faces sit this far inside the side panels (at the top outer corner of the rails)
-PIV_X = 150.0            # pivot standoffs at x = +-150, near the corners   ASSUMPTION
+PIV_X = 125.0            # pivot standoffs at x = +-125, at the ends of the shortened rails (the side panels, 380 long, overhang them by 65 mm)   ASSUMPTION
 PIV_D = 8.0              # standoff stud diameter                          ASSUMPTION
 PIV_KG = 0.015           # one standoff with its rod end and fasteners     ASSUMPTION
 CROSS_X = 28.0           # differential cross rails at x = +-28
-MAST_RAIL_X = 140.7      # cross rail under the mast base; the base (x 122 to 200) also spans the front end rail  ASSUMPTION
 MID_Z = 175.0            # centre height of the mid rails          ASSUMPTION
 PETG = 1.27              # g/cm3
 FIX_PITCH = 100.0        # panel screw pitch                      ASSUMPTION
@@ -67,9 +66,8 @@ PANEL_MASS_NOTE = "aluminium sheet at 2.70 g/cm3"
 
 Z_FLOOR = I.floor_z()                       # floor panel top
 Z_DECK = B.DECK_TOP_Z - B.DECK_T            # deck panel underside
-X_END = B.SIDE_PLATE_LEN / 2 - I.WALL_T     # inner face of the upper end panels (above the ledge)
-X_LOW = I.RECESS_X - I.WALL_T               # inner face of the recessed lower end panels (2026-11-08): the bottom end rails, posts and bottom and mid side rails end here
-PIV_X_LOW = 120.0                           # bottom pivot standoffs, inboard of the shortened bottom rails  ASSUMPTION
+X_END = I.RECESS_X - I.WALL_T               # inner face of the end panels, recessed to the wheel axle line (2026-11-08): every rail and post ends here; the deck and side panels overhang
+X_LOW = X_END
 
 
 def yin(z):
@@ -102,7 +100,7 @@ def post(sx, sy):
     """Vertical post standing on the bottom end cross rail, up to the deck underside."""
     xc = sx * (X_LOW - P / 2 - EDGE)
     y0, y1 = (YO - P, YO) if sy > 0 else (-YO, -(YO - P))
-    return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK - P)       # stops under the top side rail, bracketed to it
+    return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK)
 
 
 def standoffs():
@@ -114,7 +112,7 @@ def standoffs():
     for sy in (1, -1):
         for sx in (1, -1):
             for lvl, zc, yo in (("bottom", Z_FLOOR + RAIL_H / 2, YB), ("top", Z_DECK - P / 2, YO)):
-                stud = Pos(sx * (PIV_X_LOW if lvl == 'bottom' else PIV_X), sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
+                stud = Pos(sx * (PIV_X), sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
                 out[f"pivot {lvl} {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = stud & cav
     return out
 
@@ -136,8 +134,7 @@ def build():
         rail = side_rail(sy, -(X_LOW - EDGE), X_LOW - EDGE, zr, YB, RAIL_H)
         m[f"bottom side {s}"] = rail - Pos(0, 0, A.PIVOT_Z) * Rot(90, 0, 0) * Cylinder(HOLE_D / 2, 400.0)   # the pivot shaft goes through
         m[f"top side {s}"] = side_rail(sy, -inner, inner, zt)
-        m[f"mid side {s}"] = side_rail(sy, -(X_LOW - P - 2 * EDGE), X_LOW - P - 2 * EDGE, MID_Z)
-    m["top cross under mast"] = cross_rail(MAST_RAIL_X, zt)
+        m[f"mid side {s}"] = side_rail(sy, -inner, inner, MID_Z)
     for sx in (1, -1):
         m[f"differential cross {'F' if sx > 0 else 'R'}"] = cross_rail(sx * CROSS_X, MID_Z)
     return m
@@ -225,12 +222,8 @@ if __name__ == "__main__":
         print(f"  rail hole {HOLE_D:.0f} mm: bushings vs rail {(bush[0 if sy > 0 else 1] & rail).volume:.1f} mm3; sleeve OD {SLEEVE_OD:.0f} in a {HOLE_D:.0f} mm hole")
 
     print("\nmounting")
-    mast_rail = members["top cross under mast"].bounding_box()
-    front = members["top end cross F"].bounding_box()
-    print(f"  mast base plate x {B.MAST_X - 38:.0f}..{B.MAST_X + 38:.0f}; it lies over the mast cross rail (x {mast_rail.min.X:.0f}..{mast_rail.max.X:.0f}) "
-          f"and the front end rail (x {front.min.X:.0f}..{front.max.X:.0f}); cable gap between them {front.min.X - mast_rail.max.X:.0f} mm")
-    print(f"  top side rails at y +-{YO - P / 2:.0f}: the mast plate (y +-38) lies between their outer faces, "
-          f"so the plate bolts to the cross rail and front end rail, and its cable hole can sit in the gap between them")
+    print(f"  mast base plate x {B.MAST_X - 38:.0f}..{B.MAST_X + 38:.0f} lies on the deck, which overhangs the frame (ends at x {X_END:.0f}) by {B.DECK_LEN / 2 - X_END:.0f} mm; "
+          f"the plate is bolted to the deck alone (no cross rail), so {B.MAST_X + 38 - X_END:.0f} mm of the plate (and the mast, at x {B.MAST_X:.0f}) is cantilevered beyond the rails")
 
     # ---- connectivity: every member must touch another along a face (joint), and the frame must be one piece ----
     names_ = list(members)
@@ -258,7 +251,7 @@ if __name__ == "__main__":
 
     # ---- pivot standoffs ----
     st = standoffs()
-    print(f"\npivot standoffs: {len(st)} ({len(st) // 2} per side panel), at x = +-{PIV_X:.0f} (top) and +-{PIV_X_LOW:.0f} (bottom); panel held {G:.0f} mm off the frame at the top outer corner of the rails")
+    print(f"\npivot standoffs: {len(st)} ({len(st) // 2} per side panel), at x = +-{PIV_X:.0f}; panel held {G:.0f} mm off the frame at the top outer corner of the rails")
     for n, v in list(st.items())[:2]:
         bb = v.bounding_box()
         print(f"  {n}: length {bb.size.Y:.1f} mm, z {bb.min.Z:.1f} to {bb.max.Z:.1f}")
@@ -277,7 +270,6 @@ if __name__ == "__main__":
         "top side rail to post (bracket)": 4,
         "mid side rail to post (bracket)": 4,
         "differential cross rail to mid side rail (bracket)": 4,
-        "mast cross rail to top side rail (bracket)": 2,
     }
     nj = sum(joints.values())
     print("\njoints (one standard corner bracket each, 2 T-nuts and 2 M4 bolts)")
@@ -291,14 +283,14 @@ if __name__ == "__main__":
         return sum(max(2, math.ceil(L[n] / FIX_PITCH)) for n in names)
     pick = lambda *keys: [n for n in members if any(k in n for k in keys)]
     floor_b = nbolts(pick("bottom side", "bottom end cross"))
-    deck_b = nbolts(pick("top side", "top end cross", "top cross under mast"))
+    deck_b = nbolts(pick("top side", "top end cross"))
     end_b = (nbolts([n for n in members if n.endswith("cross F") and n.startswith(("bottom end", "top end"))] + pick("post FL", "post FR")) +
              nbolts([n for n in members if n.endswith("cross R") and n.startswith(("bottom end", "top end"))] + pick("post RL", "post RR")))
     side_b = 8                                         # the pivot standoffs: one M4 into a T-nut each (the side panels have no other fixing)
     total_b = floor_b + deck_b + end_b + side_b
     print(f"\npanel fixing (M4 button head into T-nuts, pitch about {FIX_PITCH:.0f} mm, at least 2 per member)")
     print(f"  floor {floor_b}, deck (the lid) {deck_b}, end panels {end_b}, side panels {side_b} (the 8 pivot standoffs): total {total_b} screws and {total_b} T-nuts")
-    print("  mast base: 4 M4 bolts through the base plate and deck into the mast cross rail (x 141) and front end rail (x 178), y +-30")
+    print("  mast base: 4 M4 bolts through the base plate and the deck into T-nuts or nuts under it, y +-30 (no rail under the mast any more)")
 
     # masses
     sh_mass = (shell.volume + sum(sp.volume for sp in sides)) / 1e3 * ALU / 1000.0

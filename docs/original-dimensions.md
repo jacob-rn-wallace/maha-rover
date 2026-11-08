@@ -515,9 +515,7 @@ stays out of the repo; derived, plus or minus 10 mm, and the video may be anothe
   front (u -42 against -78) and about 25 to 35 mm behind it at the rear (u 278 against 302 to 312). The step lies between z 250 and 265 in the cloud.
 - **Front view [S18] Fig. 1** shows the same step as a horizontal ledge with three screw heads, at about z 234 to 247 (scaled from the 164 mm deck width), a lighter upper
   face between two vertical ribs holding the pan block, and a darker lower face below it.
-**Owner's reading of the final CAD models (2026-11-08), used in the model:** the lower end panels stand back to the wheel axle line (in the neutral position, both wheel pairs at the same angle), i.e. x = +-136.5 from the body centre with the 273 mm wheelbase, 53.5 mm in from the side-plate ends (63 mm from the deck's ends). This is deeper than the cloud's 25 to 35 mm; the video is a different revision (wheelbase 250 against 273), so the CAD reading takes precedence (derived, owner).
-So: the upper end faces are flush with the side plates and the lower ends are set back about 30 mm (25 to 35) below a ledge at about z 245. Below z 220 the cloud has no data
-(unverified; assumed to continue to the underside at z 124). Not yet in the model.
+**Owner's reading of the final CAD models (2026-11-08), used in the model:** the front and rear faces are recessed over their whole height, all at the same depth (the stepped lower/upper reading above is superseded), to the wheel axle line (neutral position, both wheel pairs at the same angle): x = +-136.5 from the body centre with the 273 mm wheelbase, 53.5 mm in from the side-plate ends and 64 mm from the deck's ends. This is deeper than the cloud's lower-panel reading of 25 to 35 mm; the video is a different revision (wheelbase 250 against 273), so the CAD reading takes precedence (derived, owner). In the model (2026-11-08).
 
 ### 3k. Position of the cell field in the side view [S5]
 

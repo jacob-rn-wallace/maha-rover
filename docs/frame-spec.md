@@ -25,7 +25,7 @@ top frame under the deck, joined by four vertical posts that stand on the bottom
   the floor panel (z 126 to 166), joined at the ends by two 20 x 20 end cross rails (z 126 to 146; all four corners closed). Outer faces at
   y = plus or minus 101.5. Each pivot shaft passes **through a 16 mm hole drilled in its side rail** at x = 0, z 145.7, in a bonded sleeve with a flanged plain bushing at each end (below). The rail is 40 mm tall so the hole leaves 12 mm of wall above and below it (an earlier
   20 x 20 rail, raised to put the axle at its centre, could take only a 12 mm hole and left 4 mm of wall; the shaft has since grown, see below).
-- **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, plus the cross rail under the mast.
+- **Top frame:** two side rails and two end cross rails under the deck, outer faces at y = plus or minus 70.0, (the cross rail under the mast was removed 2026-11-08).
 - **Posts:** y 50 to 70 (under the top rails), x at the ends, standing on the bottom end cross rails (from z 146); they lie 32 mm inboard of the
   bottom frame's outer face.
 
@@ -88,8 +88,7 @@ side panel.
     12 mm end bears on the wall's inner face). The bond carries 22.6 N.m against 7.1 N.m at the gearbox limit (factor 3.2); a pin is not used because it would cross the
     wire bore. The bending moment there is nearly zero.
   - **The housing carries 467 N at 3x** (156 N static) at each wall. The CAD shows the bosses, bushings, stub insertion and lugs clear the frame.
-- **Mast.** The base plate (x 123 to 199) lies over the mast cross rail (x 131 to 151) and the front end rail
-  (x 168 to 188); a 17 mm gap between them is left for the cable entry.
+- **Mast.** The base plate (x 123 to 199) lies on the deck, which overhangs the frame (its rails end at x 134) by 66 mm, and is bolted to the deck alone: there is no rail under the mast any more (owner, 2026-11-08). 64 mm of the plate is cantilevered beyond the rails; see the estimate under Recessed end panels.
 
 ## Joints (revised 2026-11-07)
 
@@ -104,7 +103,6 @@ Every rail-to-rail and rail-to-post joint is a plain 90 degree butt joint with a
 | Top side rail to post | 4 |
 | Mid side rail to post | 4 |
 | Differential cross rail to mid side rail | 4 |
-| Mast cross rail to top side rail | 2 |
 | **Total** | **26 brackets, 52 T-nuts, 52 M4 bolts** |
 
 Bracket sizes, T-nut type and bolt lengths are standard 20-series items, not chosen from a catalogue.
@@ -125,18 +123,24 @@ Panel holes are clearance holes; the T-nut sits in the frame.
 
 **Access to the cavity: the deck is the lid.** Undoing its 14 screws lifts off the deck with the mast attached
 (0.8 kg now); the 140 mm wide opening reaches the battery, drivers and controller. The mast's wires need a connector
-at the lid so the two can be parted. The mast base plate is held by 4 M4 bolts through the plate and deck into the
-mast cross rail (x 141) and the front end rail (x 178), at y plus or minus 30, so removing the lid does not
-unbolt the mast. The 17 mm gap between those two rails (x 151 to 168) is the cable entry.
+at the lid so the two can be parted. The mast base plate is held by 4 M4 bolts through the plate and deck into nuts under the deck, at y plus or minus 30, so
+the mast is part of the lid and comes off with it (the cord hangs loose through a gland hole).
 
-## Recessed lower end panels (2026-11-08)
-The original's front and rear panels are recessed (`original-dimensions.md` 3n). Owner's reading of the CAD models: the recess reaches the wheel axle line, x = +-136.5 (half the 273 mm
-wheelbase), below a ledge at z 245; the upper end box (z 245 to the deck) stays flush with the side panels and overhangs 53.5 mm each end. Model: `interior.py` (RECESS_X, LEDGE_Z: the lower
-end panels' outer faces at +-136.5, inner faces at +-134.5, a 2 mm shelf under the overhang, the cavity ends at +-134.5 below the ledge) and `frame.py` (X_LOW: the bottom end cross rails,
-posts, bottom and mid side rails end at +-134.3; the posts stop under the top side rails; the top end rails and top side rails stay out at the upper ends; the bottom pivot standoffs moved to x +-120).
-Electronics moved to fit: battery to x -100, bus bar to -44, 5 V converter to x 124, solar charge controller to x 108, master switch to x -136.5. The frame now weighs 1.85 kg (was 2.14), panels 2.38.
-(The upper end box is a closed hollow box of deck, shelf, end panel and the side panels; its attachment to the frame is not designed.) The dense cloud had put the recess about 35 mm from the end,
-i.e. 35 mm short of the axle line; the video is a different revision (3d), so the CAD reading is used.
+## Recessed end panels (2026-11-08)
+The original's front and rear panels are recessed (`original-dimensions.md` 3n). Owner's reading of the CAD models: the whole end faces, full height, stand back to the wheel axle
+line, x = +-136.5 (half the 273 mm wheelbase). The deck (401 long) and the side panels (380 long) keep their stated lengths and overhang the end panels by 64 and 53.5 mm; an earlier
+version here had an overhanging upper end box above a ledge at z 245, which the owner removed. Model: `interior.py` (RECESS_X: end panel outer faces at +-136.5, inner faces at
++-134.5, the cavity ends there) and `frame.py` (X_END: every rail and post ends at +-134.3; the bottom end rails, posts and top end rails stand at the corners as before, now 54 mm
+further in; the pivot standoffs at x +-125). The cross rail under the mast is gone; the mast base plate bolts to the deck alone.
+Electronics moved to fit: battery to x -100, bus bar to -44, 5 V converter to x 124, solar charge controller to x 108, master switch to x -136.5; the interior keep-out zone under the
+mast base is gone (nothing passes there). Solar wire holes moved from x 160 to 107.1 (the gap between the fourth and fifth cell columns), because x 160 is now beyond the end panel.
+Frame 1.69 kg (was 2.14), panels 2.26, chassis 3.95 kg.
+
+**Open, from this change (unchecked):**
+- *Mast on the overhanging deck.* The mast axis (x 161) is 27 mm beyond the frame's edge; the 75 x 80 x 3 base plate and the 3 mm deck form a 6 mm stack there. Rough estimate at 3 g sideways (mast
+  1.46 kg, centre 156 mm above the deck, moment 6.7 N.m): bending stress about 14 MPa in the 6 mm stack, but if the two plates act only as a 3 mm deck it is about 56 MPa and the head
+  tilts about 2 degrees (about 0.25 degrees with the 6 mm stack bolted tight). Stiffening options: bond or screw the plate to the deck over its whole area, a flanged deck edge, or a short cantilever bracket from the top end rail.
+- *Side panels.* They are 380 long on pivot standoffs at x +-125, so each end of a 2 mm panel with cells overhangs its standoffs by 65 mm. Stiffness not checked.
 
 ## Panels
 
@@ -157,8 +161,7 @@ about 0.6 kg lighter), or printed panels.
 - All 17 members and the bushings lie inside the cavity (the space inside the side panels); no member touches another; the 17 form one connected frame.
 - Frame and bushings are clear of the side panels (0 mm3 overlap); the standoffs clear every member.
 - The pivot shafts pass through the rail holes and bushings with no overlap, and the housing bosses clear the frame.
-- The frame does not touch the battery, controller, drivers, converter, differential housing, or the cable entry zone (15 x 40 x 30 mm, in the gap
-  under the mast). The tall rails now run through x = 0 at y 81 to 101, so the servo regulator moved to y -60 and the charger to y -65 (and later, with the real fuse block, the regulator to x -10).
+- The frame does not touch the battery, controller, drivers, converter, differential housing, or the deck-hung boards.
 - The 12 solar wire holes and the four terminal boards clear the frame.
 - Frame takes about 1.8 L of the 16.35 L cavity.
 
