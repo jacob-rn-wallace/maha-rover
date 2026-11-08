@@ -163,11 +163,27 @@ def bus_servo_adapter(standoff=5.0):
 
 
 
+def csi_extender_board(standoff=5.0):
+    """One board of the Arducam LAN cable extension kit (Tx or Rx are alike): CSI-2 over an RJ45 patch cable, rated to 10 m, for the HQ camera. Board size, jack position and mass were not found
+    (listings give the kit's package weight, 20 to 50 g with a 1 m cable): this is a placeholder of 35 x 25 mm with a standard RJ45 jack (16 x 21 x 13 mm) at one end and a 15-pin FPC connector at the
+    other, all ASSUMPTION."""
+    L, W, T = 35.0, 25.0, 1.6
+    solid = _box(0, L, 0, W, 0, T)
+    solid = solid + _box(L - 21.0, L + 1.0, 4.5, 20.5, T, T + 13.0)                      # RJ45 jack, 21 long, 16 wide, 13 tall, ASSUMPTION
+    solid = solid + _box(0.0, 5.0, 4.0, 21.0, T, T + 2.5)                                 # 15-pin FPC connector, ASSUMPTION
+    solid = solid + _box(10.0, 18.0, 8.0, 17.0, T, T + 1.5)                               # bridge chip, ASSUMPTION
+    holes = [(2.5, 2.5), (L - 2.5, 2.5), (2.5, W - 2.5), (L - 2.5, W - 2.5)]
+    solid = _holes(solid, holes, 2.5, -0.5, T + 0.5)
+    for (hx, hy) in holes:
+        solid = solid + (_post(hx, hy, -standoff, 0, 5.0) - _post(hx, hy, -standoff - 0.5, 0.5, 2.5))
+    return {"solid": solid, "mass": 0.010, "note": "size, jack and mass ASSUMPTION (not found)"}
+
+
 def models():
     return {
         "mc33926": mc33926_carrier(), "d24v22fx": d24v22fx(), "pi_zero_2w": pi_zero_2w(),
         "fuse_block": fuse_block_4way(), "rocker_switch": rocker_switch(),
-        "gnss_breakout": gnss_breakout(), "bus_servo_adapter": bus_servo_adapter(),
+        "gnss_breakout": gnss_breakout(), "bus_servo_adapter": bus_servo_adapter(), "csi_extender": csi_extender_board(),
     }
 
 

@@ -80,6 +80,8 @@ def cg_and_moment():
     pts.append((rot["disk"].volume / 1e6 * AL_G_CM3, c("disk").X, c("disk").Z))        # hollow turned aluminium shell (2026-11-08: was printed), by volume
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     pts.append((HB.LENS_KG, c("lens").X, c("lens").Z))
+    pts.append((rot["Tx pod"].volume / 1e6 * AL_G_CM3, c("Tx pod").X, c("Tx pod").Z))                              # aluminium pod on the box
+    pts.append((HB.TX_BOARD_KG, c("CSI extender Tx").X, c("CSI extender Tx").Z))
     for n in ("pan servo", "tilt servo"):
         pts.append((H.SERVO_MASS, c(n).X, c(n).Z))
     pts.append((MASSES["hardware"] + _BASE_INFO["hardware_kg"], TUBE_X, B.DECK_TOP_Z + 30.0))
@@ -112,7 +114,7 @@ def head_checks(p):
     eb = p["enclosure"].bounding_box()
     print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
     turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
-    static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
+    static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"], p["pan cable ring"]]
     moving = Compound([p[n] for n in turning])
     worst = 0.0
     for deg in range(-180, 181, 30):

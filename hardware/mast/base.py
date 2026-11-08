@@ -37,7 +37,9 @@ AL = 2.70e-6                                     # kg/mm3
 BEARING_KG = 0.024                               # ASSUMPTION (per bearing, 6806-2RS class; not looked up)
 HARDWARE_KG = 0.03                               # screws, retaining rings, coupling hardware ASSUMPTION
 HOUS_XY = BOX_Y                                  # for the plate size in mast.py
-CABLE_R = 14.5                                   # distance of the disc's Ø8 cable hole from the axis, towards -y (the servo is at y -10.1 to 35.1)
+CHAMBER_H = 20.0                                 # cable chamber above the lid: the flange is raised this far above the lid so the cables can wind round the spindle
+RING_T = 1.5                                     # aluminium sheet ring round the chamber
+RING_ID = 70.0                                   # inside diameter of the ring (the lid top is 75 x 80)
 
 
 def _box(x0, x1, y0, y1, z0, z1):
@@ -56,7 +58,7 @@ def build(tx, z_plate_top):
     disc_z0, disc_z1 = sv_top, sv_top + 4.0
     b2_z1 = zin; b2_z0 = b2_z1 - BRG_W            # upper bearing against the lid
     b1_z0 = disc_z1 + 2.0; b1_z1 = b1_z0 + BRG_W  # lower bearing
-    fl0, fl1 = zt + 2.0, zt + 8.0                 # rotating top flange
+    fl0, fl1 = zt + CHAMBER_H, zt + CHAMBER_H + 6.0   # rotating top flange, raised above a cable chamber (2026-11-08)
     hy, hx = BOX_Y / 2, BOX_X / 2
     # base: walls and floor, four cast screw posts; cover: cap with a hole for the spindle; bearing tower hung under the lid
     base = _box(tx - hx, tx + hx, -hy, hy, z0, zj) - _box(tx - CAV_X / 2, tx + CAV_X / 2, -CAV_Y / 2, CAV_Y / 2, zf, zj + 1.0)
@@ -71,16 +73,18 @@ def build(tx, z_plate_top):
     housing = base + cover + tower + shelf
     servo = Pos(tx, 0, sv_c) * Rot(0, 0, 90) * H.sts3215()                       # long side along +y
     # coupling disc with a cable hole off the axis; spindle tube; top flange
-    # cable hole at 15 mm from the axis on the -y side, past the servo (whose body spans y -10.1 to 35.1 under the disc: the earlier hole at 9 mm from the axis sat on top of it)
-    disc = Pos(tx, 0, (disc_z0 + disc_z1) / 2) * Cylinder(18.0, 4.0) - Pos(tx, -CABLE_R, (disc_z0 + disc_z1) / 2) * Cylinder(4.0, 6.0)
+    disc = Pos(tx, 0, (disc_z0 + disc_z1) / 2) * Cylinder(18.0, 4.0)                  # plain coupling disc: no cable passes through the box any more (the cables cross in the chamber above the lid)
     sp_z0, sp_z1 = disc_z1, fl1
     spindle = Pos(tx, 0, (sp_z0 + sp_z1) / 2) * (Cylinder(SP_OD / 2, sp_z1 - sp_z0) - Cylinder(SP_ID / 2, sp_z1 - sp_z0 + 1.0))
     flange = Pos(tx, 0, (fl0 + fl1) / 2) * (Cylinder(30.0, fl1 - fl0) - Cylinder(SP_ID / 2, fl1 - fl0 + 1.0))
+    flange = flange - _box(tx - 8.0, tx + 8.0, -26.0, -10.0, fl0 - 1.0, fl1 + 1.0)                          # 16 x 16 opening where the extrusion's -y slot meets the flange: the cables drop into the chamber
+    ring = Pos(tx, 0, (zt + fl0 - 1.0) / 2) * (Cylinder(RING_ID / 2 + RING_T, fl0 - 1.0 - zt) - Cylinder(RING_ID / 2, fl0 - zt + 1.0))
+    ring = ring - _box(tx - RING_ID / 2 - RING_T - 1.0, tx - RING_ID / 2 + 3.0, -9.0, 9.0, zt - 1.0, zt + 14.0)    # 18 x 14 exit notch in the -x side of the ring
     brgs = []
     for zb0, zb1 in ((b1_z0, b1_z1), (b2_z0, b2_z1)):
         brgs.append(Pos(tx, 0, (zb0 + zb1) / 2) * (Cylinder(BRG_OD / 2, BRG_W) - Cylinder(BRG_D / 2, BRG_W + 1.0)))
-    parts = {"pan housing": housing, "pan servo": servo, "pan coupling disc": disc, "spindle": spindle + flange, "pan bearings": brgs[0] + brgs[1]}
-    kg_al = (disc.volume + spindle.volume + flange.volume + tower.volume + shelf.volume) * AL
+    parts = {"pan housing": housing, "pan servo": servo, "pan coupling disc": disc, "spindle": spindle + flange, "pan bearings": brgs[0] + brgs[1], "pan cable ring": ring}
+    kg_al = (disc.volume + spindle.volume + flange.volume + tower.volume + shelf.volume + ring.volume) * AL
     info = dict(z_flange_top=fl1, z_housing_top=zt, bearing_z=((b1_z0 + b1_z1) / 2, (b2_z0 + b2_z1) / 2), servo_z=(sv_c - H.SV_TOTAL / 2, sv_c + H.SV_TOTAL / 2),
                 al_kg=kg_al, bearing_kg=2 * BEARING_KG, hardware_kg=HARDWARE_KG, housing_kg=BOX_KG)
     return parts, info

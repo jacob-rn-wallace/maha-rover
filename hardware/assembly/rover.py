@@ -86,7 +86,7 @@ def collect():
     for n, s in ANT.build().items():
         add("wifi antenna", n, s)
     for n, s in MAST.parts().items():
-        add("GNSS patch" if n == "GNSS patch" else "camera" if n in ("lens", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n == "camera body" else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
+        add("GNSS patch" if n == "GNSS patch" else "camera" if n in ("lens", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n in ("camera body", "CSI extender Tx") else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
     placed = I.placed_parts()
     for n, s in placed.items():
         if n.startswith("keep-out"):

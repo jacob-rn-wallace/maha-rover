@@ -29,7 +29,8 @@ DIFFERENTIAL = 0.30                  # kg: housing, four steel gears, cross pin,
 HARNESS_FASTENERS = 0.40             # kg: wiring, T-nuts, brackets, bolts                                     ASSUMPTION
 SOLAR = 60 * 0.0015                  # kg: 60 pieces with adhesive and laminate, 1.5 g each                    ASSUMPTION
 TERMINALS = 0.05                     # kg: boards, diodes, fuses                                               ASSUMPTION
-RF_CABLES = 0.008                    # kg: two micro-coax runs with u.FL ends, the RP-SMA pigtail, a short USB lead, the 0.6 m camera ribbon, the Zero 2 W u.FL modification   ASSUMPTION
+RF_CABLES = 0.006                    # kg: two micro-coax runs with u.FL ends, the RP-SMA pigtail, a short USB lead, two short camera ribbons, the Zero 2 W u.FL modification   ASSUMPTION
+RJ45_CABLE = 0.030                   # kg: the extension kit's 1 m RJ45 patch cable (about 30 g/m for a Cat5e patch cord; ASSUMPTION, not weighed)
 TARGET = 10.0
 
 
@@ -84,7 +85,8 @@ def collect():
     from build123d import Compound
     a = Compound(list(ANT.build().values())).center()
     add("antennas and radios", "2.4 GHz dipole and block", ANT.MASS, (a.X, a.Y, a.Z))
-    add("antennas and radios", "RF cables, USB lead, camera ribbon", RF_CABLES, (100.0, 0.0, 300.0))     # the GNSS board and servo adapter are electronics parts (interior.py); the GNSS patch is in the mast group
+    add("antennas and radios", "RF cables, USB lead, short ribbons", RF_CABLES, (100.0, 0.0, 300.0))
+    add("antennas and radios", "RJ45 camera-link cable (1 m)", RJ45_CABLE, (140.0, 0.0, 480.0))     # the GNSS board and servo adapter are electronics parts (interior.py); the GNSS patch is in the mast group
     return items
 
 

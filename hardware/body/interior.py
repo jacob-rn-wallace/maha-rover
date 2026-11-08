@@ -41,6 +41,7 @@ PARTS = {
     "battery 2S2P 18650":  dict(size=(68.0, 38.0, 38.0), mass=0.22, at=(-110.0, 0.0)),                                      # size class from 4 cells in 2 x 2; box
     "controller (Pi Zero 2 W)": dict(model="pi_zero_2w", at=(95.0, 33.0), deck=True),                                        # on the deck's underside since 2026-11-08 (was on the floor at 60, 35): near the mast cable entry
     "GNSS receiver (NEO-M9N breakout)": dict(model="gnss_breakout", at=(58.0, -30.0), deck=True),                          # on the deck's underside, a short coax and UART run from the entry and the Pi
+    "CSI extender Rx board (Arducam kit)": dict(model="csi_extender", at=(104.0, -36.0), deck=True),                          # on the deck's underside, beside the Pi: the round cable arrives from the mast entry; 15-pin ribbon to the Pi (2026-11-08)
     "servo bus adapter (Waveshare, STS3215)": dict(model="bus_servo_adapter", at=(104.0, -3.0), deck=True),                   # on the deck's underside beside the Pi: short USB lead, short servo cable
     "motor driver A (MC33926)": dict(model="mc33926", at=(60.0, -16.0)),
     "motor driver B (MC33926)": dict(model="mc33926", at=(60.0, -44.0)),
@@ -57,6 +58,7 @@ PANEL_GAP = 10.0         # clearance between the side panels and the frame behin
                          # of its body on spacers (front view, [S18] Fig. 1; about 10 mm read by eye on a 1.10 mm/px scale, uncertain
                          # by several mm)                                                     derived, by eye
 PIVOT_HOLE_D = 22.0      # clearance hole in each side panel for the pivot shaft (the panel floats on its pivots)  ASSUMPTION
+DECK_HOLE_X, DECK_HOLE_D = 112.0, 16.0   # Ø16 hole in the deck beside the mast base plate for the round camera-link cable (plug 13.5 x 12 mm) (2026-11-08)
 KEEP_OUT = dict(size=(15.0, 40.0, 30.0), at=(159.2, 0.0))   # under the mast base, in the gap between the mast cross rail
                                                            # and the front end rail (frame.py), for the cable entry  ASSUMPTION
 
@@ -156,7 +158,8 @@ def shell(cav):
     sh = (outer - cav) - walls
     d = PARTS["master switch (rear panel)"]
     cut = Pos(d["at"][0] + 3.0, d["at"][1], d["z"]) * Rot(0, 90, 0) * Cylinder(SWITCH_CUTOUT_D / 2, 12.0)
-    return sh - cut
+    deck_hole = Pos(DECK_HOLE_X, 0, B.DECK_TOP_Z - B.DECK_T / 2) * Cylinder(DECK_HOLE_D / 2, B.DECK_T + 2.0)
+    return sh - cut - deck_hole
 
 
 if __name__ == "__main__":

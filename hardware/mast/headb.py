@@ -131,7 +131,8 @@ def enclosure():
     cover = box(xj, x1, CY - hy, CY + hy, AZ - hz, AZ + hz) - box(xj - 1.0, x1 - ENC_WALL, CY - 28.3, CY + 28.3, AZ - 25.3, AZ + 25.3)
     cover = cover - cyl_x(x1 - ENC_WALL - 1.0, x1 + 1.0, CY, AZ, 17.5)
     ys0, ys1 = CY + hy - ENC_WALL - 1.0, CY + hy + 1.0                                                  # the +y side wall carries the disk
-    base = base - cyl_y(ys0, ys1, TX, AZ - 8.0, 7.0)                                                    # Ø14 cable hole
+    xc_ = ENC_X1 - ENC_X / 2
+    base = base - box(xc_ - 10.0, xc_ + 10.0, CY - hy - 1.0, CY - hy + ENC_WALL + 1.0, AZ - 13.5, AZ - 10.5)   # 20 x 3 slot in the -y wall for the camera ribbon to the extender pod
     for sx in (-1, 1):
         for sz in (-1, 1):
             base = base - cyl_y(ys0, ys1, TX + sx * 12.7, AZ + sz * 12.7, 1.7)                           # four M3 clearance holes on a Ø36 circle (into threads tapped in the disk's ring)
@@ -141,6 +142,30 @@ def enclosure():
             base = base + post
             cover = cover + cyl_x(x1, x1 + 1.5, CY + sy * 26.0, AZ + sz * 23.0, 3.4)      # M4 cover screw heads
     return base + cover
+
+
+TX_BOARD_KG = 0.010                               # ASSUMPTION: the Arducam extension kit's Tx board, mass not found (package 20 to 50 g with a 1 m cable)
+
+
+def tx_pod():
+    """The CSI extender's Tx board in a small aluminium pod on the box's -y wall (where the original has a blue connector housing, [S18] Fig. 1): the camera's ribbon comes through a slot in the
+    wall; the RJ45 jack faces down and the round cable leaves through a hole in the pod's floor, runs under the box to the +y side and wraps the disk's rim (it stays outside the box because its
+    plug, about 13.5 x 12 mm, will not pass the box's cavity). Board 35 x 25 mm with a 16 x 21 x 13 mm jack and the pod's 1.5 mm walls are ASSUMPTIONS: the kit's board size was not found."""
+    xc = ENC_X1 - ENC_X / 2
+    y1 = CY - ENC_Y / 2                                         # the box's -y face
+    y0 = y1 - 21.0
+    outer = box(xc - 17.0, xc + 17.0, y0, y1, AZ - 17.0, AZ + 17.0)
+    inner = box(xc - 15.5, xc + 15.5, y0 + 1.5, y1 + 1.0, AZ - 15.5, AZ + 15.5)
+    pod = outer - inner
+    pod = pod - cyl_z_hole(xc, y1 - 12.0, AZ - 18.0, AZ - 14.0, 7.5)                              # Ø15 cable exit in the pod's floor
+    pod = pod - box(xc - 10.0, xc + 10.0, y1 - 1.0, y1 + 1.0, AZ - 13.5, AZ - 10.5)                  # the ribbon slot continues through the pod's open face (box side)
+    pcb = box(xc - 17.5 + 2.0, xc + 17.5 - 2.0, y1 - 4.6, y1 - 3.0, AZ - 12.5, AZ + 12.5)
+    jack = box(xc - 8.0, xc + 8.0, y1 - 17.6, y1 - 4.6, AZ - 14.0, AZ + 7.0)
+    return pod, pcb + jack
+
+
+def cyl_z_hole(x, y, z0, z1, r):
+    return Pos(x, y, (z0 + z1) / 2) * Cylinder(r, z1 - z0)
 
 
 DISK_D = 40.0
@@ -179,9 +204,10 @@ def head(z_ext=Z_EXT):
     hz = AZ + ENC_Z / 2                                                                                     # top of the box (z 696); the flat hat sits on the cover's top face up to z 700
     parts["antenna hat"] = Pos(xc, CY, hz + HAT_T / 2) * Cylinder(35.0, HAT_T)                                 # aluminium ground-plane disc, Ø70 x 1.5 mm
     parts["GNSS patch"] = box(xc - 17.5, xc + 17.5, CY - 17.5, CY + 17.5, hz + HAT_T, hz + HAT_T + 4.0)       # GNSS L1 ceramic patch, 35 x 35 x 4 mm (top at z 701.5)
+    parts["Tx pod"], parts["CSI extender Tx"] = tx_pod()
     c = camera()
     parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
 
 
-TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood")
+TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood", "Tx pod", "CSI extender Tx")
