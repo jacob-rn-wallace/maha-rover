@@ -27,6 +27,7 @@ sys.path.insert(0, str(HERE.parent / "body"))
 sys.path.insert(0, str(HERE))
 import body as B  # noqa: E402
 import head as H  # noqa: E402
+import base as BASE  # noqa: E402
 
 # ---- Positions (3j) ---------------------------------------------------------
 TUBE_X = B.MAST_X                  # tube centre; 24.2 ahead of the front axle   derived [3j]
@@ -38,7 +39,8 @@ TOP_Z = B.TOP_Z                    # top of the head                            
 
 # ---- Rotating parts, measured along the mast from the hinge ----------------
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
-TUBE_Z0, TUBE_Z1 = BASE_Z1, 577.0  # extrusion from the plate to the neck; top at 577 as the original's tube   derived [3j]
+_BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
+TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 577.0  # extrusion from the spindle flange to the neck; top at 577 as the original's tube   derived [3j]
 NECK_Z1 = 621.0                    # top of the neck / bottom of the head         derived [3j]
 ARM_Y0, ARM_Y1 = 25.0, 70.0        # C-arm bar, +Y side                           derived [3j], by eye
 ARM_X = 50.0
@@ -57,7 +59,8 @@ def parts():
     base = Pos(TUBE_X, 0, (BASE_Z0 + BASE_Z1) / 2) * Box(PLATE_XY, PLATE_XY, PLATE_T)
     tube = Pos(TUBE_X, 0, (TUBE_Z0 + TUBE_Z1) / 2) * Box(EXT, EXT, TUBE_Z1 - TUBE_Z0)   # slots ignored, as in frame.py
     hp, axes = H.build(TUBE_X, TUBE_Z1, NECK_Z1, TOP_Z, TUBE_W, ARM_X, ARM_Y0, ARM_Y1, HEAD_X, HEAD_Y, CAM_Y, CAM_AXIS_Z, CAM_FRONT_X, CAM_TUBE)
-    return {"base": base, "tube": tube, **hp}
+    hp = {k: v for k, v in hp.items() if k != "pan servo"}          # the pan servo is in the base now
+    return {"base": base, "tube": tube, **hp, **_BASE_PARTS}
 
 
 def cg_and_moment():
@@ -71,7 +74,10 @@ def cg_and_moment():
     for n in ("pan servo", "tilt servo"):
         pts.append((H.SERVO_MASS, c(n).X, c(n).Z))
     pts.append((H.MODULE_MASS, c("camera module").X, c("camera module").Z))
-    pts.append((MASSES["hardware"], TUBE_X, B.DECK_TOP_Z))
+    pts.append((MASSES["hardware"] + _BASE_INFO["hardware_kg"], TUBE_X, B.DECK_TOP_Z + 30.0))
+    pts.append((_BASE_INFO["housing_kg"], c("pan housing").X, c("pan housing").Z))
+    pts.append((_BASE_INFO["al_kg"], c("spindle").X, c("spindle").Z))
+    pts.append((_BASE_INFO["bearing_kg"], c("pan bearings").X, c("pan bearings").Z))
     m = sum(p[0] for p in pts)
     zc = sum(p[0] * p[2] for p in pts) / m
     xc = sum(p[0] * p[1] for p in pts) / m
@@ -95,26 +101,24 @@ def head_checks(p):
     arm_in = inner(TUBE_X - ARM_X / 2 + w, TUBE_X + ARM_X / 2 - w, ARM_Y0 + w, ARM_Y1 - w, NECK_Z1 + w, TOP_Z - 10 - w)
     tube_in = inner(CAM_FRONT_X - CAM_TUBE[0] + w, CAM_FRONT_X - w, CAM_Y - CAM_TUBE[1] / 2 + w, CAM_Y + CAM_TUBE[1] / 2 - w,
                     CAM_AXIS_Z - CAM_TUBE[2] / 2 + w, CAM_AXIS_Z + CAM_TUBE[2] / 2 - w)
-    for n, cav in (("pan servo", neck_in), ("tilt servo", arm_in), ("camera module", tube_in)):
+    for n, cav in (("tilt servo", arm_in), ("camera module", tube_in)):
         out = p[n].volume - _vol(p[n], cav)
         print(f"  {n:14s} outside its cavity {out:8.1f}")
-    for a, b in (("pan servo", "neck"), ("tilt servo", "arm"), ("tilt servo", "head"), ("camera module", "camera"), ("camera", "head"), ("pan servo", "arm"), ("tilt servo", "camera")):
+    for a, b in (("pan servo", "neck"), ("tilt servo", "arm"), ("tilt servo", "head"), ("camera module", "camera"), ("camera", "head"), ("tilt servo", "camera")):
         v = _vol(p[a], p[b])
         print(f"  {a:14s} vs {b:12s}: {v:8.1f}")
-    sv = p["pan servo"].bounding_box()
-    print(f"  pan servo z {sv.min.Z:.1f}..{sv.max.Z:.1f} in a neck cavity z {TUBE_Z1 + w:.0f}..{NECK_Z1 - w:.0f}: {NECK_Z1 - w - sv.max.Z:.1f} mm spare above the horn")
     tv = p["tilt servo"].bounding_box()
     print(f"  tilt servo y {tv.min.Y:.1f}..{tv.max.Y:.1f} in an arm cavity y {ARM_Y0 + w:.0f}..{ARM_Y1 - w:.0f}; x {tv.min.X:.1f}..{tv.max.X:.1f} in {TUBE_X - ARM_X / 2 + w:.0f}..{TUBE_X + ARM_X / 2 - w:.0f}; "
           f"z {tv.min.Z:.1f}..{tv.max.Z:.1f} in {NECK_Z1 + w:.0f}..{TOP_Z - 10 - w:.0f}")
     # pan sweep: arm, head, camera tube, module, tilt servo turn about the mast axis
-    static = [p["neck"], p["tube"], p["base"], p["pan servo"]]
-    moving = Compound([p[n] for n in ("arm", "head", "camera", "camera module", "tilt servo")])
+    static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
+    moving = Compound([p[n] for n in ("neck", "tube", "spindle", "arm", "head", "camera", "camera module", "tilt servo")])
     worst = 0.0
     for deg in range(-180, 181, 30):
         m_ = moving.rotate(ax_p, deg)
         v = sum(_vol(m_, s_) for s_ in static)
         worst = max(worst, v)
-    print(f"\npan sweep, -180 to +180 degrees in 30 degree steps: overlap of the arm and head with the neck, extrusion, base plate and pan servo: worst {worst:.1f} mm3")
+    print(f"\npan sweep, -180 to +180 degrees in 30 degree steps: overlap of the whole turning mast (spindle, extrusion, neck, arm, head) with the base plate, pan housing, servo and bearings: worst {worst:.1f} mm3")
     # tilt sweep: the camera tube and its module turn about the tilt axis
     tilting = Compound([p["camera"], p["camera module"]])
     print("tilt sweep: camera tube and module about the tilt axis (x %.1f, z %.0f), overlap with the head shell, neck, arm and tilt servo (mm3):" % (TUBE_X, CAM_AXIS_Z))
@@ -169,6 +173,8 @@ if __name__ == "__main__":
           f"(rover tilted 45 degrees: the same; a 20 degree slope gives {tq * math.sin(math.radians(20)):.2f} N.m)")
 
     print(f"extrusion {(TUBE_Z1 - TUBE_Z0):.0f} mm x {EXT_KG_PER_M} kg/m = {(TUBE_Z1 - TUBE_Z0) / 1000 * EXT_KG_PER_M:.2f} kg; its slots carry the camera and servo cables")
+    print()
+    BASE.checks(p, _BASE_INFO, TUBE_X, moment_1g_nm=tq, mast_kg=m)
     head_checks(p)
 
     export_step(Compound(list(p.values()), label="mast"), str(out / "mast.step"))

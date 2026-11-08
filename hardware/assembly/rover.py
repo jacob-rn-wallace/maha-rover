@@ -34,13 +34,13 @@ COLORS = {
     "differential": (205, 180, 80), "differential housing": (160, 170, 182), "mast": (214, 217, 222), "camera": (140, 120, 100),
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
     "switch": (60, 60, 64), "bearings": (225, 225, 230), "wheel hardware": (110, 112, 120),
-    "servos": (60, 100, 190), "camera module": (30, 150, 90), "pivot shaft": (40, 150, 165), "pivot boss": (150, 110, 190),
+    "servos": (60, 100, 190), "pan base": (222, 176, 96), "camera module": (30, 150, 90), "pivot shaft": (40, 150, 165), "pivot boss": (150, 110, 190),
     "controller": (30, 140, 90), "motor drivers": (30, 70, 160), "converters": (140, 70, 170), "charger": (210, 120, 50),
 }
 LEGEND_NAMES = {
     "frame": "20 x 40 rail and cross rails", "bearings": "sleeve and bushings", "pivot shaft": "shaft and stub", "link plates": "link plate",
     "pivot boss": "link plate boss", "differential housing": "differential housing, bosses, lugs", "differential": "gears and pin",
-    "servos": "STS3215 pan and tilt servos", "camera module": "Camera Module 3", "camera": "CAM-1 tube (printed shell)", "mast": "printed neck, arm and head; mast",
+    "servos": "STS3215 pan and tilt servos", "camera module": "Camera Module 3", "camera": "CAM-1 tube (printed shell)", "pan base": "pan base: housing, disc, spindle, bearings", "mast": "printed neck, arm and head; mast",
     "panels": "side panel", "controller": "Raspberry Pi Zero 2 W", "motor drivers": "motor drivers (MC33926 carriers)", "converters": "5 V and 6 V converters (D24V22Fx)",
     "charger": "solar charge module (box)", "battery": "battery pack (box)", "BMS": "BMS (box)", "fuses": "4-way fuse block", "bus bar": "power node (box)", "switch": "master switch",
 }
@@ -83,7 +83,7 @@ def collect():
     for n, s in parts.items():
         add("differential housing" if n == "housing" else "differential", n, Pos(0, 0, A.PIVOT_Z) * s)
     for n, s in MAST.parts().items():
-        add("camera" if n == "camera" else "servos" if "servo" in n else "camera module" if n == "camera module" else "mast", n, s)
+        add("camera" if n == "camera" else "servos" if "servo" in n else "camera module" if n == "camera module" else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
     placed = I.placed_parts()
     for n, s in placed.items():
         if n.startswith("keep-out"):
@@ -202,7 +202,7 @@ def pivot_detail(items, region, skip=()):
     return out
 
 
-def head_detail(items, region, groups=("mast", "camera", "servos", "camera module")):
+def head_detail(items, region, groups=("mast", "camera", "servos", "camera module", "pan base")):
     """Mast head parts clipped to a box (x0, x1, y0, y1, z0, z1); the cut faces are closed solids."""
     x0, x1, y0, y1, z0, z1 = region
     box = Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(x1 - x0, y1 - y0, z1 - z0)
@@ -289,7 +289,9 @@ def main():
     tx = MAST.TUBE_X
     imgs.append(head_view((tx, tx + 70, -70, 75, 570, 705), 200, 18, "Mast head: section at the mast axis (front half), from the rear left", 0.98, shift=0))
     imgs.append(head_view((tx - 40, tx + 70, -70, 75, 575, 660), 90, 89.5, "Mast head: plan section at the camera axis height (z 660), from above", 0.95, shift=0))
-    cols, rows = 2, 6
+    imgs.append(head_view((tx, tx + 60, -50, 50, 348, 470), 200, 20, "Mast base: section at the mast axis (front half), pan housing, servo, bearings, spindle", 0.98, shift=0))
+    imgs.append(head_view((tx - 50, tx + 50, -50, 50, 348, 470), 35, 22, "Mast base, exterior from the front left (extrusion and head cut off above z 470)", 0.9, shift=0))
+    cols, rows = 2, 7
     gap = 12
     sheet = Image.new("RGB", (cols * size[0] + (cols + 1) * gap, rows * size[1] + (rows + 1) * gap + 34), (255, 255, 255))
     t = ImageDraw.Draw(sheet)

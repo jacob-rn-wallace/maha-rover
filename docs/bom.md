@@ -20,7 +20,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 | Corner brackets, 20-series | 26 | Not found | (unverified) | Standard 20-series L brackets (`frame-spec.md`) | not known |
 | T-nuts (M4) and M4 bolts | 102 each (52 for the brackets, 50 for the panels) | Not found | (unverified) | Standard 20-series slot hardware; lengths not chosen | not known |
 | Side panel pivot standoffs | 8 | Side panels stand proud of the body on spacers ([S18] Fig. 1; gap about 10 mm by eye) | derived | 8 mm stud, about 12.5 mm long, with a rod end or ball joint and M4 bolt; parts not chosen | about 0.12, ASSUMPTION |
-| Mast extrusion, 40 x 40 T-slot | 1 x 223 mm | About 58 mm square tube (ULTEM) [3j], [S19] | derived | Catalogue 40 x 40 profile, about 1.86 kg/m (catalogue entries differ), plus a 76 x 76 x 6 mm aluminium base plate | 0.41 + 0.09 |
+| Mast extrusion, 40 x 40 T-slot | 1 x 223 mm | About 58 mm square tube (ULTEM) [3j], [S19] | derived | Catalogue 40 x 40 profile, about 1.86 kg/m (catalogue entries differ), plus a 76 x 76 x 6 mm aluminium base plate | 0.24 + 0.09 (shorter: stands on the pan spindle) |
 | Thermal blankets | - | ITO-coated MLI [S10] | stated | - | not known |
 | Fasteners, harness | - | not found | (unverified) | - | not known |
 
@@ -62,7 +62,7 @@ Status: **stated** / **derived** / **(unverified)** / **ASSUMPTION** (modelling 
 
 | Item | Qty | Original | Status | Replica | Mass (kg) |
 |---|---|---|---|---|---|
-| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | 40 x 40 T-slot extrusion on a base plate, fixed upright (stowing deferred), with a head of 2 mm printed shells (neck, C-arm, housing) holding two pan and tilt servos (Feetech STS3215 C001, 55 g each) (`mast-spec.md`, `electronics-spec.md`); **tilts only about 5 degrees as modelled, against 75 in the original** | 1.237 (EM, stated [S19]); under 1.4 flight. Replica 0.84 from the CAD and catalogue figures, shells ASSUMPTION |
+| Mast and gimbal | 1 | About 300 long, ULTEM 1010 with titanium and aluminium parts, fuse-wire hold-down, spring hinge rotating it 90 degrees. Pan 179 degrees either way, tilt 75 degrees either way [S19] | stated | 40 x 40 T-slot extrusion on a base plate, fixed upright (stowing deferred), with a head of 2 mm printed shells (neck, C-arm, housing) holding two pan and tilt servos (Feetech STS3215 C001, 55 g each) (`mast-spec.md`, `electronics-spec.md`); **tilts only about 5 degrees as modelled, against 75 in the original** | 1.237 (EM, stated [S19]); under 1.4 flight. Replica 0.98 (with the pan base) from the CAD and catalogue figures, shells ASSUMPTION |
 | CAM-1 | 1 | 35 x 35 x 73 mm optical tube, on the gimbal [S12] | stated | Raspberry Pi Camera Module 3, standard lens (25 x 23.862 x 11.3 mm per the brief's drawing) in a printed 35 x 35 x 73 mm tube, 2 mm walls | 0.210 stated [S12] (replica not weighed) |
 | CAM-2 | 1 | Fixed, rear, axis about 250 high [S12] | stated | - | 0.210 stated [S12] |
 | CAM-M (microscope) | 1 | Front, aperture about 210 high [S13] | stated / derived | - | not known |

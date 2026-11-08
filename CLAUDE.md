@@ -66,7 +66,7 @@ Settled from the final-configuration CAD and MBRSC statements (sources in
   authenticity and rear pad layout, the cutting method, protection.
 - Wheels: 200 x 80 mm, 14 radial grousers of 15 mm, skeletonized, Mg alloy
   (`hardware/wheel/`).
-- Mast: fixed upright, a 40 x 40 T-slot aluminium extrusion (decided 2026-11-07) on a base plate, centred 24.2 mm ahead of the front axle, carrying a head of printed shells holding two STS3215 servos and a Camera Module 3 at
+- Mast: fixed upright, a 40 x 40 T-slot aluminium extrusion (decided 2026-11-07) on a rotating spindle above a pan drive in a base housing (the pan servo is in the base), centred 24.2 mm ahead of the front axle, carrying a head of printed shells holding two STS3215 servos and a Camera Module 3 at
   the stated height (the head cannot yet tilt more than about 5 degrees: `docs/mast-spec.md`) (`docs/mast-spec.md`, `hardware/mast/mast.py`, built into the body model). Sizes from the
   CAD figures (`original-dimensions.md` 3j). Stowing is deferred; the hinged design is in commit `20aec90`.
 - Drive and suspension: 4 in-wheel motors [S3]; skid steering; passive differential gear
@@ -107,7 +107,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   (3 mm deck), the differential held by two cross rails, the pivot shafts (12 mm 4130 tubes, checked for bending in `hardware/chassis/rail_check.py`, bonded into the link plate bosses) running through 16 mm holes drilled in single 20 x 40 bottom side rails (bonded sleeve and igus-type flanged bushings) and supported again in the differential housing wall; the housing hangs from the cross rails by four lugs. Every
   extrusion is cut square and either vertical or horizontal (owner's sketch, 2026-11-07): a stepped frame, wide at the bottom and narrow at the top, joined by vertical posts. Only the side panels lean at 10 degrees: they are separate 2 mm plates (the solar panels) held about 10 mm off the frame on four pivot standoffs each near the corners, as the original's panels stand proud of its body (`original-dimensions.md` 3f). Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 9.92 kg, under the 10 kg target by only 0.08 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 207 mm.
+  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 10.07 kg, over the 10 kg target by 0.07 kg (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 209 mm.
 - Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
   panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
   charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:

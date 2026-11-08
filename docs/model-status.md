@@ -15,7 +15,7 @@ view, two views of the electronics bay (from above with the upper frame hidden, 
 | Drive | 4 motor envelopes (gearbox, can, boss, shaft), 8 bearings, clamp rings, hub extensions, drive flanges, collars | `motor.py` |
 | Suspension | 2 link plates with bosses and motor sleeves, 2 hollow pivot shafts (12 / 8 tube with a bonded 8 / 5 stub, bonded into the link plate bosses) with their wire holes | `arms.py` |
 | Differential | the 48 x 50 x 36 mm housing with its two shaft bosses, bushings and four mounting lugs, 4 gears as tooth-tip envelopes, cross pin | `differential.py` |
-| Mast | 76 mm base plate, 40 x 40 T-slot extrusion, and a head of 2 mm printed shells (neck, C-arm, camera housing, CAM-1 tube) holding two STS3215 servos and a Camera Module 3, from vendor drawings; the tilt sweep fails at 5 degrees (see `mast-spec.md`) | `mast.py`, `head.py` |
+| Mast | 76 mm base plate, a pan base (printed housing, STS3215 pan servo, two 6806-size bearings, aluminium spindle), 40 x 40 T-slot extrusion on the spindle flange, and a head of 2 mm printed shells (neck, C-arm, camera housing, CAM-1 tube) holding two STS3215 servos and a Camera Module 3, from vendor drawings; the tilt sweep fails at 5 degrees (see `mast-spec.md`) | `mast.py`, `base.py`, `head.py` |
 | Interior | dimensioned boards (`boards.py`): Pi Zero 2 W, two MC33926 driver carriers, 5 V and 6 V converters, fuse block, rear-panel switch with its 20.2 mm hole; still boxes: battery, BMS, power node, charger module | `interior.py`, `boards.py` |
 
 Checks run in the scripts: every part fits inside the cavity, nothing clashes, the pivot shafts clear the frame, the wire holes clear the frame, and the mass is 9.9 kg with the centre of mass at z 207 mm.
