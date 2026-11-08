@@ -49,13 +49,13 @@ assert (HB.TX, HB.CY, HB.AZ, HB.FX, HB.Z_EXT) == (TUBE_X, CAM_Y, CAM_AXIS_Z, CAM
 
 # ---- Replica masses, kg (ASSUMPTION unless from a catalogue) -----------------------------
 # bracket: volume x 2.68 g/cm3 (aluminium sheet); printed parts: volume x PETG; the sideways disk is printed with a hollow core (mass ASSUMPTION);
-# servos 55 g each (retailers); the camera body stands in for a Camera Module 3 (4 g) and its printed mount (ASSUMPTION 10 g); hardware 0.02
+# servos 55 g each (retailers); the camera body is a Raspberry Pi HQ camera (50 g, retailer), the lens a 4 mm CS lens (49 g, retailer); hardware 0.02
 AL_G_CM3 = 2.68
 DISK_KG = 0.015
-CAMBODY_KG = 0.010
+CAMBODY_KG = HB.HQ_KG
 MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "hardware": 0.02}
 ENCLOSURE_KG = HB.ENC_KG           # Takachi AL060605, catalogue (162 g)   stated
-PRINTED_HEAD = ("antenna hat", "cradle", "collar", "baffle", "hood")
+PRINTED_HEAD = ("antenna hat", "baffle", "hood")
 
 
 def parts():
@@ -75,8 +75,9 @@ def cg_and_moment():
     for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
     pts.append((ENCLOSURE_KG, c("enclosure").X, c("enclosure").Z))
-    pts.append((DISK_KG, c("disk").X, c("disk").Z))
+    pts.append((H.shell_mass(rot["disk"]), c("disk").X, c("disk").Z))        # hollow printed shell, by volume (PETG density, as the other printed head parts)
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
+    pts.append((HB.LENS_KG, c("lens").X, c("lens").Z))
     for n in ("pan servo", "tilt servo"):
         pts.append((H.SERVO_MASS, c(n).X, c(n).Z))
     pts.append((MASSES["hardware"] + _BASE_INFO["hardware_kg"], TUBE_X, B.DECK_TOP_Z + 30.0))
@@ -105,7 +106,7 @@ def head_checks(p):
     print(f"  tilt servo vs bracket: {_vol(p['tilt servo'], p['bracket']):.1f}; servo x {tv.min.X:.1f}..{tv.max.X:.1f} y {tv.min.Y:.1f}..{tv.max.Y:.1f} z {tv.min.Z:.1f}..{tv.max.Z:.1f}; "
           f"bracket x {br.min.X:.1f}..{br.max.X:.1f} y {br.min.Y:.1f}..{br.max.Y:.1f} z {br.min.Z:.1f}..{br.max.Z:.1f}")
     print(f"  bracket vs extrusion: {_vol(p['bracket'], p['tube']):.1f}; disk vs bracket {_vol(p['disk'], p['bracket']):.1f}; enclosure vs bracket {_vol(p['enclosure'], p['bracket']):.1f}")
-    print("  camera stack vs die-cast enclosure (mm3, want 0): " + ", ".join(f"{n} {_vol(p[n], p['enclosure']):.1f}" for n in ("camera body", "cradle", "collar", "baffle", "hood")))
+    print("  camera stack vs die-cast enclosure (mm3, want 0): " + ", ".join(f"{n} {_vol(p[n], p['enclosure']):.1f}" for n in ("camera body", "lens", "baffle", "hood")))
     eb = p["enclosure"].bounding_box()
     print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
     turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING

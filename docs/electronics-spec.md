@@ -9,7 +9,7 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 | Role | Candidate | Qty | Size (mm) | Mass |
 |---|---|---|---|---|
 | Controller | Raspberry Pi Zero 2 W | 1 | 65 x 30 | not found |
-| Camera | Raspberry Pi Camera Module 3 (75 or 120 degree) | 1 | 25 x 24 x 11.5 (12.4 wide) | not found |
+| Camera | Raspberry Pi High Quality Camera (CS mount, IMX477) with a 4 mm CS lens (changed 2026-11-08 from Camera Module 3: it takes interchangeable lenses; `mast-spec.md`) | 1 | 38 x 38 board, 18.6 deep with the mount; lens 30 x 42, 49 g | not found |
 | Drive motor | Pololu 37D, #4746 (see `drive-spec.md`) | 4 | 37 dia x 57 | 175 to 195 g |
 | Motor driver | Pololu Dual MC33926 carrier, #1213 | 2 | 28 x 46 (1.10 x 1.8 in), height not found | 7 g (0.25 oz) |
 | Pan, tilt servo | Feetech STS3215 C001 (7.4 V) | 2 | 45.2 x 24.7 x 35 | 55 g |
@@ -23,7 +23,8 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
   2.4 GHz wireless LAN and Bluetooth 4.2, a CSI-2 camera connector, a 40-pin footprint (unpopulated),
   H.264 encode to 1080p30, 5 V DC at 2.5 A input (the brief's supply rating, not a measured draw).
   Mass and board height were not found.
-- **Camera Module 3** (raspberrypi.com): 12 MP Sony IMX708, autofocus, 75 or 120 degree diagonal field
+- **Raspberry Pi High Quality Camera** (product brief, Jan 2023): Sony IMX477, 12.3 MP, 7.9 mm diagonal sensor, 1.55 um pixels, back focus 12.5 to 22.4 mm (CS variant), integrated IR cut filter, 200 mm cable, board 38 x 38 mm with four Ø2.5 holes; early Zero models lack the connector and later ones need an adapter cable. With the 4 mm CS lens (retailer: 80 degrees horizontal, f/1.2, 30 x 42 mm, 49 g) about 76 degrees horizontal on this sensor (arithmetic). Replaced the Camera Module 3 below as the replica's camera (2026-11-08).
+- **Camera Module 3** (raspberrypi.com), the earlier choice: 12 MP Sony IMX708, autofocus, 75 or 120 degree diagonal field
   of view (the wide one is 12.4 mm tall), 25 x 24 x 11.5 mm, 15 x 1 mm FPC with a 200 mm cable; a Zero needs
   a separate Zero camera cable. 1080p50, 720p120. From US$25.
 - **Camera Module 3 mechanical drawing** (brief p. 4, standard lens): PCB 25 x 23.862 x 1.12 mm, four 2.2 mm holes at 2.0 mm from the edges (21 mm apart across, 14.5 mm apart along), lens block 10.8 mm square,

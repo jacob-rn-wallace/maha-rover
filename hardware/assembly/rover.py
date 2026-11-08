@@ -40,7 +40,7 @@ COLORS = {
 LEGEND_NAMES = {
     "frame": "20 x 40 rail and cross rails", "bearings": "sleeve and bushings", "pivot shaft": "shaft and stub", "link plates": "link plate",
     "pivot boss": "link plate boss", "differential housing": "differential housing, bosses, lugs", "differential": "gears and pin",
-    "servos": "STS3215 pan and tilt servos", "camera module": "camera body (Camera Module 3 stand-in)", "camera": "CASPEX-look lens assembly (printed)", "pan base": "pan base: housing, disc, spindle, bearings", "mast": "T-slot mast, sheet bracket, disk, enclosure, hat",
+    "servos": "STS3215 pan and tilt servos", "camera module": "Raspberry Pi HQ camera", "camera": "4 mm CS lens, printed baffle ring and hood", "pan base": "pan base: housing, disc, spindle, bearings", "mast": "T-slot mast, sheet bracket, disk, enclosure, hat",
     "panels": "side panel", "controller": "Raspberry Pi Zero 2 W", "motor drivers": "motor drivers (MC33926 carriers)", "converters": "5 V and 6 V converters (D24V22Fx)",
     "charger": "solar charge module (box)", "battery": "battery pack (box)", "BMS": "BMS (box)", "fuses": "4-way fuse block", "bus bar": "power node (box)", "switch": "master switch",
 }
@@ -83,7 +83,7 @@ def collect():
     for n, s in parts.items():
         add("differential housing" if n == "housing" else "differential", n, Pos(0, 0, A.PIVOT_Z) * s)
     for n, s in MAST.parts().items():
-        add("camera" if n in ("cradle", "collar", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n == "camera body" else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
+        add("camera" if n in ("lens", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n == "camera body" else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
     placed = I.placed_parts()
     for n, s in placed.items():
         if n.startswith("keep-out"):

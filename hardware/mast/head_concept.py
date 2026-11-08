@@ -44,13 +44,32 @@ def tilt_check(parts):
     print(f"  bracket (2 mm aluminium) {al:.3f} kg; printed hat {kg:.3f} kg; bracket valid {parts['bracket'].is_valid}")
 
 
-COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
-       "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
-         "camera body": "3DCM739 module", "cradle": "cradle plate (40 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
+COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (40, 120, 80),
+       "lens": (70, 74, 82), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
+NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "disk: horn coupler and cable spool", "enclosure": "camera box (die-cast)", "antenna hat": "planar antenna hat",
+         "camera body": "Pi HQ camera", "lens": "4 mm CS lens", "baffle": "slotted baffle ring", "hood": "black hood, square window"}
+
+
+def disk_section():
+    """Section at the mast axis (the front half removed), looking from the front: bracket web with its horn hole and servo screw holes, the servo, the disk (horn boss, cavity,
+    rim slot), the camera box wall with the cable and screw holes. docs/images/disk-section.png"""
+    from build123d import Box, Pos
+    parts = head()
+    keep = Pos(TX, 0, AZ - 100.0) * Box(400.0, 400.0, 200.0)          # z <= the tilt axis height (plan section)
+    ms = []
+    for g in ("bracket", "tilt servo", "disk", "enclosure", "camera body", "lens", "baffle", "hood"):
+        sh = parts[g] & keep
+        v, t = R.mesh(sh, 0.25, 0.3)
+        ms.append((g, v, t, COL[g]))
+    size = (1100, 760)
+    im = R.render(ms, -90, 89, size, label="Plan section at the tilt axis (z 667), from above, +y at the top and the front (+x) to the right: camera box, disk (cavity and horn boss), bracket web and servo", zoom=1.4, legend=[(NAMES[g], COL[g]) for g in ("bracket", "tilt servo", "disk", "enclosure", "camera body", "lens")], legend_left=True)
+    out = HERE.parent.parent / "docs" / "images" / "disk-section.png"
+    im.save(out)
+    print("saved", out)
 
 
 def main():
+    disk_section()
     parts = head()
     ms = []
     for g, sh in parts.items():

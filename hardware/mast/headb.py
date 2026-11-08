@@ -1,5 +1,5 @@
 """al-maha mast head, built version (owner's design, 2026-11-08): a bent sheet bracket on the T-slot, a printed camera enclosure on a sideways disk,
-the CASPEX-look lens assembly in front of a Camera Module 3 stand-in, a flat antenna hat. Concept history and the reasoning: docs/mast-spec.md,
+a Raspberry Pi HQ camera with a 4 mm CS lens behind a printed baffle ring and hood, a flat antenna hat. Concept history and the reasoning: docs/mast-spec.md,
 hardware/mast/head_concept.py (render of this head). Frame as in body.py.
 
 Sizes: whole camera 35 x 35 x 73 mm [S12], module 25.2 of it (3DDS-0734); cradle plate 45 mm, collar, ring, hood, enclosure 60 mm, disk, hat sizes are
@@ -35,27 +35,39 @@ def cyl_y(y0, y1, x, z, r):
     return Pos(x, (y0 + y1) / 2, z) * Rot(90, 0, 0) * Cylinder(r, y1 - y0)
 
 
-def caspex():
-    """Module + plate + collar + baffle ring + hood, lens looking +x, lens front at FX. Returns {group: shape}."""
-    x_back = FX - 73.0
-    mod = box(x_back, x_back + 25.2, CY - 17.5, CY + 17.5, AZ - 17.5, AZ + 17.5)                  # 35 x 35 x 25.2 over the pins
-    xp0 = x_back + 25.2
-    xp0 += LID                                                                                      # the 2 mm enclosure lid lies between the module and the plate
-    plate = box(xp0, xp0 + 4, CY - 20.0, CY + 20.0, AZ - 20.0, AZ + 20.0)                          # 40 square cradle inside the box (the 45 of the earlier concept cannot sit between the cast screw posts), ASSUMPTION
+# Camera: Raspberry Pi High Quality Camera (CS mount, IMX477) with a 4 mm CS-mount lens, replacing the 3D Plus CASPEX module and its custom optics (2026-11-08).
+# HQ camera: board 38 x 38 mm, four Ø2.5 holes 4 mm from the edges, lens mount (focus ring) Ø36 reaching 10.35 mm in front of the board, board 1.4 mm, connectors about 5.7 mm behind
+# [Raspberry Pi HQ camera product brief, Jan 2023, p. 4]. Lens: generic 4 mm 5 MP CS-mount, 1/2", f/1.2, 80 degrees horizontal, 30 x 42 mm (Ø x length, order not stated on the
+# listing), 49 g [PiShop SKU 485-1, a retailer listing; no maker named]. The original's 3DCM739 camera is a 4 MP, f/8, 7.8 mm, 82 x 82 degree unit [S12].
+HQ_PCB, HQ_T, HQ_RING_D, HQ_RING_L, HQ_REAR = 38.0, 1.4, 36.0, 10.35, 5.71
+LENS_D, LENS_L = 30.0, 42.0
+LENS_FRONT = FX - 8.0                             # the lens front sits 8 mm behind the hood face, like the original's recessed front element
+HQ_KG, LENS_KG = 0.050, 0.049                     # retailer figures; the CS variant of the HQ camera is assumed to weigh the same as the listed M12 one
+HOOD_ANGLE = 0.0                                  # the window of the hood is square to the box (the flight photo [S5] Fig. 8 shows it turned a few degrees; the CAD figure does not)
+
+
+def camera():
+    """HQ camera, CS lens, printed slotted baffle ring and hood, looking +x. Returns {group: shape}."""
+    x_m1 = LENS_FRONT - LENS_L                    # lens back = mount front face
+    x_p1 = x_m1 - HQ_RING_L                       # board front face
+    x_p0 = x_p1 - HQ_T
+    pcb = box(x_p0, x_p1, CY - HQ_PCB / 2, CY + HQ_PCB / 2, AZ - HQ_PCB / 2, AZ + HQ_PCB / 2)
     for sy in (-1, 1):
         for sz in (-1, 1):
-            plate = plate - cyl_x(xp0 - 1, xp0 + 5, CY + sy * 12.5, AZ + sz * 12.5, 1.25)           # corner holes (the module's M2.5 on 25 mm)
-    xp0 -= 0.0
-    collar = cyl_x(xp0 + 4, xp0 + 22, CY, AZ, 16.0)                                                # round collar, ASSUMPTION
-    ring0 = xp0 + 22
-    ring = cyl_x(ring0, FX - 2, CY, AZ, 18.5)                                                      # slotted baffle ring
+            pcb = pcb - cyl_x(x_p0 - 1, x_p1 + 1, CY + sy * 15.0, AZ + sz * 15.0, 1.25)
+    ring = cyl_x(x_p1, x_m1, CY, AZ, HQ_RING_D / 2)
+    rear = box(x_p0 - HQ_REAR, x_p0, CY - 11.0, CY + 11.0, AZ - 14.0, AZ - 8.0)       # FPC connector block, ASSUMPTION
+    body = pcb + ring + rear
+    lens = cyl_x(x_m1, LENS_FRONT, CY, AZ, LENS_D / 2) - cyl_x(LENS_FRONT - 1.0, LENS_FRONT + 1.0, CY, AZ, 9.0)   # barrel with a recessed glass
+    r0 = ENC_X1                                   # baffle ring from the box cover to the hood
+    r1 = FX - 3.5
+    bring = cyl_x(r0, r1, CY, AZ, 18.5) - cyl_x(r0 - 1.0, r1 + 1.0, CY, AZ, 15.6)
     for k in range(36):
         a = math.radians(k * 10)
-        ring = ring - Pos(FX - 6, CY + 16.5 * math.cos(a), AZ + 16.5 * math.sin(a)) * Rot(a * 180 / math.pi, 0, 0) * Box(9, 2.2, 3.0)
-    ring = ring - cyl_x(ring0 + 3, FX, CY, AZ, 14.0)
-    barrel = cyl_x(ring0 - 1, FX - 5, CY, AZ, 8.0) + cyl_x(FX - 12, FX - 5.5, CY, AZ, 11.0)         # lens barrel and glass, recessed
-    hood = cyl_x(FX - 12, FX, CY, AZ, 20.5) - (Pos(FX - 6, CY, AZ) * Rot(8, 0, 0) * Box(20, 24, 24))   # black cap with a square window
-    return {"camera body": mod, "cradle": plate, "collar": collar, "baffle": ring + barrel, "hood": hood}
+        bring = bring - Pos(r1 - 4.5, CY + 17.0 * math.cos(a), AZ + 17.0 * math.sin(a)) * Rot(a * 180 / math.pi, 0, 0) * Box(9, 2.2, 3.0)
+    hood = cyl_x(FX - 12.0, FX, CY, AZ, 20.5) - cyl_x(FX - 13.0, FX - 3.0, CY, AZ, 18.8)
+    hood = hood - Pos(FX - 1.5, CY, AZ) * Rot(HOOD_ANGLE, 0, 0) * Box(6, 24, 24)       # square window
+    return {"camera body": body, "lens": lens, "baffle": bring, "hood": hood}
 
 
 BR_T = 2.0               # sheet thickness, aluminium 5052, ASSUMPTION
@@ -90,6 +102,9 @@ def bracket():
     out = box(TX - 20.0, TX + 20.0, BR_WEB_Y0, BR_WEB_Y1, 545.0, 690.0) - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, AZ, BR_HOLE_D / 2)
     for zz in BR_BOLT_Z:
         out = out - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, zz, 3.4)
+    for sx in (-1, 1):                                                                                   # the servo's four front-face holes: 20.5 across, 25.4 along, 7.4 and 32.8 from the shaft (Waveshare drawing)
+        for dz in (7.4, 32.8):
+            out = out - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX + sx * 10.25, AZ - dz, 1.7)
     for x0 in (TX - 20.0, TX + 18.0):
         out = out + _prism_yz(x0, BR_FLANGE_YZ)
     return out
@@ -115,12 +130,38 @@ def enclosure():
     base = box(x0, xj, CY - hy, CY + hy, AZ - hz, AZ + hz) - box(x0 + ENC_WALL, xj + 1.0, CY - 28.3, CY + 28.3, AZ - 25.3, AZ + 25.3)
     cover = box(xj, x1, CY - hy, CY + hy, AZ - hz, AZ + hz) - box(xj - 1.0, x1 - ENC_WALL, CY - 28.3, CY + 28.3, AZ - 25.3, AZ + 25.3)
     cover = cover - cyl_x(x1 - ENC_WALL - 1.0, x1 + 1.0, CY, AZ, 17.5)
+    ys0, ys1 = CY + hy - ENC_WALL - 1.0, CY + hy + 1.0                                                  # the +y side wall carries the disk
+    base = base - cyl_y(ys0, ys1, TX, AZ - 8.0, 7.0)                                                    # Ø14 cable hole
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            base = base - cyl_y(ys0, ys1, TX + sx * 12.7, AZ + sz * 12.7, 1.7)                           # four M3 clearance holes on a Ø36 circle (into the disk's threaded inserts)
     for sy in (-1, 1):
         for sz in (-1, 1):
             post = cyl_x(x0 + ENC_WALL - 0.1, xj, CY + sy * 26.0, AZ + sz * 23.0, 5.5)
             base = base + post
             cover = cover + cyl_x(x1, x1 + 1.5, CY + sy * 26.0, AZ + sz * 23.0, 3.4)      # M4 cover screw heads
     return base + cover
+
+
+DISK_D = 40.0
+
+
+def disk(y_box):
+    """The disk between the camera box and the tilt servo: the structural coupling and the cable spool, a hollow printed shell (ASA, 2 to 4 mm walls) that rotates with the camera.
+    Box end open and bolted to the box wall (four M3 into heat-set inserts in the shell's ring, on a Ø36 circle); servo end closed, with a Ø19.2 boss that sits on the servo horn
+    (four screws on the horn's Ø14 pattern, one centre screw). The camera ribbon comes through the box wall's Ø14 hole into the shell and leaves through a slot in the rim at the bottom,
+    loops round the rim (the rim is the spool: the tilt is +-90 degrees, so the cable length changes by about 31 mm) and is clamped to the bracket's fin edge. An annular recess round the
+    boss clears the servo's four screw heads. The servo's own magnetic encoder gives the tilt angle, so the disk carries no sensor. A tilt hard stop is not designed."""
+    y_end = BR_WEB_Y0 - 3.0 + 0.0                                                      # shell end wall's outer face; the boss runs on to the horn face
+    y_horn = BR_WEB_Y0 - 0.5
+    shell = cyl_y(y_box, y_end, TX, AZ, DISK_D / 2) - cyl_y(y_box - 1.0, y_end - 2.0, TX, AZ, 16.0)               # hollow, open at the box end, 2 mm end wall, 4 mm side wall
+    boss = cyl_y(y_end - 1.0, y_horn, TX, AZ, 9.6)
+    shell = shell + boss
+    for sx in (-1, 1):                                                                 # horn screws, Ø14 pattern
+        shell = shell - cyl_y(y_end - 4.0, y_horn + 1.0, TX + sx * 7.0, AZ, 1.4) - cyl_y(y_end - 4.0, y_horn + 1.0, TX, AZ + sx * 7.0, 1.4)
+    shell = shell - cyl_y(y_end - 4.0, y_horn + 1.0, TX, AZ, 2.0)
+    shell = shell - box(TX - 9.0, TX + 9.0, y_box + 3.0, y_box + 9.0, AZ - DISK_D / 2 - 1.0, AZ - 12.0)            # cable slot in the rim, bottom
+    return shell
 
 
 def head(z_ext=Z_EXT):
@@ -130,14 +171,14 @@ def head(z_ext=Z_EXT):
     tilt = Pos(TX, 38.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["tilt servo"] = tilt
     box_y_max = CY + ENC_Y / 2
-    parts["disk"] = cyl_y(box_y_max, BR_WEB_Y0 - 0.5, TX, AZ, 20.0)                                       # sideways disk, ASSUMPTION; its thickness takes up the gap from the box to the web
+    parts["disk"] = disk(box_y_max)
     parts["enclosure"] = enclosure()
     xc = ENC_X1 - ENC_X / 2
     hz = AZ + ENC_Z / 2                                                                                     # top of the box (z 696); the flat hat sits on the cover's top face up to z 700
     parts["antenna hat"] = Pos(xc, CY, hz + 2.0) * Cylinder(35.0, 4.0)
-    c = caspex()
-    parts["camera body"], parts["cradle"], parts["collar"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "cradle", "collar", "baffle", "hood"))
+    c = camera()
+    parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
 
 
-TILTING = ("disk", "enclosure", "antenna hat", "camera body", "cradle", "collar", "baffle", "hood")
+TILTING = ("disk", "enclosure", "antenna hat", "camera body", "lens", "baffle", "hood")
