@@ -183,6 +183,7 @@ def pivot_detail(items, region, skip=()):
     """Left-side pivot parts clipped to a box (x0, x1, y0, y1, z0, z1): the shaft, bosses, sleeve and bushings, rail, differential and
     cross rails. Each part is cut by the box, so the cut faces are closed solids. Returns [(group, shape)]."""
     x0, x1, y0, y1, z0, z1 = region
+    z1 -= 0.1                                          # a cut at exactly the shaft axis leaves a zero-area sliver face on the imported link shaft (the stub with its cross hole) that cannot be meshed
     box = Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(x1 - x0, y1 - y0, z1 - z0)
     keep = lambda g, n: (
         (g == "frame" and (n.startswith("bottom side L") or n.startswith("differential cross") or n.startswith("mid side L") or n.startswith("bottom end cross")))
@@ -198,7 +199,9 @@ def pivot_detail(items, region, skip=()):
             c = sh & box
             if c.volume < 1e-3:
                 continue
+            c.tessellate(0.25, 0.3)                    # some booleans on the imported link parts give a shape that cannot be meshed
         except Exception:
+            print(f"  pivot detail: {g} / {n} skipped (boolean or mesh failed)")
             continue
         gg = "pivot shaft" if (g == "link plates" and n.startswith("shaft")) else "pivot boss" if (g == "link plates" and n.startswith("boss")) else g
         out.append((gg, c))

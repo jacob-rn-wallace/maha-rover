@@ -72,13 +72,28 @@ def ring(y0, y1, r_out, r_in):
 _LINK = None
 
 
-def link_plate():
-    """The owner's plate in the rover frame for the left side (inner face y = PLATE_Y0, pivot hole on the pivot axis, hub lobes on the hub centres). The STEP is turned a quarter
-    turn about z: its Y becomes -x (the outline is symmetric front to back), its X the thickness along y."""
+def link_parts():
+    """The owner's final link design (2026-11-08, link/link_plate.step) in the rover frame, left side: plate, pivot boss, the two hub sleeves and the pivot shaft, all in the one file.
+    The STEP is turned a quarter turn about z: its Y becomes -x (the outline is symmetric front to back), its X the thickness along y. Parts are told apart by size."""
     global _LINK
     if _LINK is None:
         from build123d import import_step
-        _LINK = Pos(LINK_PIVOT_Y, PLATE_Y0, PIVOT_Z - LINK_PIVOT_Z) * Rot(0, 0, 90) * import_step(str(LINK_STEP))
+        loc = Pos(LINK_PIVOT_Y, PLATE_Y0, PIVOT_Z - LINK_PIVOT_Z) * Rot(0, 0, 90)
+        sol = import_step(str(LINK_STEP)).solids()
+        out = {}
+        for so in sol:
+            b = so.bounding_box()
+            sx, sy_, yc = b.max.X - b.min.X, b.max.Y - b.min.Y, (b.min.Y + b.max.Y) / 2
+            if sx < 5.0:
+                out["plate"] = loc * so
+            elif sx > 100.0:
+                out["shaft"] = loc * so
+            elif sy_ > 47.0:
+                out["boss"] = loc * so
+            else:                                   # a sleeve; the hub lobe at STEP Y 349.6 is the front one (x = +136.5 after the turn)
+                out["sleeveF" if yc < LINK_PIVOT_Y else "sleeveR"] = loc * so
+        assert len(out) == 5, sorted(out)
+        _LINK = out
     return _LINK
 
 
@@ -88,25 +103,10 @@ def side(sy):
     hx = B.WHEELBASE / 2
     hub_y = sy * B.TRACK / 2
     y_in, y_out = PLATE_Y0, PLATE_Y0 + PLATE_T
-    plate = link_plate() if sy > 0 else link_plate().mirror(Plane.XZ)      # the owner's outline (link/link_plate.step)
-    boss = Pos(0, sy * (y_out + BOSS_T / 2 - OVERLAP / 2), PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BOSS_D / 2, BOSS_T + OVERLAP)
-    shaft_y0 = 1.0   # the two shafts stop 2 mm apart inside the housing, at the side gears
-    y_end = y_out + BOSS_T                               # the tube ends flush with the boss tip; the motor wires leave there
-    stub_y1 = STEP_Y + STUB_INSERT
-    stub = Pos(0, sy * (shaft_y0 + stub_y1) / 2, PIVOT_Z) * Rot(90, 0, 0) * (Cylinder(STUB_R, stub_y1 - shaft_y0) - Cylinder(STUB_ID / 2, stub_y1 - shaft_y0 + 2.0))
-    longpart = Pos(0, sy * (STEP_Y + y_end) / 2, PIVOT_Z) * Rot(90, 0, 0) * (Cylinder(SHAFT_R, y_end - STEP_Y) - Cylinder(SHAFT_ID / 2, y_end - STEP_Y + 2.0))
-    shaft = stub + longpart
-    sleeves = {}
+    mir = (lambda sh: sh) if sy > 0 else (lambda sh: sh.mirror(Plane.XZ))
+    arm = {k: mir(v) for k, v in link_parts().items()}                # the owner's plate, boss, sleeves and shaft (link/link_plate.step)
+    arm = {"plate": arm["plate"], "boss": arm["boss"], "shaft": arm["shaft"], "sleeveF": arm["sleeveF"], "sleeveR": arm["sleeveR"]}
     fixed_m, rot_m, z = M.build_parts()
-    clamp_face = abs(hub_y) - (-z["cl"][0])        # y of the clamp ring's inner face (z['cl'][0] is negative)
-    bore = Pos(0, sy * (y_in + y_end) / 2, PIVOT_Z) * Rot(90, 0, 0) * Cylinder(SHAFT_R, y_end - y_in + 2.0)   # the shaft is bonded in a 12 mm bore through plate and boss
-    plate, boss = plate - bore, boss - bore
-    for sx in (1, -1):
-        y0, y1 = sy * y_out, sy * (clamp_face + OVERLAP)
-        sleeves["F" if sx > 0 else "R"] = Pos(sx * hx, 0, B.HUB_Z) * ring(y0 - sy * OVERLAP, y1, SLEEVE_OD / 2, SLEEVE_ID / 2)
-    shaft = shaft - Pos(0, sy * CROSS_Y_IN, PIVOT_Z) * Cylinder(CROSS_D / 2, 2 * STUB_R + 2.0)
-    arm = {"plate": plate, "boss": boss, "shaft": shaft,
-           "sleeveF": sleeves["F"], "sleeveR": sleeves["R"]}
 
     wheel = W.build_wheel()
     place = lambda sx: Pos(sx * hx, hub_y, B.HUB_Z) * Rot(-sy * 90, 0, 0)
