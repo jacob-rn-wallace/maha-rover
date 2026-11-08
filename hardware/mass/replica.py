@@ -32,6 +32,7 @@ TERMINALS = 0.05                     # kg: boards, diodes, fuses                
 RF_CABLES = 0.006                    # kg: two micro-coax runs with u.FL ends, the RP-SMA pigtail, a short USB lead, two short camera ribbons, the Zero 2 W u.FL modification   ASSUMPTION
 RJ45_CABLE = 0.030                   # kg: the extension kit's 1 m RJ45 patch cable (about 30 g/m for a Cat5e patch cord; ASSUMPTION, not weighed)
 TARGET = 10.0
+CEILING = 10.5                                    # owner, 2026-11-08: 10 kg is the goal, 10.5 kg the ceiling; no part is weakened to hit 10
 
 
 def kg(volume_mm3, density):
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     print(f"{'group':34s}{'kg':>7s}{'share':>8s}{'x':>7s}{'z':>7s}")
     for g, (m, mom) in sorted(groups.items(), key=lambda kv: -kv[1][0]):
         print(f"{g:34s}{m:7.2f}{m / total * 100:7.0f}%{mom[0] / m:7.0f}{mom[2] / m:7.0f}")
-    print(f"{'TOTAL':34s}{total:7.2f}   target {TARGET:.0f} kg: margin {TARGET - total:+.2f} kg")
+    print(f"{'TOTAL':34s}{total:7.2f}   goal {TARGET:.0f} kg: {TARGET - total:+.2f} kg; ceiling {CEILING:.1f} kg: margin {CEILING - total:+.2f} kg")
     print(f"\ncentre of mass: x {com[0]:.1f}, y {com[1]:.1f}, z {com[2]:.1f} (mm, ground at the rim line)")
     t = tip_angles(com)
     print("static tip angles: " + ", ".join(f"{k} {v:.0f} deg" for k, v in t.items()) + "  (the slope requirement is 20 deg)")

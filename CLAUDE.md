@@ -20,7 +20,7 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
   printed plastic, aluminium or whatever builds easily), internal structure, fasteners, motors,
   electronics and battery (choose off-the-shelf parts), thermal and space hardware. **Mass:** the target is
   the original's 10 kg. The first pass is not optimised for mass: size the system (motors, drivers, battery,
-  bearings, shafts) for 10 kg. A second pass brings the build down to 10 kg where it comes out over. Document each substitution in `docs/bom.md`.
+  bearings, shafts) for 10 kg. A second pass trims toward 10 kg where it comes out over, but 10 kg is a goal, not a hard limit (owner, 2026-11-08): the ceiling is 10.5 kg, and no part is weakened or made non-metal just to reach 10 (the original uses ultra-light materials). Document each substitution in `docs/bom.md`.
 - **Out of scope:** flight qualification, vacuum or thermal fidelity, the science
   instruments (Langmuir probes, microscope, thermal camera, sampler).
 
@@ -92,7 +92,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
 - Done: wheel CAD (`hardware/wheel/`); body envelope with cells and mast
   (`hardware/body/`); mass budget and centre-of-mass range (`docs/mass-budget.md`); BOM skeleton
   (`docs/bom.md`). The mass budget is a record of the original (4.75 kg of its 10 kg is
-  unallocated); the replica's own mass target is 10 kg (see the scope above).
+  unallocated); the replica's own mass goal is 10 kg with a 10.5 kg ceiling (see the scope above).
 - Drive decision (2026-11-07): Pololu 37D gearmotors (spur/helical, not planetary) in the hubs, no
   encoders (only speed and direction matter); candidate #4746, 131:1. The shaft carries torque only; the
   wheel rides on two bearings on the motor housing. Spec: `docs/drive-spec.md`. CAD and clearance
@@ -106,7 +106,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
   (3 mm deck), the differential held by two cross rails, the pivot shafts (12 mm 4130 tubes, checked for bending in `hardware/chassis/rail_check.py`, bonded into the link plate bosses) running through 16 mm holes drilled in single 20 x 40 bottom side rails (bonded sleeve and igus-type flanged bushings) and supported again in the differential housing wall; the housing hangs from the cross rails by four lugs. Every
   extrusion is cut square and either vertical or horizontal (owner's sketch, 2026-11-07): a stepped frame, wide at the bottom and narrow at the top, joined by vertical posts. Only the side panels lean at 10 degrees: they are separate 2 mm plates (the solar panels) held about 10 mm off the frame on four pivot standoffs each near the corners, as the original's panels stand proud of its body (`original-dimensions.md` 3f). Corner brackets join rails, M4 screws fix panels,
   the deck is the lid carrying the mast. Spec: `docs/frame-spec.md`; CAD and checks:
-  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 10.06 kg, over the 10 kg target by 0.06 kg (the round-cable camera link; levers in `docs/replica-mass.md`) (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 231 mm.
+  `hardware/chassis/frame.py`. Chassis 4.7 kg; replica mass estimate from the CAD 10.06 kg, 0.06 kg over the 10 kg goal and 0.44 kg under the 10.5 kg ceiling (the round-cable camera link; levers in `docs/replica-mass.md`) (0.84 kg of it allowances; `docs/replica-mass.md`, `hardware/mass/replica.py`); centre of mass z 231 mm.
 - Power system (2026-11-07): 2S2P pack (4 x Samsung 30Q) behind a 2S common-port BMS; node, then a 15 A main fuse, a master switch (rear
   panel) and a 4-way fuse block to the drivers, the 5 V converter and a 6 V servo regulator (the servos are rated 6 to 7.4 V, below a full pack); the solar
   charger joins at the node ahead of the switch. About 5.1 A continuous and 13.2 A peak. Motor wires run through hollow pivot shafts. Spec:
@@ -116,7 +116,7 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
 - Still to do, in rough order: confirm the electronics shortlist (`docs/electronics-spec.md`) and the exact
   drive motor; design the differential's gear train; settle the cell mounting, the cradles that hold the differential,
   the 12 x 2 mm 4130 shaft tube's availability, the drilled rail hole against the profile's slots, the bushing flange size and rating, and a connector for the mast cable; reassess the mass and centre of mass for the
-  replica's own parts; then a second pass to bring the total to 10 kg if the real parts come out over; fill the
+  replica's own parts; then a second pass toward 10 kg (ceiling 10.5) if the real parts come out over; fill the
   rest of the BOM's "Replica" column. Deferred: mast
   stowing. Closing the section 7 gaps is optional: only chase a source when it changes one of the "must" items.
 
