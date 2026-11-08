@@ -41,7 +41,7 @@ TOP_Z = B.TOP_Z                    # top of the head                            
 # ---- Rotating parts, measured along the mast from the hinge ----------------
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
 _BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
-TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 577.0  # extrusion from the spindle flange to the neck; top at 577 as the original's tube   derived [3j]
+TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 597.0  # extrusion from the spindle flange up into the bracket; the original's tube tops out at 577 [3j], this one is raised to 597 (the bracket's web is bolted to it); limit about 600 from the tilt sweep
 CAM_Y = HB.CY                      # the sourced 28 right of the centreline [S8], moved to 30.5 in the owner's simplified redesign (2026-11-08)
 CAM_AXIS_Z = 660.0                 # CAM-1 optical axis height                    stated [S12]
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]

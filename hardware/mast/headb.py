@@ -22,7 +22,7 @@ TX = B.MAST_X
 CY = -30.5                         # camera lateral position in the owner's simplified redesign (the sourced figure is 28 right of the centreline [S8], B.CAM_Y): 30.5 right of the mast axis
 AZ = 660.0
 FX = B.WHEELBASE / 2 + 77.9
-Z_EXT = 577.0                      # top of the extrusion
+Z_EXT = 597.0                      # top of the extrusion: raised from 577 to 597 (2026-11-08); above about z 600 the swept corners of the camera box hit it when the head tilts
 box = H._box
 LID = 2.0                          # lid thickness of the die-cast enclosure (Takachi TD6-6-4, drawing)
 
@@ -72,7 +72,7 @@ def _flange(x0, pts):
 BR_FLANGE_YZ = [(20.0, 545.0), (54.0, 566.25), (54.0, 634.6), (36.0, 690.0), (20.0, 690.0)]    # y, z of each flange: a tapered fin on the +y side of the extrusion
 BR_WEB_Y0, BR_WEB_Y1 = 20.0, 22.0     # the web plate lies on the extrusion's +y face; the servo sits against its outer face (+y), its horn through the hole
 BR_HOLE_D = 19.2                      # horn pass-through in the web
-BR_BOLT_Z = (555.0, 569.0)            # two Ø6.8 holes for M6 into the centre slot of the +y face
+BR_BOLT_Z = (555.0, 569.0, 583.0)       # Ø6.8 holes (555 and 569 are the owner's; 583 added when the extrusion was raised to 597)  # for M6 into the centre slot of the +y face
 
 
 def _prism_yz(x0, pts_yz, t=BR_T):
@@ -85,7 +85,7 @@ def bracket():
     """Sheet bracket from the owner's simplified redesign (outline traced from the original's front view): a 2 mm aluminium web, 40 wide, z 545 to 690, lying on the extrusion's
     +y face with two Ø6.8 holes (z 555, 569) for M6 into the centre slot, and a 2 mm flange along each side edge (x +-18 to +-20 from the mast axis) standing out to y 54: bottom point at the
     extrusion, slant to full depth by z 566, vertical to z 635, slant in to y 36 at the top z 690. The tilt servo sits between the flanges against the web, its horn through a Ø19.2 hole at z 660.
-    The web reaches 32 mm above the extrusion top (z 577) to 690 and carries the head; no part straddles the extrusion. Sizes read from the STEP file."""
+    The web reaches 93 mm above the extrusion top (z 597) to 690 and carries the head; no part straddles the extrusion. Sizes read from the STEP file."""
     t = BR_T
     out = box(TX - 20.0, TX + 20.0, BR_WEB_Y0, BR_WEB_Y1, 545.0, 690.0) - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, AZ, BR_HOLE_D / 2)
     for zz in BR_BOLT_Z:
@@ -116,7 +116,7 @@ def enclosure():
 
 
 def head(z_ext=Z_EXT):
-    """All head parts in the rover frame: bracket, tilt servo, disk, enclosure, hat and the camera stack. Rotating column: T-slot to z 577, the bracket on its end."""
+    """All head parts in the rover frame: bracket, tilt servo, disk, enclosure, hat and the camera stack. Rotating column: T-slot to z 597, the bracket on its end."""
     parts = {}
     parts["bracket"] = bracket()
     tilt = Pos(TX, 38.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()

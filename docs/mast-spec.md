@@ -16,14 +16,14 @@ spindle flange (the whole mast turns on a pan drive in a housing on the deck, be
 
 **Pan base (added 2026-11-07, owner's request: the original's pan motor is in the block at the mast base).** `hardware/mast/base.py`: a 76 x 76 printed housing (2.5 mm walls, z 354 to 438) on the base plate holds the pan
 servo (STS3215, shaft vertical on the mast axis, z 356 to 393) and a bearing tower with two 30 x 42 x 7 mm bearings (6806 size) 30 mm apart at z 403.5 and 433.5. An aluminium spindle (tube 30/22) runs through them, joined to the servo's upper horn
-by a 36 mm coupling disc below and carrying a 60 mm flange at z 440 to 446 on which the extrusion stands (now z 446 to 577, 0.24 kg instead of 0.41 kg). The servo only turns the mast; the bearings carry the weight and bending: at 1 g sideways
+by a 36 mm coupling disc below and carrying a 60 mm flange at z 440 to 446 on which the extrusion stands (now z 446 to 597, 0.28 kg instead of 0.41 kg). The servo only turns the mast; the bearings carry the weight and bending: at 1 g sideways
 45 N on each bearing (135 N at 3 g) from the 1.56 N.m moment, nothing on the servo's own output bearing. The cables run down the extrusion slots, through the hollow spindle (22 mm bore) and out through a 10 mm hole in the coupling disc, then through the deck keep-out.
 The original's block is about 90 mm fore-aft [3j]; this one is 76. Not designed: the compliant joint between servo horn and disc, axial retention of the bearings, the hard stop for the 320 degree range, the cable loop, how the housing bolts to the base plate and the plate to the deck, and sealing. Bearing rating and mass (0.024 kg each) are not looked up.
 Servo torque: 1.91 N.m stall, 0.64 N.m continuous (`electronics-spec.md`) against a small head inertia; not analysed further.
 
 | Item | Value | Status |
 |---|---|---|
-| Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 577, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
+| Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 597, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
 | Base plate | 76 x 76 x 6 mm aluminium on the deck (z 348 to 354), 4 M4 bolts at x 141 and 178, y +-30, through the deck into the mast cross rail and front end rail (`frame-spec.md`) | ASSUMPTION |
 | Bracket (replaces neck and C-arm) | a 2 mm aluminium web with two edge flanges, z 545 to 690, on the extrusion's +y face; the flange outline is the original's arm outline traced from [S18] Fig. 1 | derived by eye [3j], [S18] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
@@ -67,8 +67,8 @@ walls) with real parts inside. The outer sizes still follow the CAD figures (3j)
 
 ## Loads
 
-With catalogue and CAD masses (extrusion 0.24 kg and base plate 0.09 kg; pan housing 0.145 kg; spindle, flange and disc 0.09 kg; bearings 0.05 kg; bracket 0.070 kg; printed enclosure, hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
-total 1.06 kg) the centre of mass is 154 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.61 N.m** on the base joint; 0.46 N.m on a 20 degree
+With catalogue and CAD masses (extrusion 0.28 kg and base plate 0.09 kg; pan housing 0.145 kg; spindle, flange and disc 0.09 kg; bearings 0.05 kg; bracket 0.070 kg; printed enclosure, hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
+total 1.10 kg) the centre of mass is 157 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.70 N.m** on the base joint; 0.46 N.m on a 20 degree
 slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate is the weak point and no stress check has been done.
 
 ## Open
@@ -91,9 +91,9 @@ and the assembly render; `hardware/mast/head_concept.py` renders it alone to `do
 (2026-11-08) gave the bracket. Owner's rule (2026-11-07): keep what gives the original's silhouette and costs nothing, otherwise design for our parts.
 
 - **Bracket (owner's simplified redesign, 2026-11-08, from `mast_simplified_in_situ.step`; outline traced by the owner from the original's front view [S18] Fig. 1):** a 2 mm aluminium **web**, 40 mm wide, z 545 to 690, lying flat on the extrusion's
-  +y face (y 20 to 22) with two Ø6.8 holes (z 555 and 569) for M6 into the centre slot of that face, and a 2 mm **flange** along each side edge (x +-18 to +-20 from the mast axis) standing out to y 54: a point at the extrusion at z 545, a slant to full depth by
-  z 566, vertical to z 635, then a slant in to y 36 at the top (z 690). It reaches 113 mm above the extrusion top (577) and carries the head; nothing straddles the extrusion. The tilt servo (STS3215, y 19.5 to 56.7) sits between the flanges against the web, its
-  horn through a Ø19.2 hole at z 660, to the disk. Mass 0.070 kg. **Overlaid on the original's front view the outline follows the original's arm (outer edge, diagonal shoulder, top)**; the flat blank is simply a plate with two edge flanges, so it
+  +y face (y 20 to 22) with three Ø6.8 holes (z 555, 569 and 583; the first two are the owner's, the third was added with the taller extrusion) for M6 into the centre slot of that face, and a 2 mm **flange** along each side edge (x +-18 to +-20 from the mast axis) standing out to y 54: a point at the extrusion at z 545, a slant to full depth by
+  z 566, vertical to z 635, then a slant in to y 36 at the top (z 690). It reaches 93 mm above the extrusion top (597) and carries the head; nothing straddles the extrusion. The tilt servo (STS3215, y 19.5 to 56.7) sits between the flanges against the web, its
+  horn through a Ø19.2 hole at z 660, to the disk. Mass 0.070 kg. **The extrusion was raised from 577 to 597** (2026-11-08, on the owner's suggestion) to give the web 52 mm of bolted contact instead of 32: swept by the tilting camera box, contact with the extrusion starts at 65 degrees of tilt with the top at 605, so 597 keeps a margin (clear to 90 degrees both ways, checked in `mast.py`). The original's tube tops out at 577 [3j]; the extra 20 mm is hidden behind the bracket's web from the side but shows in the front view above the original's neck line. **Overlaid on the original's front view the outline follows the original's arm (outer edge, diagonal shoulder, top)**; the flat blank is simply a plate with two edge flanges, so it
   is one bent part (two bends along the long edges, no bends across the flanges). The earlier attempts (flanges running round the bends; mitred flanges; S-shaped plates) were my misreadings or an unmakeable blank and are replaced. Camera lateral
   position: in this version y -30.5 (the sourced figure is 28 right of the centreline [S8]); the disk is 20 mm long (y -0.5 to 19.5).
 - **Camera unit** (tilts as one): a sideways disk (printed, 40 mm, y -0.5 to 19.5, encoder or mount; unknown in the original), a **die-cast aluminium enclosure, Takachi TD6-6-4** (60 x 60 x 35 mm, ADC12, 90 g, black painted or
