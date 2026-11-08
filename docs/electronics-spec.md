@@ -26,6 +26,8 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 - **Camera Module 3** (raspberrypi.com): 12 MP Sony IMX708, autofocus, 75 or 120 degree diagonal field
   of view (the wide one is 12.4 mm tall), 25 x 24 x 11.5 mm, 15 x 1 mm FPC with a 200 mm cable; a Zero needs
   a separate Zero camera cable. 1080p50, 720p120. From US$25.
+- **Camera Module 3 mechanical drawing** (brief p. 4, standard lens): PCB 25 x 23.862 x 1.12 mm, four 2.2 mm holes at 2.0 mm from the edges (21 mm apart across, 14.5 mm apart along), lens block 10.8 mm square,
+  lens centre 12.5 mm from one side edge and 14.4 mm from the bottom edge, 11.3 mm overall thickness (12.0 for the wide lens; the text of the brief says 11.5 and 12.4, so the figures disagree by 0.2 to 0.4 mm). Tolerance 0.2 mm.
 - CAM-1 in the original is a 35 x 35 x 73 mm optical tube [S12]. The replica's camera tube is a printed
   shell of that size with a module inside and the lens at the front. The 80 degree field of view [S12]
   sits between the two Module 3 options.
@@ -55,9 +57,9 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
     (at 6 V). The listings disagree on the voltage window (6 to 7.4, 6 to 8.4, 5 to 8.4 V): a fully charged
     2S pack is 8.4 V, so check before relying on it.
   - C044, 7.4 V: 27.4 kg·cm, 1/191. C046: 14.4 kg·cm, 1/147. C018 and C047 are 12 V versions.
-- Its size, 45.2 x 24.7 x 35, matches the 45 x 24 x 35 placeholder in the mast model; the neck cavity
-  (52 x 52 x 38) holds it with 3 mm of height to spare.
-- Free-run and stall current, and the mounting hole pattern, were not found.
+- Its size, 45.2 x 24.7 x 35, matches the Waveshare ST3215's 2D drawing (45.22 x 24.72, body 32 mm thick with a 19.2 mm horn at each end, 37.25 over both; the shaft 10.11 mm from one end) and its
+  3D model, which the mast head model uses (`mast-spec.md`; the Waveshare part's equivalence to the Feetech STS3215 is assumed). The Feetech datasheet read (2020) has no drawing.
+- Free-run and stall current, and the mounting ear hole pattern, were not found. The horn has a 14 mm hole pattern on the Waveshare drawing.
 - **Supply:** a full 2S pack is 8.4 V, above the servos' 6 to 7.4 V listings, so they run from a 6 V regulator (`power-spec.md`).
 - A bus servo needs a half-duplex serial adapter between the controller and the bus; not chosen.
 - Pan range of the original is plus or minus 179 degrees [S19]; a bus servo at 360 degrees covers it,

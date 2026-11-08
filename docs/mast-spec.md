@@ -31,29 +31,42 @@ tapped (M8) to take the neck's base plate; its slots carry the camera and servo 
 The original's mast is additively manufactured ULTEM 1010 with titanium and aluminium parts [S19]; the replica's neck, arm and head are printed
 (material not chosen).
 
-## Actuation
+## Actuation and the head's parts (2026-11-07)
 
-- **Pan and tilt:** two servos, one in the neck (vertical axis) and one in the arm (horizontal axis), for the
-  original's pan of plus or minus 179 degrees and tilt of plus or minus 75 degrees [S19]. The candidate
-  Feetech STS3215 is 45.2 x 24.7 x 35 mm (`electronics-spec.md`); the neck cavity is 52 x 52 x 38 mm and the
-  arm cavity 44 x 39 x 63 mm, so it fits with 3 mm of height spare in the neck. The CAD neck and arm are
-  solid, so this is a size check only.
-- **Camera:** a small module in a printed 35 x 35 x 73 mm tube, wired down the mast. Not bought.
+The head is no longer solid boxes: `hardware/mast/head.py` builds the neck, C-arm, camera housing and camera tube as **2 mm printed shells** (ASSUMPTION: PETG, solid
+walls) with real parts inside. The outer sizes still follow the CAD figures (3j).
+
+- **Pan servo (vertical axis, in the neck):** a Feetech STS3215-class servo modelled from the Waveshare ST3215 2D drawing (2022-06-08) and its STEP model: body
+  45.22 x 24.72 x 32 mm, output shaft 10.11 mm from one end of the long side, a 19.2 mm horn disc at each end, 37.25 mm overall along the shaft. The Waveshare part is the same
+  size as the 45.2 x 24.7 x 35 mm STS3215 of the retailers and the Feetech datasheet; the equivalence is assumed, and the Feetech datasheet read has no drawing. The shaft is on
+  the mast axis and the long side points +y. It sits on the neck floor with 2.8 mm to spare under the neck's top plate. The horn hole pattern (a 14 mm pattern on the drawing) and the
+  mounting ears are not modelled, and **the turntable that joins the horn to the arm is not designed** (a 2.8 mm gap is left for it).
+- **Tilt servo (horizontal axis, in the C-arm):** the same servo, shaft along y at z 660, body below the shaft, centred in the arm (y 28.9 to 66.1 in a 27 to 68 cavity).
+- **Camera:** a Raspberry Pi Camera Module 3 (standard lens) modelled from the product brief p. 4 (PCB 25 x 23.862 x 1.12, four 2.2 mm holes, 10.8 mm square lens block, 11.3 mm
+  total, lens centre 12.5 mm from the side and 14.4 mm from the bottom edge) inside the printed 35 x 35 x 73 mm CAM-1 tube [S12], its lens against a 12 mm aperture in the front wall.
+  The FPC connector block is ASSUMPTION. The standard lens (75 degrees) is closer to the original's 80 degrees [S12] than the wide one (120).
+- **Wires:** from the head down the extrusion's slots; the cable path, strain relief and the connector at the lid are not designed.
 
 ## CAD checks
 
-- Top at 700 (stated); camera axis 660; lens front 214.4 (front axle at 136.5 + 77.9), which is 24 mm
-  ahead of the body's front end (190).
+- Top at 700 (stated); camera axis 660; lens front 214.4 (front axle at 136.5 + 77.9), which is 24 mm ahead of the body's front end (190).
 - The base plate lies wholly on the deck plate (5776 of 5776 mm2) and does not touch the body or the cells.
+- **Fit:** both servos and the camera module lie wholly inside their shells; no part of the head clashes with another.
+- **Pan sweep, plus or minus 180 degrees:** the arm and head clear the neck, the extrusion, the base plate and the pan servo (0 mm3 at every 30 degree step).
+- **Tilt sweep: it fails.** With the head as designed, the camera tube touches the housing after **5 degrees** of tilt in either direction, and the whole head tilting as one unit touches
+  the neck after 5 degrees too. The original tilts plus or minus 75 degrees [S19]. The cause is the stated geometry: the head occupies z 621 to 700 about the camera axis (z 660), so
+  its lower corners sweep down to about z 610 against the neck top at 621, over the part of the neck (y -29 to 8) that lies under the head. **This needs a design decision;** the options
+  are in the Open list below.
 
 ## Loads
 
-With the assumed masses (extrusion 0.41 kg and base plate 0.09 kg from catalogue and density, printed parts 0.12, servos 0.11, camera 0.04,
-hardware 0.02; total 0.80 kg) the centre of mass is 159 mm above the deck (was 211 mm). A sideways acceleration of 1 g (a tipping rover)
-puts about **1.25 N.m** on the base joint; 0.43 N.m on a 20 degree slope. The extrusion is a stiff column (40 x 40 section); the joint at
-the plate is the weak point and no stress check has been done.
+With catalogue and CAD masses (extrusion 0.41 kg and base plate 0.09 kg; printed shells 0.20 kg from the CAD volumes; two servos 0.11 kg; camera module 0.004 kg; hardware 0.02 kg;
+total 0.84 kg) the centre of mass is 165 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.36 N.m** on the base joint; 0.46 N.m on a 20 degree
+slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate is the weak point and no stress check has been done.
 
 ## Open
+
+- **Tilt range.** The head cannot tilt plus or minus 75 degrees as modelled. Options (not chosen): (a) tilt only a small barrel or the lens inside a housing with a large front opening, which needs a different mechanism from a servo on the tube; (b) cut the tilt range to what fits (about 5 degrees now; a few tens of degrees if the housing's lower corners are rounded off and the neck narrowed under it, not worked out); (c) move the neck's footprint so it does not lie under the housing (the pan axis then moves off the mast centre line); (d) accept a tilt range far below the original's and note it. The original's actual head mechanism is not known from the sources read.
 
 - Servos and camera module are candidates only (`electronics-spec.md`), none bought.
 - The wires from the head down the extrusion's slots and into the body: where they enter the deck is reserved in

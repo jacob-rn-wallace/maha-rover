@@ -163,7 +163,7 @@ about 0.6 kg lighter), or printed panels.
 | Sleeves and bushings | 0.02 | ASSUMPTION |
 | **Chassis** | **4.69** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.88 kg** (`replica-mass.md`), a margin of only 0.12 kg: the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
+Replica total from the CAD: **9.92 kg** (`replica-mass.md`), a margin of only 0.08 kg: the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
 2026-11-07: the first pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass
 brings the build down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the
 redundant top and mid rails, and a 30 x 30 mast.
