@@ -51,38 +51,46 @@ def caspex():
     return {"camera body": mod, "cradle": plate, "collar": collar, "baffle": ring + barrel, "hood": hood}
 
 
+def octagon(x, y, z0, z1, across, wall=2.0):
+    def solid(a):
+        return Pos(x, y, (z0 + z1) / 2) * (Box(a, a, z1 - z0) + Rot(0, 0, 45) * Box(a, a, z1 - z0))
+    return solid(across) - Pos(0, 0, 0) * solid(across - 2 * wall) if False else solid(across) - Pos(0, 0, wall) * solid(across - 2 * wall)
+
+
 def head():
+    """Layout from the owner's reading of the CAD figure and the flight photo: hollow octagonal mast, a lateral overhang to +y, the tilt servo in a pocket
+    on the outer (+y) face at the top of the overhang, a sideways disk (encoder or mount) between the overhang and the camera enclosure, a roughly
+    cube-shaped enclosure with the lens assembly on its front, and a flat round antenna hat on top that tilts with the camera."""
+    from build123d import Plane, Polygon, extrude
     parts = {}
-    z_neck0, z_neck1 = MAST.TUBE_Z1, MAST.NECK_Z1
-    w = MAST.TUBE_W
-    neck = H.hollow(TX - w / 2, TX + w / 2, -w / 2, MAST.ARM_Y1, z_neck0, z_neck1)
-    neck = neck - Pos(TX, 0, z_neck1) * Cylinder(H.SV_HORN_D / 2 + 1.0, 5.0)
-    parts["neck"] = neck
-    ax = MAST.ARM_X
-    top_z = MAST.TOP_Z
-    arm_in = box(TX - ax / 2, TX + ax / 2, 25.0, 28.5, z_neck1, top_z - 3)
-    arm_out = box(TX - ax / 2, TX + ax / 2, 66.6, 70.0, z_neck1, top_z - 3)
-    for z in (640.0, 670.0):                                                                       # lightening slots in the outer plate
-        arm_out = arm_out - box(TX - 10, TX + 10, 60, 75, z - 8, z + 8) if False else arm_out
-    arm_in = arm_in - cyl_y(24, 29, TX, AZ, 11.0)
-    top = box(TX - 30.0, TX + 30.0, -60.0, 70.0, top_z - 3, top_z)                                 # thin top plate
-    parts["arm"] = arm_in + arm_out + top
-    # tilt servo in the arm (as head.py), round drive boss, bracket to the camera plate
+    z0, z1 = MAST.TUBE_Z1, 620.0
+    parts["mast"] = octagon(TX, 0.0, z0, z1, MAST.TUBE_W)
+    pts = [(-29.0, z1), (70.0, z1), (70.0, 697.0), (20.0, 697.0), (20.0, 650.0), (-29.0, 650.0)]      # overhang profile in (y, z); solid placeholder
+    over = Pos(TX - 27.0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=54.0)
+    over = over - box(TX - 24.0, TX + 24.0, 27.0, 71.0, 623.0, 674.0)                                # pocket for the tilt servo, open to +y
+    parts["overhang"] = over
     tilt = Pos(TX, 47.5, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
-    pan = Pos(TX, 0, z_neck0 + H.WALL + H.SV_TOTAL / 2) * Rot(0, 0, 90) * H.sts3215()
+    pan = Pos(TX, 0, z0 + H.WALL + H.SV_TOTAL / 2) * Rot(0, 0, 90) * H.sts3215()
     parts["servos"] = tilt + pan
-    boss = cyl_y(8.0, 25.0, TX, AZ, 17.0)                                                          # round drive housing (red in the CAD figure)
-    yoke = box(TX - 22, TX + 22, 2.0, 8.0, AZ - 25, AZ + 25)
-    wing = box(TX - 20, FX - 73 + 25.2 + 4, CY + 22.5 - 0.0, 2.0, AZ - 25, AZ + 25)                # from the yoke across to the cradle plate
-    parts["bracket"] = boss + yoke + wing
-    parts.update(caspex())
+    parts["disk"] = cyl_y(2.0, 20.0, TX, AZ, 23.0)                                                   # sideways disk, encoder or mounting, ASSUMPTION
+    x_face = FX - 22.0
+    cube = H.hollow(x_face - 60.0, x_face, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0)               # roughly cubic enclosure, 60 mm, ASSUMPTION
+    cube = cube - cyl_x(x_face - 3.0, x_face + 1.0, CY, AZ, 17.5)
+    for sy in (-1, 1):
+        for sz in (-1, 1):
+            cube = cube + cyl_x(x_face, x_face + 2.0, CY + sy * 25.0, AZ + sz * 25.0, 2.8)           # corner screw heads
+    parts["enclosure"] = cube
+    parts["antenna hat"] = Pos(x_face - 30.0, CY, AZ + 30.0 + 3.5) * Cylinder(35.0, 7.0) + \
+        (Pos(x_face - 30.0, CY, AZ + 30.0 + 8.5) * Cylinder(35.0, 3.0) - Pos(x_face - 30.0, CY, AZ + 30.0 + 8.5) * Cylinder(31.5, 3.2))
+    c = caspex()
+    parts["camera body"], parts["cradle"], parts["collar"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "cradle", "collar", "baffle", "hood"))
     return parts
 
 
-COL = {"neck": (214, 217, 222), "arm": (214, 217, 222), "servos": (60, 100, 190), "bracket": (190, 100, 90), "camera body": (214, 175, 60),
+COL = {"mast": (214, 217, 222), "overhang": (200, 160, 170), "servos": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"neck": "printed neck", "arm": "arm plates and top plate", "servos": "STS3215 pan and tilt servos", "bracket": "gimbal drive and camera bracket",
-         "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm, assumed)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
+NAMES = {"mast": "octagonal hollow mast", "overhang": "overhang (solid placeholder, MLI pink)", "servos": "STS3215 pan and tilt servos", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
+         "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 
 def main():
