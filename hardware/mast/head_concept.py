@@ -51,18 +51,43 @@ def caspex():
     return {"camera body": mod, "cradle": plate, "collar": collar, "baffle": ring + barrel, "hood": hood}
 
 
+BR_T = 2.0               # sheet thickness, aluminium 5052, ASSUMPTION
+BR_Y0, BR_Y1 = 20.0, 69.0   # extrusion face, outer face of the vertical web
+
+
+def _flange(x0, pts):
+    from build123d import Face, Vector, Wire, extrude
+    f = Face(Wire.make_polygon([Vector(x0, y, z) for (y, z) in pts], close=True))
+    return extrude(f, amount=BR_T, dir=(1, 0, 0))
+
+
+def bracket():
+    """Bent sheet bracket (owner's sketch, 2026-11-08): one blank, two folds. A tab on the +y face of the extrusion (two M6 into T-nuts in the centre slot),
+    the web kinks out diagonally to +y and rises vertical to z 697, and the two side flanges (open towards -y) hold the tilt servo between them,
+    seen through a window in the web. Flange bottoms follow the diagonal. Flat width 30 at the tab, 58 over the channel."""
+    z0 = MAST.TUBE_Z1                       # top of the extrusion
+    yb, zb = BR_Y1 - BR_T, 623.0            # web inner face where the diagonal ends
+    tab = box(TX - 15.0, TX + 15.0, BR_Y0, BR_Y0 + BR_T, z0 - 42.0, z0)
+    for zz in (z0 - 12.0, z0 - 30.0):
+        tab = tab - cyl_y(BR_Y0 - 1, BR_Y0 + BR_T + 1, TX, zz, 3.25)
+    # diagonal and vertical web as a polygon in the y-z plane, extruded over the channel width
+    from build123d import Face, Vector, Wire, extrude
+    web_pts = [(BR_Y0, z0), (BR_Y0 + BR_T, z0), (BR_Y1 - BR_T, zb), (BR_Y1 - BR_T, 697.0), (BR_Y1, 697.0), (BR_Y1, zb + 1.4), (BR_Y0 + BR_T + 0.0, z0 - 0.0)]
+    web = extrude(Face(Wire.make_polygon([Vector(TX - 27.0, y, z) for (y, z) in web_pts], close=True)), amount=54.0, dir=(1, 0, 0))
+    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - BR_T - 1, BR_Y1 + 1, 628.0, 672.0)          # window over the tilt servo
+    fl = [(BR_Y0 + BR_T, z0), (BR_Y1, zb + 1.4), (BR_Y1, 697.0), (BR_Y0 + BR_T + 8, 697.0), (BR_Y0 + BR_T, 689.0)]
+    f1 = _flange(TX - 27.0, fl)
+    f2 = _flange(TX + 27.0 - BR_T, fl)
+    return tab + web + f1 + f2
+
+
 def head():
     """Version 3 (owner's rule, 2026-11-07: keep the silhouette-defining features that cost nothing, otherwise design for our parts).
     Rotating column: T-slot to z 577, a flat adapter plate on it reaching out to +y, an arm of printed shell on the +y side holding the tilt servo (visible
     through a window on the outer face), a sideways disk, the camera enclosure with the CASPEX lens assembly on its front and the flat round hat on top.
     The plate is only 6 mm thick under the camera, so the enclosure's corners swing clear of it; the arm stays out of the enclosure's y range."""
     parts = {}
-    zp0, zp1 = MAST.TUBE_Z1, MAST.TUBE_Z1 + 6.0
-    parts["adapter plate"] = box(TX - 29.0, TX + 29.0, -29.0, 70.0, zp0, zp1)
-    arm = H.hollow(TX - 27.0, TX + 27.0, 22.0, 70.0, zp1, 697.0)
-    arm = arm - box(TX - 24.0, TX + 24.0, 66.0, 71.0, 623.0, 674.0)                    # window on the outer face over the tilt servo
-    arm = arm - cyl_y(21.0, 25.0, TX, AZ, 11.0)                                        # horn passes through the inner wall
-    parts["arm"] = arm
+    parts["bracket"] = bracket()
     tilt = Pos(TX, 47.5, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["servos"] = tilt
     parts["disk"] = cyl_y(2.0, 22.0, TX, AZ, 23.0)                                      # sideways disk, encoder or mounting, ASSUMPTION
@@ -89,7 +114,7 @@ def tilt_check(parts):
     from build123d import Axis, Compound
     ax = Axis((TX, 0, AZ), (0, 1, 0))
     unit = Compound([parts[n] for n in TILTING])
-    fixed = {"adapter plate": parts["adapter plate"], "arm": parts["arm"], "tilt servo": parts["servos"], "extrusion": Pos(TX, 0, (446.0 + MAST.TUBE_Z1) / 2) * Box(40, 40, MAST.TUBE_Z1 - 446.0)}
+    fixed = {"bracket": parts["bracket"], "tilt servo": parts["servos"], "extrusion": Pos(TX, 0, (446.0 + MAST.TUBE_Z1) / 2) * Box(40, 40, MAST.TUBE_Z1 - 446.0)}
     print("tilt sweep, the whole camera head about the tilt axis, overlap with fixed parts (mm3 > 1 counts as contact):")
     for sgn, nm in ((1, "positive (nose down?)"), (-1, "negative")):
         first = None
@@ -102,15 +127,15 @@ def tilt_check(parts):
                 first, who = deg, {k: round(v) for k, v in hit.items() if v > 1.0}
         print(f"  {nm}: first contact at {first if first is not None else 'none up to 90'} degrees {who or ''}")
     ub = unit.bounding_box()
-    print(f"  unit z {ub.min.Z:.0f}..{ub.max.Z:.0f}; lowest corner at 75 degrees about z {AZ - math.hypot(37.7, 30.0) :.0f}; top of the adapter plate z {MAST.TUBE_Z1 + 6:.0f}")
-    from build123d import Compound as C
-    kg = (sum(parts[n].volume for n in ("arm", "adapter plate")) * 0 + parts["arm"].volume / 1e3 * 1.27 / 1000 + parts["enclosure"].volume / 1e3 * 1.27 / 1000 + parts["antenna hat"].volume / 1e3 * 1.27 / 1000)
-    print(f"  printed arm, enclosure and hat (PETG, solid walls): {kg:.3f} kg")
+    print(f"  unit z {ub.min.Z:.0f}..{ub.max.Z:.0f}; lowest corner at 75 degrees about z {AZ - math.hypot(37.7, 30.0) :.0f}; top of the extrusion z {MAST.TUBE_Z1:.0f}")
+    kg = (parts["enclosure"].volume + parts["antenna hat"].volume) / 1e6 * 1.27
+    al = parts["bracket"].volume / 1e6 * 2.68
+    print(f"  bracket (2 mm aluminium) {al:.3f} kg; printed enclosure and hat {kg:.3f} kg; bracket valid {parts['bracket'].is_valid}")
 
 
-COL = {"adapter plate": (150, 156, 164), "arm": (214, 217, 222), "servos": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
+COL = {"bracket": (170, 176, 184), "servos": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"adapter plate": "aluminium adapter plate on the extrusion", "arm": "printed arm (tilt servo behind a window)", "servos": "STS3215 pan and tilt servos", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
+NAMES = {"bracket": "bent sheet bracket (2 mm Al)", "servos": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
          "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 
