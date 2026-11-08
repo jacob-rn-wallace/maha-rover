@@ -46,7 +46,7 @@ def tilt_check(parts):
 
 COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"bracket": "sheet bracket: two S-plates and a web (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
+NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
          "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 

@@ -19,7 +19,7 @@ import body as B  # noqa: E402
 import head as H  # noqa: E402
 
 TX = B.MAST_X
-CY = -23.5                         # camera lateral position in the owner's redesign (the sourced figure is 28 right of the centreline [S8]; B.CAM_Y); the owner moved it 4.5 mm to fit the disk
+CY = -30.5                         # camera lateral position in the owner's simplified redesign (the sourced figure is 28 right of the centreline [S8], B.CAM_Y): 30.5 right of the mast axis
 AZ = 660.0
 FX = B.WHEELBASE / 2 + 77.9
 Z_EXT = 577.0                      # top of the extrusion
@@ -68,10 +68,11 @@ def _flange(x0, pts):
     return extrude(f, amount=BR_T, dir=(1, 0, 0))
 
 
-# ---- bracket (owner's redesign, mast_redesign.step, 2026-11-08) ------------------------------------------------
-BR_FLANGE_YZ = [(69.0, 697.0), (69.0, 624.59), (22.0, 577.59), (22.0, 545.0), (-20.0, 545.0), (-20.0, 577.0), (27.0, 624.0), (27.0, 697.0)]   # y, z of the S-shaped side plate
-BR_WEB_Y0, BR_WEB_Y1 = 27.0, 29.0     # the web plate, on the camera side of the arm; the servo sits against its outer face (+y) and its horn passes through the hole
-BR_HOLE_D = 19.2                      # horn hole in the web
+# ---- bracket (owner's simplified redesign, mast_simplified_in_situ.step, 2026-11-08) ---------------------------------
+BR_FLANGE_YZ = [(20.0, 545.0), (54.0, 566.25), (54.0, 634.6), (36.0, 690.0), (20.0, 690.0)]    # y, z of each flange: a tapered fin on the +y side of the extrusion
+BR_WEB_Y0, BR_WEB_Y1 = 20.0, 22.0     # the web plate lies on the extrusion's +y face; the servo sits against its outer face (+y), its horn through the hole
+BR_HOLE_D = 19.2                      # horn pass-through in the web
+BR_BOLT_Z = (555.0, 569.0)            # two Ø6.8 holes for M6 into the centre slot of the +y face
 
 
 def _prism_yz(x0, pts_yz, t=BR_T):
@@ -81,17 +82,16 @@ def _prism_yz(x0, pts_yz, t=BR_T):
 
 
 def bracket():
-    """Sheet bracket from the owner's redesign: two 2 mm aluminium side plates cut in an S outline (a tuning fork straddling the extrusion at the bottom, a 45 degree diagonal,
-    then a vertical arm y 27 to 69), each with two Ø6.8 holes (y 0, z 558.4 and 572.4) for M6 into the side slots, joined on the arm by a web plate at y 27 to 29 (z 624 to 697,
-    Ø19.2 horn hole at z 660). The pocket for the tilt servo is the arm between the plates, open to the outside (+y). Sizes read from the STEP file."""
+    """Sheet bracket from the owner's simplified redesign (outline traced from the original's front view): a 2 mm aluminium web, 40 wide, z 545 to 690, lying on the extrusion's
+    +y face with two Ø6.8 holes (z 555, 569) for M6 into the centre slot, and a 2 mm flange along each side edge (x +-18 to +-20 from the mast axis) standing out to y 54: bottom point at the
+    extrusion, slant to full depth by z 566, vertical to z 635, slant in to y 36 at the top z 690. The tilt servo sits between the flanges against the web, its horn through a Ø19.2 hole at z 660.
+    The web reaches 32 mm above the extrusion top (z 577) to 690 and carries the head; no part straddles the extrusion. Sizes read from the STEP file."""
     t = BR_T
-    xl, xr = TX - 22.0, TX + 20.0                                    # the plates lie at x -22..-20 and +20..+22 from the mast axis
-    out = box(TX - 20.0, TX + 20.0, BR_WEB_Y0, BR_WEB_Y1, 624.0, 697.0) - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, AZ, BR_HOLE_D / 2)
-    for x0 in (xl, xr):
-        pl = _prism_yz(x0, BR_FLANGE_YZ)
-        for zz in (558.4, 572.4):
-            pl = pl - cyl_x(x0 - 1, x0 + t + 1, 0.0, zz, 3.4)
-        out = out + pl
+    out = box(TX - 20.0, TX + 20.0, BR_WEB_Y0, BR_WEB_Y1, 545.0, 690.0) - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, AZ, BR_HOLE_D / 2)
+    for zz in BR_BOLT_Z:
+        out = out - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, zz, 3.4)
+    for x0 in (TX - 20.0, TX + 18.0):
+        out = out + _prism_yz(x0, BR_FLANGE_YZ)
     return out
 
 
@@ -119,7 +119,7 @@ def head(z_ext=Z_EXT):
     """All head parts in the rover frame: bracket, tilt servo, disk, enclosure, hat and the camera stack. Rotating column: T-slot to z 577, the bracket on its end."""
     parts = {}
     parts["bracket"] = bracket()
-    tilt = Pos(TX, 45.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
+    tilt = Pos(TX, 38.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["tilt servo"] = tilt
     parts["disk"] = cyl_y(CY + 30.0, BR_WEB_Y0 - 0.5, TX, AZ, 20.0)                                      # sideways disk, encoder or mounting, ASSUMPTION; 40 mm so that it stays near the box
     parts["enclosure"] = enclosure()

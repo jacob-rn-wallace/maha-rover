@@ -42,7 +42,7 @@ TOP_Z = B.TOP_Z                    # top of the head                            
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
 _BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
 TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 577.0  # extrusion from the spindle flange to the neck; top at 577 as the original's tube   derived [3j]
-CAM_Y = HB.CY                      # the sourced 28 right of the centreline [S8], moved to 23.5 in the owner's redesign (2026-11-08)
+CAM_Y = HB.CY                      # the sourced 28 right of the centreline [S8], moved to 30.5 in the owner's simplified redesign (2026-11-08)
 CAM_AXIS_Z = 660.0                 # CAM-1 optical axis height                    stated [S12]
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]
 assert (HB.TX, HB.CY, HB.AZ, HB.FX, HB.Z_EXT) == (TUBE_X, CAM_Y, CAM_AXIS_Z, CAM_FRONT_X, TUBE_Z1)
@@ -101,7 +101,7 @@ def head_checks(p):
     ax_t = Axis((TUBE_X, 0, CAM_AXIS_Z), (0, 1, 0))
     br = p["bracket"].bounding_box()
     tv = p["tilt servo"].bounding_box()
-    print("\nhead: tilt servo between the bracket flanges (inner width 40) and under its top, clear of the sheet (mm3, want 0)")
+    print("\nhead: tilt servo between the bracket flanges (inner width 36) and its horn through the web hole, clear of the sheet (mm3, want 0)")
     print(f"  tilt servo vs bracket: {_vol(p['tilt servo'], p['bracket']):.1f}; servo x {tv.min.X:.1f}..{tv.max.X:.1f} y {tv.min.Y:.1f}..{tv.max.Y:.1f} z {tv.min.Z:.1f}..{tv.max.Z:.1f}; "
           f"bracket x {br.min.X:.1f}..{br.max.X:.1f} y {br.min.Y:.1f}..{br.max.Y:.1f} z {br.min.Z:.1f}..{br.max.Z:.1f}")
     print(f"  bracket vs extrusion: {_vol(p['bracket'], p['tube']):.1f}; disk vs bracket {_vol(p['disk'], p['bracket']):.1f}; enclosure vs bracket {_vol(p['enclosure'], p['bracket']):.1f}")

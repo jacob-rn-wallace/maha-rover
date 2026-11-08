@@ -25,7 +25,7 @@ Servo torque: 1.91 N.m stall, 0.64 N.m continuous (`electronics-spec.md`) agains
 |---|---|---|
 | Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 577, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
 | Base plate | 76 x 76 x 6 mm aluminium on the deck (z 348 to 354), 4 M4 bolts at x 141 and 178, y +-30, through the deck into the mast cross rail and front end rail (`frame-spec.md`) | ASSUMPTION |
-| Bracket (replaces neck and C-arm) | two 2 mm aluminium S-shaped side plates and a web, z 545 to 697: a 45 degree S-bend towards +y over about z 577 to 625, then an arm at y +27 to +69; the original's arm outline [S18] Fig. 1 | derived by eye [3j], [S18] |
+| Bracket (replaces neck and C-arm) | a 2 mm aluminium web with two edge flanges, z 545 to 690, on the extrusion's +y face; the flange outline is the original's arm outline traced from [S18] Fig. 1 | derived by eye [3j], [S18] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
 | Camera | CAM-1 35 x 35 x 73 mm, axis at z 660, lens front 77.9 ahead of the front axle | stated [S12], [S8] |
 | Top | z 700 | stated [S1] |
@@ -67,8 +67,8 @@ walls) with real parts inside. The outer sizes still follow the CAD figures (3j)
 
 ## Loads
 
-With catalogue and CAD masses (extrusion 0.24 kg and base plate 0.09 kg; pan housing 0.145 kg; spindle, flange and disc 0.09 kg; bearings 0.05 kg; bracket 0.081 kg; printed enclosure, hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
-total 1.07 kg) the centre of mass is 156 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.65 N.m** on the base joint; 0.46 N.m on a 20 degree
+With catalogue and CAD masses (extrusion 0.24 kg and base plate 0.09 kg; pan housing 0.145 kg; spindle, flange and disc 0.09 kg; bearings 0.05 kg; bracket 0.070 kg; printed enclosure, hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
+total 1.06 kg) the centre of mass is 154 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.61 N.m** on the base joint; 0.46 N.m on a 20 degree
 slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate is the weak point and no stress check has been done.
 
 ## Open
@@ -90,13 +90,13 @@ slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate
 and the assembly render; `hardware/mast/head_concept.py` renders it alone to `docs/images/head-concept.png`. History: v3 (printed arm on an adapter plate, commit `2abb639`), then the owner's sheet-metal sketches
 (2026-11-08) gave the bracket. Owner's rule (2026-11-07): keep what gives the original's silhouette and costs nothing, otherwise design for our parts.
 
-- **Bracket (owner's redesign, 2026-11-08, from `mast_redesign.step`):** two 2 mm aluminium side plates cut in an S outline (a fork straddling the 40 mm extrusion at the bottom, z 545 to 577, with two Ø6.8 holes each at z 558.4 and 572.4 for M6 into
-  the side slots; a 45 degree diagonal; a vertical arm at y +27 to +69 up to z 697, matching the original's arm in [S18] Fig. 1), joined on the arm by a web plate at y 27 to 29 (z 624 to 697) with a Ø19.2 horn hole at z 660. The servo pocket is the arm between the
-  plates, **open to the outside (+y)** as the original's tilt motor is; the servo (STS3215, y 26.5 to 63.7) sits against the outer face of the web with its horn through the hole to the disk. Mass 0.081 kg. **Open question on making it:** unfolded about the web's
-  fold lines the two plates overlap each other by about 1,600 mm2 (the fork's legs fold back across the web's side), so it cannot be one flat blank with the web as a bent connector. Options: three flat laser-cut parts (two plates and the web, joined with
-  screws or tabs), or the web on the outer side with the plates opening towards -y (then the unfolded plates do not overlap, but the pocket is closed outward). The first attempts (flanges running continuously round the bends; flanges cut at mitres) were
-  my misreadings of the sketches and are replaced. Camera lateral position: the owner moved it to y -23.5 (the sourced figure is 28 right of the centreline [S8]); the disk is 20 mm long (y 6.5 to 26.5).
-- **Camera unit** (tilts as one): a sideways disk (printed, 40 mm, y 6.5 to 26.5, encoder or mount; unknown in the original), a **die-cast aluminium enclosure, Takachi TD6-6-4** (60 x 60 x 35 mm, ADC12, 90 g, black painted or
+- **Bracket (owner's simplified redesign, 2026-11-08, from `mast_simplified_in_situ.step`; outline traced by the owner from the original's front view [S18] Fig. 1):** a 2 mm aluminium **web**, 40 mm wide, z 545 to 690, lying flat on the extrusion's
+  +y face (y 20 to 22) with two Ø6.8 holes (z 555 and 569) for M6 into the centre slot of that face, and a 2 mm **flange** along each side edge (x +-18 to +-20 from the mast axis) standing out to y 54: a point at the extrusion at z 545, a slant to full depth by
+  z 566, vertical to z 635, then a slant in to y 36 at the top (z 690). It reaches 113 mm above the extrusion top (577) and carries the head; nothing straddles the extrusion. The tilt servo (STS3215, y 19.5 to 56.7) sits between the flanges against the web, its
+  horn through a Ø19.2 hole at z 660, to the disk. Mass 0.070 kg. **Overlaid on the original's front view the outline follows the original's arm (outer edge, diagonal shoulder, top)**; the flat blank is simply a plate with two edge flanges, so it
+  is one bent part (two bends along the long edges, no bends across the flanges). The earlier attempts (flanges running round the bends; mitred flanges; S-shaped plates) were my misreadings or an unmakeable blank and are replaced. Camera lateral
+  position: in this version y -30.5 (the sourced figure is 28 right of the centreline [S8]); the disk is 20 mm long (y -0.5 to 19.5).
+- **Camera unit** (tilts as one): a sideways disk (printed, 40 mm, y -0.5 to 19.5, encoder or mount; unknown in the original), a **die-cast aluminium enclosure, Takachi TD6-6-4** (60 x 60 x 35 mm, ADC12, 90 g, black painted or
   unfinished; catalogue drawing TD6-6-4B/N: walls 2 mm, internal maximum 50.3 x 36.3 x 31 mm, four M3.5 countersunk cover screws at +-25 mm; stated) with the cover at the front, and the CASPEX-look lens assembly bolted to the
   outside of the cover (45 mm cradle plate, collar, slotted baffle ring, black hood with a square window turned 8 degrees; [S5], [S12], `original-dimensions.md` 3l), and a flat round hat (70 mm; the CAD figure suggests up to 110 mm,
   planar antenna per the owner's reading) on top. The camera body inside is a 35 x 35 x 25 mm stand-in for a Camera Module 3 and its mount: it fits inside the 36.3 mm clear span with 0.65 mm to spare per side and 5.8 mm of
