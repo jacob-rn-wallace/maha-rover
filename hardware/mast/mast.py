@@ -35,7 +35,7 @@ TUBE_X = B.MAST_X                  # tube centre; 24.2 ahead of the front axle  
 TUBE_W = 58.0                      # width of the printed neck, X and Y (the original's tube measures about 60 x 59)  derived [3j]
 EXT = 40.0                         # mast extrusion section, 40 x 40 (narrower than the original's 58 mm tube)  ASSUMPTION
 EXT_KG_PER_M = 1.86                # Misumi HFS8-4040 catalogue (sources list 1.73 to 1.90 by variant; get it from the vendor)  stated (catalogue)
-PLATE_X, PLATE_Y, PLATE_T = 75.0, 80.0, 6.0   # aluminium base plate on the deck under the die-cast box (75 x 80), fixed by the box's two M4 mounting holes and screws to the deck  ASSUMPTION
+PLATE_X, PLATE_Y, PLATE_T = 75.0, 80.0, 3.0   # aluminium base plate on the deck under the die-cast box (75 x 80), fixed by the box's two M4 mounting holes and screws to the deck  ASSUMPTION
 TOP_Z = B.TOP_Z                    # top of the head                              stated [S1]
 
 # ---- Rotating parts, measured along the mast from the hinge ----------------

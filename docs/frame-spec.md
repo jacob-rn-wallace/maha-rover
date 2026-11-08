@@ -80,7 +80,7 @@ side panel.
     slot of the differential cross rails (x = plus or minus 28), with 1.3 mm shim washers across the gap. At 3x with the torque at the gearbox limit the worst bolt pulls
     360 N against an M4 8.8 proof load of about 5 kN. The cross rails see 16 MPa at 3x. These replace the "printed cradles" of the earlier text: printed plastic would
     creep under the 460 N.
-  - **Link plate to shaft.** The shaft is **bonded with retaining compound into a 12 mm bore through the 8 mm plate and a 12 mm boss** (20 mm engagement, the boss grown from 6
+  - **Link plate to shaft.** The shaft is **bonded with retaining compound into a 12 mm bore through the 4 mm plate and a 16 mm boss** (20 mm engagement; the plate was 8 mm and the boss 12 before the mass second pass of 2026-11-08, and the boss grown from 6 before that
     mm). At 3x the moment at the plate face is 24 N.m, a peak contact pressure of 30 MPa on the aluminium (factor 8.0). The bond (15 MPa assumed shear; datasheet values
     for retaining compounds run higher, not verified) carries 68 N.m against 7.1 N.m at the gearbox limit (factor 9.6). There are **no cross pins**: a cross hole at the plate
     would see about three times the bending stress. The wires leave the open tube end at the boss tip and run back to the motor sleeves.
@@ -163,7 +163,7 @@ about 0.6 kg lighter), or printed panels.
 | Sleeves and bushings | 0.02 | ASSUMPTION |
 | **Chassis** | **4.69** | the original's structure is 2 kg, excluding mobility [S26] |
 
-Replica total from the CAD: **9.92 kg when this was written, now 10.50 kg after the mast pan base and the new head** (`replica-mass.md`): the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
+Replica total from the CAD: **9.92 kg when this was written, now 9.88 kg after the mast pan base, the new head, the die-cast boxes and the mass second pass** (`replica-mass.md`): the 20 x 40 rails add 0.35 kg, the 12 mm shafts and thicker link plate bosses 0.13 kg. Decision
 2026-11-07: the first pass is not optimised for mass, and the motors, drivers, battery and bearings are sized for 10 kg (`drive-spec.md`); a second pass
 brings the build down to 10 kg if the real parts come out over. If it does, the first places to save mass are the link plates, the panel thickness, the
 redundant top and mid rails, and a 30 x 30 mast.

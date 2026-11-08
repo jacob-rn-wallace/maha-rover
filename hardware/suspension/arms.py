@@ -40,13 +40,13 @@ import motor as M  # noqa: E402
 import wheel as W  # noqa: E402
 
 PIVOT_Z = B.HUB_Z + 45.7  # boss 45.7 above the hub centres        derived [3i]
-PLATE_Y0, PLATE_T = 133.0, 8.0   # plate inner face from the centreline, thickness  ASSUMPTION
+PLATE_Y0, PLATE_T = 133.0, 4.0   # plate inner face from the centreline, thickness (4 mm since 2026-11-08: was 8, mass second pass; stress estimate in docs/replica-mass.md)  ASSUMPTION
                                  # (front view: plate about 30 mm inboard of the wheel's inner face)
 PLATE_BOTTOM = B.HUB_Z + 5.0     # lower edge about 5 above the hub centre  derived [3i]
 PLATE_TOP_MID, PLATE_TOP_END = 178.0, 128.0   # upper outline           ASSUMPTION
 PAD_HALF, PAD_BOTTOM = 22.0, B.HUB_Z - 22.0   # tab behind each sleeve  ASSUMPTION
 PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPTION
-BOSS_D, BOSS_T = 48.0, 12.0      # pivot boss on the outer face: diameter derived [3i], by eye; 12 thick (was 6) so the 12 mm shaft is bonded in 20 mm of plate and boss   ASSUMPTION
+BOSS_D, BOSS_T = 48.0, 16.0      # pivot boss on the outer face: diameter derived [3i], by eye; 16 thick (was 6, then 12) so the 12 mm shaft is bonded in 20 mm of plate (4) and boss (16), the tip staying where it was   ASSUMPTION
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
 SHAFT_R = 6.0            # pivot shaft radius: a 12 mm OD, 8 mm ID steel tube from the link plate to the differential housing wall, so it can carry the
                          # bending of the wheel loads (rail_check.py: the earlier 8 mm tube would see about 680 MPa at 3 g)   ASSUMPTION

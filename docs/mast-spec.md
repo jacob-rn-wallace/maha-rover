@@ -15,18 +15,18 @@ Revised 2026-11-07 (owner's request): **the mast is a T-slot aluminium extrusion
 spindle flange (the whole mast turns on a pan drive in a housing on the deck, below) and carries the bent sheet bracket and head (section "Built head" below) on its top end.
 
 **Pan base (added 2026-11-07, owner's request: the original's pan motor is in the block at the mast base; redone 2026-11-08 around a die-cast box).** `hardware/mast/base.py`: a **Takachi AL080807** IP65 die-cast aluminium box (80 x 75 x 70 mm, 347 g, gasketed, M4
-cover screws; drawing AL080807 (2025): cavity 70.5 x 66.8 at the mouth, interior height 62.75, base 55 deep, cover 15 deep; stated) stands on the base plate with its **lid on top** (z 354 to 424). The original's base block measures about 79 mm wide and 73 mm tall with its
-top near z 425 (measured on Fig. 1, `original-dimensions.md` 3m): the box matches it. Inside: the pan servo (STS3215, shaft vertical on the mast axis, long side along y so the 45.2 mm body clears the 70.5 mm cavity by 0.1 mm; z 357.6 to 394.8), a coupling disc
-on its upper horn, and an aluminium bearing tower (OD 52) hung under the lid holding two 30 x 42 x 7 mm bearings (6806 size) 12.6 mm apart, the upper one against the lid's underside (z 404.3 and 416.9). The aluminium spindle (tube 30/22) runs up through them and
-a 36 mm hole in the lid to a 60 mm flange at z 426 to 432 on which the extrusion stands (now z 432 to 597). The servo only turns the mast; the bearings carry the weight and bending, with the lid carrying the bearings: mast, bearings, tower, lid, four M4 cover screws, base,
-box, plate. With the bearings only 12.6 mm apart the radial load at 1 g sideways is 157 N each (471 N at 3 g) from the 1.98 N.m moment, three times the earlier 30 mm spacing; far below a 6806 bearing's rating (not checked). The cables run down the extrusion slots, through the hollow
+cover screws; drawing AL080807 (2025): cavity 70.5 x 66.8 at the mouth, interior height 62.75, base 55 deep, cover 15 deep; stated) stands on the base plate (3 mm since the mass second pass of 2026-11-08) with its **lid on top** (z 351 to 421). The original's base block measures about 79 mm wide and 73 mm tall with its
+top near z 425 (measured on Fig. 1, `original-dimensions.md` 3m): the box matches it. Inside: the pan servo (STS3215, shaft vertical on the mast axis, long side along y so the 45.2 mm body clears the 70.5 mm cavity by 0.1 mm; z 354.6 to 391.8), a coupling disc
+on its upper horn, and an aluminium bearing tower (OD 52) hung under the lid holding two 30 x 42 x 7 mm bearings (6806 size) 12.6 mm apart, the upper one against the lid's underside (z 401.3 and 413.9). The aluminium spindle (tube 30/22) runs up through them and
+a 36 mm hole in the lid to a 60 mm flange at z 423 to 429 on which the extrusion stands (now z 429 to 597). The servo only turns the mast; the bearings carry the weight and bending, with the lid carrying the bearings: mast, bearings, tower, lid, four M4 cover screws, base,
+box, plate. With the bearings only 12.6 mm apart the radial load at 1 g sideways is 156 N each (468 N at 3 g) from the 1.96 N.m moment, three times the earlier 30 mm spacing; far below a 6806 bearing's rating (not checked). The cables run down the extrusion slots, through the hollow
 spindle (22 mm bore) and out through a 10 mm hole in the coupling disc. Not designed: the lid's stiffness under that load (a 3.6 mm cast cap; a plate under it may be needed), the gasket and a seal where the spindle leaves the lid, fixing the box to the base plate (the box has two M4
 external mounting holes) and the plate to the deck, the compliant joint between servo horn and disc, axial retention of the bearings, the hard stop for the 320 degree range, the cable loop. Mass: the box is 0.347 kg against 0.145 kg for the printed housing it replaces.
 
 | Item | Value | Status |
 |---|---|---|
 | Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 597, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
-| Base plate | 75 x 80 x 6 mm aluminium on the deck (z 348 to 354) under the die-cast box; the earlier 4 M4 bolts at x 141 and 178, y +-30 into the mast cross rail and front end rail (`frame-spec.md`) need re-checking for the new plate | ASSUMPTION |
+| Base plate | 75 x 80 x 3 mm aluminium on the deck (z 348 to 351) under the die-cast box; the earlier 4 M4 bolts at x 141 and 178, y +-30 into the mast cross rail and front end rail (`frame-spec.md`) need re-checking for the new plate | ASSUMPTION |
 | Bracket (replaces neck and C-arm) | a 2 mm aluminium web with two edge flanges, z 545 to 690, on the extrusion's +y face; the flange outline is the original's arm outline traced from [S18] Fig. 1 | derived by eye [3j], [S18] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
 | Camera | CAM-1 35 x 35 x 73 mm, axis at z 660, lens front 77.9 ahead of the front axle | stated [S12], [S8] |
@@ -69,8 +69,8 @@ walls) with real parts inside. The outer sizes still follow the CAD figures (3j)
 
 ## Loads
 
-With catalogue and CAD masses (extrusion 0.31 kg and base plate 0.08 kg; die-cast pan box 0.347 kg; spindle, flange, disc and bearing tower 0.12 kg; bearings 0.05 kg; bracket 0.069 kg; die-cast camera box 0.162 kg, printed hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
-total 1.42 kg) the centre of mass is 142 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.98 N.m** on the base joint; 0.46 N.m on a 20 degree
+With catalogue and CAD masses (extrusion 0.31 kg and base plate 0.05 kg; die-cast pan box 0.347 kg; spindle, flange, disc and bearing tower 0.12 kg; bearings 0.05 kg; bracket 0.069 kg; die-cast camera box 0.162 kg, printed hat and lens parts and the disk (0.015 kg, ASSUMPTION); camera body stand-in 0.010 kg (ASSUMPTION); two servos 0.11 kg; hardware 0.05 kg;
+total 1.37 kg) the centre of mass is 146 mm above the deck. A sideways acceleration of 1 g (a tipping rover) puts about **1.96 N.m** on the base joint; 0.46 N.m on a 20 degree
 slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate is the weak point and no stress check has been done.
 
 ## Open

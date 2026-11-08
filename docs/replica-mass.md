@@ -9,10 +9,10 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 ```
 group                                  kg   share      x      z
 panels                               2.40     24%      0    236
-T-slot frame                         2.14     21%      3    212
-link plates, sleeves, shafts         1.28     13%      0    132
-wheels                               1.12     11%     -0    100
-mast, head and camera                1.42     13%    162    490
+T-slot frame                         2.14     22%      3    212
+mast, head and camera                1.37     14%    162    494
+wheels                               0.94     10%     -0    100
+link plates, sleeves, shafts         0.88      9%      0    132
 drive motors                         0.78      8%      0    100
 harness and fasteners                0.40      4%      0    190
 electronics                          0.38      4%    -71    141
@@ -21,25 +21,17 @@ pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                               10.50   target 10 kg: margin -0.50 kg
+TOTAL                                9.88   target 10 kg: margin +0.12 kg
 
-centre of mass: x 20.0, y -0.3, z 220.6 (mm, ground at the rim line)
-static tip angles: nose-down 35 deg, nose-up 28 deg, sideways 48 deg  (the slope requirement is 20 deg)
-  assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
-
-where a second pass could save mass (arithmetic on the numbers above):
-  link plates 8 mm -> 4 mm aluminium: 0.45 kg saved
-  panels 2 mm -> 1.5 mm (walls only, deck as is): about 0.48 kg
-  drop the two mid rails and the differential cross rails (not possible if they hold the differential): up to 0.44 kg
-  wheels at 50 percent effective fill instead of solid: 0.56 kg saved
+centre of mass: x 20.5, y -0.3, z 225.6 (mm, ground at the rim line)
+static tip angles: nose-down 35 deg, nose-up 27 deg, sideways 48 deg  (the slope requirement is 20 deg)
+  assumptions: wheels 1.07 g/cm3 solid (0.24 kg each), allowances 0.84 kg
 ```
 
 ## Reading the result
 
-- **10.50 kg against the 10 kg target: 0.50 kg over.** The mast is now 1.42 kg (2026-11-08): the die-cast base box (0.347 kg, replacing a 0.145 kg printed housing, +0.20 kg), the die-cast camera box (0.162 kg, +0.07 kg over the 90 g one before), the longer extrusion (+0.03 kg) and the bearing tower, with the sheet bracket and the lens stack (2026-11-08; the printed-shell head was 0.98 kg with the pan base, total 10.07 kg). The 0.07 kg came from the pan drive moving to the mast base (+0.14 kg: housing, spindle, bearings; 0.98 kg mast in all). Before that 9.92 kg, 0.08 kg under (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
-  solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
-  the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
-  cut if it does.
+- **9.88 kg against the 10 kg target: 0.12 kg under.** Applied 2026-11-08 in the mass second pass (after the die-cast boxes had taken the replica to 10.50 kg): the link plates are 4 mm instead of 8 (the pivot boss grows from 12 to 16 mm so the shaft keeps its 20 mm bond; net 0.40 kg), the wheels are printed in ASA (1.07 g/cm3) instead of PETG (0.18 kg), and the mast base plate is 3 mm instead of 6 (0.05 kg). The mast column stays the 40 x 40 T-slot extrusion (a 60 x 60 x 2 tube would have saved 0.10 kg, declined so that others can mount things on the mast). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are a solid printed estimate (0.24 kg each in ASA; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each), and
+  the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. The margin is small; the levers below are the first things to cut if it vanishes.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 2.1 kg are 46 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).
 - **Centre of mass:** x 11 mm (forward of the axle midpoint), z 205 mm. The mast is now 8 percent of the mass (0.80 kg), which moves the centre forward and up.
@@ -48,18 +40,18 @@ where a second pass could save mass (arithmetic on the numbers above):
   These are static, on a rigid chassis; the suspension (a pivoting link plate per side) and dynamics are not covered.
 - **Drive sizing:** the slope torque per wheel at 9.9 kg is 0.83 N.m, a little under the 0.84 N.m the motors were sized for.
 
-## Levers for a second pass (arithmetic on the numbers above; 2026-11-08, after the die-cast boxes)
+## Levers (arithmetic on the numbers above; 2026-11-08)
 
-The replica is 0.50 kg over. The die-cast pan box and camera box added 0.30 kg over what the printed ones weighed, and the taller mast column and the bearing tower the rest.
+**Applied** (10.50 to 9.88 kg): link plates 8 to 4 mm aluminium (0.40 kg net of the bigger boss and longer sleeves: beam estimate on the plate's section at the pivot, about 60 mm high after the bore: in-plane stress 6.5 MPa and out-of-plane 51 MPa at 3 g with a 0.8 friction side load per wheel, against 240 yield; lateral tip deflection 0.8 mm per g of side load, about 2.3 mm at 3 g, camber about 1 degree, against 0.1 mm at 8 mm; the shaft joint check in `rail_check.py` is unchanged at factor 8; not an FE check), wheel material PETG to ASA (0.18 kg), mast base plate 6 to 3 mm (0.05 kg).
+
+**Declined:** mast column to a 60 x 60 x 2 aluminium tube (0.10 kg): the owner keeps the T-slot extrusion for future mounting on the mast.
+
+**Remaining:**
 
 | Lever | Saves | Notes |
 |---|---|---|
-| Link plates 8 mm to 4 mm aluminium (5 mm: 0.34 kg; 6 mm: 0.23 kg) | **0.45 kg** | Estimate on the plate's section at the pivot (about 60 mm high after the bore): in-plane stress 6.5 MPa and out-of-plane 51 MPa at 3 g with a 0.8 friction side load per wheel, against 240 yield; lateral tip deflection 0.8 mm per g of side load (about 2.3 mm at 3 g, camber about 1 degree) against 0.1 mm at 8 mm. The pivot boss stays. Beam estimate only, not an FE check |
-| Wheel material PETG to ASA (1.07 g/cm3) | 0.18 kg | Nylon (1.01): 0.23 kg. The wheel is mostly 2 to 3 mm features (rim band 3 mm, ribs, 0.8 mm grousers), so the earlier "half effective fill" lever (0.56 kg) is not credible; the printed wheel is close to solid |
-| Mast column 40 x 40 T-slot to a 60 x 60 x 2 aluminium tube | 0.10 kg | 50 x 50 x 2: 0.14 kg; matches the original's 57 to 59 mm column; loses the T-slots (the bracket and the spindle flange would bolt through the tube wall) |
-| Mast base plate 6 mm to 3 mm | 0.05 kg | |
 | Side, end and floor panels 2 mm to 1.5 mm | about 0.48 kg | Panel stiffness unchecked (four-point stiffness is an open item) |
-| Mid rails and differential cross rails | up to 0.45 kg | Only if the differential moves; they carry it |
+| Mid rails and differential cross rails | up to 0.44 kg | Only if the differential moves; they carry it |
+| Wheels in nylon instead of ASA | 0.05 kg | |
+| Link plates 4 mm to 3 mm | 0.11 kg | About 2.4 times the out-of-plane deflection; not recommended |
 | Bracket 2 mm to 1.5 mm | 0.02 kg | |
-
-**A package that reaches the target without touching the chassis panels or frame:** plates to 4 mm (0.45), wheels in ASA (0.18), tube column (0.10), base plate to 3 mm (0.05): **0.78 kg, giving about 9.72 kg**. Without the wheel material change it is 0.60 kg (9.90 kg). Fewest changes for the 0.50: plates at 4 mm plus the base plate and the tube (0.60).

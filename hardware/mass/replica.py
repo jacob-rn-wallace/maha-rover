@@ -21,7 +21,8 @@ import mast as MAST     # noqa: E402
 import wheel as W       # noqa: E402
 
 AL, STEEL, PETG = 2.70, 7.85, 1.27   # g/cm3: aluminium and steel standard; PETG typical (printed, solid)   ASSUMPTION for PETG
-WHEEL_DENSITY = PETG                 # replica wheel material is not chosen; solid printed PETG is the heavy case
+ASA = 1.07                           # g/cm3, typical ASA/ABS filament (not verified)   ASSUMPTION
+WHEEL_DENSITY = ASA                  # replica wheels printed in ASA (chosen 2026-11-08 in the mass second pass; PETG 1.27 was the heavy case)
 MOTOR = 0.195                        # kg each, vendor upper bound
 DIFFERENTIAL = 0.30                  # kg: housing, four steel gears, cross pin, bushings, hardware (differential.py: 0.17 kg of gears and housing)   ASSUMPTION
 HARNESS_FASTENERS = 0.40             # kg: wiring, T-nuts, brackets, bolts                                     ASSUMPTION
@@ -110,17 +111,16 @@ if __name__ == "__main__":
     print("static tip angles: " + ", ".join(f"{k} {v:.0f} deg" for k, v in t.items()) + "  (the slope requirement is 20 deg)")
     print(f"  assumptions: wheels {WHEEL_DENSITY} g/cm3 solid ({W.build_wheel().volume / 1e3 * WHEEL_DENSITY / 1000:.2f} kg each), allowances {DIFFERENTIAL + HARNESS_FASTENERS + SOLAR + TERMINALS:.2f} kg")
 
-    # levers: what saves mass
+    # levers: what saves mass (applied 2026-11-08: link plates 4 mm, wheels in ASA, mast base plate 3 mm; the tube column was declined to keep the T-slot expandable)
     g = {k: v[0] for k, v in groups.items()}
-    plates_kg = sum(m for gg, n, m, p in items if gg.startswith("link plates") and n.startswith("plate"))
-    print("\nwhere a second pass could save mass (arithmetic on the numbers above; hardware/mass/levers notes in docs/replica-mass.md):")
-    print(f"  link plates 8 mm -> 6 / 5 / 4 mm aluminium: {plates_kg * 0.25:.2f} / {plates_kg * 0.375:.2f} / {plates_kg * 0.5:.2f} kg saved (both plates)")
+    print("\nremaining levers for a further pass (arithmetic on the numbers above; docs/replica-mass.md):")
     shell = sum(m for gg, n, m, p in items if gg == "panels")
     print(f"  panels 2 mm -> 1.5 mm (walls only, deck as is): about {shell * 0.2:.2f} kg (panel stiffness not checked)")
     mid = sum(m for gg, n, m, p in items if gg == "T-slot frame" and n.startswith(("mid side", "differential cross")))
     print(f"  drop the two mid rails and the differential cross rails (not possible if they hold the differential): up to {mid:.2f} kg")
     wheel = g["wheels"]
-    print(f"  wheel material PETG 1.27 -> ASA 1.07 / nylon 1.01 g/cm3: {wheel * (1 - 1.07 / 1.27):.2f} / {wheel * (1 - 1.01 / 1.27):.2f} kg (the wheel is mostly 2 to 3 mm features, so a 50 percent fill is not credible)")
+    print(f"  wheels in nylon (1.01 g/cm3) instead of ASA: {wheel * (1 - 1.01 / 1.07):.2f} kg")
+    plates_kg = sum(m for gg, n, m, p in items if gg.startswith("link plates") and n.startswith("plate"))
+    print(f"  link plates 4 mm -> 3 mm: {plates_kg * 0.25:.2f} kg (out-of-plane deflection roughly 2.4 times: not recommended)")
     ext = (MAST.TUBE_Z1 - MAST.TUBE_Z0) / 1000.0
-    print(f"  mast column 40 x 40 T-slot -> 60 x 60 x 2 / 50 x 50 x 2 aluminium tube: {ext * (1.86 - 1.25):.2f} / {ext * (1.86 - 1.04):.2f} kg")
-    print(f"  mast base plate 6 mm -> 3 mm: {MAST.PLATE_X * MAST.PLATE_Y * 3 * 2.70e-6:.2f} kg")
+    print(f"  mast column to a 60 x 60 x 2 aluminium tube: {ext * (1.86 - 1.25):.2f} kg (declined: the T-slot extrusion is kept for expandability)")
