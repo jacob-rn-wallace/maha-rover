@@ -24,6 +24,7 @@ AZ = 660.0
 FX = B.WHEELBASE / 2 + 77.9
 Z_EXT = 577.0                      # top of the extrusion
 box = H._box
+LID = 2.0                          # lid thickness of the die-cast enclosure (Takachi TD6-6-4, drawing)
 
 
 def cyl_x(x0, x1, y, z, r):
@@ -39,12 +40,14 @@ def caspex():
     x_back = FX - 73.0
     mod = box(x_back, x_back + 25.2, CY - 17.5, CY + 17.5, AZ - 17.5, AZ + 17.5)                  # 35 x 35 x 25.2 over the pins
     xp0 = x_back + 25.2
+    xp0 += LID                                                                                      # the 2 mm enclosure lid lies between the module and the plate
     plate = box(xp0, xp0 + 4, CY - 22.5, CY + 22.5, AZ - 22.5, AZ + 22.5)                          # 45 square cradle, ASSUMPTION
     for sy in (-1, 1):
         for sz in (-1, 1):
             plate = plate - cyl_x(xp0 - 1, xp0 + 5, CY + sy * 19.5, AZ + sz * 19.5, 1.6)           # corner holes
-    collar = cyl_x(xp0 + 4, xp0 + 24, CY, AZ, 16.0)                                                # round collar, ASSUMPTION
-    ring0 = xp0 + 24
+    xp0 -= 0.0
+    collar = cyl_x(xp0 + 4, xp0 + 22, CY, AZ, 16.0)                                                # round collar, ASSUMPTION
+    ring0 = xp0 + 22
     ring = cyl_x(ring0, FX - 2, CY, AZ, 18.5)                                                      # slotted baffle ring
     for k in range(36):
         a = math.radians(k * 10)
@@ -93,23 +96,38 @@ def bracket():
     return out
 
 
+ENC_D = 35.0                                    # depth of the box (Takachi TD6-6-4: 60 x 60 x 35, ADC12, 90 g)
+ENC_X1 = FX - 73.0 + 25.2 + LID                 # front face: the module (25.2) sits inside against the 2 mm lid, the cradle plate on the outside
+
+
+def enclosure():
+    """Takachi TD6-6-4 die-cast aluminium box (catalogue drawing TD6-6-4B/N, 2019): 60 x 60 x 35, walls 2, cover lip 4, internal maximum 50.3 x 36.3 x 31
+    (36.3 is the clear span between the corner screw bosses, which are modelled as 7 x 7 mm blocks), four M3.5 countersunk cover screws at +-25. Draft
+    and corner radii are not modelled. The cover is at the front, with a 35 mm hole for the lens barrel; the cavity opens to the front, the base is behind."""
+    x1 = ENC_X1
+    x0 = x1 - ENC_D
+    base = box(x0, x1 - LID, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0) - box(x0 + 2.0, x1 - LID + 1, CY - 28.0, CY + 28.0, AZ - 28.0, AZ + 28.0)
+    for sy in (-1, 1):
+        for sz in (-1, 1):
+            ya, yb = sorted((CY + sy * 18.15, CY + sy * 28.5))                # corner screw boss: 7 x 7 mm block against the walls
+            za, zb = sorted((AZ + sz * 18.15, AZ + sz * 28.5))
+            base = base + box(x0 + 1.9, x1 - LID, ya, yb, za, zb)
+    lid = box(x1 - LID, x1, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0) - cyl_x(x1 - LID - 1, x1 + 1, CY, AZ, 17.5)
+    return base + lid
+
+
 def head(z_ext=Z_EXT):
     """All head parts in the rover frame: bracket, tilt servo, disk, enclosure, hat and the camera stack. Rotating column: T-slot to z 577, the bracket on its end."""
     parts = {}
     parts["bracket"] = bracket()
     tilt = Pos(TX, 47.5, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["tilt servo"] = tilt
-    parts["disk"] = cyl_y(2.0, 22.0, TX, AZ, 23.0)                                      # sideways disk, encoder or mounting, ASSUMPTION
-    x_face = FX - 22.0
-    cube = H.hollow(x_face - 60.0, x_face, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0)  # roughly cubic enclosure, 60 mm, ASSUMPTION
-    cube = cube - cyl_x(x_face - 3.0, x_face + 1.0, CY, AZ, 17.5)
-    for sy in (-1, 1):
-        for sz in (-1, 1):
-            cube = cube + cyl_x(x_face, x_face + 2.0, CY + sy * 25.0, AZ + sz * 25.0, 2.8)
-    parts["enclosure"] = cube
+    parts["disk"] = cyl_y(2.0, 22.0, TX, AZ, 20.0)                                      # sideways disk, encoder or mounting, ASSUMPTION; 40 mm so that it stays near the box
+    parts["enclosure"] = enclosure()
+    xc = ENC_X1 - ENC_D / 2
     hz = AZ + 30.0
-    parts["antenna hat"] = Pos(x_face - 30.0, CY, hz + 3.5) * Cylinder(35.0, 7.0) + \
-        (Pos(x_face - 30.0, CY, hz + 8.5) * Cylinder(35.0, 3.0) - Pos(x_face - 30.0, CY, hz + 8.5) * Cylinder(31.5, 3.2))
+    parts["antenna hat"] = Pos(xc, CY, hz + 3.5) * Cylinder(35.0, 7.0) + \
+        (Pos(xc, CY, hz + 8.5) * Cylinder(35.0, 3.0) - Pos(xc, CY, hz + 8.5) * Cylinder(31.5, 3.2))
     c = caspex()
     parts["camera body"], parts["cradle"], parts["collar"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "cradle", "collar", "baffle", "hood"))
     return parts

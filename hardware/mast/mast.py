@@ -54,7 +54,8 @@ AL_G_CM3 = 2.68
 DISK_KG = 0.015
 CAMBODY_KG = 0.010
 MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "hardware": 0.02}
-PRINTED_HEAD = ("enclosure", "antenna hat", "cradle", "collar", "baffle", "hood")
+ENCLOSURE_KG = 0.090              # Takachi TD6-6-4, catalogue (90 g)   stated
+PRINTED_HEAD = ("antenna hat", "cradle", "collar", "baffle", "hood")
 
 
 def parts():
@@ -73,6 +74,7 @@ def cg_and_moment():
     pts.append((rot["bracket"].volume / 1e6 * AL_G_CM3, c("bracket").X, c("bracket").Z))
     for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
+    pts.append((ENCLOSURE_KG, c("enclosure").X, c("enclosure").Z))
     pts.append((DISK_KG, c("disk").X, c("disk").Z))
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     for n in ("pan servo", "tilt servo"):
@@ -103,6 +105,9 @@ def head_checks(p):
     print(f"  tilt servo vs bracket: {_vol(p['tilt servo'], p['bracket']):.1f}; servo x {tv.min.X:.1f}..{tv.max.X:.1f} y {tv.min.Y:.1f}..{tv.max.Y:.1f} z {tv.min.Z:.1f}..{tv.max.Z:.1f}; "
           f"bracket x {br.min.X:.1f}..{br.max.X:.1f} y {br.min.Y:.1f}..{br.max.Y:.1f} z {br.min.Z:.1f}..{br.max.Z:.1f}")
     print(f"  bracket vs extrusion: {_vol(p['bracket'], p['tube']):.1f}; disk vs bracket {_vol(p['disk'], p['bracket']):.1f}; enclosure vs bracket {_vol(p['enclosure'], p['bracket']):.1f}")
+    print("  camera stack vs die-cast enclosure (mm3, want 0): " + ", ".join(f"{n} {_vol(p[n], p['enclosure']):.1f}" for n in ("camera body", "cradle", "collar", "baffle", "hood")))
+    eb = p["enclosure"].bounding_box()
+    print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
     turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
     static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
     moving = Compound([p[n] for n in turning])
