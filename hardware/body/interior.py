@@ -54,6 +54,8 @@ PARTS = {
     "master switch (rear panel)":  dict(model="rocker_switch", at=(-136.5, 35.0), z=165.0),                                 # bezel face on the rear panel's outer face; body inside
     "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(108.0, -65.0)),                              # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; box
 }
+GUSSET_T, GUSSET_H = 3.0, 60.0                # triangular gussets from each end panel's outer face to the deck's underside, supporting the deck's overhang (owner, from the perspective CAD views [S5] Fig. 4 and [S12] Fig. 3: three diagonal ribs under the deck at each end); size by eye  ASSUMPTION
+GUSSET_Y = (-30.0, 0.0, 30.0)                 # the outer two lie under the mast base bolts (y +-30)  ASSUMPTION
 SWITCH_CUTOUT_D = 20.2   # panel cut-out of the round rocker switch                          stated (listing)
 PANEL_GAP = 10.0         # clearance between the side panels and the frame behind them. The original's side panels stand proud
                          # of its body on spacers (front view, [S18] Fig. 1; about 10 mm read by eye on a 1.10 mm/px scale, uncertain
@@ -157,6 +159,10 @@ def shell(cav):
     sh = (outer - cav) - walls
     for sx in (1, -1):                                 # the end panels stand back to RECESS_X (full height); the deck above keeps its length
         sh = sh - Pos(sx * (RECESS_X + 100.0), 0, z1 / 2) * Box(200.0, 400.0, z1)
+    for sx in (1, -1):                                 # gussets under the deck's overhang at each end
+        for gy in GUSSET_Y:
+            tri = extrude(Plane.XZ * Polygon((sx * RECESS_X, z1), (sx * RECESS_X, z1 - GUSSET_H), (sx * B.DECK_LEN / 2, z1), align=None), amount=GUSSET_T / 2, both=True)
+            sh = sh + Pos(0, gy, 0) * tri
     d = PARTS["master switch (rear panel)"]
     cut = Pos(d["at"][0] + 3.0, d["at"][1], d["z"]) * Rot(0, 90, 0) * Cylinder(SWITCH_CUTOUT_D / 2, 12.0)
     deck_hole = Pos(DECK_HOLE_X, DECK_HOLE_Y, B.DECK_TOP_Z - B.DECK_T / 2) * Cylinder(DECK_HOLE_D / 2, B.DECK_T + 2.0)

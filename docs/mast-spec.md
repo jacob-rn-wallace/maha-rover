@@ -26,7 +26,7 @@ external mounting holes) and the plate to the deck, the compliant joint between 
 | Item | Value | Status |
 |---|---|---|
 | Extrusion | 40 x 40 mm T-slot (Misumi HFS8-4040 class, about 1.86 kg/m; catalogue entries run 1.73 to 1.90 kg/m by variant), z 354 to 597, centre 24.2 mm ahead of the front axle (x 160.7), cut square, 223 mm, 0.41 kg | position and top height derived [3j]; section ASSUMPTION |
-| Base plate | 75 x 80 x 3 mm aluminium on the deck (z 348 to 351) under the die-cast box; bolted to the deck alone with 4 M4 at y +-30 (the rail under the mast was removed 2026-11-08; the overhang is discussed in `frame-spec.md`) | ASSUMPTION |
+| Base plate | 75 x 80 x 3 mm aluminium on the deck (z 348 to 351) under the die-cast box; bolted to the deck alone with 4 M4 through bolts at x = axis +-22, y +-30, over the outer gussets under the deck's overhang (the rail under the mast was removed 2026-11-08; `frame-spec.md`) | ASSUMPTION |
 | Bracket (replaces neck and C-arm) | a 2 mm aluminium web with two edge flanges, z 545 to 690, on the extrusion's +y face; the flange outline is the original's arm outline traced from [S18] Fig. 1 | derived by eye [3j], [S18] |
 | Head | camera housing 60 x 72 mm, z 621 to 700, centred 28 mm right of the centreline | derived [3j], [S8] |
 | Camera | CAM-1 35 x 35 x 73 mm, axis at z 660, lens front 77.9 ahead of the front axle | stated [S12], [S8] |

@@ -134,12 +134,18 @@ version here had an overhanging upper end box above a ledge at z 245, which the 
 further in; the pivot standoffs at x +-125). The cross rail under the mast is gone; the mast base plate bolts to the deck alone.
 Electronics moved to fit: battery to x -100, bus bar to -44, 5 V converter to x 124, solar charge controller to x 108, master switch to x -136.5; the interior keep-out zone under the
 mast base is gone (nothing passes there). Solar wire holes moved from x 160 to 107.1 (the gap between the fourth and fifth cell columns), because x 160 is now beyond the end panel.
-Frame 1.69 kg (was 2.14), panels 2.26, chassis 3.95 kg.
+Frame 1.69 kg (was 2.14), panels 2.36 (with the gussets), chassis 4.05 kg.
+
+**Gussets and the mast mounting (owner, 2026-11-08).** The perspective CAD views ([S5] Fig. 4, [S12] Fig. 3) show gussets on the front and rear panels supporting the deck where it overhangs
+(three diagonal ribs under the deck at the rear; the orthographic views do not show them). Model (`interior.py`, GUSSET_*): three 3 mm aluminium triangles per end, at y -30, 0 and +30, each
+64 mm out along the deck's underside (from the end panel's outer face to the deck's end) and 60 mm down the panel; 0.093 kg for the six. Their size and number are by eye (ASSUMPTION).
+The mast base plate (75 x 80 x 3, over the 3 mm deck) is bolted to the deck alone with four M4 through bolts and nuts under the deck at x = mast axis +-22 (138.7 and 182.7), y +-30, so the
+outer two bolt lines sit directly over the outer gussets and the rear nuts clear the top end rail (x 114 to 134) by about 1 mm. Estimate at 3 g sideways (mast 1.46 kg, centre 156 mm above the
+deck, moment 6.7 N.m): bolt force about 150 N per pair, a tenth of an M4 8.8 bolt's capacity, and shear 43 N in all; the deck panel between gussets (30 mm span, 6 mm stack with the plate)
+is not a worry, and the gussets carry the moment into the end panels. Not checked: the end panel's bending (2 mm, a 60 mm deep gusset foot), the deck's flatness, nut clearance in the model.
 
 **Open, from this change (unchecked):**
-- *Mast on the overhanging deck.* The mast axis (x 161) is 27 mm beyond the frame's edge; the 75 x 80 x 3 base plate and the 3 mm deck form a 6 mm stack there. Rough estimate at 3 g sideways (mast
-  1.46 kg, centre 156 mm above the deck, moment 6.7 N.m): bending stress about 14 MPa in the 6 mm stack, but if the two plates act only as a 3 mm deck it is about 56 MPa and the head
-  tilts about 2 degrees (about 0.25 degrees with the 6 mm stack bolted tight). Stiffening options: bond or screw the plate to the deck over its whole area, a flanged deck edge, or a short cantilever bracket from the top end rail.
+- *Gusset joints.* Fixing the gussets to the 2 mm end panel and the deck (rivets or small folded flanges) is not designed.
 - *Side panels.* They are 380 long on pivot standoffs at x +-125, so each end of a 2 mm panel with cells overhangs its standoffs by 65 mm. Stiffness not checked.
 
 ## Panels

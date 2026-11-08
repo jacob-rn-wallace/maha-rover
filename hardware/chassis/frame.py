@@ -290,7 +290,7 @@ if __name__ == "__main__":
     total_b = floor_b + deck_b + end_b + side_b
     print(f"\npanel fixing (M4 button head into T-nuts, pitch about {FIX_PITCH:.0f} mm, at least 2 per member)")
     print(f"  floor {floor_b}, deck (the lid) {deck_b}, end panels {end_b}, side panels {side_b} (the 8 pivot standoffs): total {total_b} screws and {total_b} T-nuts")
-    print("  mast base: 4 M4 bolts through the base plate and the deck into T-nuts or nuts under it, y +-30 (no rail under the mast any more)")
+    print("  mast base: 4 M4 through bolts with nuts under the deck, x = axis +-22, y +-30, over the outer gussets (no rail under the mast any more)")
 
     # masses
     sh_mass = (shell.volume + sum(sp.volume for sp in sides)) / 1e3 * ALU / 1000.0
