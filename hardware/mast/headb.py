@@ -19,12 +19,12 @@ import body as B  # noqa: E402
 import head as H  # noqa: E402
 
 TX = B.MAST_X
-CY = -30.5                         # camera lateral position in the owner's simplified redesign (the sourced figure is 28 right of the centreline [S8], B.CAM_Y): 30.5 right of the mast axis
-AZ = 660.0
+CY = B.CAM_Y                       # camera lateral position, 28 right of the mast axis [S8]; the disk length (below) takes up the difference
+AZ = 667.0                         # tilt axis and camera axis height: measured on the original's Fig. 1 front and side views, lens centre about 32 mm below the top plate (z 700 -> 667-668); [S12] states 660, the earlier side-view reading was 664
 FX = B.WHEELBASE / 2 + 77.9
 Z_EXT = 597.0                      # top of the extrusion: raised from 577 to 597 (2026-11-08); above about z 600 the swept corners of the camera box hit it when the head tilts
 box = H._box
-LID = 2.0                          # lid thickness of the die-cast enclosure (Takachi TD6-6-4, drawing)
+LID = 0.0                          # nothing between the camera module and its cradle plate (the module sits against the plate)
 
 
 def cyl_x(x0, x1, y, z, r):
@@ -41,10 +41,10 @@ def caspex():
     mod = box(x_back, x_back + 25.2, CY - 17.5, CY + 17.5, AZ - 17.5, AZ + 17.5)                  # 35 x 35 x 25.2 over the pins
     xp0 = x_back + 25.2
     xp0 += LID                                                                                      # the 2 mm enclosure lid lies between the module and the plate
-    plate = box(xp0, xp0 + 4, CY - 22.5, CY + 22.5, AZ - 22.5, AZ + 22.5)                          # 45 square cradle, ASSUMPTION
+    plate = box(xp0, xp0 + 4, CY - 20.0, CY + 20.0, AZ - 20.0, AZ + 20.0)                          # 40 square cradle inside the box (the 45 of the earlier concept cannot sit between the cast screw posts), ASSUMPTION
     for sy in (-1, 1):
         for sz in (-1, 1):
-            plate = plate - cyl_x(xp0 - 1, xp0 + 5, CY + sy * 19.5, AZ + sz * 19.5, 1.6)           # corner holes
+            plate = plate - cyl_x(xp0 - 1, xp0 + 5, CY + sy * 12.5, AZ + sz * 12.5, 1.25)           # corner holes (the module's M2.5 on 25 mm)
     xp0 -= 0.0
     collar = cyl_x(xp0 + 4, xp0 + 22, CY, AZ, 16.0)                                                # round collar, ASSUMPTION
     ring0 = xp0 + 22
@@ -95,24 +95,32 @@ def bracket():
     return out
 
 
-ENC_D = 35.0                                    # depth of the box (Takachi TD6-6-4: 60 x 60 x 35, ADC12, 90 g)
-ENC_X1 = FX - 73.0 + 25.2 + LID                 # front face: the module (25.2) sits inside against the 2 mm lid, the cradle plate on the outside
+# Camera box: Takachi AL060605, IP65 die-cast aluminium, 64 x 58 x 46 mm (W x D x H), 162 g, gasketed, M4 cover screws; drawing AL060605 (2025). The cover (9 mm deep cap) is at the front,
+# like the cover screws seen on the original's camera box; the 46 mm depth is along the camera axis.
+ENC_Y, ENC_Z, ENC_X = 64.0, 58.0, 46.0
+ENC_WALL = 3.7                                  # wall, floor and cover top: (64 - 56.6) / 2 and (58 - 50.6) / 2 from the drawing's maximum cavity 56.6 x 50.6
+ENC_COVER = 9.0                                 # depth of the cover cap
+ENC_X1 = FX - 73.0 - ENC_WALL + ENC_X + 0.0     # front face: the inner back wall touches the module's back (module x_back = FX - 73)
+ENC_KG = 0.162                                  # catalogue (162 g)
 
 
 def enclosure():
-    """Takachi TD6-6-4 die-cast aluminium box (catalogue drawing TD6-6-4B/N, 2019): 60 x 60 x 35, walls 2, cover lip 4, internal maximum 50.3 x 36.3 x 31
-    (36.3 is the clear span between the corner screw bosses, which are modelled as 7 x 7 mm blocks), four M3.5 countersunk cover screws at +-25. Draft
-    and corner radii are not modelled. The cover is at the front, with a 35 mm hole for the lens barrel; the cavity opens to the front, the base is behind."""
+    """Takachi AL060605 die-cast box (drawing AL060605, 2025): outer 64 (y) x 58 (z) x 46 (x), walls 3.7, cavity 56.6 x 50.6 at the mouth, cover cap 9 deep at the front with a 35 mm
+    lens hole, four M4 cover screws on 52 x 46 (y x z) at the corners. The cast screw posts (modelled as round 11 mm posts) leave 31.7 and 32.8 between them on the drawing; the
+    module (35) and the 40 mm cradle plate clear them in this model, which is not certain (the real posts may be larger). Draft, gasket, corner radii, earth screws not modelled."""
     x1 = ENC_X1
-    x0 = x1 - ENC_D
-    base = box(x0, x1 - LID, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0) - box(x0 + 2.0, x1 - LID + 1, CY - 28.0, CY + 28.0, AZ - 28.0, AZ + 28.0)
+    x0 = x1 - ENC_X
+    xj = x1 - ENC_COVER                         # joint between base and cover
+    hy, hz = ENC_Y / 2, ENC_Z / 2
+    base = box(x0, xj, CY - hy, CY + hy, AZ - hz, AZ + hz) - box(x0 + ENC_WALL, xj + 1.0, CY - 28.3, CY + 28.3, AZ - 25.3, AZ + 25.3)
+    cover = box(xj, x1, CY - hy, CY + hy, AZ - hz, AZ + hz) - box(xj - 1.0, x1 - ENC_WALL, CY - 28.3, CY + 28.3, AZ - 25.3, AZ + 25.3)
+    cover = cover - cyl_x(x1 - ENC_WALL - 1.0, x1 + 1.0, CY, AZ, 17.5)
     for sy in (-1, 1):
         for sz in (-1, 1):
-            ya, yb = sorted((CY + sy * 18.15, CY + sy * 28.5))                # corner screw boss: 7 x 7 mm block against the walls
-            za, zb = sorted((AZ + sz * 18.15, AZ + sz * 28.5))
-            base = base + box(x0 + 1.9, x1 - LID, ya, yb, za, zb)
-    lid = box(x1 - LID, x1, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0) - cyl_x(x1 - LID - 1, x1 + 1, CY, AZ, 17.5)
-    return base + lid
+            post = cyl_x(x0 + ENC_WALL - 0.1, xj, CY + sy * 26.0, AZ + sz * 23.0, 5.5)
+            base = base + post
+            cover = cover + cyl_x(x1, x1 + 1.5, CY + sy * 26.0, AZ + sz * 23.0, 3.4)      # M4 cover screw heads
+    return base + cover
 
 
 def head(z_ext=Z_EXT):
@@ -121,12 +129,12 @@ def head(z_ext=Z_EXT):
     parts["bracket"] = bracket()
     tilt = Pos(TX, 38.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["tilt servo"] = tilt
-    parts["disk"] = cyl_y(CY + 30.0, BR_WEB_Y0 - 0.5, TX, AZ, 20.0)                                      # sideways disk, encoder or mounting, ASSUMPTION; 40 mm so that it stays near the box
+    box_y_max = CY + ENC_Y / 2
+    parts["disk"] = cyl_y(box_y_max, BR_WEB_Y0 - 0.5, TX, AZ, 20.0)                                       # sideways disk, ASSUMPTION; its thickness takes up the gap from the box to the web
     parts["enclosure"] = enclosure()
-    xc = ENC_X1 - ENC_D / 2
-    hz = AZ + 30.0
-    parts["antenna hat"] = Pos(xc, CY, hz + 3.5) * Cylinder(35.0, 7.0) + \
-        (Pos(xc, CY, hz + 8.5) * Cylinder(35.0, 3.0) - Pos(xc, CY, hz + 8.5) * Cylinder(31.5, 3.2))
+    xc = ENC_X1 - ENC_X / 2
+    hz = AZ + ENC_Z / 2                                                                                     # top of the box (z 696); the flat hat sits on the cover's top face up to z 700
+    parts["antenna hat"] = Pos(xc, CY, hz + 2.0) * Cylinder(35.0, 4.0)
     c = caspex()
     parts["camera body"], parts["cradle"], parts["collar"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "cradle", "collar", "baffle", "hood"))
     return parts

@@ -35,15 +35,15 @@ TUBE_X = B.MAST_X                  # tube centre; 24.2 ahead of the front axle  
 TUBE_W = 58.0                      # width of the printed neck, X and Y (the original's tube measures about 60 x 59)  derived [3j]
 EXT = 40.0                         # mast extrusion section, 40 x 40 (narrower than the original's 58 mm tube)  ASSUMPTION
 EXT_KG_PER_M = 1.86                # Misumi HFS8-4040 catalogue (sources list 1.73 to 1.90 by variant; get it from the vendor)  stated (catalogue)
-PLATE_XY, PLATE_T = 76.0, 6.0      # aluminium base plate on the deck, 4 M4 bolts at x +-19 / y +-30 from the tube centre  ASSUMPTION
+PLATE_X, PLATE_Y, PLATE_T = 75.0, 80.0, 6.0   # aluminium base plate on the deck under the die-cast box (75 x 80), fixed by the box's two M4 mounting holes and screws to the deck  ASSUMPTION
 TOP_Z = B.TOP_Z                    # top of the head                              stated [S1]
 
 # ---- Rotating parts, measured along the mast from the hinge ----------------
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
 _BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
 TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 597.0  # extrusion from the spindle flange up into the bracket; the original's tube tops out at 577 [3j], this one is raised to 597 (the bracket's web is bolted to it); limit about 600 from the tilt sweep
-CAM_Y = HB.CY                      # the sourced 28 right of the centreline [S8], moved to 30.5 in the owner's simplified redesign (2026-11-08)
-CAM_AXIS_Z = 660.0                 # CAM-1 optical axis height                    stated [S12]
+CAM_Y = B.CAM_Y                    # 28 right of the centreline                   derived [S8], confirmed [3j]
+CAM_AXIS_Z = HB.AZ                 # CAM-1 optical axis and tilt axis height: 667 measured on the original's Fig. 1 (stated 660 [S12])
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]
 assert (HB.TX, HB.CY, HB.AZ, HB.FX, HB.Z_EXT) == (TUBE_X, CAM_Y, CAM_AXIS_Z, CAM_FRONT_X, TUBE_Z1)
 
@@ -54,12 +54,12 @@ AL_G_CM3 = 2.68
 DISK_KG = 0.015
 CAMBODY_KG = 0.010
 MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "hardware": 0.02}
-ENCLOSURE_KG = 0.090              # Takachi TD6-6-4, catalogue (90 g)   stated
+ENCLOSURE_KG = HB.ENC_KG           # Takachi AL060605, catalogue (162 g)   stated
 PRINTED_HEAD = ("antenna hat", "cradle", "collar", "baffle", "hood")
 
 
 def parts():
-    base = Pos(TUBE_X, 0, (BASE_Z0 + BASE_Z1) / 2) * Box(PLATE_XY, PLATE_XY, PLATE_T)
+    base = Pos(TUBE_X, 0, (BASE_Z0 + BASE_Z1) / 2) * Box(PLATE_X, PLATE_Y, PLATE_T)
     tube = Pos(TUBE_X, 0, (TUBE_Z0 + TUBE_Z1) / 2) * Box(EXT, EXT, TUBE_Z1 - TUBE_Z0)   # slots ignored, as in frame.py
     hp = HB.head()
     return {"base": base, "tube": tube, **hp, **_BASE_PARTS}
@@ -69,7 +69,7 @@ def cg_and_moment():
     rot = parts()
     pts = []   # (mass, x, z)
     c = lambda n: rot[n].center()
-    pts.append((PLATE_XY * PLATE_XY * PLATE_T / 1e3 * 2.70 / 1000.0, c("base").X, c("base").Z))                 # aluminium plate
+    pts.append((PLATE_X * PLATE_Y * PLATE_T / 1e3 * 2.70 / 1000.0, c("base").X, c("base").Z))                 # aluminium plate
     pts.append(((TUBE_Z1 - TUBE_Z0) / 1000.0 * EXT_KG_PER_M, c("tube").X, c("tube").Z))                          # extrusion
     pts.append((rot["bracket"].volume / 1e6 * AL_G_CM3, c("bracket").X, c("bracket").Z))
     for n in PRINTED_HEAD:
@@ -142,12 +142,12 @@ if __name__ == "__main__":
     print(f"mast x {bb.min.X:.0f}..{bb.max.X:.0f}, y {bb.min.Y:.0f}..{bb.max.Y:.0f}, z {bb.min.Z:.0f}..{bb.max.Z:.0f}")
     print(f"top z {bb.max.Z:.0f} (stated 700); camera axis z {CAM_AXIS_Z:.0f}; lens front x {CAM_FRONT_X:.1f} "
           f"({B.WHEELBASE / 2:.1f} + 77.9); body front end x {B.BODY_X0 + B.SIDE_PLATE_LEN / 2:.0f}")
-    print(f"base plate x {TUBE_X - PLATE_XY / 2:.0f}..{TUBE_X + PLATE_XY / 2:.0f}, y +-{PLATE_XY / 2:.0f}; extrusion {EXT:.0f} x {EXT:.0f}, z {TUBE_Z0:.0f}..{TUBE_Z1:.0f}; deck half-width {B.TOP_WIDTH / 2:.0f}, "
+    print(f"base plate x {TUBE_X - PLATE_X / 2:.0f}..{TUBE_X + PLATE_X / 2:.0f}, y +-{PLATE_Y / 2:.0f}; extrusion {EXT:.0f} x {EXT:.0f}, z {TUBE_Z0:.0f}..{TUBE_Z1:.0f}; deck half-width {B.TOP_WIDTH / 2:.0f}, "
           f"deck x +-{B.DECK_LEN / 2:.0f}")
     print(f"overlap with body+cells (mm3, want 0): {(allp & hull).volume:.1f}")
     # the base plate must sit on the deck
     deck_top = Pos(B.BODY_X0, 0, B.DECK_TOP_Z + 0.5) * Box(B.DECK_LEN, B.TOP_WIDTH, 1.0)   # 1 mm slab just above the deck
-    print(f"base plate footprint on the deck plate (mm2): {(p['base'] & deck_top).volume / 1.0:.0f} of {PLATE_XY * PLATE_XY:.0f}")
+    print(f"base plate footprint on the deck plate (mm2): {(p['base'] & deck_top).volume / 1.0:.0f} of {PLATE_X * PLATE_Y:.0f}")
 
     m, xc, zc, h, tq = cg_and_moment()
     print(f"\nreplica mast (ASSUMPTION masses): {m:.2f} kg, centre of mass {h:.0f} mm above the deck")

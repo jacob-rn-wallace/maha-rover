@@ -39,15 +39,15 @@ def tilt_check(parts):
         print(f"  {nm}: first contact at {first if first is not None else 'none up to 90'} degrees {who or ''}")
     ub = unit.bounding_box()
     print(f"  unit z {ub.min.Z:.0f}..{ub.max.Z:.0f}; lowest corner at 75 degrees about z {AZ - math.hypot(37.7, 30.0) :.0f}; top of the extrusion z {MAST.TUBE_Z1:.0f}")
-    kg = (parts["enclosure"].volume + parts["antenna hat"].volume) / 1e6 * 1.27
+    kg = parts["antenna hat"].volume / 1e6 * 1.27
     al = parts["bracket"].volume / 1e6 * 2.68
-    print(f"  bracket (2 mm aluminium) {al:.3f} kg; printed enclosure and hat {kg:.3f} kg; bracket valid {parts['bracket'].is_valid}")
+    print(f"  bracket (2 mm aluminium) {al:.3f} kg; printed hat {kg:.3f} kg; bracket valid {parts['bracket'].is_valid}")
 
 
 COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
 NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
-         "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
+         "camera body": "3DCM739 module", "cradle": "cradle plate (40 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 
 def main():

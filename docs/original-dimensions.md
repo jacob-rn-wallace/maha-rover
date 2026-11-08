@@ -494,6 +494,16 @@ Read 2026-11-07. The camera is a CASPEX unit: a 3D Plus 3DCM739 module (RGB vers
 - **Flight hood [S5] Fig. 8 (CAM-2 front view):** a black round cap over the baffle ring with a square window, rotated a few degrees from the plate edges; the slotted ring and concentric lens rings are seen through it. The evaluation board has no such cap.
 - **Head layout [S5] Fig. 1 CAD (the CAD figure with the red CAM-1 arrows):** the camera sits on its square plate, bolted on about eight screws at the plate edge, with a round collar and the hood in front, hung off a round gimbal motor (red) on the arm side. The housing is an open frame under a thin top plate, not a closed box.
 
+### 3m. Mast head and base measured on the front and side views, [S18] Fig. 1 (2026-11-08)
+
+Measured by eye on a 600 dpi render of the figure, at about 1.10 px/mm (set from the 59 mm tube and the 497 mm over the wheels), with the mast axis and the top plate (z 700) as references; all values are derived and approximate (plus or minus 2 to 3 mm).
+- **Camera box (front view):** about 57 mm wide and 56 mm tall, z 639 to 694, with four screws at the corners on about 47 mm; its +y edge is at the mast axis (y 0), so the camera is about 28 mm right of the axis, agreeing with [S8]. In the side view the box is about 59 mm deep.
+- **Lens and tilt axis height:** lens centre about 32 mm below the top plate, z 667 to 668 in the front view and about 666 in the side view; the round motor disc centre is at the same height (z 667 to 668). The lens stands about 25 mm out of the box front (side view). The earlier readings: 660 [S12] stated, 664 from the side view [3j].
+- **Motor disc:** about 56 mm across and 20.7 mm thick, between the camera box and the arm (y 0 to 21).
+- **Top plate:** about 84 mm across (y -76 to +8), 5 to 6 mm thick, z 694 to 700, with its centre about 6 mm to the -y side of the camera's.
+- **Arm:** the bar is about y 29 to 60 (the small bracket on its outer side reaches y 65 to 70), a 45 degree shoulder over about z 585 to 640, matching the traced outline the owner used for the bracket.
+- **Base block (blue):** about 79 mm wide and from z 352 to 425 (73 mm tall); the lens tube column above it is about 57 to 59 mm wide.
+
 ### 3k. Position of the cell field in the side view [S5]
 
 Pixel scan of the dark cell areas in the native side view ([S5] Fig. 15, 818 x 706 px, 1.087 mm per px, ground row 671, front hub

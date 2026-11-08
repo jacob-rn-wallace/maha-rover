@@ -12,7 +12,7 @@ panels                               2.40     24%      0    236
 T-slot frame                         2.14     21%      3    212
 link plates, sleeves, shafts         1.28     13%      0    132
 wheels                               1.12     11%     -0    100
-mast, head and camera                1.10     11%    162    505
+mast, head and camera                1.42     13%    162    490
 drive motors                         0.78      8%      0    100
 harness and fasteners                0.40      4%      0    190
 electronics                          0.38      4%    -71    141
@@ -21,10 +21,10 @@ pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                               10.18   target 10 kg: margin -0.18 kg
+TOTAL                               10.50   target 10 kg: margin -0.50 kg
 
-centre of mass: x 15.6, y -0.3, z 213.8 (mm, ground at the rim line)
-static tip angles: nose-down 35 deg, nose-up 29 deg, sideways 49 deg  (the slope requirement is 20 deg)
+centre of mass: x 20.0, y -0.3, z 220.6 (mm, ground at the rim line)
+static tip angles: nose-down 35 deg, nose-up 28 deg, sideways 48 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
 where a second pass could save mass (arithmetic on the numbers above):
@@ -36,7 +36,7 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **10.18 kg against the 10 kg target: 0.18 kg over.** The mast is now 1.10 kg (extrusion raised 20 mm to z 597, +0.04 kg) with the sheet bracket, the 90 g die-cast camera box and the lens stack (2026-11-08; the printed-shell head was 0.98 kg with the pan base, total 10.07 kg). The 0.07 kg came from the pan drive moving to the mast base (+0.14 kg: housing, spindle, bearings; 0.98 kg mast in all). Before that 9.92 kg, 0.08 kg under (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **10.50 kg against the 10 kg target: 0.50 kg over.** The mast is now 1.42 kg (2026-11-08): the die-cast base box (0.347 kg, replacing a 0.145 kg printed housing, +0.20 kg), the die-cast camera box (0.162 kg, +0.07 kg over the 90 g one before), the longer extrusion (+0.03 kg) and the bearing tower, with the sheet bracket and the lens stack (2026-11-08; the printed-shell head was 0.98 kg with the pan base, total 10.07 kg). The 0.07 kg came from the pan drive moving to the mast base (+0.14 kg: housing, spindle, bearings; 0.98 kg mast in all). Before that 9.92 kg, 0.08 kg under (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.
