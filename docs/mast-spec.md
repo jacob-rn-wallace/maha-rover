@@ -90,9 +90,11 @@ slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate
 and the assembly render; `hardware/mast/head_concept.py` renders it alone to `docs/images/head-concept.png`. History: v3 (printed arm on an adapter plate, commit `2abb639`), then the owner's sheet-metal sketches
 (2026-11-08) gave the bracket. Owner's rule (2026-11-07): keep what gives the original's silhouette and costs nothing, otherwise design for our parts.
 
-- **Bracket:** one 2 mm aluminium blank, two folds (ASSUMPTION: 5052 sheet; bend radii and allowance not modelled). A web lies on the +y face of the extrusion, kinks out at 45 degrees over about z 577 to 626, and rises vertical
-  at y +67 to +69 to z 697; two flanges straddle the extrusion (inner width 40) and follow the band, so the outline matches the arm in [S18] Fig. 1 (45 degree S-bend, arm at y +27 to +69). Fixing: two M6 per flange
-  into T-nuts in the extrusion's side slots (4 in all); not yet checked against the profile's slot geometry. The tilt servo (STS3215, shaft along y at z 660) sits between the flanges (y 28.9 to 66.1, z 625 to 670),
+- **Bracket:** one 2 mm aluminium blank, two bends in the web (ASSUMPTION: 5052 sheet; bend radii and allowance not modelled). **Built as folded panels and unfolded to a flat blank (128 x 171 mm, `docs/images/bracket-flat.png`, from `head_concept.py`)**,
+  so it can be bent from a flat sheet: a 44 mm web (foot tab on the +y face with two M6 into the centre slot, a 45 degree diagonal, a vertical arm at y +67 to +69 to z 697) with flange flaps along its edges (42 mm deep on the arm,
+  30 on the diagonal, 40 beside the extrusion). The flaps are separate flaps: where the web bends, the flaps are cut along the bend's mitre line (a slit on the inside of a bend, a V gap on the outside; the model has them touching, a real blank
+  needs about a 1 mm relief), which is what a flange along a bent web needs (the first version, with flanges running continuously round the bends, could not be formed). The outline still follows the arm in [S18] Fig. 1 (45 degree S-bend, arm at
+  y +27 to +69). The foot flaps straddle the extrusion; fixing them with M6 into the side slots is not modelled in the blank (no holes yet) and not checked against the profile's slot geometry. The tilt servo (STS3215, shaft along y at z 660) sits between the flanges (y 28.9 to 66.1, z 625 to 670),
   seen through a window in the web (36 x 42 mm). Servo ear screws to the flanges are not modelled. Mass 0.096 kg.
 - **Camera unit** (tilts as one): a sideways disk (printed, 40 mm, y 2 to 22, encoder or mount; unknown in the original), a **die-cast aluminium enclosure, Takachi TD6-6-4** (60 x 60 x 35 mm, ADC12, 90 g, black painted or
   unfinished; catalogue drawing TD6-6-4B/N: walls 2 mm, internal maximum 50.3 x 36.3 x 31 mm, four M3.5 countersunk cover screws at +-25 mm; stated) with the cover at the front, and the CASPEX-look lens assembly bolted to the

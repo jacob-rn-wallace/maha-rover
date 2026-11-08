@@ -68,32 +68,87 @@ def _flange(x0, pts):
     return extrude(f, amount=BR_T, dir=(1, 0, 0))
 
 
-def bracket():
-    """Bent sheet bracket (owner's sketch, 2026-11-08), outline matched to the original's arm ([S18] Fig. 1 front view: vertical mast, a 45 degree
-    S-bend towards +y over about z 577 to 625, then a vertical arm at y +27 to +69; the band is parallel-sided). One blank, two folds: a web on the +y
-    face of the extrusion that kinks out to +y and rises vertical, and two side flanges that straddle the extrusion (inner width 40) and are bolted
-    through into the side slots, then follow the band up to z 697. The tilt servo sits between the flanges, seen through a window in the web."""
-    from build123d import Face, Vector, Wire, extrude
+# ---- bracket as folded panels (so that it can be unfolded into a flat blank) ---------------------------------
+BR_WEB_W = 44.0                      # web width across x (inner 40 between the flanges)
+BR_PATH = None
+
+
+def bracket_path():
+    """Centre line of the web in the y-z plane, from the top down: top (y 68, z 697), the bottom of the vertical part B, the diagonal's foot C (on the extrusion's
+    +y face, y 21) and the bottom of the foot tab D. Returns the points and, for each segment, its direction t (downwards) and the normal n towards the flange side (-y)."""
     z0 = Z_EXT
-    t = BR_T
-    zl = z0 - 32.0                                              # bottom of the bracket, z 545
-    xw0, xw1 = TX - 22.0, TX + 22.0
-    ya, yb = 20.0 + t / 2, BR_Y1 - t / 2                          # sheet centre lines of the tab and the vertical web
-    za, zb = z0 + t / 2, z0 + t / 2 + (yb - ya)                   # 45 degree diagonal between them
-    L = math.hypot(yb - ya, zb - za)
-    tab = box(xw0, xw1, 20.0, 20.0 + t, zl, za)
-    diag = Pos(TX, (ya + yb) / 2, (za + zb) / 2) * Rot(-45, 0, 0) * Box(44.0, t, L + t)
-    vert = box(xw0, xw1, BR_Y1 - t, BR_Y1, zb, 697.0)
-    web = tab + diag + vert
-    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - t - 1, BR_Y1 + 1, 632.0, 674.0)             # window over the tilt servo
-    fl = [(-20.0, zl), (-20.0, z0), (27.0, z0 + 47.0), (27.0, 689.0), (35.0, 697.0), (BR_Y1, 697.0), (BR_Y1, z0 + BR_Y1 - 20.0), (20.0, z0), (20.0, zl)]
-    out = web
-    for x0 in (TX - 22.0, TX + 20.0):
-        f = _flange(x0, fl)
-        for zz in (zl + 10.0, zl + 24.0):
-            f = f - cyl_x(x0 - 1, x0 + t + 1, 0.0, zz, 3.4)                               # M6 clearance into the side-slot T-nuts
-        out = out + f
+    yv, yf = BR_Y1 - BR_T / 2, 20.0 + BR_T / 2
+    pts = [(yv, 697.0), (yv, z0 + (yv - yf)), (yf, z0), (yf, z0 - 32.0)]
+    segs = []
+    for (p0, p1) in zip(pts[:-1], pts[1:]):
+        d = (p1[0] - p0[0], p1[1] - p0[1])
+        L = math.hypot(*d)
+        t = (d[0] / L, d[1] / L)
+        n = (-t[1], t[0])                  # perpendicular; choose the one with a negative y component
+        if n[0] > 0:
+            n = (-n[0], -n[1])
+        segs.append((p0, p1, t, n, L))
+    return pts, segs
+
+
+BR_FLAP_DEPTH = (42.0, 30.0, 40.0)    # flange depth, measured at right angles to the web edge: upper arm (holds the servo), diagonal, foot (beside the extrusion)
+
+
+def _prism_yz(x0, pts_yz, t=BR_T):
+    from build123d import Face, Vector, Wire, extrude
+    f = Face(Wire.make_polygon([Vector(x0, y, z) for (y, z) in pts_yz], close=True))
+    return extrude(f, amount=t, dir=(1, 0, 0))
+
+
+def bracket_flaps():
+    """The six flange flaps as polygons in the y-z plane: one per web segment and side. Each is a strip of constant depth along its web edge; where two
+    segments meet at a bend the strips are cut along the mitre line (the bisector of the two flange-side normals), so neighbouring flaps touch only along
+    that line and never overlap: the blank gets a slit there (inside of a bend) or a V gap (outside of a bend). The top end is chamfered."""
+    pts, segs = bracket_path()
+    out = []
+    for i, (p0, p1, t, n, L) in enumerate(segs):
+        d = BR_FLAP_DEPTH[i]
+        poly = []
+        for end, (v, first) in enumerate(((p0, True), (p1, False))):
+            if (first and i == 0) or ((not first) and i == len(segs) - 1):
+                far = (v[0] + d * n[0], v[1] + d * n[1])           # square free end
+                poly.append((v, far))
+                continue
+            nb = segs[i - 1][3] if first else segs[i + 1][3]
+            m = (n[0] + nb[0], n[1] + nb[1])
+            mm = math.hypot(*m)
+            m = (m[0] / mm, m[1] / mm)
+            k = d / (m[0] * n[0] + m[1] * n[1])
+            poly.append((v, (v[0] + k * m[0], v[1] + k * m[1])))
+        (v0, f0), (v1, f1) = poly
+        out.append([v0, v1, f1, f0])
     return out
+
+
+def bracket():
+    """Bent sheet bracket (owner's sketches, 2026-11-08), as folded panels: a 44 mm web (foot tab on the extrusion's +y face with two M6 holes, a 45 degree diagonal, a
+    vertical arm at y 67 to 69) and flange flaps along its two edges (42 deep on the arm, 30 on the diagonal, 40 beside the extrusion). Outline after the original's S-bend arm
+    ([S18] Fig. 1). Flaps are separate flaps cut at the bends (see bracket_flaps), so every fold is a straight bend of a flat blank (flat pattern: head_concept.py)."""
+    pts, segs = bracket_path()
+    t = BR_T
+    xw0 = TX - BR_WEB_W / 2
+    parts = []
+    for (p0, p1, tt, n, L) in segs:                                   # web: each segment as a slab; the sheet mid-plane runs along the centre line
+        ang = math.degrees(math.atan2(tt[0], -tt[1]))                  # rotation about x from straight down
+        ext = t / 2                                                    # extend at the joints so the slabs overlap
+        mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+        slab = Pos(TX, mid[0], mid[1]) * Rot(ang, 0, 0) * Box(BR_WEB_W, t, L + t)
+        parts.append(slab)
+    web = parts[0] + parts[1] + parts[2]
+    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - t - 1, BR_Y1 + 1, 632.0, 674.0)             # window over the tilt servo
+    web = web - cyl_y(BR_Y0 - 1, BR_Y0 + t + 1, TX, Z_EXT - 12.0, 3.25) - cyl_y(BR_Y0 - 1, BR_Y0 + t + 1, TX, Z_EXT - 28.0, 3.25)   # two M6 into the centre slot
+    out = web
+    for sx, x0 in ((-1, TX - BR_WEB_W / 2), (1, TX + BR_WEB_W / 2 - t)):
+        for k, poly in enumerate(bracket_flaps()):
+            if k == 0:                                                 # chamfer the free top corner
+                poly = [poly[0], poly[1], poly[2], (poly[3][0] + 8.0 * 0, poly[3][1])]
+            out = out + _prism_yz(x0, poly)
+    return out - box(TX - 20.0, TX + 20.0, -20.0, 20.0, 440.0, Z_EXT)                 # trim the joint corners where they touch the extrusion's top edge
 
 
 ENC_D = 35.0                                    # depth of the box (Takachi TD6-6-4: 60 x 60 x 35, ADC12, 90 g)

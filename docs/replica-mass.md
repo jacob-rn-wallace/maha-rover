@@ -21,9 +21,9 @@ pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                               10.17   target 10 kg: margin -0.17 kg
+TOTAL                               10.18   target 10 kg: margin -0.18 kg
 
-centre of mass: x 15.4, y -0.3, z 213.5 (mm, ground at the rim line)
+centre of mass: x 15.4, y -0.3, z 213.6 (mm, ground at the rim line)
 static tip angles: nose-down 35 deg, nose-up 30 deg, sideways 49 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 
@@ -36,7 +36,7 @@ where a second pass could save mass (arithmetic on the numbers above):
 
 ## Reading the result
 
-- **10.17 kg against the 10 kg target: 0.17 kg over.** The mast is now 1.09 kg with the sheet bracket, the 90 g die-cast camera box and the lens stack (2026-11-08; the printed-shell head was 0.98 kg with the pan base, total 10.07 kg). The 0.07 kg came from the pan drive moving to the mast base (+0.14 kg: housing, spindle, bearings; 0.98 kg mast in all). Before that 9.92 kg, 0.08 kg under (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
+- **10.18 kg against the 10 kg target: 0.18 kg over.** The mast is now 1.09 kg with the sheet bracket, the 90 g die-cast camera box and the lens stack (2026-11-08; the printed-shell head was 0.98 kg with the pan base, total 10.07 kg). The 0.07 kg came from the pan drive moving to the mast base (+0.14 kg: housing, spindle, bearings; 0.98 kg mast in all). Before that 9.92 kg, 0.08 kg under (was 9.2 kg and 0.8 kg before the T-slot mast and the stepped vertical frame, both 2026-11-07). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are
   solid printed PETG (0.28 kg each; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each, 0.5 kg more in all), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. A margin this small could vanish; the levers below are the first things to
   cut if it does.
