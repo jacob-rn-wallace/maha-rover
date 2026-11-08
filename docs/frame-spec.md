@@ -129,6 +129,15 @@ at the lid so the two can be parted. The mast base plate is held by 4 M4 bolts t
 mast cross rail (x 141) and the front end rail (x 178), at y plus or minus 30, so removing the lid does not
 unbolt the mast. The 17 mm gap between those two rails (x 151 to 168) is the cable entry.
 
+## Recessed lower end panels (2026-11-08)
+The original's front and rear panels are recessed (`original-dimensions.md` 3n). Owner's reading of the CAD models: the recess reaches the wheel axle line, x = +-136.5 (half the 273 mm
+wheelbase), below a ledge at z 245; the upper end box (z 245 to the deck) stays flush with the side panels and overhangs 53.5 mm each end. Model: `interior.py` (RECESS_X, LEDGE_Z: the lower
+end panels' outer faces at +-136.5, inner faces at +-134.5, a 2 mm shelf under the overhang, the cavity ends at +-134.5 below the ledge) and `frame.py` (X_LOW: the bottom end cross rails,
+posts, bottom and mid side rails end at +-134.3; the posts stop under the top side rails; the top end rails and top side rails stay out at the upper ends; the bottom pivot standoffs moved to x +-120).
+Electronics moved to fit: battery to x -100, bus bar to -44, 5 V converter to x 124, solar charge controller to x 108, master switch to x -136.5. The frame now weighs 1.85 kg (was 2.14), panels 2.38.
+(The upper end box is a closed hollow box of deck, shelf, end panel and the side panels; its attachment to the frame is not designed.) The dense cloud had put the recess about 35 mm from the end,
+i.e. 35 mm short of the axle line; the video is a different revision (3d), so the CAD reading is used.
+
 ## Panels
 
 Aluminium sheet. The floor, ends and deck are bolted to the frame through the slots (M4 T-nuts at roughly 80 to 100 mm pitch, not designed); the side panels hang on pivot standoffs:

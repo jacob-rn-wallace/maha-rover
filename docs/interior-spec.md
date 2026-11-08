@@ -6,6 +6,9 @@ the battery and electronics go. Replica design, all ASSUMPTION except the outer 
 `hardware/body/interior.py`. The electronics follow the candidates in `electronics-spec.md` (not bought);
 the battery box is still a size class.
 
+## Recessed ends (2026-11-08)
+Below a ledge at z 245 the cavity ends at x = +-134.5 (the end panels at the wheel axle line, `frame-spec.md`); above it the cavity runs the full length, with the electronics on the deck's underside there. Moved: battery x -100, bus bar -44, 5 V converter 124, solar charge controller 108, master switch on the recessed rear panel at x -136.5. `interior.py` reports 0 mm3 outside the cavity and no clashes.
+
 ## Panels
 
 The panels are aluminium sheet on a T-slot frame (`frame-spec.md`).

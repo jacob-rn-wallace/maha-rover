@@ -32,26 +32,28 @@ _MODELS = None
 
 WALL_T = 2.0             # side wall and end wall panels (aluminium sheet)   ASSUMPTION
 FLOOR_T = 2.0            # floor panel                              ASSUMPTION
+RECESS_X = B.WHEELBASE / 2   # lower end panels (below the ledge) stand back to the wheel axle line, x = +-136.5: owner's reading of the CAD models, 2026-11-08 (original-dimensions.md 3n)
+LEDGE_Z = 245.0          # underside of the overhanging upper end box, from the front view (z 234 to 247) and the dense cloud (step between 250 and 265)   derived
 TAN = math.tan(math.radians(B.SIDEWALL_DEG))
 COS = math.cos(math.radians(B.SIDEWALL_DEG))
 
 # Parts. Those with a "model" are the dimensioned boards of hardware/electronics/boards.py (outline, holes and heights from vendor drawings; see that file for
 # what is sourced), placed by the centre of their footprint; the rest are still placeholder boxes (size x, y, z), marked below. mass kg.
 PARTS = {
-    "battery 2S2P 18650":  dict(size=(68.0, 38.0, 38.0), mass=0.22, at=(-110.0, 0.0)),                                      # size class from 4 cells in 2 x 2; box
+    "battery 2S2P 18650":  dict(size=(68.0, 38.0, 38.0), mass=0.22, at=(-100.0, 0.0)),                                      # size class from 4 cells in 2 x 2; box
     "controller (Pi Zero 2 W)": dict(model="pi_zero_2w", at=(95.0, 33.0), deck=True),                                        # on the deck's underside since 2026-11-08 (was on the floor at 60, 35): near the mast cable entry
     "GNSS receiver (NEO-M9N breakout)": dict(model="gnss_breakout", at=(58.0, -30.0), deck=True),                          # on the deck's underside, a short coax and UART run from the entry and the Pi
     "CSI extender Rx board (Arducam kit)": dict(model="csi_extender", at=(104.0, -36.0), deck=True),                          # on the deck's underside, beside the Pi: the round cable arrives from the mast entry; 15-pin ribbon to the Pi (2026-11-08)
     "servo bus adapter (Waveshare, STS3215)": dict(model="bus_servo_adapter", at=(104.0, -3.0), deck=True),                   # on the deck's underside beside the Pi: short USB lead, short servo cable
     "motor driver A (MC33926)": dict(model="mc33926", at=(60.0, -16.0)),
     "motor driver B (MC33926)": dict(model="mc33926", at=(60.0, -44.0)),
-    "5 V converter (D24V22F5)":   dict(model="d24v22fx", at=(130.0, 60.0)),
+    "5 V converter (D24V22F5)":   dict(model="d24v22fx", at=(124.0, 60.0)),
     "BMS board (2S, common port)": dict(size=(48.0, 20.0, 4.0), mass=0.012, at=(-65.0, 45.0)),                              # about 48 x 20 x 4 mm from the 2S 20 A listings; box
     "fuse block (4-way blade)":    dict(model="fuse_block", at=(-70.0, -50.0)),
-    "bus bar (power node)":        dict(size=(40.0, 20.0, 15.0), mass=0.03, at=(-52.0, 0.0)),                               # size class ASSUMPTION; box
+    "bus bar (power node)":        dict(size=(40.0, 20.0, 15.0), mass=0.03, at=(-44.0, 0.0)),                               # size class ASSUMPTION; box
     "servo regulator (6 V)":       dict(model="d24v22fx", at=(-10.0, -60.0)),
-    "master switch (rear panel)":  dict(model="rocker_switch", at=(-190.0, 35.0), z=165.0),                                 # bezel face on the rear panel's outer face; body inside
-    "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(112.0, -65.0)),                              # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; box
+    "master switch (rear panel)":  dict(model="rocker_switch", at=(-136.5, 35.0), z=165.0),                                 # bezel face on the rear panel's outer face; body inside
+    "solar charge controller":    dict(size=(50.0, 25.0, 20.0), mass=0.03, at=(108.0, -65.0)),                              # BQ24650-type buck module, 50 x 25 x 17 mm from the listings; box
 }
 SWITCH_CUTOUT_D = 20.2   # panel cut-out of the round rocker switch                          stated (listing)
 PANEL_GAP = 10.0         # clearance between the side panels and the frame behind them. The original's side panels stand proud
@@ -79,7 +81,10 @@ def cavity():
     pts = [(-inner_half_width(z0), z0), (inner_half_width(z0), z0),
            (inner_half_width(z1), z1), (-inner_half_width(z1), z1)]
     length = B.SIDE_PLATE_LEN - 2 * WALL_T
-    return Pos(B.BODY_X0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=length / 2, both=True)
+    cav = Pos(B.BODY_X0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=length / 2, both=True)
+    for sx in (1, -1):                                 # below the ledge the cavity ends at the recessed end panels
+        cav = cav - Pos(sx * (RECESS_X - WALL_T + 100.0), 0, LEDGE_Z / 2) * Box(200.0, 400.0, LEDGE_Z)
+    return cav
 
 
 def floor_z():
@@ -156,6 +161,8 @@ def shell(cav):
     slab = Pos(B.BODY_X0, 0, (z0 + z1) / 2) * Box(B.SIDE_PLATE_LEN + 20, 2 * B.TOP_WIDTH, z1 - z0)
     walls = (outer & slab) - cav_long
     sh = (outer - cav) - walls
+    for sx in (1, -1):                                 # the end panels below the ledge stand back to RECESS_X; the 2 mm shelf under the overhang stays
+        sh = sh - Pos(sx * (RECESS_X + 100.0), 0, (LEDGE_Z - WALL_T) / 2) * Box(200.0, 400.0, LEDGE_Z - WALL_T)
     d = PARTS["master switch (rear panel)"]
     cut = Pos(d["at"][0] + 3.0, d["at"][1], d["z"]) * Rot(0, 90, 0) * Cylinder(SWITCH_CUTOUT_D / 2, 12.0)
     deck_hole = Pos(DECK_HOLE_X, DECK_HOLE_Y, B.DECK_TOP_Z - B.DECK_T / 2) * Cylinder(DECK_HOLE_D / 2, B.DECK_T + 2.0)

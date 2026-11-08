@@ -67,7 +67,9 @@ PANEL_MASS_NOTE = "aluminium sheet at 2.70 g/cm3"
 
 Z_FLOOR = I.floor_z()                       # floor panel top
 Z_DECK = B.DECK_TOP_Z - B.DECK_T            # deck panel underside
-X_END = B.SIDE_PLATE_LEN / 2 - I.WALL_T     # inner face of the end panels
+X_END = B.SIDE_PLATE_LEN / 2 - I.WALL_T     # inner face of the upper end panels (above the ledge)
+X_LOW = I.RECESS_X - I.WALL_T               # inner face of the recessed lower end panels (2026-11-08): the bottom end rails, posts and bottom and mid side rails end here
+PIV_X_LOW = 120.0                           # bottom pivot standoffs, inboard of the shortened bottom rails  ASSUMPTION
 
 
 def yin(z):
@@ -98,9 +100,9 @@ def cross_rail(xc, zc, yo=None):
 
 def post(sx, sy):
     """Vertical post standing on the bottom end cross rail, up to the deck underside."""
-    xc = sx * (X_END - P / 2 - EDGE)
+    xc = sx * (X_LOW - P / 2 - EDGE)
     y0, y1 = (YO - P, YO) if sy > 0 else (-YO, -(YO - P))
-    return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK)
+    return box(xc - P / 2, xc + P / 2, y0, y1, Z_FLOOR + P, Z_DECK - P)       # stops under the top side rail, bracketed to it
 
 
 def standoffs():
@@ -112,7 +114,7 @@ def standoffs():
     for sy in (1, -1):
         for sx in (1, -1):
             for lvl, zc, yo in (("bottom", Z_FLOOR + RAIL_H / 2, YB), ("top", Z_DECK - P / 2, YO)):
-                stud = Pos(sx * PIV_X, sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
+                stud = Pos(sx * (PIV_X_LOW if lvl == 'bottom' else PIV_X), sy * (yo + (yin(zc) - yo + 6) / 2), zc) * Box(PIV_D, yin(zc) - yo + 6, PIV_D)
                 out[f"pivot {lvl} {'F' if sx > 0 else 'R'}{'L' if sy > 0 else 'R'}"] = stud & cav
     return out
 
@@ -126,16 +128,15 @@ def build():
         f = 'F' if sx > 0 else 'R'
         m[f"post {f}L"] = post(sx, 1)
         m[f"post {f}R"] = post(sx, -1)
-        xc = sx * (X_END - P / 2 - EDGE)
-        m[f"bottom end cross {f}"] = cross_rail(xc, zb, YB)
-        m[f"top end cross {f}"] = cross_rail(xc, zt)
+        m[f"bottom end cross {f}"] = cross_rail(sx * (X_LOW - P / 2 - EDGE), zb, YB)
+        m[f"top end cross {f}"] = cross_rail(sx * (X_END - P / 2 - EDGE), zt)
     inner = X_END - P - 2 * EDGE                       # rails run between the end cross rails
     for sy in (1, -1):
         s = "L" if sy > 0 else "R"
-        rail = side_rail(sy, -(X_END - EDGE), X_END - EDGE, zr, YB, RAIL_H)
+        rail = side_rail(sy, -(X_LOW - EDGE), X_LOW - EDGE, zr, YB, RAIL_H)
         m[f"bottom side {s}"] = rail - Pos(0, 0, A.PIVOT_Z) * Rot(90, 0, 0) * Cylinder(HOLE_D / 2, 400.0)   # the pivot shaft goes through
         m[f"top side {s}"] = side_rail(sy, -inner, inner, zt)
-        m[f"mid side {s}"] = side_rail(sy, -inner, inner, MID_Z)
+        m[f"mid side {s}"] = side_rail(sy, -(X_LOW - P - 2 * EDGE), X_LOW - P - 2 * EDGE, MID_Z)
     m["top cross under mast"] = cross_rail(MAST_RAIL_X, zt)
     for sx in (1, -1):
         m[f"differential cross {'F' if sx > 0 else 'R'}"] = cross_rail(sx * CROSS_X, MID_Z)
@@ -257,7 +258,7 @@ if __name__ == "__main__":
 
     # ---- pivot standoffs ----
     st = standoffs()
-    print(f"\npivot standoffs: {len(st)} ({len(st) // 2} per side panel), at x = +-{PIV_X:.0f}; panel held {G:.0f} mm off the frame at the top outer corner of the rails")
+    print(f"\npivot standoffs: {len(st)} ({len(st) // 2} per side panel), at x = +-{PIV_X:.0f} (top) and +-{PIV_X_LOW:.0f} (bottom); panel held {G:.0f} mm off the frame at the top outer corner of the rails")
     for n, v in list(st.items())[:2]:
         bb = v.bounding_box()
         print(f"  {n}: length {bb.size.Y:.1f} mm, z {bb.min.Z:.1f} to {bb.max.Z:.1f}")
