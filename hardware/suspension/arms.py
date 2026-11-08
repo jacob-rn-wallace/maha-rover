@@ -42,10 +42,8 @@ import wheel as W  # noqa: E402
 PIVOT_Z = B.HUB_Z + 45.7  # boss 45.7 above the hub centres        derived [3i]
 PLATE_Y0, PLATE_T = 133.0, 4.0   # plate inner face from the centreline, thickness (4 mm since 2026-11-08: was 8, mass second pass; stress estimate in docs/replica-mass.md)  ASSUMPTION
                                  # (front view: plate about 30 mm inboard of the wheel's inner face)
-PLATE_BOTTOM = B.HUB_Z + 5.0     # lower edge about 5 above the hub centre  derived [3i]
-PLATE_TOP_MID, PLATE_TOP_END = 178.0, 128.0   # upper outline           ASSUMPTION
-PAD_HALF, PAD_BOTTOM = 22.0, B.HUB_Z - 22.0   # tab behind each sleeve  ASSUMPTION
-PLATE_END = B.WHEELBASE / 2 + 22.0            # plate ends past the hubs ASSUMPTION
+LINK_STEP = HERE / "link" / "link_plate.step"   # the owner's link plate (2026-11-08): the outline traced from the original, 4 mm thick; its 12 mm hole is where the original's is
+LINK_PIVOT_Y, LINK_PIVOT_Z = 486.1, -147.5     # the 12 mm hole's centre in the STEP's own coordinates (its Y runs along the plate, Z up, X is the thickness 0..4); the hubs' R35 lobes are at Y 349.6 and 622.6, Z -193.2
 BOSS_D, BOSS_T = 48.0, 16.0      # pivot boss on the outer face: diameter derived [3i], by eye; 16 thick (was 6, then 12) so the 12 mm shaft is bonded in 20 mm of plate (4) and boss (16), the tip staying where it was   ASSUMPTION
 SLEEVE_OD, SLEEVE_ID = 44.0, 38.0   # sleeve from plate to clamp ring   ASSUMPTION
 SHAFT_R = 6.0            # pivot shaft radius: a 12 mm OD, 8 mm ID steel tube from the link plate to the differential housing wall, so it can carry the
@@ -71,12 +69,17 @@ def ring(y0, y1, r_out, r_in):
     return Pos(0, (y0 + y1) / 2, 0) * Rot(90, 0, 0) * (Cylinder(r_out, h) - Cylinder(r_in, h))
 
 
-def plate_outline():
-    e, hx = PLATE_END, B.WHEELBASE / 2
-    pb, pad = PLATE_BOTTOM, PAD_BOTTOM
-    x_in = hx - PAD_HALF
-    return [(-e, pad), (-x_in, pad), (-x_in, pb), (x_in, pb), (x_in, pad), (e, pad),
-            (e, PLATE_TOP_END), (70.0, PLATE_TOP_MID), (-70.0, PLATE_TOP_MID), (-e, PLATE_TOP_END)]
+_LINK = None
+
+
+def link_plate():
+    """The owner's plate in the rover frame for the left side (inner face y = PLATE_Y0, pivot hole on the pivot axis, hub lobes on the hub centres). The STEP is turned a quarter
+    turn about z: its Y becomes -x (the outline is symmetric front to back), its X the thickness along y."""
+    global _LINK
+    if _LINK is None:
+        from build123d import import_step
+        _LINK = Pos(LINK_PIVOT_Y, PLATE_Y0, PIVOT_Z - LINK_PIVOT_Z) * Rot(0, 0, 90) * import_step(str(LINK_STEP))
+    return _LINK
 
 
 def side(sy):
@@ -85,10 +88,7 @@ def side(sy):
     hx = B.WHEELBASE / 2
     hub_y = sy * B.TRACK / 2
     y_in, y_out = PLATE_Y0, PLATE_Y0 + PLATE_T
-    # plate: sketch in the XZ plane, extruded along Y
-    sk = Plane.XZ * Polygon(*plate_outline(), align=None)       # Plane.XZ normal is -Y
-    # Plane.XZ extrudes toward -Y from y = 0, so shift: sy=+1 occupies y_in..y_out, sy=-1 -y_out..-y_in
-    plate = Pos(0, (y_out if sy > 0 else -y_in), 0) * extrude(sk, amount=PLATE_T)
+    plate = link_plate() if sy > 0 else link_plate().mirror(Plane.XZ)      # the owner's outline (link/link_plate.step)
     boss = Pos(0, sy * (y_out + BOSS_T / 2 - OVERLAP / 2), PIVOT_Z) * Rot(90, 0, 0) * Cylinder(BOSS_D / 2, BOSS_T + OVERLAP)
     shaft_y0 = 1.0   # the two shafts stop 2 mm apart inside the housing, at the side gears
     y_end = y_out + BOSS_T                               # the tube ends flush with the boss tip; the motor wires leave there
@@ -131,7 +131,8 @@ def rotate_about_pivot(shape, deg):
 
 
 def overlap(a, b):
-    return (a & b).volume
+    r = a & b
+    return 0.0 if r is None else r.volume
 
 
 if __name__ == "__main__":

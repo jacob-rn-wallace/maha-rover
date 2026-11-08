@@ -11,7 +11,7 @@ rotates, is not shown. CAD and checks: `hardware/suspension/arms.py`.
 
 ## Concept
 
-- One rigid plate per side carries the front and rear wheel (a walking beam). [3i]
+- One rigid plate per side carries the front and rear wheel (a walking beam). [3i] **Its outline is the owner's (2026-11-08):** `hardware/suspension/link/link_plate.step`, 4 mm, traced from the original: an R35 lobe round each hub centre (273 mm apart), 20 mm straight edges, sloping edges up to an R35 lobe round the pivot (45.7 mm above the hubs), a sloping lower edge between the hub lobes; its 12 mm hole is where the original's is. `arms.py` imports it (the quarter-turn mapping is in `link_plate()`); it replaced the earlier assumed outline, with its tab behind each sleeve. Plate z 65 to 180.7, x +-171.5. Checks unchanged: no contact in the -15 to +15 degree sweep, 12 mm to the belly, no clash with the wheels or motors; replica 9.55 kg.
 - The plates pivot on a common axis along Y at x = 0, z = 145.7 (hub height + 45.7). [3i]
 - Each plate is joined by a shaft through the body wall to a side gear of a **bevel differential
   inside the body**. (Inside the body is an interpretation of the stub seen in [S18].)
