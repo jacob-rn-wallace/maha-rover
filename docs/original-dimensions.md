@@ -723,6 +723,12 @@ Journal for all Springer papers is *Space Science Reviews*.
   Lunar Surface.* IAC-20, C3.IP.5, paper 58968 (abstract only). Describes a power budget model
   (consumption, generation, storage). Gives no battery or panel figures.
   https://iafastro.directory/iac/paper/id/58968/abstract-pdf/IAC-20,C3,IP,5,x58968.brief.pdf
+- **[S28]** Serria E, Gadhafi R, AlMaeeni S, Mukhtar H, Copiaco A, Abd-Alhameed R, Lemieux F, Mansoor W. *Lunar Environment Evaluation of Sleeve Antenna.* 2023 IEEE Conference on Antenna
+  Measurements and Applications (CAMA), pp. 551-554, doi 10.1109/CAMA57522.2023.10352717. The sleeve dipole is "the primary communication system" of Rashid: tuned to 2.42 GHz at a physical
+  length of 55.7 mm, then lengthened to 159.5 mm with a dielectric (ABS) cover "aligning the antenna's dimensions with the height of the rover mast" while keeping 2.42 GHz; peak gain 2.23 dBi
+  (stated); coatings that keep the match: white thermal control coating, zirconium alloy, acrylic paint and polyimide film; aluminium foil or stainless steel as a coat detune it and drop the gain to
+  0.341 dBi; regolith 40 mm away disturbs it (ripples), 336 mm or more does not. Its Fig. 2 shows the antenna on the rover model as a tall vertical rod on a stand on the top deck behind the mast
+  (a perspective render, not to scale).
 - **[S22]** Abubakar A, et al. *Advance Simulation Method for Wheel-Terrain Interactions of Space
   Rovers: A Case Study on the UAE Rashid Rover.* arXiv:2308.12431 (2023). Test-rig wheel model
   only; not used except for the grouser-count conflict above.

@@ -3,6 +3,7 @@
 Source: Gadhafi et al., Sensors, "Investigating the Impact of Lunar Rover Structure and Lunar Surface Characteristics on Antenna Performance" [S11, S15]. Rashid's primary
 communication (rover to lander) uses a sleeve dipole, 2.23 dBi; the paper models it at 2.42 GHz, 55.7 mm long (inner conductor and sleeve), covered by a 0.2 mm ABS tube to
 a 159.5 mm "commercial height", and puts the rover's mast 290 mm from it. The owner reports a vertical dipole on the body's top face in many photographs of the original.
+[S28] (Serria et al., IEEE CAMA 2023) adds: 2.42 GHz, 55.7 mm core, 159.5 mm with the ABS cover, 2.23 dBi, and a Fig. 2 render with the antenna as a tall vertical rod on a stand on the top deck.
 Position: x = mast x - 290 = -129.3 mm; y about +58 mm is my reading of the front view of [S18] Fig. 1, where a gold dome with a thin near-vertical rod rises at the right of the
 deck (`docs/original-dimensions.md` 3m); unverified. (The thin tilted rod at the rear end of the deck in that figure is probably a Langmuir probe, not this antenna.)
 

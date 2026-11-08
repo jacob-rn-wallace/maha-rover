@@ -151,3 +151,44 @@ Fetches of Pololu's regulator dimension drawing, the WAGO and Eaton datasheets f
 - Pi Zero 2 W and camera module masses, and the heights of the Pi's individual connectors: not found. The terminal block heights on the MC33926 carrier are assumed.
 - The STS3215 datasheet and SKU voltage window; mounting hole pattern.
 - Wiring harness and the cable path from the mast head down into the body.
+
+## Antenna and radio chain (2026-11-08, candidates, nothing bought)
+
+Two antennas: the GNSS patch on the hat (it tilts with the camera) and the 2.4 GHz dipole on the deck 290 mm behind the mast (`mast-spec.md`, `hardware/body/antenna.py`). The original has the same two roles: the S-band patch on
+the gimbal and the sleeve dipole on the deck [S11, S15, S28].
+
+| Chain | Antenna | Cable | Receiver or radio | Link to the Pi |
+|---|---|---|---|---|
+| GNSS (GPS L1, 1575.42 MHz) | 35 x 35 x 4 mm ceramic patch on the aluminium hat (passive, Taoglas HP5354.A class; or a compact active patch such as the EXA GCA01, listed at 4.7 mm thick, footprint, bias and mass not read) | 1.13 mm micro-coax with u.FL ends, about 1 m from the hat down the tilt cable spool, the bracket, the extrusion slot and the spindle bore to the body | a u-blox NEO-M9N breakout with a u.FL input (SparkFun GPS-15712 class; the module has a SAW filter and an LNA inside, per u-blox; 3.3 V supply, 1.30 x 1.60 in board; UART, I2C at 0x42 and a PPS pin; all from the SparkFun guide) | UART (3.3 V: 3.3 V, GND, TX, RX) to the Pi's GPIO UART, plus PPS to a GPIO for time (optional); gpsd reads it. I2C works on paper but a SparkFun forum thread reports a Pi library problem over I2C (5 years old), so use the UART |
+| 2.4 GHz (WiFi) | Taoglas GW.20.A151W type dipole (89.5 mm; the paper's is 159.5 mm) on the deck block | RP-SMA bulkhead jack in the block, then a u.FL to RP-SMA pigtail of about 0.3 m to the radio (loss about 1 dB: 3.1 to 3.4 dB/m at 2.4 GHz for 1.13 mm coax, three datasheets) | either the Zero 2 W's own radio with an external u.FL antenna (modification below) or a USB WiFi adapter with an RP-SMA connector | on-board, or USB |
+
+**Loss in the GNSS run.** 1.13 mm coax loses 2.3 to 2.4 dB/m at 1 GHz and 3.1 to 3.3 dB/m at 2 GHz in the datasheets, so about 2.7 dB/m at 1.575 GHz (my interpolation); a metre of it plus two u.FL connectors costs about 3 to 3.5 dB
+before the module's LNA, which is as much as 3 to 3.5 dB of lost signal-to-noise on a weak GNSS signal: workable under open sky, poor under cover. A better design puts the gain at the antenna: an **active patch** (LNA in the patch, powered through the coax by the receiver's antenna bias, which the SparkFun guide does not state for this board:
+read the schematic before choosing, or add a bias tee) or a small LNA at the hat. The shielding of the die-cast boxes helps; keep the GNSS module and its coax away from the 5 V buck converter and the motor drivers.
+
+**2.4 GHz radio options for the Pi Zero 2 W (no antenna connector).**
+1. **Modify the Pi Zero 2 W.** The board has a u.FL footprint and pads under the chip antenna. Brian Dorey's write-up soldered a u.FL jack at the pads and fitted a 0 ohm resistor, but commenters on that post report that the Zero 2 W has no movable resistor, so the trace to the chip antenna must be cut; inspect the board first. A seller (Tindie) offers pre-modified boards. Mass and size: negligible. Takes no USB port. Reduces the work to one u.FL to RP-SMA pigtail. Risk: a soldering job on a 0201 footprint, and the board's radio approval no longer applies.
+2. **USB WiFi adapter with an RP-SMA connector** (Atheros AR9271 or Ralink RT5370 class, 2.4 GHz only, 150 Mbit/s). Listings give conflicting weights (AR9271: 13 g to 38 g; RT5370: 9 g to 25 g), so the allowance of 10 g may be low; the Zero's single micro-USB data port then needs an OTG adapter, and a hub if the servo adapter is also on USB.
+3. A bigger board does not help: the Pi 3A+, 4B and 5 have their antennas on the board too (from the listings and my recollection: not checked); only the Compute Module 4 wireless variants offer a connector (my recollection, not verified).
+
+**How the servos join the Pi.** The STS3215 servos share one half-duplex TTL bus (up to 1 Mbit/s). The Waveshare Bus Servo Adapter (A) (42 x 33 mm, 16 g by Waveshare, 21 g and 18.5 mm thick by Digitec; ST3215 listed) connects by USB or by UART, "RX to RX, TX to TX" with its jumper in position A, and takes **9 to 12.6 V on a barrel jack** (stated by Waveshare), while the power plan feeds the servos 6 V from a regulator (`power-spec.md`): whether the adapter's logic or its servo supply works from 6 V was not read, so this needs checking. On a Zero the choice is: servo bus on the USB port (leaves the UART for the GNSS receiver) with the WiFi on the modified on-board radio, or servo bus on the UART and a hub for the USB WiFi adapter. The Zero 2 W's PL011 UART is shared with Bluetooth by default (disable Bluetooth to free it); the mini UART is enough for the GNSS receiver's few kbaud but not for a 1 Mbit/s servo bus.
+
+**Camera cable (found while checking this).** The HQ camera's cable is 200 mm (brief). The camera at z 667 is about 0.5 to 0.8 m of cable route from a Pi in the body or in the base. CSI ribbon cables are reliable to about 0.2 to 0.3 m and unreliable beyond 0.5 m (my recollection, not checked), so this needs a CSI extender kit, a longer shielded cable, or a USB camera. A bigger Pi does not change this. Not designed.
+
+## Pi Zero 2 W against a full-size Pi
+
+| | Zero 2 W (now) | 3 Model A+ | 4 Model B | 5 |
+|---|---|---|---|---|
+| Size | 65 x 30 mm | 65 x 56 mm | 85.6 x 56.5 mm | 85 x 56 mm (recollection) |
+| CPU, RAM | 4 x A53 at 1 GHz, 512 MB (brief) | 4 x A53 at 1.4 GHz, 512 MB | 4 x A72 at 1.5 GHz, 2 to 8 GB | 4 x A76 at 2.4 GHz |
+| Mass | about 10 g (my recollection: not found) | about 29 g | about 46 g | about 46 g without a cooler |
+| Hardware video encode | H.264 to 1080p30 (brief) | yes (recollection) | H.264 (recollection) | **no hardware H.264 encoder** (recollection; software only) |
+| USB | one micro-USB data port | one USB-A | USB-A and USB 3 | USB-A and USB 3 |
+| Camera port | 22-pin (needs a 15 to 22 cable for the HQ camera) | 15-pin (the HQ cable fits) | 15-pin | two 22-pin |
+| UARTs | 1 full and 1 mini | the same | up to 5 with overlays | up to 5 (recollection) |
+| Supply | 5 V at 2.5 A rating (brief) | not read | not read (3 A official supply, recollection) | 5 V at 5 A official supply (recollection) |
+
+Sizes and the CPUs of the 3A+ and 4B are from retailer and comparison pages; everything marked recollection or "not found" is not verified and should be checked against the Raspberry Pi product briefs. The 3A+ is reported as discontinued.
+
+**What a bigger Pi would give:** more processing (useful only if the rover is to do onboard image work; the original's cameras process on board [S5, S12]), full-size USB ports (no OTG adapter or hub for the servo adapter and a WiFi dongle), more UARTs (GNSS and servo bus without sharing), and on the 3A+ and 4B a 15-pin camera port that takes the HQ cable directly. **What it would not give:** an external antenna connector for the WiFi (the same modification or dongle is needed), a solution to the camera cable length, or a hardware encoder on the 5.
+**What it would cost:** mass (+0.02 kg for the 3A+, +0.035 kg for a 4B: the replica has only 0.02 kg of margin and would go over 10 kg), supply current (a 4B or 5 can draw 3 A or more where the planned Pololu D24V22F5 is rated 2.5 A, so a bigger converter and a shorter runtime), and bay area (65 x 56 or 85 x 56 mm against 65 x 30; `interior-spec.md` would need re-laying). **Verdict:** stay with the Zero 2 W. Its limits (one USB port, one full UART, no antenna connector) are all workable with the u.FL modification, the USB servo adapter and the GNSS on the UART; revisit only if the rover is to run heavy onboard processing, and then a 4B (not a 5, for the encoder) with a bigger converter and a mass trim.
