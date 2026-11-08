@@ -114,7 +114,7 @@ def head_checks(p):
     eb = p["enclosure"].bounding_box()
     print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
     turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
-    static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"], p["pan cable ring"]]
+    static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
     moving = Compound([p[n] for n in turning])
     worst = 0.0
     for deg in range(-180, 181, 30):

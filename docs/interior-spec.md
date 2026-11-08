@@ -43,7 +43,7 @@ The differential cross rails split the upper cavity; the floor is open from end 
 | 4-way fuse block (candidate Optifuse BLR-I-304) | 85 x 47 x 21 (listing, axes assumed) | 0.045 (assumed) | rear compartment, x -70, y -50 |
 | Master switch (candidate SCI R13-112B8-02) | 23 mm bezel, 20.2 mm cut-out, 28 mm deep (depth assumed) | 0.012 (assumed) | rear panel, y 35, z 165, the bezel 2 mm proud |
 | GNSS receiver breakout (SparkFun NEO-M9N, u.FL) | 40.6 x 33 x 9.6 with posts (`boards.py`) | 0.008 (assumed) | under the deck, x 58, y -30, 5 mm posts (2026-11-08) |
-| CSI extender Rx board (Arducam kit) | about 35 x 25 board, jack 13 tall (placeholder) | 0.010 (assumed) | under the deck, x 104, y -36, beside the Pi (2026-11-08); a Ø16 hole in the deck at x 112 admits the round cable |
+| CSI extender Rx board (Arducam kit) | about 35 x 25 board, jack 13 tall (placeholder) | 0.010 (assumed) | under the deck, x 104, y -36, beside the Pi (2026-11-08); a Ø16 gland hole in the deck at x 112, y -36, over its jack, admits the loose camera-link cable |
 | Servo bus adapter (Waveshare Bus Servo Adapter A) | 44 x 33 x 16 with posts | 0.021 (retailer) | under the deck, x 104, y -3, beside the Pi: a short USB lead (2026-11-08) |
 | Solar charge controller (part not chosen) | 50 x 30 x 12 | 0.03 (assumed) | front compartment, on the floor at x 112, y -65, between the drivers and the bottom side rail (`solar-spec.md`) |
 | Keep-out under the mast base | 15 x 40 x 30 | n/a | front, in the gap between the mast cross rail and the front end rail, for the cable entry from the mast |

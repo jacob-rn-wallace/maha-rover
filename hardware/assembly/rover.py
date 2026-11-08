@@ -36,14 +36,14 @@ COLORS = {
     "battery": (70, 140, 80), "electronics": (50, 100, 180), "BMS": (30, 110, 90), "fuses": (200, 64, 52), "bus bar": (190, 150, 50),
     "switch": (60, 60, 64), "bearings": (225, 225, 230), "wheel hardware": (110, 112, 120),
     "servos": (60, 100, 190), "pan base": (222, 176, 96), "camera module": (30, 150, 90), "pivot shaft": (40, 150, 165), "pivot boss": (150, 110, 190),
-    "controller": (30, 140, 90), "motor drivers": (30, 70, 160), "wifi antenna": (40, 42, 48), "GNSS patch": (200, 170, 70), "converters": (140, 70, 170), "charger": (210, 120, 50),
+    "controller": (30, 140, 90), "motor drivers": (30, 70, 160), "wifi antenna": (40, 42, 48), "cable": (225, 140, 50), "GNSS patch": (200, 170, 70), "converters": (140, 70, 170), "charger": (210, 120, 50),
 }
 LEGEND_NAMES = {
     "frame": "20 x 40 rail and cross rails", "bearings": "sleeve and bushings", "pivot shaft": "shaft and stub", "link plates": "link plate",
     "pivot boss": "link plate boss", "differential housing": "differential housing, bosses, lugs", "differential": "gears and pin",
     "servos": "STS3215 pan and tilt servos", "camera module": "Raspberry Pi HQ camera", "camera": "4 mm CS lens, printed baffle ring and hood", "pan base": "pan base: housing, disc, spindle, bearings", "mast": "T-slot mast, sheet bracket, disk, enclosure, hat",
     "panels": "side panel", "controller": "Raspberry Pi Zero 2 W", "motor drivers": "motor drivers (MC33926 carriers)", "converters": "5 V and 6 V converters (D24V22Fx)",
-    "charger": "solar charge module (box)", "battery": "battery pack (box)", "BMS": "BMS (box)", "fuses": "4-way fuse block", "bus bar": "power node (box)", "switch": "master switch", "wifi antenna": "2.4 GHz dipole (vertical, 290 mm behind the mast)", "GNSS patch": "GNSS patch on the aluminium hat",
+    "charger": "solar charge module (box)", "battery": "battery pack (box)", "BMS": "BMS (box)", "fuses": "4-way fuse block", "bus bar": "power node (box)", "switch": "master switch", "wifi antenna": "2.4 GHz dipole (vertical, 290 mm behind the mast)", "cable": "camera-link cable (loose loop)", "GNSS patch": "GNSS patch on the aluminium hat",
 }
 
 
@@ -86,7 +86,7 @@ def collect():
     for n, s in ANT.build().items():
         add("wifi antenna", n, s)
     for n, s in MAST.parts().items():
-        add("GNSS patch" if n == "GNSS patch" else "camera" if n in ("lens", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n in ("camera body", "CSI extender Tx") else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
+        add("cable" if n == "camera-link cable" else "GNSS patch" if n == "GNSS patch" else "camera" if n in ("lens", "baffle", "hood") else "servos" if "servo" in n else "camera module" if n in ("camera body", "CSI extender Tx") else "pan base" if n.startswith(("pan ", "spindle")) else "mast", n, s)
     placed = I.placed_parts()
     for n, s in placed.items():
         if n.startswith("keep-out"):

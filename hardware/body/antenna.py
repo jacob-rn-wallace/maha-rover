@@ -5,7 +5,7 @@ communication (rover to lander) uses a sleeve dipole, 2.23 dBi; the paper models
 a 159.5 mm "commercial height", and puts the rover's mast 290 mm from it. The owner reports a vertical dipole on the body's top face in many photographs of the original.
 [S28] (Serria et al., IEEE CAMA 2023) adds: 2.42 GHz, 55.7 mm core, 159.5 mm with the ABS cover, 2.23 dBi, and a Fig. 2 render with the antenna as a tall vertical rod on a stand on the top deck.
 Position: x = mast x - 290 = -129.3 mm; y about +58 mm is my reading of the front view of [S18] Fig. 1, where a gold dome with a thin near-vertical rod rises at the right of the
-deck (`docs/original-dimensions.md` 3m); unverified. (The thin tilted rod at the rear end of the deck in that figure is probably a Langmuir probe, not this antenna.)
+deck (`docs/original-dimensions.md` 3m); unverified. Photographs of the flight-model rover (the owner's, 2026-11-08) show it as a black vertical rod, with a clamp part way up, on a small stand of three thin legs on the deck's rear half. (The thin tilted rod at the rear end of the deck in that figure is probably a Langmuir probe, not this antenna.)
 
 The replica uses it for 2.4 GHz with an off-the-shelf dipole of the paper's length: the AIR802 ANRD2403-RSP (3 dBi, 13.5 x 158 mm, black, RP-SMA plug; listing) is modelled, on a 6 mm aluminium
 block; the 5 dBi ANRD2405-RPSMA (157.4 mm) is the alternative. Shorter ones: Taoglas GW.20.A151W (89.5 mm, white), Adafruit 944 swivel (100 mm, 9.92 g), LSR (105 mm, black); listings. Frame as in body.py.

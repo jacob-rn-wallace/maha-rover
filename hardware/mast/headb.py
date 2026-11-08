@@ -164,6 +164,20 @@ def tx_pod():
     return pod, pcb + jack
 
 
+def camera_link_cable():
+    """The round camera-link cable as the original's harness is seen in the photographs of the flight-model rover: not clipped to the mast, but left hanging in a loose loop from the head's -y side
+    connector down to the body (orange Kapton-wrapped bundles, free loops, a few cable ties near the base). It leaves the Tx pod's floor, swings out on the -y side and drops to the deck gland beside
+    the base plate; the loop has slack for the tilt (about 100 mm) and for the pan (the head circles the axis at 72 mm, so the end-to-end distance changes by up to 144 mm). A sweep of a Ø5.5 round
+    cord along a spline, for the picture and the clearance checks; it does not tilt with the head. Not part of the mass (counted separately in replica.py)."""
+    from build123d import Circle, Plane, Spline, sweep
+    xc = ENC_X1 - ENC_X / 2
+    y1 = CY - ENC_Y / 2
+    pts = [(xc, y1 - 12.0, AZ - 18.0), (xc + 8.0, -92.0, 600.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
+    path = Spline(*pts)
+    prof = Plane(origin=path @ 0, z_dir=path % 0) * Circle(2.75)
+    return sweep(prof, path)
+
+
 def cyl_z_hole(x, y, z0, z1, r):
     return Pos(x, y, (z0 + z1) / 2) * Cylinder(r, z1 - z0)
 
@@ -205,6 +219,7 @@ def head(z_ext=Z_EXT):
     parts["antenna hat"] = Pos(xc, CY, hz + HAT_T / 2) * Cylinder(35.0, HAT_T)                                 # aluminium ground-plane disc, Ø70 x 1.5 mm
     parts["GNSS patch"] = box(xc - 17.5, xc + 17.5, CY - 17.5, CY + 17.5, hz + HAT_T, hz + HAT_T + 4.0)       # GNSS L1 ceramic patch, 35 x 35 x 4 mm (top at z 701.5)
     parts["Tx pod"], parts["CSI extender Tx"] = tx_pod()
+    parts["camera-link cable"] = camera_link_cable()
     c = camera()
     parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
