@@ -485,6 +485,15 @@ px). All values are derived.
 the head and base block rise 118 to 120 mm above the deck, equal to the stated limit of 120 [S19].
 This is a fit, not an independent confirmation.
 
+### 3l. CAM-1 camera assembly: datasheet and paper figures [S5], [S12], 3D Plus 3DDS-0734 rev 5
+
+Read 2026-11-07. The camera is a CASPEX unit: a 3D Plus 3DCM739 module (RGB version of the 3DCM734) with a Lambda-X lens and baffle [S12].
+- **Module (datasheet p. 22):** 35 x 35 x 23 mm plus 2.2 mm pins (25.2 mm over the pins), 62 +/- 2 g. Four M2.5 holes on a 25 mm square on the sensor face, sensor window about 25 mm square. Mounting cradle material 7075-T651; screws A2-70 with 4 mm thread, 56 cN.m. Stated.
+- **Whole camera [S12] Fig. 2, Tables 1 and 2:** about 35 x 35 x 73 mm and 210 g, f/8, 5 lenses, focal length 7.8 mm [S5], 82 x 82 degrees (115 diagonal). The 73 mm therefore includes the module, so the optics are about 48 mm deep (derived). In [S12] Fig. 2 the cradle plate is clearly wider than the module (by eye about 1.3 times, so about 45 mm, unverified), which sits oddly with "35 x 35".
+- **Optics seen in [S12] Fig. 2:** a square white cradle plate with four corner holes, three screws holding a round white collar, and a round slotted metal baffle ring in front, with the lens barrel recessed behind a small glass front element. The ring matches the one on the 3D Plus evaluation board.
+- **Flight hood [S5] Fig. 8 (CAM-2 front view):** a black round cap over the baffle ring with a square window, rotated a few degrees from the plate edges; the slotted ring and concentric lens rings are seen through it. The evaluation board has no such cap.
+- **Head layout [S5] Fig. 1 CAD (the CAD figure with the red CAM-1 arrows):** the camera sits on its square plate, bolted on about eight screws at the plate edge, with a round collar and the hood in front, hung off a round gimbal motor (red) on the arm side. The housing is an open frame under a thin top plate, not a closed box.
+
 ### 3k. Position of the cell field in the side view [S5]
 
 Pixel scan of the dark cell areas in the native side view ([S5] Fig. 15, 818 x 706 px, 1.087 mm per px, ground row 671, front hub
