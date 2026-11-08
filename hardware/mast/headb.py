@@ -1,5 +1,5 @@
 """al-maha mast head, built version (owner's design, 2026-11-08): a bent sheet bracket on the T-slot, a printed camera enclosure on a sideways disk,
-a Raspberry Pi HQ camera with a 4 mm CS lens behind a printed baffle ring and hood, a flat antenna hat. Concept history and the reasoning: docs/mast-spec.md,
+a Raspberry Pi HQ camera with a 4 mm CS lens behind a printed baffle ring and hood, a flat antenna hat carrying a GNSS patch. Concept history and the reasoning: docs/mast-spec.md,
 hardware/mast/head_concept.py (render of this head). Frame as in body.py.
 
 Sizes: whole camera 35 x 35 x 73 mm [S12], module 25.2 of it (3DDS-0734); cradle plate 45 mm, collar, ring, hood, enclosure 60 mm, disk, hat sizes are
@@ -144,6 +144,8 @@ def enclosure():
 
 
 DISK_D = 40.0
+HAT_T = 1.5                                       # hat disc thickness (aluminium sheet)
+GNSS_PATCH_KG = 0.015                             # ASSUMPTION: a 35 x 35 x 4 mm ceramic GNSS patch, mass not looked up
 
 
 def disk(y_box):
@@ -175,10 +177,11 @@ def head(z_ext=Z_EXT):
     parts["enclosure"] = enclosure()
     xc = ENC_X1 - ENC_X / 2
     hz = AZ + ENC_Z / 2                                                                                     # top of the box (z 696); the flat hat sits on the cover's top face up to z 700
-    parts["antenna hat"] = Pos(xc, CY, hz + 2.0) * Cylinder(35.0, 4.0)
+    parts["antenna hat"] = Pos(xc, CY, hz + HAT_T / 2) * Cylinder(35.0, HAT_T)                                 # aluminium ground-plane disc, Ø70 x 1.5 mm
+    parts["GNSS patch"] = box(xc - 17.5, xc + 17.5, CY - 17.5, CY + 17.5, hz + HAT_T, hz + HAT_T + 4.0)       # GNSS L1 ceramic patch, 35 x 35 x 4 mm (top at z 701.5)
     c = camera()
     parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
 
 
-TILTING = ("disk", "enclosure", "antenna hat", "camera body", "lens", "baffle", "hood")
+TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood")

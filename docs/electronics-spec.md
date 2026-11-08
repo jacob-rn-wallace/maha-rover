@@ -9,6 +9,7 @@ is said. Sizes feed the interior layout (`interior-spec.md`) and the mast (`mast
 | Role | Candidate | Qty | Size (mm) | Mass |
 |---|---|---|---|---|
 | Controller | Raspberry Pi Zero 2 W | 1 | 65 x 30 | not found |
+| GNSS and 2.4 GHz radio | a GNSS (GPS L1) receiver module feeding the ceramic patch on the hat, and a USB WiFi adapter with an RP-SMA connector feeding the 2.4 GHz dipole (the Pi Zero 2 W has no antenna connector) | 2 | not chosen | not found |
 | Camera | Raspberry Pi High Quality Camera (CS mount, IMX477) with a 4 mm CS lens (changed 2026-11-08 from Camera Module 3: it takes interchangeable lenses; `mast-spec.md`) | 1 | 38 x 38 board, 18.6 deep with the mount; lens 30 x 42, 49 g | not found |
 | Drive motor | Pololu 37D, #4746 (see `drive-spec.md`) | 4 | 37 dia x 57 | 175 to 195 g |
 | Motor driver | Pololu Dual MC33926 carrier, #1213 | 2 | 28 x 46 (1.10 x 1.8 in), height not found | 7 g (0.25 oz) |

@@ -18,6 +18,7 @@ import interior as I    # noqa: E402
 import frame as F       # noqa: E402
 import arms as A        # noqa: E402
 import mast as MAST     # noqa: E402
+import antenna as ANT   # noqa: E402
 import wheel as W       # noqa: E402
 
 AL, STEEL, PETG = 2.70, 7.85, 1.27   # g/cm3: aluminium and steel standard; PETG typical (printed, solid)   ASSUMPTION for PETG
@@ -28,6 +29,8 @@ DIFFERENTIAL = 0.30                  # kg: housing, four steel gears, cross pin,
 HARNESS_FASTENERS = 0.40             # kg: wiring, T-nuts, brackets, bolts                                     ASSUMPTION
 SOLAR = 60 * 0.0015                  # kg: 60 pieces with adhesive and laminate, 1.5 g each                    ASSUMPTION
 TERMINALS = 0.05                     # kg: boards, diodes, fuses                                               ASSUMPTION
+GNSS_MODULE = 0.010                  # kg: a GNSS receiver breakout (u-blox class) with its cable                                         ASSUMPTION
+WIFI_RADIO = 0.010                   # kg: a USB WiFi adapter with an RP-SMA connector, to feed the external 2.4 GHz antenna (the Pi Zero 2 W has none)   ASSUMPTION
 TARGET = 10.0
 
 
@@ -79,6 +82,11 @@ def collect():
         add("solar pieces", "pieces " + ("L" if sy > 0 else "R"), SOLAR / 2, (cx, sy * cy, B.FIELD_Z))
     add("terminals, diodes, fuses", "boards etc.", TERMINALS, (0.0, 0.0, 255.0))
     add("harness and fasteners", "allowance", HARNESS_FASTENERS, (0.0, 0.0, 190.0))
+    from build123d import Compound
+    a = Compound(list(ANT.build().values())).center()
+    add("antennas and radios", "2.4 GHz dipole and block", ANT.MASS, (a.X, a.Y, a.Z))
+    add("antennas and radios", "GNSS receiver module (GPS)", GNSS_MODULE, (0.0, 0.0, 255.0))     # the GNSS patch itself is in the mast group
+    add("antennas and radios", "2.4 GHz radio with an external antenna connector (USB WiFi adapter)", WIFI_RADIO, (0.0, 0.0, 255.0))
     return items
 
 

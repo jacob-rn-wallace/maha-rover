@@ -55,7 +55,7 @@ DISK_KG = 0.015
 CAMBODY_KG = HB.HQ_KG
 MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "hardware": 0.02}
 ENCLOSURE_KG = HB.ENC_KG           # Takachi AL060605, catalogue (162 g)   stated
-PRINTED_HEAD = ("antenna hat", "baffle", "hood")
+PRINTED_HEAD = ("baffle", "hood")
 
 
 def parts():
@@ -75,6 +75,8 @@ def cg_and_moment():
     for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
     pts.append((ENCLOSURE_KG, c("enclosure").X, c("enclosure").Z))
+    pts.append((rot["antenna hat"].volume / 1e6 * AL_G_CM3, c("antenna hat").X, c("antenna hat").Z))                # aluminium hat disc
+    pts.append((HB.GNSS_PATCH_KG, c("GNSS patch").X, c("GNSS patch").Z))
     pts.append((rot["disk"].volume / 1e6 * AL_G_CM3, c("disk").X, c("disk").Z))        # hollow turned aluminium shell (2026-11-08: was printed), by volume
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     pts.append((HB.LENS_KG, c("lens").X, c("lens").Z))
