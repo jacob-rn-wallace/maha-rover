@@ -82,3 +82,13 @@ slope. The extrusion is a stiff column (40 x 40 section); the joint at the plate
   extrusion (corner brackets or end-tapped screws) and the joint's strength are not modelled.
 - The pan servo is in the base; the tilt servo sits in the arm; the extrusion has no cavity for them.
 - Stowing: deferred. The stowed height limit (120 mm above the deck [S19]) is not met by this mast.
+
+
+## Head concept v3 (2026-11-07, not yet in the assembly)
+
+`hardware/mast/head_concept.py` and `docs/images/head-concept.png`. Owner's rule: keep the features that give the original's silhouette and cost nothing, otherwise design for our parts. The layout follows the CAD
+figure and flight photo ([S5] Fig. 1 and Fig. 8, original-dimensions.md 3l): an arm on the +y side holding the tilt servo (visible through a window on its outer face), a sideways disk (encoder or mounting, unknown),
+a 60 mm cube enclosure with the CASPEX lens assembly on its front (collar, slotted baffle ring, black hood with a square window), and a flat round hat on top that tilts with the camera (planar antenna per the owner's reading
+of the literature). The mast column is the T-slot with a 6 mm aluminium adapter plate (the octagonal hollow mast, lightening slots and the pink surface are not copied; what the pink surface on the arm is is not known).
+**Tilt sweep: the whole camera head clears the arm, plate, tilt servo and extrusion to 90 degrees both ways** (the 5 degree limit of the first head came from the neck lying under the housing). Sizes of the cube (60 mm),
+hat (70 mm; the CAD figure suggests up to 110 mm), disk and plate are by eye (ASSUMPTION). Printed arm, enclosure and hat about 0.15 kg. To do: put it into `mast.py`, redo the masses, add the fixed neck.

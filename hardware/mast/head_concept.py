@@ -51,45 +51,66 @@ def caspex():
     return {"camera body": mod, "cradle": plate, "collar": collar, "baffle": ring + barrel, "hood": hood}
 
 
-def octagon(x, y, z0, z1, across, wall=2.0):
-    def solid(a):
-        return Pos(x, y, (z0 + z1) / 2) * (Box(a, a, z1 - z0) + Rot(0, 0, 45) * Box(a, a, z1 - z0))
-    return solid(across) - Pos(0, 0, 0) * solid(across - 2 * wall) if False else solid(across) - Pos(0, 0, wall) * solid(across - 2 * wall)
-
-
 def head():
-    """Layout from the owner's reading of the CAD figure and the flight photo: hollow octagonal mast, a lateral overhang to +y, the tilt servo in a pocket
-    on the outer (+y) face at the top of the overhang, a sideways disk (encoder or mount) between the overhang and the camera enclosure, a roughly
-    cube-shaped enclosure with the lens assembly on its front, and a flat round antenna hat on top that tilts with the camera."""
-    from build123d import Plane, Polygon, extrude
+    """Version 3 (owner's rule, 2026-11-07: keep the silhouette-defining features that cost nothing, otherwise design for our parts).
+    Rotating column: T-slot to z 577, a flat adapter plate on it reaching out to +y, an arm of printed shell on the +y side holding the tilt servo (visible
+    through a window on the outer face), a sideways disk, the camera enclosure with the CASPEX lens assembly on its front and the flat round hat on top.
+    The plate is only 6 mm thick under the camera, so the enclosure's corners swing clear of it; the arm stays out of the enclosure's y range."""
     parts = {}
-    z0, z1 = MAST.TUBE_Z1, 620.0
-    parts["mast"] = octagon(TX, 0.0, z0, z1, MAST.TUBE_W)
-    pts = [(-29.0, z1), (70.0, z1), (70.0, 697.0), (20.0, 697.0), (20.0, 650.0), (-29.0, 650.0)]      # overhang profile in (y, z); solid placeholder
-    over = Pos(TX - 27.0, 0, 0) * extrude(Plane.YZ * Polygon(*pts, align=None), amount=54.0)
-    over = over - box(TX - 24.0, TX + 24.0, 27.0, 71.0, 623.0, 674.0)                                # pocket for the tilt servo, open to +y
-    parts["overhang"] = over
+    zp0, zp1 = MAST.TUBE_Z1, MAST.TUBE_Z1 + 6.0
+    parts["adapter plate"] = box(TX - 29.0, TX + 29.0, -29.0, 70.0, zp0, zp1)
+    arm = H.hollow(TX - 27.0, TX + 27.0, 22.0, 70.0, zp1, 697.0)
+    arm = arm - box(TX - 24.0, TX + 24.0, 66.0, 71.0, 623.0, 674.0)                    # window on the outer face over the tilt servo
+    arm = arm - cyl_y(21.0, 25.0, TX, AZ, 11.0)                                        # horn passes through the inner wall
+    parts["arm"] = arm
     tilt = Pos(TX, 47.5, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
-    pan = Pos(TX, 0, z0 + H.WALL + H.SV_TOTAL / 2) * Rot(0, 0, 90) * H.sts3215()
-    parts["servos"] = tilt + pan
-    parts["disk"] = cyl_y(2.0, 20.0, TX, AZ, 23.0)                                                   # sideways disk, encoder or mounting, ASSUMPTION
+    parts["servos"] = tilt
+    parts["disk"] = cyl_y(2.0, 22.0, TX, AZ, 23.0)                                      # sideways disk, encoder or mounting, ASSUMPTION
     x_face = FX - 22.0
-    cube = H.hollow(x_face - 60.0, x_face, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0)               # roughly cubic enclosure, 60 mm, ASSUMPTION
+    cube = H.hollow(x_face - 60.0, x_face, CY - 30.0, CY + 30.0, AZ - 30.0, AZ + 30.0)  # roughly cubic enclosure, 60 mm, ASSUMPTION
     cube = cube - cyl_x(x_face - 3.0, x_face + 1.0, CY, AZ, 17.5)
     for sy in (-1, 1):
         for sz in (-1, 1):
-            cube = cube + cyl_x(x_face, x_face + 2.0, CY + sy * 25.0, AZ + sz * 25.0, 2.8)           # corner screw heads
+            cube = cube + cyl_x(x_face, x_face + 2.0, CY + sy * 25.0, AZ + sz * 25.0, 2.8)
     parts["enclosure"] = cube
-    parts["antenna hat"] = Pos(x_face - 30.0, CY, AZ + 30.0 + 3.5) * Cylinder(35.0, 7.0) + \
-        (Pos(x_face - 30.0, CY, AZ + 30.0 + 8.5) * Cylinder(35.0, 3.0) - Pos(x_face - 30.0, CY, AZ + 30.0 + 8.5) * Cylinder(31.5, 3.2))
+    hz = AZ + 30.0
+    parts["antenna hat"] = Pos(x_face - 30.0, CY, hz + 3.5) * Cylinder(35.0, 7.0) + \
+        (Pos(x_face - 30.0, CY, hz + 8.5) * Cylinder(35.0, 3.0) - Pos(x_face - 30.0, CY, hz + 8.5) * Cylinder(31.5, 3.2))
     c = caspex()
     parts["camera body"], parts["cradle"], parts["collar"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "cradle", "collar", "baffle", "hood"))
     return parts
 
 
-COL = {"mast": (214, 217, 222), "overhang": (200, 160, 170), "servos": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
+TILTING = ("disk", "enclosure", "antenna hat", "camera body", "cradle", "collar", "baffle", "hood")
+
+
+def tilt_check(parts):
+    """Sweep the tilting unit (disk, enclosure, hat, camera) about the tilt axis against the fixed parts: adapter plate, arm, tilt servo, extrusion."""
+    from build123d import Axis, Compound
+    ax = Axis((TX, 0, AZ), (0, 1, 0))
+    unit = Compound([parts[n] for n in TILTING])
+    fixed = {"adapter plate": parts["adapter plate"], "arm": parts["arm"], "tilt servo": parts["servos"], "extrusion": Pos(TX, 0, (446.0 + MAST.TUBE_Z1) / 2) * Box(40, 40, MAST.TUBE_Z1 - 446.0)}
+    print("tilt sweep, the whole camera head about the tilt axis, overlap with fixed parts (mm3 > 1 counts as contact):")
+    for sgn, nm in ((1, "positive (nose down?)"), (-1, "negative")):
+        first = None
+        who = None
+        for deg in range(0, 91, 5):
+            u = unit.rotate(ax, sgn * deg)
+            hit = {k: (lambda r: 0.0 if r is None else r.volume)(u & f) for k, f in fixed.items()}
+            tot = sum(hit.values())
+            if tot > 1.0 and first is None:
+                first, who = deg, {k: round(v) for k, v in hit.items() if v > 1.0}
+        print(f"  {nm}: first contact at {first if first is not None else 'none up to 90'} degrees {who or ''}")
+    ub = unit.bounding_box()
+    print(f"  unit z {ub.min.Z:.0f}..{ub.max.Z:.0f}; lowest corner at 75 degrees about z {AZ - math.hypot(37.7, 30.0) :.0f}; top of the adapter plate z {MAST.TUBE_Z1 + 6:.0f}")
+    from build123d import Compound as C
+    kg = (sum(parts[n].volume for n in ("arm", "adapter plate")) * 0 + parts["arm"].volume / 1e3 * 1.27 / 1000 + parts["enclosure"].volume / 1e3 * 1.27 / 1000 + parts["antenna hat"].volume / 1e3 * 1.27 / 1000)
+    print(f"  printed arm, enclosure and hat (PETG, solid walls): {kg:.3f} kg")
+
+
+COL = {"adapter plate": (150, 156, 164), "arm": (214, 217, 222), "servos": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"mast": "octagonal hollow mast", "overhang": "overhang (solid placeholder, MLI pink)", "servos": "STS3215 pan and tilt servos", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
+NAMES = {"adapter plate": "aluminium adapter plate on the extrusion", "arm": "printed arm (tilt servo behind a window)", "servos": "STS3215 pan and tilt servos", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
          "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 
@@ -99,6 +120,7 @@ def main():
     for g, sh in parts.items():
         v, t = R.mesh(sh, 0.25, 0.3)
         ms.append((g, v, t, COL[g]))
+    tilt_check(parts)
     leg = [(NAMES[g], COL[g]) for g in parts]
     size = (760, 620)
     views = [("Front left (hood towards the viewer)", 35, 14, 1.0), ("Straight on, from the front", 0, 0, 1.0),
