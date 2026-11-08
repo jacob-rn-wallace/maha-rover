@@ -505,6 +505,19 @@ Measured by eye on a 600 dpi render of the figure, at about 1.10 px/mm (set from
 - **Top plate is an antenna (stated):** Rashid carries two antennas [S11, S15] (Gadhafi et al., *Sensors*, "Investigating the Impact of Lunar Rover Structure and Lunar Surface Characteristics on Antenna Performance"): a sleeve dipole for the rover-to-lander link (2.23 dBi, 250 kbps over up to 200 m) and, as the secondary communication experiment (COM-S, direct to Earth), a **circularly polarized all-metal patch antenna, 6 dBi, 2266 MHz down and 2101.2 MHz up, 100 kHz bandwidth**, a commercially available space antenna; the operations paper [S3] has operators "point the S-band antenna on the rover's gimbal", so the patch is on the tilting head, which fits the flat plate on top of the camera box. The paper's own simulation models (stated): the sleeve dipole 55.7 mm long (inner conductor and sleeve), with a 0.2 mm ABS tube over the inner conductor making it 159.5 mm overall to match a commercial antenna, at 2.42 GHz, **290 mm from the rover's mast**, on the rover's top; the patch as a circular metal disc 65 mm across and 0.5 mm thick, 0.6072 mm above a 65 x 65 x 0.5 mm ground plane, **atop the camera box**, set to the same 2.42 GHz and polarization as the dipole for a fair comparison (the flight patch runs at 2101.2 and 2266 MHz). The 84 mm plate I measured is therefore a plate over a patch of about 65 mm, not the patch itself (my earlier arithmetic of an 80 mm air-spaced patch at 2.2 GHz is superseded). The owner reports a vertical dipole on the body's top face in many photographs; its position by the paper is x = mast x - 290 = -129 mm. In the CAD front view (my reading, unverified) a gold dome with a thin near-vertical rod about 66 mm above the deck stands at y about +58 on the right of the deck, which fits that dipole. **Correction:** the thin rod tilted about 31 degrees rearward from the rear end of the deck (about 73 mm long) and the horizontal rod to -y at about z 384 that I first took for antennas are probably the cylindrical Langmuir probes (the paper puts them at various heights, 15 to 65 cm above the surface), not antennas; unverified.
 - **Base block (blue):** about 79 mm wide and from z 352 to 425 (73 mm tall); the lens tube column above it is about 57 to 59 mm wide.
 
+### 3n. Recessed lower end panels (2026-11-08, owner's observation)
+
+The owner pointed out that the original's front and rear panels are recessed. Measured on the dense cloud of the turntable video [S17] (3d; levelled, scaled 745 mm per unit; the cloud
+stays out of the repo; derived, plus or minus 10 mm, and the video may be another revision, 3d): the end faces sit at two different depths.
+- **Upper body, z about 265 to 348:** the end face is at the side-plate ends: front about 75 to 78 mm ahead of the body centre-line datum used in the cloud (the deck edge at 85),
+  rear 302 to 312 (the deck edge at 313).
+- **Lower body, z about 220 to 250 (the lowest band the cloud resolves; the dark flat panel returns no points below):** a plane about 35 mm behind the upper face at the
+  front (u -42 against -78) and about 25 to 35 mm behind it at the rear (u 278 against 302 to 312). The step lies between z 250 and 265 in the cloud.
+- **Front view [S18] Fig. 1** shows the same step as a horizontal ledge with three screw heads, at about z 234 to 247 (scaled from the 164 mm deck width), a lighter upper
+  face between two vertical ribs holding the pan block, and a darker lower face below it.
+So: the upper end faces are flush with the side plates and the lower ends are set back about 30 mm (25 to 35) below a ledge at about z 245. Below z 220 the cloud has no data
+(unverified; assumed to continue to the underside at z 124). Not yet in the model.
+
 ### 3k. Position of the cell field in the side view [S5]
 
 Pixel scan of the dark cell areas in the native side view ([S5] Fig. 15, 818 x 706 px, 1.087 mm per px, ground row 671, front hub
