@@ -12,7 +12,7 @@ panels                               2.40     24%      0    236
 T-slot frame                         2.14     21%      3    212
 link plates, sleeves, shafts         1.28     13%      0    132
 wheels                               1.12     11%     -0    100
-mast, head and camera                1.09     11%    162    505
+mast, head and camera                1.07     11%    162    504
 drive motors                         0.78      8%      0    100
 harness and fasteners                0.40      4%      0    190
 electronics                          0.38      4%    -71    141
@@ -21,9 +21,9 @@ pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                               10.18   target 10 kg: margin -0.18 kg
+TOTAL                               10.16   target 10 kg: margin -0.16 kg
 
-centre of mass: x 15.4, y -0.3, z 213.6 (mm, ground at the rim line)
+centre of mass: x 15.2, y -0.3, z 213.0 (mm, ground at the rim line)
 static tip angles: nose-down 35 deg, nose-up 30 deg, sideways 49 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.27 g/cm3 solid (0.28 kg each), allowances 0.84 kg
 

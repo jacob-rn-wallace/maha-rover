@@ -46,66 +46,11 @@ def tilt_check(parts):
 
 COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "camera body": (214, 175, 60),
        "cradle": (240, 240, 236), "collar": (232, 232, 228), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"bracket": "bent sheet bracket (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
+NAMES = {"bracket": "sheet bracket: two S-plates and a web (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "sideways disk (encoder or mount)", "enclosure": "camera enclosure", "antenna hat": "planar antenna hat",
          "camera body": "3DCM739 module", "cradle": "cradle plate (45 mm)", "collar": "collar", "baffle": "slotted baffle ring and lens", "hood": "black hood, square window"}
 
 
-def flat_pattern(path=None, scale=6.0):
-    """Unfold the bracket into its flat blank (bend allowance ignored): the web as one strip, the flanges as flaps on either side, each mapped from its web
-    segment (s along the web from the top, d out from the web edge). Draws fold lines (dashed) and cuts to docs/images/bracket-flat.png and prints the blank size."""
-    from PIL import Image, ImageDraw
-    pts, segs = bracket_path()
-    flaps = bracket_flaps()
-    s0 = [0.0]
-    for sg in segs:
-        s0.append(s0[-1] + sg[4])
-    Ltot = s0[-1]
-    hw = BR_WEB_W / 2
-    flat = []
-    dmax = 0.0
-    for i, poly in enumerate(flaps):
-        p0, p1, t, n, L = segs[i]
-        q = []
-        for (y, z) in poly:
-            dy, dz = y - p0[0], z - p0[1]
-            q.append((s0[i] + dy * t[0] + dz * t[1], dy * n[0] + dz * n[1]))
-        flat.append(q)
-        dmax = max(dmax, max(d for _, d in q))
-    W = 2 * (hw + dmax)
-    margin = 40
-    im = Image.new("RGB", (int(W * scale) + 2 * margin, int(Ltot * scale) + 2 * margin + 60), (250, 250, 247))
-    dr = ImageDraw.Draw(im)
-    X = lambda u: margin + (u + hw + dmax) * scale
-    Y = lambda sv: margin + 30 + sv * scale
-    dr.rectangle([X(-hw), Y(0), X(hw), Y(Ltot)], fill=(214, 220, 228), outline=(30, 30, 30))
-    for sgn in (-1, 1):
-        for q in flat:
-            dr.polygon([(X(sgn * (hw + d)), Y(sv)) for sv, d in q], fill=(190, 198, 208), outline=(30, 30, 30))
-    def dashed(a, b):
-        n_ = 40
-        for k in range(0, n_, 2):
-            f0, f1 = k / n_, (k + 1) / n_
-            dr.line([(a[0] + (b[0] - a[0]) * f0, a[1] + (b[1] - a[1]) * f0), (a[0] + (b[0] - a[0]) * f1, a[1] + (b[1] - a[1]) * f1)], fill=(200, 40, 40), width=2)
-    for sgn in (-1, 1):
-        dashed((X(sgn * hw), Y(0)), (X(sgn * hw), Y(Ltot)))
-    for sv in s0[1:-1]:
-        dashed((X(-hw), Y(sv)), (X(hw), Y(sv)))
-    # window and holes (web coordinates: s from the top)
-    zt = 697.0
-    dr.rectangle([X(-18), Y(697 - 674 + 0.0), X(18), Y(697 - 632 + 0.0)], outline=(30, 30, 30), width=2)
-    for zz in (Z_EXT - 12.0, Z_EXT - 28.0):
-        sv = s0[2] + (Z_EXT - zz)
-        dr.ellipse([X(0) - 3.25 * scale, Y(sv) - 3.25 * scale, X(0) + 3.25 * scale, Y(sv) + 3.25 * scale], outline=(30, 30, 30), width=2)
-    for k, (lab, y0) in enumerate((("arm (servo window)", (s0[0] + s0[1]) / 2), ("diagonal", (s0[1] + s0[2]) / 2), ("foot (2 x M6)", (s0[2] + s0[3]) / 2))):
-        dr.text((X(-hw) + 4, Y(y0)), lab, fill=(20, 20, 20))
-    dr.text((margin, 8), f"Flat blank, unfolded from the CAD (2 mm sheet, bend allowance ignored): {W:.0f} x {Ltot:.0f} mm.  Dashed: folds.  Flaps fold 90 degrees towards the viewer's -y side.", fill=(20, 20, 20))
-    out = HERE.parent.parent / "docs" / "images" / "bracket-flat.png"
-    im.save(out)
-    print(f"flat blank {W:.0f} x {Ltot:.0f} mm, flaps {dmax:.0f} mm deep at most; saved {out}")
-
-
 def main():
-    flat_pattern()
     parts = head()
     ms = []
     for g, sh in parts.items():

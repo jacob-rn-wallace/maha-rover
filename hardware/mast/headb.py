@@ -19,7 +19,7 @@ import body as B  # noqa: E402
 import head as H  # noqa: E402
 
 TX = B.MAST_X
-CY = B.CAM_Y
+CY = -23.5                         # camera lateral position in the owner's redesign (the sourced figure is 28 right of the centreline [S8]; B.CAM_Y); the owner moved it 4.5 mm to fit the disk
 AZ = 660.0
 FX = B.WHEELBASE / 2 + 77.9
 Z_EXT = 577.0                      # top of the extrusion
@@ -68,30 +68,10 @@ def _flange(x0, pts):
     return extrude(f, amount=BR_T, dir=(1, 0, 0))
 
 
-# ---- bracket as folded panels (so that it can be unfolded into a flat blank) ---------------------------------
-BR_WEB_W = 44.0                      # web width across x (inner 40 between the flanges)
-BR_PATH = None
-
-
-def bracket_path():
-    """Centre line of the web in the y-z plane, from the top down: top (y 68, z 697), the bottom of the vertical part B, the diagonal's foot C (on the extrusion's
-    +y face, y 21) and the bottom of the foot tab D. Returns the points and, for each segment, its direction t (downwards) and the normal n towards the flange side (-y)."""
-    z0 = Z_EXT
-    yv, yf = BR_Y1 - BR_T / 2, 20.0 + BR_T / 2
-    pts = [(yv, 697.0), (yv, z0 + (yv - yf)), (yf, z0), (yf, z0 - 32.0)]
-    segs = []
-    for (p0, p1) in zip(pts[:-1], pts[1:]):
-        d = (p1[0] - p0[0], p1[1] - p0[1])
-        L = math.hypot(*d)
-        t = (d[0] / L, d[1] / L)
-        n = (-t[1], t[0])                  # perpendicular; choose the one with a negative y component
-        if n[0] > 0:
-            n = (-n[0], -n[1])
-        segs.append((p0, p1, t, n, L))
-    return pts, segs
-
-
-BR_FLAP_DEPTH = (42.0, 30.0, 40.0)    # flange depth, measured at right angles to the web edge: upper arm (holds the servo), diagonal, foot (beside the extrusion)
+# ---- bracket (owner's redesign, mast_redesign.step, 2026-11-08) ------------------------------------------------
+BR_FLANGE_YZ = [(69.0, 697.0), (69.0, 624.59), (22.0, 577.59), (22.0, 545.0), (-20.0, 545.0), (-20.0, 577.0), (27.0, 624.0), (27.0, 697.0)]   # y, z of the S-shaped side plate
+BR_WEB_Y0, BR_WEB_Y1 = 27.0, 29.0     # the web plate, on the camera side of the arm; the servo sits against its outer face (+y) and its horn passes through the hole
+BR_HOLE_D = 19.2                      # horn hole in the web
 
 
 def _prism_yz(x0, pts_yz, t=BR_T):
@@ -100,55 +80,19 @@ def _prism_yz(x0, pts_yz, t=BR_T):
     return extrude(f, amount=t, dir=(1, 0, 0))
 
 
-def bracket_flaps():
-    """The six flange flaps as polygons in the y-z plane: one per web segment and side. Each is a strip of constant depth along its web edge; where two
-    segments meet at a bend the strips are cut along the mitre line (the bisector of the two flange-side normals), so neighbouring flaps touch only along
-    that line and never overlap: the blank gets a slit there (inside of a bend) or a V gap (outside of a bend). The top end is chamfered."""
-    pts, segs = bracket_path()
-    out = []
-    for i, (p0, p1, t, n, L) in enumerate(segs):
-        d = BR_FLAP_DEPTH[i]
-        poly = []
-        for end, (v, first) in enumerate(((p0, True), (p1, False))):
-            if (first and i == 0) or ((not first) and i == len(segs) - 1):
-                far = (v[0] + d * n[0], v[1] + d * n[1])           # square free end
-                poly.append((v, far))
-                continue
-            nb = segs[i - 1][3] if first else segs[i + 1][3]
-            m = (n[0] + nb[0], n[1] + nb[1])
-            mm = math.hypot(*m)
-            m = (m[0] / mm, m[1] / mm)
-            k = d / (m[0] * n[0] + m[1] * n[1])
-            poly.append((v, (v[0] + k * m[0], v[1] + k * m[1])))
-        (v0, f0), (v1, f1) = poly
-        out.append([v0, v1, f1, f0])
-    return out
-
-
 def bracket():
-    """Bent sheet bracket (owner's sketches, 2026-11-08), as folded panels: a 44 mm web (foot tab on the extrusion's +y face with two M6 holes, a 45 degree diagonal, a
-    vertical arm at y 67 to 69) and flange flaps along its two edges (42 deep on the arm, 30 on the diagonal, 40 beside the extrusion). Outline after the original's S-bend arm
-    ([S18] Fig. 1). Flaps are separate flaps cut at the bends (see bracket_flaps), so every fold is a straight bend of a flat blank (flat pattern: head_concept.py)."""
-    pts, segs = bracket_path()
+    """Sheet bracket from the owner's redesign: two 2 mm aluminium side plates cut in an S outline (a tuning fork straddling the extrusion at the bottom, a 45 degree diagonal,
+    then a vertical arm y 27 to 69), each with two Ø6.8 holes (y 0, z 558.4 and 572.4) for M6 into the side slots, joined on the arm by a web plate at y 27 to 29 (z 624 to 697,
+    Ø19.2 horn hole at z 660). The pocket for the tilt servo is the arm between the plates, open to the outside (+y). Sizes read from the STEP file."""
     t = BR_T
-    xw0 = TX - BR_WEB_W / 2
-    parts = []
-    for (p0, p1, tt, n, L) in segs:                                   # web: each segment as a slab; the sheet mid-plane runs along the centre line
-        ang = math.degrees(math.atan2(tt[0], -tt[1]))                  # rotation about x from straight down
-        ext = t / 2                                                    # extend at the joints so the slabs overlap
-        mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
-        slab = Pos(TX, mid[0], mid[1]) * Rot(ang, 0, 0) * Box(BR_WEB_W, t, L + t)
-        parts.append(slab)
-    web = parts[0] + parts[1] + parts[2]
-    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - t - 1, BR_Y1 + 1, 632.0, 674.0)             # window over the tilt servo
-    web = web - cyl_y(BR_Y0 - 1, BR_Y0 + t + 1, TX, Z_EXT - 12.0, 3.25) - cyl_y(BR_Y0 - 1, BR_Y0 + t + 1, TX, Z_EXT - 28.0, 3.25)   # two M6 into the centre slot
-    out = web
-    for sx, x0 in ((-1, TX - BR_WEB_W / 2), (1, TX + BR_WEB_W / 2 - t)):
-        for k, poly in enumerate(bracket_flaps()):
-            if k == 0:                                                 # chamfer the free top corner
-                poly = [poly[0], poly[1], poly[2], (poly[3][0] + 8.0 * 0, poly[3][1])]
-            out = out + _prism_yz(x0, poly)
-    return out - box(TX - 20.0, TX + 20.0, -20.0, 20.0, 440.0, Z_EXT)                 # trim the joint corners where they touch the extrusion's top edge
+    xl, xr = TX - 22.0, TX + 20.0                                    # the plates lie at x -22..-20 and +20..+22 from the mast axis
+    out = box(TX - 20.0, TX + 20.0, BR_WEB_Y0, BR_WEB_Y1, 624.0, 697.0) - cyl_y(BR_WEB_Y0 - 1, BR_WEB_Y1 + 1, TX, AZ, BR_HOLE_D / 2)
+    for x0 in (xl, xr):
+        pl = _prism_yz(x0, BR_FLANGE_YZ)
+        for zz in (558.4, 572.4):
+            pl = pl - cyl_x(x0 - 1, x0 + t + 1, 0.0, zz, 3.4)
+        out = out + pl
+    return out
 
 
 ENC_D = 35.0                                    # depth of the box (Takachi TD6-6-4: 60 x 60 x 35, ADC12, 90 g)
@@ -175,9 +119,9 @@ def head(z_ext=Z_EXT):
     """All head parts in the rover frame: bracket, tilt servo, disk, enclosure, hat and the camera stack. Rotating column: T-slot to z 577, the bracket on its end."""
     parts = {}
     parts["bracket"] = bracket()
-    tilt = Pos(TX, 47.5, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
+    tilt = Pos(TX, 45.1, AZ) * Rot(-90, 0, 0) * Rot(0, 0, 90) * H.sts3215()
     parts["tilt servo"] = tilt
-    parts["disk"] = cyl_y(2.0, 22.0, TX, AZ, 20.0)                                      # sideways disk, encoder or mounting, ASSUMPTION; 40 mm so that it stays near the box
+    parts["disk"] = cyl_y(CY + 30.0, BR_WEB_Y0 - 0.5, TX, AZ, 20.0)                                      # sideways disk, encoder or mounting, ASSUMPTION; 40 mm so that it stays near the box
     parts["enclosure"] = enclosure()
     xc = ENC_X1 - ENC_D / 2
     hz = AZ + 30.0
