@@ -39,7 +39,9 @@ COS = math.cos(math.radians(B.SIDEWALL_DEG))
 # what is sourced), placed by the centre of their footprint; the rest are still placeholder boxes (size x, y, z), marked below. mass kg.
 PARTS = {
     "battery 2S2P 18650":  dict(size=(68.0, 38.0, 38.0), mass=0.22, at=(-110.0, 0.0)),                                      # size class from 4 cells in 2 x 2; box
-    "controller (Pi Zero 2 W)": dict(model="pi_zero_2w", at=(60.0, 35.0)),
+    "controller (Pi Zero 2 W)": dict(model="pi_zero_2w", at=(95.0, 33.0), deck=True),                                        # on the deck's underside since 2026-11-08 (was on the floor at 60, 35): near the mast cable entry
+    "GNSS receiver (NEO-M9N breakout)": dict(model="gnss_breakout", at=(58.0, -30.0), deck=True),                          # on the deck's underside, a short coax and UART run from the entry and the Pi
+    "servo bus adapter (Waveshare, STS3215)": dict(model="bus_servo_adapter", at=(104.0, -3.0), deck=True),                   # on the deck's underside beside the Pi: short USB lead, short servo cable
     "motor driver A (MC33926)": dict(model="mc33926", at=(60.0, -16.0)),
     "motor driver B (MC33926)": dict(model="mc33926", at=(60.0, -44.0)),
     "5 V converter (D24V22F5)":   dict(model="d24v22fx", at=(130.0, 60.0)),
@@ -103,6 +105,12 @@ def placed_parts():
                 # model axis +z, bezel face at z = 0 with the bezel to +z and the body to -z. Turn it so +z -> -x: the bezel is then outside
                 # the rear panel (x smaller) and the body inside; the bezel's back face (model z = 0) sits on the panel's outer face, x = at.
                 out[n] = Pos(d["at"][0], d["at"][1], d["z"]) * (Rot(0, -90, 0) * sol)
+                continue
+            if d.get("deck"):                          # hung from the deck's underside: flipped so the standoffs point up to the deck and the components hang down
+                sol = Rot(180, 0, 0) * sol
+                bb = sol.bounding_box()
+                cx, cy = (bb.min.X + bb.max.X) / 2, (bb.min.Y + bb.max.Y) / 2
+                out[n] = Pos(d["at"][0] - cx, d["at"][1] - cy, B.DECK_TOP_Z - B.DECK_T - bb.max.Z) * sol
                 continue
             bb = sol.bounding_box()
             cx, cy = (bb.min.X + bb.max.X) / 2, (bb.min.Y + bb.max.Y) / 2

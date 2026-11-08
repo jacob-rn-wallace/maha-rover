@@ -128,10 +128,46 @@ def rocker_switch(depth=28.0):
     return {"solid": solid, "mass": 0.012, "note": "cut-out 20.2 and the electrical rating [listing]; bezel, depth and tab length ASSUMPTION"}
 
 
+# ---------------------------------------------------------------------------------------------
+def gnss_breakout(standoff=5.0):
+    """GNSS receiver breakout, candidate SparkFun GPS-15712 (NEO-M9N, u.FL): the board is 1.30 x 1.60 in = 33.0 x 40.6 mm [SparkFun hookup guide]; supply 3.3 V; I2C, UART, PPS and
+    SPI pins [same guide]. PCB 1.6 mm, the 12.2 x 16 x 2.4 mm module (u-blox NEO-M9N size, recollection), the u.FL jack and the pin header are ASSUMPTION; mounting holes were not read
+    (the model has four 2.5 mm holes 3 mm from the corners as a placeholder). Component height about 5 mm over the PCB is ASSUMPTION; mass 8 g is ASSUMPTION (not found)."""
+    L, W, T = 40.6, 33.0, 1.6
+    solid = _box(0, L, 0, W, 0, T)
+    solid = solid + _box(10.0, 22.2, 9.0, 25.0, T, T + 2.4)                              # NEO-M9N module, ASSUMPTION size
+    solid = solid + _box(3.0, 9.0, 14.0, 20.0, T, T + 2.5)                               # u.FL jack, ASSUMPTION
+    solid = solid + _box(4.0, L - 4.0, 1.0, 3.5, T, T + 3.0)                             # pin header along one edge, ASSUMPTION
+    holes = [(3.0, 3.0), (L - 3.0, 3.0), (3.0, W - 3.0), (L - 3.0, W - 3.0)]
+    solid = _holes(solid, holes, 2.5, -0.5, T + 0.5)
+    for (hx, hy) in holes:
+        solid = solid + (_post(hx, hy, -standoff, 0, 5.0) - _post(hx, hy, -standoff - 0.5, 0.5, 2.5))
+    return {"solid": solid, "mass": 0.008, "note": "board size [SparkFun]; module, jack, header, holes, height and mass ASSUMPTION"}
+
+
+def bus_servo_adapter(standoff=5.0):
+    """Waveshare Bus Servo Adapter (A), for the STS3215 / ST3215 servos: 42 x 33 mm with 2.5 mm mounting holes 37 x 28 mm apart [Waveshare wiki and product page]; 18.5 mm thick
+    and 21.2 g on a Digitec listing (Waveshare lists 16 g); a 5.5 x 2.1 mm barrel jack for 9 to 12.6 V, a USB port and a UART header [Waveshare]. The thickness includes the connectors, which
+    are modelled as blocks at the ends (ASSUMPTION for their sizes and positions); the standoffs raise the board 5 mm so the underside parts clear the floor."""
+    L, W, T = 42.0, 33.0, 1.6
+    solid = _box(0, L, 0, W, 0, T)
+    solid = solid + _box(-2.0, 9.0, 4.0, 18.0, T, 11.0)                                  # DC barrel jack, ASSUMPTION
+    solid = solid + _box(-2.0, 7.0, 21.0, 31.0, T, 5.0)                                  # USB connector, ASSUMPTION
+    solid = solid + _box(L - 9.0, L - 1.0, 6.0, 27.0, T, 6.0)                            # servo and UART headers, ASSUMPTION
+    solid = solid + _box(14.0, 28.0, 8.0, 24.0, T, 4.0)                                  # driver chip and parts, ASSUMPTION
+    holes = [(2.5, 2.5), (2.5 + 37.0, 2.5), (2.5, 2.5 + 28.0), (2.5 + 37.0, 2.5 + 28.0)]
+    solid = _holes(solid, holes, 2.5, -0.5, T + 0.5)
+    for (hx, hy) in holes:
+        solid = solid + (_post(hx, hy, -standoff, 0, 5.0) - _post(hx, hy, -standoff - 0.5, 0.5, 2.5))
+    return {"solid": solid, "mass": 0.021, "note": "outline, holes [Waveshare]; thickness and mass from one retailer (Digitec), the other lists 16 g; connectors ASSUMPTION"}
+
+
+
 def models():
     return {
         "mc33926": mc33926_carrier(), "d24v22fx": d24v22fx(), "pi_zero_2w": pi_zero_2w(),
         "fuse_block": fuse_block_4way(), "rocker_switch": rocker_switch(),
+        "gnss_breakout": gnss_breakout(), "bus_servo_adapter": bus_servo_adapter(),
     }
 
 

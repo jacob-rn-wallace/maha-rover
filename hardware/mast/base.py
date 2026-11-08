@@ -37,6 +37,7 @@ AL = 2.70e-6                                     # kg/mm3
 BEARING_KG = 0.024                               # ASSUMPTION (per bearing, 6806-2RS class; not looked up)
 HARDWARE_KG = 0.03                               # screws, retaining rings, coupling hardware ASSUMPTION
 HOUS_XY = BOX_Y                                  # for the plate size in mast.py
+CABLE_R = 14.5                                   # distance of the disc's Ø8 cable hole from the axis, towards -y (the servo is at y -10.1 to 35.1)
 
 
 def _box(x0, x1, y0, y1, z0, z1):
@@ -70,7 +71,8 @@ def build(tx, z_plate_top):
     housing = base + cover + tower + shelf
     servo = Pos(tx, 0, sv_c) * Rot(0, 0, 90) * H.sts3215()                       # long side along +y
     # coupling disc with a cable hole off the axis; spindle tube; top flange
-    disc = Pos(tx, 0, (disc_z0 + disc_z1) / 2) * Cylinder(18.0, 4.0) - Pos(tx + 9.0, 0, (disc_z0 + disc_z1) / 2) * Cylinder(5.0, 6.0)
+    # cable hole at 15 mm from the axis on the -y side, past the servo (whose body spans y -10.1 to 35.1 under the disc: the earlier hole at 9 mm from the axis sat on top of it)
+    disc = Pos(tx, 0, (disc_z0 + disc_z1) / 2) * Cylinder(18.0, 4.0) - Pos(tx, -CABLE_R, (disc_z0 + disc_z1) / 2) * Cylinder(4.0, 6.0)
     sp_z0, sp_z1 = disc_z1, fl1
     spindle = Pos(tx, 0, (sp_z0 + sp_z1) / 2) * (Cylinder(SP_OD / 2, sp_z1 - sp_z0) - Cylinder(SP_ID / 2, sp_z1 - sp_z0 + 1.0))
     flange = Pos(tx, 0, (fl0 + fl1) / 2) * (Cylinder(30.0, fl1 - fl0) - Cylinder(SP_ID / 2, fl1 - fl0 + 1.0))

@@ -29,8 +29,7 @@ DIFFERENTIAL = 0.30                  # kg: housing, four steel gears, cross pin,
 HARNESS_FASTENERS = 0.40             # kg: wiring, T-nuts, brackets, bolts                                     ASSUMPTION
 SOLAR = 60 * 0.0015                  # kg: 60 pieces with adhesive and laminate, 1.5 g each                    ASSUMPTION
 TERMINALS = 0.05                     # kg: boards, diodes, fuses                                               ASSUMPTION
-GNSS_MODULE = 0.010                  # kg: a GNSS receiver breakout (u-blox class) with its cable                                         ASSUMPTION
-WIFI_RADIO = 0.010                   # kg: a USB WiFi adapter with an RP-SMA connector, to feed the external 2.4 GHz antenna (the Pi Zero 2 W has none)   ASSUMPTION
+RF_CABLES = 0.008                    # kg: two micro-coax runs with u.FL ends, the RP-SMA pigtail, a short USB lead, the 0.6 m camera ribbon, the Zero 2 W u.FL modification   ASSUMPTION
 TARGET = 10.0
 
 
@@ -85,8 +84,7 @@ def collect():
     from build123d import Compound
     a = Compound(list(ANT.build().values())).center()
     add("antennas and radios", "2.4 GHz dipole and block", ANT.MASS, (a.X, a.Y, a.Z))
-    add("antennas and radios", "GNSS receiver module (GPS)", GNSS_MODULE, (0.0, 0.0, 255.0))     # the GNSS patch itself is in the mast group
-    add("antennas and radios", "2.4 GHz radio with an external antenna connector (USB WiFi adapter)", WIFI_RADIO, (0.0, 0.0, 255.0))
+    add("antennas and radios", "RF cables, USB lead, camera ribbon", RF_CABLES, (100.0, 0.0, 300.0))     # the GNSS board and servo adapter are electronics parts (interior.py); the GNSS patch is in the mast group
     return items
 
 
