@@ -134,7 +134,7 @@ def enclosure():
     base = base - cyl_y(ys0, ys1, TX, AZ - 8.0, 7.0)                                                    # Ø14 cable hole
     for sx in (-1, 1):
         for sz in (-1, 1):
-            base = base - cyl_y(ys0, ys1, TX + sx * 12.7, AZ + sz * 12.7, 1.7)                           # four M3 clearance holes on a Ø36 circle (into the disk's threaded inserts)
+            base = base - cyl_y(ys0, ys1, TX + sx * 12.7, AZ + sz * 12.7, 1.7)                           # four M3 clearance holes on a Ø36 circle (into threads tapped in the disk's ring)
     for sy in (-1, 1):
         for sz in (-1, 1):
             post = cyl_x(x0 + ENC_WALL - 0.1, xj, CY + sy * 26.0, AZ + sz * 23.0, 5.5)
@@ -147,8 +147,8 @@ DISK_D = 40.0
 
 
 def disk(y_box):
-    """The disk between the camera box and the tilt servo: the structural coupling and the cable spool, a hollow printed shell (ASA, 2 to 4 mm walls) that rotates with the camera.
-    Box end open and bolted to the box wall (four M3 into heat-set inserts in the shell's ring, on a Ø36 circle); servo end closed, with a Ø19.2 boss that sits on the servo horn
+    """The disk between the camera box and the tilt servo: the structural coupling and the cable spool, a hollow turned aluminium shell (6061 bar, 4 mm side wall, 2 mm end wall) that rotates with the camera.
+    Box end open and bolted to the box wall (four M3 tapped straight into the shell's ring, on a Ø36 circle); servo end closed, with a Ø19.2 boss that sits on the servo horn
     (four screws on the horn's Ø14 pattern, one centre screw). The camera ribbon comes through the box wall's Ø14 hole into the shell and leaves through a slot in the rim at the bottom,
     loops round the rim (the rim is the spool: the tilt is +-90 degrees, so the cable length changes by about 31 mm) and is clamped to the bracket's fin edge. An annular recess round the
     boss clears the servo's four screw heads. The servo's own magnetic encoder gives the tilt angle, so the disk carries no sensor. A tilt hard stop is not designed."""

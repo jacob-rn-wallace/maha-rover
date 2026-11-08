@@ -10,7 +10,7 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The target i
 group                                  kg   share      x      z
 panels                               2.40     24%      0    236
 T-slot frame                         2.14     22%      3    212
-mast, head and camera                1.41     14%    162    499
+mast, head and camera                1.42     14%    162    500
 wheels                               0.94      9%     -0    100
 link plates, sleeves, shafts         0.88      9%      0    132
 drive motors                         0.78      8%      0    100
@@ -21,16 +21,16 @@ pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                                9.92   target 10 kg: margin +0.08 kg
+TOTAL                                9.93   target 10 kg: margin +0.07 kg
 
-centre of mass: x 21.1, y -0.3, z 227.4 (mm, ground at the rim line)
+centre of mass: x 21.2, y -0.3, z 227.9 (mm, ground at the rim line)
 static tip angles: nose-down 35 deg, nose-up 27 deg, sideways 47 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.07 g/cm3 solid (0.24 kg each), allowances 0.84 kg
 ```
 
 ## Reading the result
 
-- **9.92 kg against the 10 kg target: 0.08 kg under** (9.88 before the HQ camera and 4 mm lens replaced the 10 g stand-in: +0.09 kg, less 0.05 kg of printed collar and plate that went). Applied 2026-11-08 in the mass second pass (after the die-cast boxes had taken the replica to 10.50 kg): the link plates are 4 mm instead of 8 (the pivot boss grows from 12 to 16 mm so the shaft keeps its 20 mm bond; net 0.40 kg), the wheels are printed in ASA (1.07 g/cm3) instead of PETG (0.18 kg), and the mast base plate is 3 mm instead of 6 (0.05 kg). The mast column stays the 40 x 40 T-slot extrusion (a 60 x 60 x 2 tube would have saved 0.10 kg, declined so that others can mount things on the mast). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are a solid printed estimate (0.24 kg each in ASA; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each), and
+- **9.93 kg against the 10 kg target: 0.07 kg under** (the disk in aluminium instead of print: +0.011 kg; 9.88 before the HQ camera and 4 mm lens replaced the 10 g stand-in: +0.09 kg, less 0.05 kg of printed collar and plate that went). Applied 2026-11-08 in the mass second pass (after the die-cast boxes had taken the replica to 10.50 kg): the link plates are 4 mm instead of 8 (the pivot boss grows from 12 to 16 mm so the shaft keeps its 20 mm bond; net 0.40 kg), the wheels are printed in ASA (1.07 g/cm3) instead of PETG (0.18 kg), and the mast base plate is 3 mm instead of 6 (0.05 kg). The mast column stays the 40 x 40 T-slot extrusion (a 60 x 60 x 2 tube would have saved 0.10 kg, declined so that others can mount things on the mast). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are a solid printed estimate (0.24 kg each in ASA; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. The margin is small; the levers below are the first things to cut if it vanishes.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 2.1 kg are 46 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).

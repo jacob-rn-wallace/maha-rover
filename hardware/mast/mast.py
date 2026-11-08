@@ -75,7 +75,7 @@ def cg_and_moment():
     for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
     pts.append((ENCLOSURE_KG, c("enclosure").X, c("enclosure").Z))
-    pts.append((H.shell_mass(rot["disk"]), c("disk").X, c("disk").Z))        # hollow printed shell, by volume (PETG density, as the other printed head parts)
+    pts.append((rot["disk"].volume / 1e6 * AL_G_CM3, c("disk").X, c("disk").Z))        # hollow turned aluminium shell (2026-11-08: was printed), by volume
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     pts.append((HB.LENS_KG, c("lens").X, c("lens").Z))
     for n in ("pan servo", "tilt servo"):
