@@ -62,23 +62,31 @@ def _flange(x0, pts):
 
 
 def bracket():
-    """Bent sheet bracket (owner's sketch, 2026-11-08): one blank, two folds. A tab on the +y face of the extrusion (two M6 into T-nuts in the centre slot),
-    the web kinks out diagonally to +y and rises vertical to z 697, and the two side flanges (open towards -y) hold the tilt servo between them,
-    seen through a window in the web. Flange bottoms follow the diagonal. Flat width 30 at the tab, 58 over the channel."""
-    z0 = MAST.TUBE_Z1                       # top of the extrusion
-    yb, zb = BR_Y1 - BR_T, 623.0            # web inner face where the diagonal ends
-    tab = box(TX - 15.0, TX + 15.0, BR_Y0, BR_Y0 + BR_T, z0 - 42.0, z0)
-    for zz in (z0 - 12.0, z0 - 30.0):
-        tab = tab - cyl_y(BR_Y0 - 1, BR_Y0 + BR_T + 1, TX, zz, 3.25)
-    # diagonal and vertical web as a polygon in the y-z plane, extruded over the channel width
+    """Bent sheet bracket (owner's sketch, 2026-11-08), outline matched to the original's arm ([S18] Fig. 1 front view: vertical mast, a 45 degree
+    S-bend towards +y over about z 577 to 625, then a vertical arm at y +27 to +69; the band is parallel-sided). One blank, two folds: a web on the +y
+    face of the extrusion that kinks out to +y and rises vertical, and two side flanges that straddle the extrusion (inner width 40) and are bolted
+    through into the side slots, then follow the band up to z 697. The tilt servo sits between the flanges, seen through a window in the web."""
     from build123d import Face, Vector, Wire, extrude
-    web_pts = [(BR_Y0, z0), (BR_Y0 + BR_T, z0), (BR_Y1 - BR_T, zb), (BR_Y1 - BR_T, 697.0), (BR_Y1, 697.0), (BR_Y1, zb + 1.4), (BR_Y0 + BR_T + 0.0, z0 - 0.0)]
-    web = extrude(Face(Wire.make_polygon([Vector(TX - 27.0, y, z) for (y, z) in web_pts], close=True)), amount=54.0, dir=(1, 0, 0))
-    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - BR_T - 1, BR_Y1 + 1, 628.0, 672.0)          # window over the tilt servo
-    fl = [(BR_Y0 + BR_T, z0), (BR_Y1, zb + 1.4), (BR_Y1, 697.0), (BR_Y0 + BR_T + 8, 697.0), (BR_Y0 + BR_T, 689.0)]
-    f1 = _flange(TX - 27.0, fl)
-    f2 = _flange(TX + 27.0 - BR_T, fl)
-    return tab + web + f1 + f2
+    z0 = MAST.TUBE_Z1
+    t = BR_T
+    zl = z0 - 32.0                                              # bottom of the bracket, z 545
+    xw0, xw1 = TX - 22.0, TX + 22.0
+    ya, yb = 20.0 + t / 2, BR_Y1 - t / 2                          # sheet centre lines of the tab and the vertical web
+    za, zb = z0 + t / 2, z0 + t / 2 + (yb - ya)                   # 45 degree diagonal between them
+    L = math.hypot(yb - ya, zb - za)
+    tab = box(xw0, xw1, 20.0, 20.0 + t, zl, za)
+    diag = Pos(TX, (ya + yb) / 2, (za + zb) / 2) * Rot(-45, 0, 0) * Box(44.0, t, L + t)
+    vert = box(xw0, xw1, BR_Y1 - t, BR_Y1, zb, 697.0)
+    web = tab + diag + vert
+    web = web - box(TX - 18.0, TX + 18.0, BR_Y1 - t - 1, BR_Y1 + 1, 645.0, 690.0)             # window over the tilt servo
+    fl = [(-20.0, zl), (-20.0, z0), (27.0, z0 + 47.0), (27.0, 689.0), (35.0, 697.0), (BR_Y1, 697.0), (BR_Y1, z0 + BR_Y1 - 20.0), (20.0, z0), (20.0, zl)]
+    out = web
+    for x0 in (TX - 22.0, TX + 20.0):
+        f = _flange(x0, fl)
+        for zz in (zl + 10.0, zl + 24.0):
+            f = f - cyl_x(x0 - 1, x0 + t + 1, 0.0, zz, 3.4)                               # M6 clearance into the side-slot T-nuts
+        out = out + f
+    return out
 
 
 def head():
