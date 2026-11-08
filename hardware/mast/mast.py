@@ -7,7 +7,7 @@ the figures; everything else is ASSUMPTION.
 The mast is FIXED for now: the original stows flat under 120 mm [S19] and springs up on
 landing, but the replica's stowing and deploying are deferred (decision 2026-11-07). A
 T-slot extrusion (40 x 40, decided 2026-11-07) stands on a base plate bolted to the deck and carries the printed
-neck, arm and head on its end. Pan and tilt are two servos in the neck and the arm
+bent sheet bracket and head (headb.py) on its end. Pan is a servo in the base and tilt a servo in the bracket
 (Feetech STS3215, docs/electronics-spec.md). The earlier hinged design, with a hinge pin,
 pedestal and fold sweep, is in commit 20aec90.
 
@@ -27,6 +27,7 @@ sys.path.insert(0, str(HERE.parent / "body"))
 sys.path.insert(0, str(HERE))
 import body as B  # noqa: E402
 import head as H  # noqa: E402
+import headb as HB  # noqa: E402
 import base as BASE  # noqa: E402
 
 # ---- Positions (3j) ---------------------------------------------------------
@@ -41,25 +42,25 @@ TOP_Z = B.TOP_Z                    # top of the head                            
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
 _BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
 TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 577.0  # extrusion from the spindle flange to the neck; top at 577 as the original's tube   derived [3j]
-NECK_Z1 = 621.0                    # top of the neck / bottom of the head         derived [3j]
-ARM_Y0, ARM_Y1 = 25.0, 70.0        # C-arm bar, +Y side                           derived [3j], by eye
-ARM_X = 50.0
-HEAD_X, HEAD_Y, HEAD_Z = 60.0, 72.0, TOP_Z - NECK_Z1   # camera housing           derived [3j]
 CAM_Y = B.CAM_Y                    # 28 right of the centreline                   derived [S8], confirmed [3j]
 CAM_AXIS_Z = 660.0                 # CAM-1 optical axis height                    stated [S12]
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]
-CAM_TUBE = B.CAM_TUBE              # 73 x 35 x 35                                 stated [S12]
+assert (HB.TX, HB.CY, HB.AZ, HB.FX, HB.Z_EXT) == (TUBE_X, CAM_Y, CAM_AXIS_Z, CAM_FRONT_X, TUBE_Z1)
 
 # ---- Replica masses, kg (ASSUMPTION unless from a catalogue) -----------------------------
-# printed shells: volume of the CAD shells x PETG density (head.py); servos 55 g each (retailers); camera module 4 g (ASSUMPTION); hardware 0.02
-MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "camera module": H.MODULE_MASS, "hardware": 0.02}
+# bracket: volume x 2.68 g/cm3 (aluminium sheet); printed parts: volume x PETG; the sideways disk is printed with a hollow core (mass ASSUMPTION);
+# servos 55 g each (retailers); the camera body stands in for a Camera Module 3 (4 g) and its printed mount (ASSUMPTION 10 g); hardware 0.02
+AL_G_CM3 = 2.68
+DISK_KG = 0.015
+CAMBODY_KG = 0.010
+MASSES = {"pan and tilt servos": 2 * H.SERVO_MASS, "hardware": 0.02}
+PRINTED_HEAD = ("enclosure", "antenna hat", "cradle", "collar", "baffle", "hood")
 
 
 def parts():
     base = Pos(TUBE_X, 0, (BASE_Z0 + BASE_Z1) / 2) * Box(PLATE_XY, PLATE_XY, PLATE_T)
     tube = Pos(TUBE_X, 0, (TUBE_Z0 + TUBE_Z1) / 2) * Box(EXT, EXT, TUBE_Z1 - TUBE_Z0)   # slots ignored, as in frame.py
-    hp, axes = H.build(TUBE_X, TUBE_Z1, NECK_Z1, TOP_Z, TUBE_W, ARM_X, ARM_Y0, ARM_Y1, HEAD_X, HEAD_Y, CAM_Y, CAM_AXIS_Z, CAM_FRONT_X, CAM_TUBE)
-    hp = {k: v for k, v in hp.items() if k != "pan servo"}          # the pan servo is in the base now
+    hp = HB.head()
     return {"base": base, "tube": tube, **hp, **_BASE_PARTS}
 
 
@@ -69,11 +70,13 @@ def cg_and_moment():
     c = lambda n: rot[n].center()
     pts.append((PLATE_XY * PLATE_XY * PLATE_T / 1e3 * 2.70 / 1000.0, c("base").X, c("base").Z))                 # aluminium plate
     pts.append(((TUBE_Z1 - TUBE_Z0) / 1000.0 * EXT_KG_PER_M, c("tube").X, c("tube").Z))                          # extrusion
-    for n in ("neck", "arm", "head", "camera"):                                                                    # printed shells, by volume
+    pts.append((rot["bracket"].volume / 1e6 * AL_G_CM3, c("bracket").X, c("bracket").Z))
+    for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
+    pts.append((DISK_KG, c("disk").X, c("disk").Z))
+    pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     for n in ("pan servo", "tilt servo"):
         pts.append((H.SERVO_MASS, c(n).X, c(n).Z))
-    pts.append((H.MODULE_MASS, c("camera module").X, c("camera module").Z))
     pts.append((MASSES["hardware"] + _BASE_INFO["hardware_kg"], TUBE_X, B.DECK_TOP_Z + 30.0))
     pts.append((_BASE_INFO["housing_kg"], c("pan housing").X, c("pan housing").Z))
     pts.append((_BASE_INFO["al_kg"], c("spindle").X, c("spindle").Z))
@@ -91,59 +94,33 @@ def _vol(a, b):
 
 
 def head_checks(p):
-    """Fit and sweep checks for the head: servos and camera inside their shells, no clashes, pan and tilt sweeps."""
+    """Head checks: tilt servo between the bracket flanges, pan sweep of the whole turning mast, tilt sweep of the camera unit."""
     ax_p = Axis((TUBE_X, 0, 0), (0, 0, 1))
     ax_t = Axis((TUBE_X, 0, CAM_AXIS_Z), (0, 1, 0))
-    print("\nhead: parts inside their shells and clear of each other (mm3, want 0)")
-    inner = lambda x0, x1, y0, y1, z0, z1: H._box(x0, x1, y0, y1, z0, z1)
-    w = H.WALL
-    neck_in = inner(TUBE_X - TUBE_W / 2 + w, TUBE_X + TUBE_W / 2 - w, -TUBE_W / 2 + w, ARM_Y1 - w, TUBE_Z1 + w, NECK_Z1 - w)
-    arm_in = inner(TUBE_X - ARM_X / 2 + w, TUBE_X + ARM_X / 2 - w, ARM_Y0 + w, ARM_Y1 - w, NECK_Z1 + w, TOP_Z - 10 - w)
-    tube_in = inner(CAM_FRONT_X - CAM_TUBE[0] + w, CAM_FRONT_X - w, CAM_Y - CAM_TUBE[1] / 2 + w, CAM_Y + CAM_TUBE[1] / 2 - w,
-                    CAM_AXIS_Z - CAM_TUBE[2] / 2 + w, CAM_AXIS_Z + CAM_TUBE[2] / 2 - w)
-    for n, cav in (("tilt servo", arm_in), ("camera module", tube_in)):
-        out = p[n].volume - _vol(p[n], cav)
-        print(f"  {n:14s} outside its cavity {out:8.1f}")
-    for a, b in (("pan servo", "neck"), ("tilt servo", "arm"), ("tilt servo", "head"), ("camera module", "camera"), ("camera", "head"), ("tilt servo", "camera")):
-        v = _vol(p[a], p[b])
-        print(f"  {a:14s} vs {b:12s}: {v:8.1f}")
+    br = p["bracket"].bounding_box()
     tv = p["tilt servo"].bounding_box()
-    print(f"  tilt servo y {tv.min.Y:.1f}..{tv.max.Y:.1f} in an arm cavity y {ARM_Y0 + w:.0f}..{ARM_Y1 - w:.0f}; x {tv.min.X:.1f}..{tv.max.X:.1f} in {TUBE_X - ARM_X / 2 + w:.0f}..{TUBE_X + ARM_X / 2 - w:.0f}; "
-          f"z {tv.min.Z:.1f}..{tv.max.Z:.1f} in {NECK_Z1 + w:.0f}..{TOP_Z - 10 - w:.0f}")
-    # pan sweep: arm, head, camera tube, module, tilt servo turn about the mast axis
+    print("\nhead: tilt servo between the bracket flanges (inner width 40) and under its top, clear of the sheet (mm3, want 0)")
+    print(f"  tilt servo vs bracket: {_vol(p['tilt servo'], p['bracket']):.1f}; servo x {tv.min.X:.1f}..{tv.max.X:.1f} y {tv.min.Y:.1f}..{tv.max.Y:.1f} z {tv.min.Z:.1f}..{tv.max.Z:.1f}; "
+          f"bracket x {br.min.X:.1f}..{br.max.X:.1f} y {br.min.Y:.1f}..{br.max.Y:.1f} z {br.min.Z:.1f}..{br.max.Z:.1f}")
+    print(f"  bracket vs extrusion: {_vol(p['bracket'], p['tube']):.1f}; disk vs bracket {_vol(p['disk'], p['bracket']):.1f}; enclosure vs bracket {_vol(p['enclosure'], p['bracket']):.1f}")
+    turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
     static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
-    moving = Compound([p[n] for n in ("neck", "tube", "spindle", "arm", "head", "camera", "camera module", "tilt servo")])
+    moving = Compound([p[n] for n in turning])
     worst = 0.0
     for deg in range(-180, 181, 30):
         m_ = moving.rotate(ax_p, deg)
-        v = sum(_vol(m_, s_) for s_ in static)
-        worst = max(worst, v)
-    print(f"\npan sweep, -180 to +180 degrees in 30 degree steps: overlap of the whole turning mast (spindle, extrusion, neck, arm, head) with the base plate, pan housing, servo and bearings: worst {worst:.1f} mm3")
-    # tilt sweep: the camera tube and its module turn about the tilt axis
-    tilting = Compound([p["camera"], p["camera module"]])
-    print("tilt sweep: camera tube and module about the tilt axis (x %.1f, z %.0f), overlap with the head shell, neck, arm and tilt servo (mm3):" % (TUBE_X, CAM_AXIS_Z))
-    first_bad = {1: None, -1: None}
-    for sgn in (1, -1):
-        for deg in range(0, 76, 5):
-            t_ = tilting.rotate(ax_t, sgn * deg)
-            v = _vol(t_, p["head"]) + _vol(t_, p["neck"]) + _vol(t_, p["arm"]) + _vol(t_, p["tilt servo"])
-            if v > 1.0 and first_bad[sgn] is None:
-                first_bad[sgn] = deg
+        worst = max(worst, sum(_vol(m_, s_) for s_ in static))
+    print(f"\npan sweep, -180 to +180 degrees in 30 degree steps: overlap of the whole turning mast with the base plate, pan housing, servo and bearings: worst {worst:.1f} mm3")
+    unit = Compound([p[n] for n in HB.TILTING])
+    fixed = [p["bracket"], p["tilt servo"], p["tube"]]
+    print("tilt sweep, the camera unit (disk, enclosure, hat, camera) about the tilt axis (x %.1f, z %.0f), overlap with the bracket, tilt servo and extrusion:" % (TUBE_X, CAM_AXIS_Z))
     for sgn, nm in ((1, "positive"), (-1, "negative")):
-        print(f"  {nm} tilt: first contact at {first_bad[sgn] if first_bad[sgn] is not None else 'none up to 75'} degrees (the original tilts plus or minus 75 degrees [S19])")
-    # alternative: the whole camera head (housing, tube, module) tilts as one unit about the same axis
-    unit = Compound([p["head"], p["camera"], p["camera module"]])
-    first_unit = {1: None, -1: None}
-    for sgn in (1, -1):
-        for deg in range(0, 76, 5):
+        first = None
+        for deg in range(0, 91, 5):
             u_ = unit.rotate(ax_t, sgn * deg)
-            v = _vol(u_, p["neck"]) + _vol(u_, p["arm"]) + _vol(u_, p["tilt servo"]) + _vol(u_, p["tube"])
-            if v > 1.0 and first_unit[sgn] is None:
-                first_unit[sgn] = deg
-    for sgn, nm in ((1, "positive"), (-1, "negative")):
-        print(f"  whole head tilting as one unit, {nm}: first contact at {first_unit[sgn] if first_unit[sgn] is not None else 'none up to 75'} degrees (with the neck, arm, tilt servo or extrusion)")
-    ub = unit.bounding_box()
-    print(f"  the head unit spans z {ub.min.Z:.0f} to {ub.max.Z:.0f}; its lowest corner at 75 degrees would reach about z {CAM_AXIS_Z - math.hypot(HEAD_X / 2, (TOP_Z - NECK_Z1) / 2):.0f} against the neck top at {NECK_Z1:.0f}")
+            if sum(_vol(u_, f_) for f_ in fixed) > 1.0 and first is None:
+                first = deg
+        print(f"  {nm} tilt: first contact at {first if first is not None else 'none up to 90'} degrees (the original tilts plus or minus 75 degrees [S19])")
 
 
 if __name__ == "__main__":
