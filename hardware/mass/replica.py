@@ -113,12 +113,14 @@ if __name__ == "__main__":
     # levers: what saves mass
     g = {k: v[0] for k, v in groups.items()}
     plates_kg = sum(m for gg, n, m, p in items if gg.startswith("link plates") and n.startswith("plate"))
-    print("\nwhere a second pass could save mass (arithmetic on the numbers above):")
-    print(f"  link plates 8 mm -> 4 mm aluminium: {plates_kg / 2:.2f} kg saved")
+    print("\nwhere a second pass could save mass (arithmetic on the numbers above; hardware/mass/levers notes in docs/replica-mass.md):")
+    print(f"  link plates 8 mm -> 6 / 5 / 4 mm aluminium: {plates_kg * 0.25:.2f} / {plates_kg * 0.375:.2f} / {plates_kg * 0.5:.2f} kg saved (both plates)")
     shell = sum(m for gg, n, m, p in items if gg == "panels")
-    print(f"  panels 2 mm -> 1.5 mm (walls only, deck as is): about {shell * 0.2:.2f} kg")
-    frame = g["T-slot frame"]
+    print(f"  panels 2 mm -> 1.5 mm (walls only, deck as is): about {shell * 0.2:.2f} kg (panel stiffness not checked)")
     mid = sum(m for gg, n, m, p in items if gg == "T-slot frame" and n.startswith(("mid side", "differential cross")))
     print(f"  drop the two mid rails and the differential cross rails (not possible if they hold the differential): up to {mid:.2f} kg")
     wheel = g["wheels"]
-    print(f"  wheels at 50 percent effective fill instead of solid: {wheel * 0.5:.2f} kg saved")
+    print(f"  wheel material PETG 1.27 -> ASA 1.07 / nylon 1.01 g/cm3: {wheel * (1 - 1.07 / 1.27):.2f} / {wheel * (1 - 1.01 / 1.27):.2f} kg (the wheel is mostly 2 to 3 mm features, so a 50 percent fill is not credible)")
+    ext = (MAST.TUBE_Z1 - MAST.TUBE_Z0) / 1000.0
+    print(f"  mast column 40 x 40 T-slot -> 60 x 60 x 2 / 50 x 50 x 2 aluminium tube: {ext * (1.86 - 1.25):.2f} / {ext * (1.86 - 1.04):.2f} kg")
+    print(f"  mast base plate 6 mm -> 3 mm: {MAST.PLATE_X * MAST.PLATE_Y * 3 * 2.70e-6:.2f} kg")

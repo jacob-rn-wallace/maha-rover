@@ -48,17 +48,18 @@ where a second pass could save mass (arithmetic on the numbers above):
   These are static, on a rigid chassis; the suspension (a pivoting link plate per side) and dynamics are not covered.
 - **Drive sizing:** the slope torque per wheel at 9.9 kg is 0.83 N.m, a little under the 0.84 N.m the motors were sized for.
 
-## Levers for a second pass (arithmetic on the numbers above)
+## Levers for a second pass (arithmetic on the numbers above; 2026-11-08, after the die-cast boxes)
 
-| Lever | Saves |
-|---|---|
-| Link plates 8 mm to 4 mm aluminium | about 0.46 kg |
-| Side, end and floor panels 2 mm to 1.5 mm | about 0.5 kg |
-| Wheels printed at about half effective fill | about 0.56 kg |
-| Mid rails and differential cross rails (they carry the differential, so only if it moves) | up to 0.45 kg |
-| Mast extrusion 40 x 40 to 30 x 30 (0.9 kg/m, catalogue) | about 0.2 kg |
+The replica is 0.50 kg over. The die-cast pan box and camera box added 0.30 kg over what the printed ones weighed, and the taller mast column and the bearing tower the rest.
 
-## Not covered
+| Lever | Saves | Notes |
+|---|---|---|
+| Link plates 8 mm to 4 mm aluminium (5 mm: 0.34 kg; 6 mm: 0.23 kg) | **0.45 kg** | Estimate on the plate's section at the pivot (about 60 mm high after the bore): in-plane stress 6.5 MPa and out-of-plane 51 MPa at 3 g with a 0.8 friction side load per wheel, against 240 yield; lateral tip deflection 0.8 mm per g of side load (about 2.3 mm at 3 g, camber about 1 degree) against 0.1 mm at 8 mm. The pivot boss stays. Beam estimate only, not an FE check |
+| Wheel material PETG to ASA (1.07 g/cm3) | 0.18 kg | Nylon (1.01): 0.23 kg. The wheel is mostly 2 to 3 mm features (rim band 3 mm, ribs, 0.8 mm grousers), so the earlier "half effective fill" lever (0.56 kg) is not credible; the printed wheel is close to solid |
+| Mast column 40 x 40 T-slot to a 60 x 60 x 2 aluminium tube | 0.10 kg | 50 x 50 x 2: 0.14 kg; matches the original's 57 to 59 mm column; loses the T-slots (the bracket and the spindle flange would bolt through the tube wall) |
+| Mast base plate 6 mm to 3 mm | 0.05 kg | |
+| Side, end and floor panels 2 mm to 1.5 mm | about 0.48 kg | Panel stiffness unchecked (four-point stiffness is an open item) |
+| Mid rails and differential cross rails | up to 0.45 kg | Only if the differential moves; they carry it |
+| Bracket 2 mm to 1.5 mm | 0.02 kg | |
 
-The weight of the connectors and wire beyond the allowances (the BMS, fuse block, bus bar, servo regulator and master switch are now in the electronics line, at assumed masses); paint, labels and adhesive; the real differential and its mounts; battery
-pack wrap and holder; any cable between the mast and the body beyond the harness allowance. Nothing here has been weighed.
+**A package that reaches the target without touching the chassis panels or frame:** plates to 4 mm (0.45), wheels in ASA (0.18), tube column (0.10), base plate to 3 mm (0.05): **0.78 kg, giving about 9.72 kg**. Without the wheel material change it is 0.60 kg (9.90 kg). Fewest changes for the 0.50: plates at 4 mm plus the base plate and the tube (0.60).
