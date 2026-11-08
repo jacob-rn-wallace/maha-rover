@@ -7,8 +7,8 @@ a 159.5 mm "commercial height", and puts the rover's mast 290 mm from it. The ow
 Position: x = mast x - 290 = -129.3 mm; y about +58 mm is my reading of the front view of [S18] Fig. 1, where a gold dome with a thin near-vertical rod rises at the right of the
 deck (`docs/original-dimensions.md` 3m); unverified. (The thin tilted rod at the rear end of the deck in that figure is probably a Langmuir probe, not this antenna.)
 
-The replica uses it for 2.4 GHz with an off-the-shelf dipole: the nearest found are the Taoglas GW.20.A151W (2 dBi, RP-SMA straight, 89.5 x 9.6 mm, white; listing) and the
-Adafruit 944 / Pi Hut swivel dipole (2 dBi, RP-SMA, 100 mm, 9.92 g; listing). Modelled with the first, on a 6 mm aluminium block. Frame as in body.py.
+The replica uses it for 2.4 GHz with an off-the-shelf dipole of the paper's length: the AIR802 ANRD2403-RSP (3 dBi, 13.5 x 158 mm, black, RP-SMA plug; listing) is modelled, on a 6 mm aluminium
+block; the 5 dBi ANRD2405-RPSMA (157.4 mm) is the alternative. Shorter ones: Taoglas GW.20.A151W (89.5 mm, white), Adafruit 944 swivel (100 mm, 9.92 g), LSR (105 mm, black); listings. Frame as in body.py.
 Run:  .venv/bin/python hardware/body/antenna.py
 """
 import sys
@@ -23,8 +23,8 @@ import body as B  # noqa: E402
 MAST_TO_ANTENNA = 290.0            # mm, stated [paper], mast to dipole
 ANT_X = B.MAST_X - MAST_TO_ANTENNA # -129.3
 ANT_Y = 58.0                       # my reading of the front view: unverified
-ANT_L, ANT_D = 89.5, 9.6           # Taoglas GW.20.A151W, listing
-MASS = 0.010 + 0.004               # kg: antenna about 10 g (the Adafruit listing gives 9.92 g for a similar one; the Taoglas mass was not found), mounting block ASSUMPTION
+ANT_L, ANT_D = 158.0, 13.5         # AIR802 ANRD2403-RSP, 3 dBi, 13.5 x 158 mm, black, RP-SMA plug (retailer listing); the paper's antenna is 159.5 mm
+MASS = 0.015 + 0.004               # kg: antenna 15 g (ASSUMPTION: a 158 mm rubber duck, mass not found; the shorter Adafruit 100 mm one lists 9.92 g), mounting block ASSUMPTION
 
 
 def build():

@@ -20,11 +20,11 @@ differential                         0.30      3%      0    146
 pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
 terminals, diodes, fuses             0.05      1%      0    255
-antennas and radios                  0.03      0%    -53    309
+antennas and radios                  0.04      0%    -63    338
 bushings                             0.02      0%     -0    146
 TOTAL                                9.98   target 10 kg: margin +0.02 kg
 
-centre of mass: x 21.1, y -0.2, z 228.6 (mm, ground at the rim line)
+centre of mass: x 21.0, y -0.2, z 228.8 (mm, ground at the rim line)
 static tip angles: nose-down 35 deg, nose-up 27 deg, sideways 47 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.07 g/cm3 solid (0.24 kg each), allowances 0.84 kg
 ```
