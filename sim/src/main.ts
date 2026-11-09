@@ -55,8 +55,13 @@ async function main() {
   scene.add(gltf.scene);
   const names = Object.keys(spec.bodies);
   const nodes: Record<string, THREE.Object3D> = Object.fromEntries(names.map((n) => [n, gltf.scene.getObjectByName(n)!]));   // look all up before re-parenting
-  const node = (n: string) => nodes[n];
-  for (const n of names) scene.attach(nodes[n]);            // body nodes move in world space: the physics drives each one
+  // each body gets a pivot at its physics origin that the physics drives; the glTF node hangs under it with whatever local transform the file gave it (the original file's nodes sat at the body
+  // origin, but a meshopt-compressed file puts a position offset and a scale on the node to undo the vertex quantisation, which setting the node's position from the physics would have overwritten)
+  gltf.scene.updateMatrixWorld(true);
+  const pivots: Record<string, THREE.Group> = {};
+  for (const n of names) { const p = new THREE.Group(); p.position.set(...(spec.bodies[n].origin_m as [number, number, number])); scene.add(p); p.updateMatrixWorld(true); pivots[n] = p; }
+  for (const n of names) pivots[n].attach(nodes[n]);
+  const node = (n: string) => pivots[n];
   (window as any).rover = { node, spec };
 
   const q = new URLSearchParams(location.search);
