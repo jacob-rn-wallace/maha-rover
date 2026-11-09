@@ -24,7 +24,11 @@ const hud = document.getElementById("hudtext")!;      // the text under the word
 const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
-const maxRatio = Math.min(devicePixelRatio, coarse ? 1.25 : 1.5);
+// The drawing buffer is capped in total pixels (default 2.1 million, a 1080p frame; ?maxpx=megapixels), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
+// (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
+const maxPixels = (Number(new URLSearchParams(location.search).get("maxpx")) || 2.1) * 1e6;
+const ratioCap = () => Math.min(devicePixelRatio, coarse ? 1.25 : 1.5, Math.sqrt(maxPixels / Math.max(1, canvas.clientWidth * canvas.clientHeight)));
+let maxRatio = ratioCap();
 let ratio = maxRatio;                                     // adaptive: lowered while frames take longer than FRAME_BUDGET, raised again when there is room (?res=1 fixes it at 1, ?res=auto is the default)
 renderer.setPixelRatio(ratio);
 const fixedRes = new URLSearchParams(location.search).get("res");
@@ -176,17 +180,18 @@ async function main() {
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
     hudT += dt;
-    fpsEma += ((1 / Math.max(dt, 1e-3)) - fpsEma) * 0.05;
     (window as any).__frames = ((window as any).__frames ?? 0) + 1;
     fpsEma += (1 / Math.max(dt, 1e-3) - fpsEma) * 0.05;
-    if (!fixedRes || fixedRes === "auto") {                  // adaptive resolution: a slow frame (a smoothed 1 / fps below 50) steps the pixel ratio down, a long run of fast frames steps it back up
+    if (!fixedRes || fixedRes === "auto") {
+      maxRatio = ratioCap(); if (ratio > maxRatio) { ratio = maxRatio; renderer.setPixelRatio(ratio); }
+      // adaptive resolution: a slow frame (a smoothed 1 / fps below 50) steps the pixel ratio down, a long run of fast frames steps it back up
       frameEma += (dt - frameEma) * 0.1; resNote++;
       if (resNote > 20) {
         if (frameEma > FRAME_BUDGET * 1.15 && ratio > 0.5) { ratio = Math.max(0.5, ratio * 0.85); renderer.setPixelRatio(ratio); resNote = 0; }
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)}, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
