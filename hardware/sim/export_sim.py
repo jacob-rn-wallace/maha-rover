@@ -261,6 +261,8 @@ def main():
     raw = {k: [] for k in BODIES}            # body -> triangles for the inertia
     wheel_mesh = {}                          # wheel body -> its rim-and-grouser vertices (glTF metres, hub-centred), for the collision hulls
     for g, n, s in items:
+        if n == "camera-link cable":                                      # not a mesh: the sim simulates it as a rope (spec["cable"])
+            continue
         b = body_of(g, n)
         pieces = [(material_key(g, n), refine(g, n, s))]
         if n == "lens":                                                   # visual detail: grooved barrel, glass, retaining ring
@@ -447,6 +449,11 @@ def main():
         bodies[b] = entry
     hx, hy, hz = HX * M, HY * M, HZ * M
     cam_x = HB.FX
+    path = HB.camera_link_path()                                          # the camera-link cable as a rope: 25 points along its spline, in the chassis frame; the ends are pinned to the head (tilting) and to the chassis
+    cp = np.array([[(path @ (k / 24)).X, (path @ (k / 24)).Y, (path @ (k / 24)).Z] for k in range(25)])
+    cable = {"radius_m": 0.00275, "colour_srgb": [20, 20, 22], "points_m": to_gl(cp - np.array(BODIES["chassis"])).round(5).tolist(),
+             "head_end_m": to_gl(cp[0] - np.array(BODIES["head"])).round(5).tolist(), "chassis_end_m": to_gl(cp[-1] - np.array(BODIES["chassis"])).round(5).tolist(),
+             "note": "centre line from headb.camera_link_path(); radius 2.75 mm (a 5.5 mm cord); the sim treats it as a rope"}
     spec = {
         "units": "metres, kilograms, seconds; axes are glTF (Y up, -Z is rover left, +X forward)",
         "source": "hardware/sim/export_sim.py from hardware/assembly/rover.py and hardware/mass/replica.py; docs/sim-spec.md",
@@ -454,6 +461,7 @@ def main():
         "wheel": {"radius_m": 0.100, "width_m": 0.080, "grousers": 14, "grouser_height_m": 0.015},
         "wheelbase_m": B.WHEELBASE * M, "track_m": B.TRACK * M,
         "bodies": bodies,
+        "cable": cable,
         "joints": [
             {"name": f"wheel{k}", "type": "revolute", "body": f"wheel{k}", "parent": "link" + k[1], "axis": [0, 0, -1], "actuated": True,
              "note": "axis is rover +Y (glTF (0,0,-1)); the rover rolls forward for a positive rotation about it with the right-hand rule"} for k in WHEELS

@@ -196,16 +196,22 @@ def tx_board():
     return board, plug
 
 
+def camera_link_path():
+    """the camera-link cable's centre line (a build123d Spline, mm): head gland to the deck gland"""
+    from build123d import Spline
+    xc = ENC_X1 - ENC_X / 2
+    y1 = CY - ENC_Y / 2
+    pts = [(GLAND_X, y1 - GLAND_OUT - 2.0, AZ), (xc + 8.0, -92.0, 620.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
+    return Spline(*pts)
+
+
 def camera_link_cable():
     """The round camera-link cable as the original's harness is seen in the photographs of the flight-model rover: not clipped to the mast, but left hanging in a loose loop from the head's -y side
     connector down to the body (orange Kapton-wrapped bundles, free loops, a few cable ties near the base). It leaves the camera box's -y wall through the gland hole (the Tx board is inside the box), swings out on the -y side and drops to the deck gland beside
     the base plate; the loop has slack for the tilt (about 100 mm) and for the pan (the head circles the axis at 72 mm, so the end-to-end distance changes by up to 144 mm). A sweep of a Ø5.5 round
     cord along a spline, for the picture and the clearance checks; it does not tilt with the head. Not part of the mass (counted separately in replica.py)."""
-    from build123d import Circle, Plane, Spline, sweep
-    xc = ENC_X1 - ENC_X / 2
-    y1 = CY - ENC_Y / 2
-    pts = [(GLAND_X, y1 - GLAND_OUT - 2.0, AZ), (xc + 8.0, -92.0, 620.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
-    path = Spline(*pts)
+    from build123d import Circle, Plane, sweep
+    path = camera_link_path()
     prof = Plane(origin=path @ 0, z_dir=path % 0) * Circle(2.75)
     return sweep(prof, path)
 

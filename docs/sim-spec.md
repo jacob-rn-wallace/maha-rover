@@ -199,3 +199,7 @@ Same machine (Apple M1-class, 117.5 Hz display, window 2009x1134, buffer 1331x75
 
 - Rover: parts with the default finish (the electronics, boards, fuses, frame hardware: metal 0.15, roughness 0.45) now share one `interior` material per body with per-vertex colours (`COLOR_0`), so the rover is 35 draw calls, down from 46 (chassis 20 to 9). Bodies cannot merge with each other: they move separately under physics.
 - Terrain: the fixed 10 m tile level (500,000 triangles, drawn whole every frame) is cut into 10 x 10 chunk meshes over the shared vertex buffers, each with a bounding sphere, so the frustum culling drops the chunks behind the camera. Measured gain: not yet; `?bench=1&fps=0` reports the triangle count drawn.
+
+### Camera-link cable as a rope
+
+The cable was a fixed mesh and stayed put when the head panned. The exporter now drops that mesh and writes the cable's centre line (25 points from `headb.camera_link_path()`, radius 2.75 mm) into `rover.json` (`cable`). `sim/src/cable.ts` simulates it: Verlet points with stretch constraints plus "shape memory" constraints on every second and third neighbour, so it keeps the designed loop and swings with the head and the rover. Ends pinned: the head end to the head body (tilts and pans with it), the other to the deck gland on the chassis. Lunar gravity, damping 0.985 per 1/120 s step. No collision with the body or ground. Stiffness and damping are tuning choices (ASSUMPTION), not measurements. Checked by screenshot at rest and at pan -160 degrees.

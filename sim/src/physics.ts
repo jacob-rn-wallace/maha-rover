@@ -11,7 +11,7 @@ export interface BodySpec {
   inertia_principal_kgm2?: number[]; inertia_frame_quat_xyzw?: number[];
   collider_hull_points_m?: number[]; grouser_hulls_m?: number[][];
 }
-export interface Spec { total_mass_kg: number; camera: { position_m: [number, number, number]; fov_deg_vertical_approx: number }; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; }
+export interface Spec { total_mass_kg: number; camera: { position_m: [number, number, number]; fov_deg_vertical_approx: number }; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; cable?: import("./cable").CableSpec; }
 
 import { MOTOR, WHEELS } from "./constants";
 export { MOTOR, WHEELS };

@@ -10,6 +10,7 @@ import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { applyMetalDetail } from "./metal";
+import { Cable } from "./cable";
 import { Minimap } from "./minimap";
 import { PerfLog, downloadJson } from "./perfLog";
 import { Power } from "./power";
@@ -68,6 +69,8 @@ async function main() {
   for (const n of names) { const p = new THREE.Group(); p.position.set(...(spec.bodies[n].origin_m as [number, number, number])); scene.add(p); p.updateMatrixWorld(true); pivots[n] = p; }
   for (const n of names) pivots[n].attach(nodes[n]);
   const node = (n: string) => pivots[n];
+  const cable = spec.cable ? new Cable(spec.cable, pivots.chassis, pivots.head) : null;
+  if (cable) scene.add(cable.mesh);
   (window as any).rover = { node, spec };
 
   const q = new URLSearchParams(location.search);
@@ -95,6 +98,7 @@ async function main() {
     }
     if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) {
       applyTerrainShadow(lunar.groundMaterial, ts);
+      if (cable) applyTerrainShadow(cable.mesh.material as THREE.Material, ts);
       for (const n of names) nodes[n].traverse((o) => { const m = (o as THREE.Mesh).material; if (m) for (const x of Array.isArray(m) ? m : [m]) applyTerrainShadow(x, ts); });
     } else console.warn("terrain shadow textures are for another sun: not applied (run hardware/sim/terrain/shadow.py)");
     let rocks: RockField | undefined;
@@ -200,6 +204,7 @@ async function main() {
       node(n).position.set(t.x, t.y, t.z);
       node(n).quaternion.set(r.x, r.y, r.z, r.w);
     }
+    cable?.update(dt);
     const c = phys.bodies.chassis, ct = c.translation();
     const delta = new THREE.Vector3(ct.x, ct.y + 0.25, ct.z).sub(chase);
     chase.add(delta); camera.position.add(delta); controls.target.copy(chase);
