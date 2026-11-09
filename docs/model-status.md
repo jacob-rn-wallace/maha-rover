@@ -27,8 +27,8 @@ Checks run in the scripts: every part fits inside the cavity (0 mm3 outside, no 
 
 ## Placeholder or assumed sizes
 
-The battery (a 68 x 38 x 38 mm box in place of the real cells and holder), the BMS, the power node and the charger module are boxes. The GNSS breakout and the CSI extender boards are placeholder sizes
-(the Arducam board sizes in particular are guesses). The gussets' number and size are read by eye. The bearings, the GNSS patch (15 g), GNSS board (8 g) and dipole (15 g) masses are assumptions, and
+The battery (a 68 x 38 x 38 mm box in place of the real cells and holder), the BMS, the power node and the charger module are boxes. The GNSS breakout is a placeholder size
+(the CSI extender boards are now the measured Arducam B0091, from its vendor STEP, with the Tx board inside the camera box; their mass, standoff fixing and ribbon route are not designed). The gussets' number and size are read by eye. The bearings, the GNSS patch (15 g), GNSS board (8 g) and dipole (15 g) masses are assumptions, and
 0.84 kg of the mass is allowances for the unmodelled items below.
 
 ## Not modelled, though designed in the docs
@@ -47,7 +47,7 @@ between panels, and the stiffness of the side panels (65 mm overhang beyond the 
 ## Unverified
 
 The depth of the recessed end faces (taken from the owner's reading of the CAD models; the dense cloud had it shallower, and the perspective views hint that the lower and upper parts may differ); the gusset size;
-the 2.4 GHz antenna position (y +58); whether the CSI extender works with a Pi Zero and its Tx takes the 15-pin ribbon directly; whether the Waveshare servo adapter works at 6 V; the deck's stiffness under the mast
+the 2.4 GHz antenna position (y +58); whether the B0091 CSI extender works with a Pi Zero and takes the HQ camera's 15-pin ribbon directly; whether the Waveshare servo adapter works at 6 V; the deck's stiffness under the mast
 (estimated in `frame-spec.md`, not analysed); the hat size (70 mm against the original's 84).
 
 ## Original features left out (open decision)

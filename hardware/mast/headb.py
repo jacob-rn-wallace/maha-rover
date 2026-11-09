@@ -41,7 +41,8 @@ def cyl_y(y0, y1, x, z, r):
 # listing), 49 g [PiShop SKU 485-1, a retailer listing; no maker named]. The original's 3DCM739 camera is a 4 MP, f/8, 7.8 mm, 82 x 82 degree unit [S12].
 HQ_PCB, HQ_T, HQ_RING_D, HQ_RING_L, HQ_REAR = 38.0, 1.4, 36.0, 10.35, 5.71
 LENS_D, LENS_L = 30.0, 42.0
-LENS_FRONT = FX - 8.0                             # the lens front sits 8 mm behind the hood face, like the original's recessed front element
+CAM_SHIFT = 0.0                                   # the camera stack's shift forward to make room for the CSI extender board: not needed since the audio jack is removed from the Tx board (2026-11-08), so 0; with the jack kept it was 2.5 mm
+LENS_FRONT = FX - 8.0 + CAM_SHIFT                 # the lens front sits 8 mm behind the hood face, like the original's recessed front element
 HQ_KG, LENS_KG = 0.050, 0.049                     # retailer figures; the CS variant of the HQ camera is assumed to weigh the same as the listed M12 one
 HOOD_ANGLE = 0.0                                  # the window of the hood is square to the box (the flight photo [S5] Fig. 8 shows it turned a few degrees; the CAD figure does not)
 
@@ -132,7 +133,7 @@ def enclosure():
     cover = cover - cyl_x(x1 - ENC_WALL - 1.0, x1 + 1.0, CY, AZ, 17.5)
     ys0, ys1 = CY + hy - ENC_WALL - 1.0, CY + hy + 1.0                                                  # the +y side wall carries the disk
     xc_ = ENC_X1 - ENC_X / 2
-    base = base - box(xc_ - 10.0, xc_ + 10.0, CY - hy - 1.0, CY - hy + ENC_WALL + 1.0, AZ - 13.5, AZ - 10.5)   # 20 x 3 slot in the -y wall for the camera ribbon to the extender pod
+    base = base - cyl_y(CY - hy - 1.0, CY - hy + ENC_WALL + 1.0, GLAND_X, AZ, GLAND_D / 2)           # cable gland hole in the -y wall for the HDMI cord of the CSI extender (inside the box)
     for sx in (-1, 1):
         for sz in (-1, 1):
             base = base - cyl_y(ys0, ys1, TX + sx * 12.7, AZ + sz * 12.7, 1.7)                           # four M3 clearance holes on a Ø36 circle (into threads tapped in the disk's ring)
@@ -144,35 +145,64 @@ def enclosure():
     return base + cover
 
 
-TX_BOARD_KG = 0.010                               # ASSUMPTION: the Arducam extension kit's Tx board, mass not found (package 20 to 50 g with a 1 m cable)
+TX_BOARD_KG = 0.010                               # ASSUMPTION: the Tx board's mass was not found (the STEP gives no mass)
+
+# CSI extender, Arducam B0091 (CSI to HDMI, 15-pin 60 mm FPC), inside the camera box behind the HQ board. Sizes are measured from the manufacturer's 3D drawing UC-392(B0091).STEP
+# (read 2026-11-08; derived from its solids' bounding boxes, a mirror of the model is NOT kept in this repo): PCB 25.2 x 27.8 x 1.67 mm; HDMI receptacle 15 wide x 12 long x 6.08 above the PCB
+# top (its mouth 0.45 mm past the board edge); FPC connector 21.3 x 7.6 x 2.7 on the top face near the far end; the 3.5 mm audio (headphone) jack, 12 x 6 x 4.9, and a 2 x 5 x 5 stub on the underside there (datasheet: the jack is an unused spare for audio or GPIO signals): DESOLDERED in this design (owner, 2026-11-08), so they are not modelled; the receptacle's pins stand 0.53 below the PCB. Four Ø2 holes (M2, datasheet drawing: 21.0 x 12.5 apart, 2.0 from the sides, the far row 2.1 from the far end; STEP agrees) hold it; the kit ships four M2 screws and spacers.
+TXB_W, TXB_L, TXB_T = 25.2, 27.83, 1.67
+TXB_RECEPT = (15.0, 12.0, 6.08)                   # width, length, height above the PCB top; X offset 5.0 from one board edge, Y -0.55..11.45 (mouth at Y -0.55)
+TXB_PINS = 0.53                                   # the receptacle's pins stand this far below the PCB bottom (STEP z -2.2 against -1.67); the audio jack (12 x 6 x 4.87 under the board) is desoldered and not modelled
+TXB_FPC = (21.3, 7.6, 2.65)                       # FPC connector on the top face, X 1.85..23.15, Y 16.1..23.7
+TXB_Y_FAR = 23.8                                  # far end of the board from the box axis (CY): the four M3 screw heads that hold the disk stand about 3 mm into the cavity from the +y wall (to 25.3), so 1.5 mm clear
+TXB_STANDOFF = 3.0                                # M2 standoffs from the box's inner back wall (x FX - 73) to the PCB's underside: 0.53 pins plus 2.47 clearance (a stock 3 mm M2 standoff) (ASSUMPTION: M2 threaded studs tapped into the wall's inner face, not through it, so the IP65 wall stays closed)
+TXB_HOLES = [(2.0, 13.2), (23.0, 13.2), (2.0, 25.7), (23.0, 25.7)]   # M2 holes: across the board (z), along it from the mouth edge (y); datasheet 21.0 x 12.5, STEP centres
+GLAND_D = 10.0                                    # hole in the -y wall for the HDMI cord (a grommet or small gland; ASSUMPTION)
+GLAND_X = FX - 73.0 + TXB_STANDOFF + TXB_T + TXB_RECEPT[2] / 2   # centred on the receptacle
+PLUG_H, PLUG_W = 6.0, 14.0                        # a slim HDMI plug as the cord's end (ASSUMPTION: shell 14 x 4.5, a slim boot at most 6 mm tall); a normal moulded boot (about 10 to 14 mm) will not fit
 
 
-def tx_pod():
-    """The CSI extender's Tx board in a small aluminium pod on the box's -y wall (where the original has a blue connector housing, [S18] Fig. 1): the camera's ribbon comes through a slot in the
-    wall; the RJ45 jack faces down and the round cable leaves through a hole in the pod's floor, runs under the box to the +y side and wraps the disk's rim (it stays outside the box because its
-    plug, about 13.5 x 12 mm, will not pass the box's cavity). Board 35 x 25 mm with a 16 x 21 x 13 mm jack and the pod's 1.5 mm walls are ASSUMPTIONS: the kit's board size was not found."""
-    xc = ENC_X1 - ENC_X / 2
-    y1 = CY - ENC_Y / 2                                         # the box's -y face
-    y0 = y1 - 21.0
-    outer = box(xc - 17.0, xc + 17.0, y0, y1, AZ - 17.0, AZ + 17.0)
-    inner = box(xc - 15.5, xc + 15.5, y0 + 1.5, y1 + 1.0, AZ - 15.5, AZ + 15.5)
-    pod = outer - inner
-    pod = pod - cyl_z_hole(xc, y1 - 12.0, AZ - 18.0, AZ - 14.0, 7.5)                              # Ø15 cable exit in the pod's floor
-    pod = pod - box(xc - 10.0, xc + 10.0, y1 - 1.0, y1 + 1.0, AZ - 13.5, AZ - 10.5)                  # the ribbon slot continues through the pod's open face (box side)
-    pcb = box(xc - 17.5 + 2.0, xc + 17.5 - 2.0, y1 - 4.6, y1 - 3.0, AZ - 12.5, AZ + 12.5)
-    jack = box(xc - 8.0, xc + 8.0, y1 - 17.6, y1 - 4.6, AZ - 14.0, AZ + 7.0)
-    return pod, pcb + jack
+def _txb_x():
+    """x of the pin tips, PCB bottom, PCB top, receptacle top. Orientation: the PCB on four 3 mm M2 standoffs from the box's back wall, the receptacle toward the camera."""
+    xp0 = FX - 73.0 + TXB_STANDOFF                 # PCB bottom, on its standoffs
+    xb0 = xp0 - TXB_PINS                           # the receptacle pins' tips
+    xp1 = xp0 + TXB_T                              # PCB top face
+    xr1 = xp1 + TXB_RECEPT[2]                      # receptacle top
+    return xb0, xp0, xp1, xr1
+
+
+def tx_board():
+    """The extender's Tx board in the camera box: the board plane is perpendicular to the camera axis, the HDMI mouth faces the -y wall (the board's long side runs along y), receptacle toward the
+    camera. Simplified blocks from the vendor drawing's measurements. Returns (board with parts, plug)."""
+    xb0, xp0, xp1, xr1 = _txb_x()
+    y_open = CY + TXB_Y_FAR - TXB_L                # the board's mouth-end edge
+    zc = AZ                                        # board centred on the camera axis height
+    z0 = zc - TXB_W / 2
+    pcb = box(xp0, xp1, y_open, y_open + TXB_L, z0, z0 + TXB_W)
+    rec = box(xp1, xr1, y_open - 0.45, y_open - 0.45 + TXB_RECEPT[1], z0 + 5.0, z0 + 5.0 + TXB_RECEPT[0])
+    fpc = box(xp1, xp1 + TXB_FPC[2], y_open + 16.07, y_open + 16.07 + TXB_FPC[1], z0 + 1.85, z0 + 1.85 + TXB_FPC[0])
+    for (hz_, hy_) in TXB_HOLES:
+        pcb = pcb - cyl_x(xp0 - 1.0, xp1 + 1.0, y_open + hy_, z0 + hz_, 1.0)
+    posts = None
+    for (hz_, hy_) in TXB_HOLES:
+        st = cyl_x(FX - 73.0, xp0, y_open + hy_, z0 + hz_, 2.25) - cyl_x(FX - 73.0 - 1.0, xp0 + 1.0, y_open + hy_, z0 + hz_, 1.0)   # hex standoff 4 mm across flats, taken as Ø4.5
+        posts = st if posts is None else posts + st
+    board = pcb + rec + fpc + posts
+    xm = (xp1 + xr1) / 2
+    wall = CY - ENC_Y / 2 + ENC_WALL
+    plug = box(xm - PLUG_H / 2, xm + PLUG_H / 2, wall, y_open - 0.45, zc - PLUG_W / 2, zc + PLUG_W / 2)     # from the mouth to the wall's inner face; the cord leaves through the gland hole
+    return board, plug
 
 
 def camera_link_cable():
     """The round camera-link cable as the original's harness is seen in the photographs of the flight-model rover: not clipped to the mast, but left hanging in a loose loop from the head's -y side
-    connector down to the body (orange Kapton-wrapped bundles, free loops, a few cable ties near the base). It leaves the Tx pod's floor, swings out on the -y side and drops to the deck gland beside
+    connector down to the body (orange Kapton-wrapped bundles, free loops, a few cable ties near the base). It leaves the camera box's -y wall through the gland hole (the Tx board is inside the box), swings out on the -y side and drops to the deck gland beside
     the base plate; the loop has slack for the tilt (about 100 mm) and for the pan (the head circles the axis at 72 mm, so the end-to-end distance changes by up to 144 mm). A sweep of a Ø5.5 round
     cord along a spline, for the picture and the clearance checks; it does not tilt with the head. Not part of the mass (counted separately in replica.py)."""
     from build123d import Circle, Plane, Spline, sweep
     xc = ENC_X1 - ENC_X / 2
     y1 = CY - ENC_Y / 2
-    pts = [(xc, y1 - 12.0, AZ - 18.0), (xc + 8.0, -92.0, 600.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
+    pts = [(GLAND_X, y1 - 3.0, AZ), (xc + 8.0, -92.0, 620.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
     path = Spline(*pts)
     prof = Plane(origin=path @ 0, z_dir=path % 0) * Circle(2.75)
     return sweep(prof, path)
@@ -218,11 +248,11 @@ def head(z_ext=Z_EXT):
     hz = AZ + ENC_Z / 2                                                                                     # top of the box (z 696); the flat hat sits on the cover's top face up to z 700
     parts["antenna hat"] = Pos(xc, CY, hz + HAT_T / 2) * Cylinder(35.0, HAT_T)                                 # aluminium ground-plane disc, Ø70 x 1.5 mm
     parts["GNSS patch"] = box(xc - 17.5, xc + 17.5, CY - 17.5, CY + 17.5, hz + HAT_T, hz + HAT_T + 4.0)       # GNSS L1 ceramic patch, 35 x 35 x 4 mm (top at z 701.5)
-    parts["Tx pod"], parts["CSI extender Tx"] = tx_pod()
+    parts["CSI extender Tx"], parts["HDMI plug"] = tx_board()
     parts["camera-link cable"] = camera_link_cable()
     c = camera()
     parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
 
 
-TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood", "Tx pod", "CSI extender Tx")
+TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood", "CSI extender Tx", "HDMI plug")

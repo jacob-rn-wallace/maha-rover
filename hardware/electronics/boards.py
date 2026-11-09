@@ -163,20 +163,20 @@ def bus_servo_adapter(standoff=5.0):
 
 
 
-def csi_extender_board(standoff=5.0):
-    """One board of the Arducam LAN cable extension kit (Tx or Rx are alike): CSI-2 over an RJ45 patch cable, rated to 10 m, for the HQ camera. Board size, jack position and mass were not found
-    (listings give the kit's package weight, 20 to 50 g with a 1 m cable): this is a placeholder of 35 x 25 mm with a standard RJ45 jack (16 x 21 x 13 mm) at one end and a 15-pin FPC connector at the
-    other, all ASSUMPTION."""
-    L, W, T = 35.0, 25.0, 1.6
+def csi_extender_board(standoff=3.0):
+    """One board of the Arducam B0091 CSI-to-HDMI extension kit (Tx and Rx are alike), for the HQ camera. Outline and parts from the manufacturer's 3D drawing UC-392(B0091).STEP (read 2026-11-08;
+    sizes only, the file is not copied here): PCB 25.2 x 27.83 x 1.67 mm with four Ø2 mounting holes (M2; datasheet drawing 21.0 x 12.5 apart, the STEP agrees), an HDMI receptacle 15 x 12 x 6.08 above the PCB top at one end (its
+    mouth 0.45 mm past the edge), a 15-pin FPC connector 21.3 x 7.6 x 2.65 on the top face and the 3.5 mm audio jack, 12 x 6 x 4.87, on the underside near the far end (datasheet: an unused spare): DESOLDERED in this design (owner, 2026-11-08), so not modelled, and the receptacle's pins stand 0.53 below the PCB. Mass not found (ASSUMPTION 10 g).
+    Here the PCB is x 0..27.83, y 0..25.2, the mouth at x = 0; `standoff` is the clearance under the board (3 mm, a stock M2 standoff); the kit ships four M2 screws and spacers."""
+    L, W, T = 27.83, 25.2, 1.67
     solid = _box(0, L, 0, W, 0, T)
-    solid = solid + _box(L - 21.0, L + 1.0, 4.5, 20.5, T, T + 13.0)                      # RJ45 jack, 21 long, 16 wide, 13 tall, ASSUMPTION
-    solid = solid + _box(0.0, 5.0, 4.0, 21.0, T, T + 2.5)                                 # 15-pin FPC connector, ASSUMPTION
-    solid = solid + _box(10.0, 18.0, 8.0, 17.0, T, T + 1.5)                               # bridge chip, ASSUMPTION
-    holes = [(2.5, 2.5), (L - 2.5, 2.5), (2.5, W - 2.5), (L - 2.5, W - 2.5)]
-    solid = _holes(solid, holes, 2.5, -0.5, T + 0.5)
+    solid = solid + _box(-0.45, 11.55, 5.0, 20.0, T, T + 6.08)                           # HDMI receptacle
+    solid = solid + _box(16.07, 23.67, 1.85, 23.15, T, T + 2.65)                          # 15-pin FPC connector
+    holes = [(13.2, 2.0), (13.2, 23.0), (25.7, 2.0), (25.7, 23.0)]                        # M2 holes: along the board from the mouth edge, across (datasheet 21.0 x 12.5)
+    solid = _holes(solid, holes, 2.0, -0.5, T + 0.5)
     for (hx, hy) in holes:
-        solid = solid + (_post(hx, hy, -standoff, 0, 5.0) - _post(hx, hy, -standoff - 0.5, 0.5, 2.5))
-    return {"solid": solid, "mass": 0.010, "note": "size, jack and mass ASSUMPTION (not found)"}
+        solid = solid + (_post(hx, hy, -standoff, 0, 4.5) - _post(hx, hy, -standoff - 0.5, 0.5, 2.0))
+    return {"solid": solid, "mass": 0.010, "note": "outline, holes [Arducam datasheet Rev 1.0] and parts from the vendor STEP (derived); mass ASSUMPTION"}
 
 
 def models():

@@ -1,8 +1,8 @@
-"""al-maha camera-link cable: how long the round cable (the CSI extender's RJ45 cord) has to be, from the CAD positions.
+"""al-maha camera-link cable: how long the round cable (the CSI extender's HDMI cord) has to be, from the CAD positions.
 
 As in the flight-model photographs the harness is not routed through the mast: it hangs in a loose loop from the head's -y side down to the body (`headb.camera_link_cable`). The length is
-the straight run from the Tx pod's jack to the deck gland over the Rx board's jack, plus slack for the tilt (+-90 degrees round the pod's swing) and the pan (+-160 degrees: the pod circles the
-mast axis at 72 mm), plus strain reliefs. The kit's cord is 1 m long.
+the straight run from the camera box's gland hole (the Tx board is inside the box, 2026-11-08) to the deck gland over the Rx board's jack, plus slack for the tilt (+-90 degrees round the gland's swing) and the pan (+-160 degrees: the gland circles the
+mast axis at about 61 mm), plus strain reliefs. The B0091 kit sells the two boards and ribbons only: the HDMI cord is the owner's choice (a thin one, 0.7 m or more).
 
 Run:  .venv/bin/python hardware/mast/cable_route.py
 """
@@ -25,12 +25,11 @@ def d(a, b):
 
 
 def route(rx_jack):
-    xc = HB.ENC_X1 - HB.ENC_X / 2
     y1 = HB.CY - HB.ENC_Y / 2
-    pod = (xc, y1 - 12.0, HB.AZ - 18.0)
+    pod = (HB.GLAND_X, y1 - 3.0, HB.AZ)
     gland = (I.DECK_HOLE_X, I.DECK_HOLE_Y, B.DECK_TOP_Z)
-    return [("Tx jack (pod floor) to the deck gland, straight", d(pod, gland)),
-            ("deck gland down to the Rx board's jack under the deck", d(gland, rx_jack))]
+    return [("box gland hole to the deck gland, straight", d(pod, gland)),
+            ("deck gland down to the Rx board's HDMI jack under the deck", d(gland, rx_jack))]
 
 
 if __name__ == "__main__":
@@ -40,8 +39,8 @@ if __name__ == "__main__":
     tot = sum(L for _, L in segs)
     for n, L in segs:
         print(f"  {n:60s}{L:7.0f} mm")
-    pan = 2 * 72.0                                          # the pod's end-to-end distance changes by up to the diameter of its circle round the mast axis
+    pan = 2 * math.hypot(HB.GLAND_X - HB.TX, HB.CY - HB.ENC_Y / 2 - 3.0)                  # the gland's end-to-end distance changes by up to the diameter of its circle round the mast axis
     tilt, relief = 100.0, 2 * 20.0
-    print(f"  slack: pan {pan:.0f} + tilt {tilt:.0f} + strain relief {relief:.0f}; total {tot + pan + tilt + relief:.0f} mm; with a 10 percent sag and routing allowance {1.1 * (tot + pan + tilt + relief):.0f} mm (the kit's cord is 1000 mm)")
+    print(f"  slack: pan {pan:.0f} + tilt {tilt:.0f} + strain relief {relief:.0f}; total {tot + pan + tilt + relief:.0f} mm; with a 10 percent sag and routing allowance {1.1 * (tot + pan + tilt + relief):.0f} mm (a cord of about 0.7 m or more: the kit has none)")
     cab = HB.camera_link_cable()
     print(f"  the modelled loop (a spline through six points) is {cab.volume / (math.pi * 2.75 ** 2):.0f} mm of cord")
