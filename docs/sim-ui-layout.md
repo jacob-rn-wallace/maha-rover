@@ -1,6 +1,6 @@
 # Sim interface layout: where everything goes (proposal, 2026-11-09)
 
-Status: **parts A to D built (2026-11-09), see sections 10 and 11; the Plan mode's waypoint planner (step 4) is built, section 12; E (the phone bottom sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
+Status: **parts A to E built (2026-11-09), see sections 10, 11 and 13; the Plan mode's waypoint planner (step 4) is built, section 12.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
 
 ## 1. The problem today
 
@@ -114,7 +114,7 @@ Not checked or known:
 - A real GPU or touch device; the cost of the DOM over the canvas; the large-map plus large-camera combination on small windows; the wordmark's contrast on a bright sky.
 - On a phone the open telemetry dock sits under the left stick's area.
 - The bench and recording chips were not triggered in a screenshot.
-- The phone bottom sheet (E) is not built.
+- The phone bottom sheet (E) was built later, section 13.
 
 ## 11. Modes (part D, built 2026-11-09)
 
@@ -149,3 +149,15 @@ Files (`sim/src`): `plan.ts` (the pure logic: route, metrics, solar heading, foo
 - Checked in headless screenshots and scripted pointer events: three waypoints placed (one with a drag), the solar heading button, the chip, the markers and footprint in the chase view, the zoomed map. `tsc`, `vite build`, `check:limits` (16), `check:freshness` (17), `check:plan` (28).
 - Not checked: a real mouse (wheel, shift and right-drag pans, the drag preview), touch placing on a phone, a waypoint list longer than the panel, waypoints near the tile edge, the footprint on slopes (it is flat-ground geometry), the route while the rover moves, a real GPU.
 - Not built from the plan: rehearse mode (step 8); energy cost on slopes; the path avoiding the hazard classes; a time-ordered view of the route.
+
+## 13. Phones (part E, built 2026-11-09)
+
+Two layouts, chosen by the window's shape on a coarse-pointer device (the `portrait` class, set each frame in `modes.ts`):
+
+- **Landscape** (the layout of the earlier parts): the telemetry or plan dock is a side drawer from the left handle; the tiles in the right column are small (map 84 px, camera 110 px wide) so they clear the right stick; the camera tile keeps its snap and live buttons (short labels) and shows the flags only for a past still; the footer and the thumbnails stay off.
+- **Portrait**: a two-row top bar (row 1: wordmark, mode tabs, help and settings; row 2: the status chips, the wall chip left out), a bottom sheet (48% of the height, scrolling, 150 px of bottom padding for the sticks) in place of the dock, opened by a **panels** button in the middle of the touch buttons (also used for Plan's panel), the camera and map as full-width main-view tiles with the chase inset **below** them (not at the top right), small tiles 110 and 150 px wide.
+- **Touch buttons** (bottom centre): stand upright, camera view (toggles Camera mode), panels. In Plan mode the first two are hidden, and in landscape the third too (the dock is open already), so the buttons do not sit on the map. The sticks are above the sheet, so you can drive with it open.
+- **Plan map on touch**: a tap places a waypoint, a drag sets its heading, **two fingers pinch to zoom and drag to pan** (the map ignores browser gestures); the panel's hint says so.
+- Alerts sit 148 px above the bottom on phones, above the button stack.
+- Checked in headless screenshots at 390 x 844 (portrait: Drive, Camera, Plan, Data, the sheet opened by the button, a pinch and a tap by synthetic touch pointer events: half width 400 m to 100 m, one waypoint placed) and 844 x 390 (landscape: Drive, Plan, Camera), and the desktop Drive and Plan again. `tsc`, `vite build` and the node checks pass.
+- Not checked: a real phone (touch precision, the browser's own gestures, the virtual keyboard, notches and safe areas, rotation while running), the sheet's drag-to-dismiss (it is opened and closed only by the button), the chase view's framing in portrait (the orbit camera is not adapted to a narrow window and shows the rover large), long waypoint lists in the sheet, the camera roll's thumbnails on phones (hidden).

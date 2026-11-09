@@ -31,7 +31,7 @@ export class Minimap {
     this.paintBase(sunElevationDeg, sunAzimuthDeg);
     this.canvas.width = this.canvas.height = SIZE;
     this.box.className = "panel tile map-tile";
-    this.canvas.style.cssText = "display:block";
+    this.canvas.style.cssText = "display:block;touch-action:none";
     this.label.style.cssText = "position:absolute;left:4px;bottom:2px;font:10px system-ui;color:#ddd;text-shadow:0 0 3px #000";
     const ctl = document.createElement("div"); ctl.className = "map-ctl";
     for (const [t, tip, fn] of [["+", "zoom in", () => this.zoom(0.6)], ["–", "zoom out", () => this.zoom(1 / 0.6)], ["◎", "centre on the rover", () => this.onCentre?.()]] as [string, string, () => void][]) { const b = document.createElement("button"); b.textContent = t; b.title = tip; b.addEventListener("click", fn); ctl.append(b); }
@@ -69,7 +69,7 @@ export class Minimap {
 
   /** the tile's size: 200 px small, large up to 420 but at most 38% of the window's height (the camera tile stacks under it); 96 and 240 on phones; as the main view, a square of `primaryPx` */
   layout() {
-    const size = this.primary ? this.primaryPx : this.mode === 2 ? (this.coarse ? Math.min(240, innerHeight * 0.45) : Math.min(420, innerHeight * 0.38)) : this.coarse ? 96 : 200;
+    const size = this.primary ? this.primaryPx : this.mode === 2 ? (this.coarse ? Math.min(240, innerHeight * 0.45) : Math.min(420, innerHeight * 0.38)) : this.coarse ? (innerHeight > innerWidth ? 110 : 84) : 200;
     this.box.style.display = this.mode === 0 || !this.shown ? "none" : "block";
     this.box.classList.toggle("primary", this.primary); this.box.style.left = this.primary && isFinite(this.primaryX) ? Math.round(this.primaryX) + "px" : "";
     this.canvas.style.width = this.canvas.style.height = Math.round(size) + "px";

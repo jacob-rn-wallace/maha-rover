@@ -18,6 +18,8 @@ export class CameraView {
   primary = false;        // the main view (Camera mode): a big tile in the middle
   collapsed = false;      // the tile shrunk to its header (the button in it)
   reserveX = 0;           // as the main view, the width kept free on each side (for the chase inset)
+  reserveY = 0;           // and the height kept free under it (the inset, on a portrait phone)
+  portrait = false;
   readonly roll = new CameraRoll();
   private tile = h("div", "panel tile cam-tile");
   private label = h("span");
@@ -49,14 +51,17 @@ export class CameraView {
     this.roll.onSnap = () => this.snap();
   }
 
+  /** the bottom edge of the tile on screen (CSS pixels) */
+  get bottom() { return this.tile.getBoundingClientRect().bottom; }
+
   /** takes a still of the live view at the next draw (nothing while a past still is shown or the view is off) */
   snap() { if (this.shown && !this.collapsed && !this.roll.past) this.snapPending = true; }
 
   /** the tile's width: a fifth of the window (110 to 140 px on phones, 220 to 320 otherwise), or as the main view the largest 4:3 picture that fits under the bar with the chase inset's room kept free on both sides */
   private size(vw: number, vh: number) {
     let w: number;
-    if (this.primary) { const free = vh - this.tile.getBoundingClientRect().top - 12 - (this.tile.offsetHeight - this.pic.offsetHeight); w = Math.max(this.coarse ? 160 : 240, Math.min(vw - 2 * this.reserveX, (free * 4) / 3)); }
-    else w = this.coarse ? Math.max(110, Math.min(140, vw * 0.16)) : Math.max(220, Math.min(320, vw * 0.2));
+    if (this.primary) { const free = vh - this.tile.getBoundingClientRect().top - 12 - this.reserveY - (this.tile.offsetHeight - this.pic.offsetHeight); w = Math.max(this.coarse ? 160 : 240, Math.min(vw - 2 * Math.max(this.reserveX, 12), (free * 4) / 3)); }
+    else w = this.portrait ? 150 : this.coarse ? 110 : Math.max(220, Math.min(320, vw * 0.2));
     this.tile.style.width = Math.round(w) + "px";
   }
 

@@ -1,5 +1,5 @@
 /** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and two buttons, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
-export function touchSticks(parent: HTMLElement, on: { upright: () => void; toggleCamera: () => void }) {
+export function touchSticks(parent: HTMLElement, on: { upright: () => void; toggleCamera: () => void; toggleTelemetry: () => void }) {
   const out = { drive: [0, 0], mast: [0, 0] };
   const R = 50;
   const make = (side: "left" | "right", key: "drive" | "mast") => {
@@ -19,11 +19,12 @@ export function touchSticks(parent: HTMLElement, on: { upright: () => void; togg
   };
   make("left", "drive"); make("right", "mast");
   const mk = (label: string, bottom: number, fn: () => void) => {
-    const b = document.createElement("button"); b.textContent = label;
+    const b = document.createElement("button"); b.textContent = label; b.dataset.b = label;
     b.style.cssText = `position:absolute;left:50%;transform:translateX(-50%);bottom:${bottom}px;pointer-events:auto;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font:13px system-ui`;
     b.addEventListener("click", fn); parent.appendChild(b);
   };
   mk("stand upright", 24, on.upright);
   mk("camera view", 64, on.toggleCamera);
+  mk("panels", 104, on.toggleTelemetry);
   return out;
 }

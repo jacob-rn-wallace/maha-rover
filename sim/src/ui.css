@@ -15,6 +15,7 @@
 #ui-top { position: absolute; left: 0; right: 0; top: 0; height: var(--bar-h); display: flex; align-items: center; gap: 10px; padding: 0 var(--pad); background: var(--bar-bg); border-bottom: 1px solid var(--line); pointer-events: auto; }
 #ui-top .logo { height: 24px; width: auto; display: block; }
 #ui-top .spacer { flex: 1; }
+#ui-top .chips { display: flex; align-items: center; gap: 8px; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--c, var(--dim)); color: var(--c, var(--dim)); background: transparent; white-space: nowrap; }
 .chip[data-level="on"] { --c: #6aa9ff; }
 .chip[data-level="0"] { --c: var(--ok); } .chip[data-level="1"] { --c: var(--warn); } .chip[data-level="2"] { --c: var(--bad); } .chip[data-level="off"] { --c: var(--dim); }
@@ -45,7 +46,7 @@
 #ui-right { position: absolute; right: var(--pad); top: calc(var(--bar-h) + var(--gap)); display: flex; flex-direction: column; align-items: flex-end; gap: var(--gap); max-height: calc(100% - var(--bar-h) - var(--gap) - var(--pad)); }
 #ui-cluster { position: absolute; left: var(--pad); bottom: var(--pad); z-index: 0; }      /* the open telemetry dock covers it (z-index 1) */
 #ui-alerts { position: absolute; left: 50%; transform: translateX(-50%); bottom: var(--pad); display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: min(560px, 60vw); text-align: center; }
-#ui-sticks { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
+#ui-sticks { position: absolute; left: 0; right: 0; bottom: 0; height: 0; z-index: 2; }      /* above the bottom sheet, so the sticks and the panels button stay usable */
 #ui-modal { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-height: 90vh; overflow: auto; }
 
 /* alerts */
@@ -84,8 +85,10 @@
 
 /* phones and tablets */
 #ui.coarse { --fs: 11px; --bar-h: 32px; }
-#ui.coarse .tile-foot, #ui.coarse .tile-roll, #ui.coarse .tile .flags { display: none; }
-#ui.coarse #ui-alerts { bottom: 108px; max-width: 70vw; }
+#ui.coarse .tile-foot, #ui.coarse .tile .flags { display: none; }
+#ui.coarse .tile.past .flags { display: flex; }
+#ui.coarse .tile-roll > span { display: none; }      /* phones keep the snap and live buttons, not the thumbnails */
+#ui.coarse #ui-alerts { bottom: 148px; max-width: 70vw; }
 #ui.coarse .cluster { padding: 4px 8px; } #ui.coarse .cluster canvas { display: none; }
 #ui.coarse #ui-top { gap: 6px; }
 #ui.coarse .tab { padding: 0 6px; font-size: 10px; }
@@ -110,3 +113,19 @@
 .map-ctl { display: none; position: absolute; left: 6px; top: 6px; gap: 4px; }
 .map-tile.primary .map-ctl { display: flex; }
 .map-ctl button { width: 24px; height: 24px; padding: 0; border-radius: 6px; background: rgba(10,12,16,.75); border: 1px solid var(--line); }
+
+/* portrait phones: a two-row top bar, and the left dock becomes a bottom sheet (opened by the panels button) */
+#ui.portrait { --bar-h: 62px; }
+#ui.portrait #ui-top { flex-wrap: wrap; align-content: center; row-gap: 3px; padding: 3px 10px; }
+#ui.portrait #ui-top .spacer:first-of-type { flex: 1; }
+#ui.portrait #ui-top .spacer:last-of-type { display: none; }
+#ui.portrait #ui-top .chips { order: 3; flex-basis: 100%; justify-content: center; gap: 5px; }
+#ui.portrait #ui-top .chip.hidden-portrait, #ui.portrait #ui-top [title="wall"] { display: none; }
+#ui.portrait #ui-top .chip { padding: 0 7px; }
+#ui.portrait #ui-handle { display: none; }
+#ui.portrait #ui-left { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-width: none; height: 48vh; padding: 8px 8px 150px; transform: translateY(100%); border-radius: 12px 12px 0 0; background: rgba(10, 12, 16, .9); border-top: 1px solid var(--line); }
+#ui.portrait #ui-left.open { transform: none; }
+#ui.portrait #ui-alerts { bottom: 148px; }
+#ui.coarse .k { display: none; }
+#ui[data-mode="plan"] [data-b="stand upright"], #ui[data-mode="plan"] [data-b="camera view"] { display: none; }      /* the map needs the room while planning */
+#ui[data-mode="plan"]:not(.portrait) [data-b="panels"] { display: none; }

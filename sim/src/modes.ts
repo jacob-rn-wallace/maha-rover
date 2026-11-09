@@ -37,15 +37,24 @@ export class Modes {
   /** C: the camera as the main view, and back */
   toggleCamera() { this.set(this.mode === "camera" ? "drive" : "camera"); }
 
-  /** sizes the inset and the main-view tiles for a window of vw x vh CSS pixels; call once a frame, before the views are drawn */
+  /** sizes the inset and the main-view tiles for a window of vw x vh CSS pixels; call once a frame, before the views are drawn.
+   *  On a portrait phone the top bar has two rows (set by the class), the dock is a bottom sheet, and the main-view tile takes the whole width with the inset below it. */
   layout(vw: number, vh: number) {
-    const w = Math.round(this.coarse ? 120 : Math.max(160, Math.min(240, vw * 0.17)));
-    this.inset.style.width = w + "px"; this.inset.style.height = Math.round(w * 0.625) + "px";
-    this.cam.reserveX = w + 24;
-    if (this.mode === "plan" && this.map) {      // the square map in the room between the dock and the inset
-      const bar = this.coarse ? 32 : 36, x0 = this.planBox ? 316 : 12, x1 = vw - w - 24, px = Math.round(Math.max(120, Math.min(x1 - x0, vh - bar - 16))), cx = Math.round((x0 + x1) / 2), key = px + "," + cx;
+    const portrait = this.coarse && vh > vw, root = this.ui.layout.root;
+    if (root.classList.contains("portrait") !== portrait) root.classList.toggle("portrait", portrait);
+    this.cam.portrait = portrait;
+    const bar = this.ui.layout.top.offsetHeight || (this.coarse ? 32 : 36);
+    const w = Math.round(this.coarse ? 120 : Math.max(160, Math.min(240, vw * 0.17))), ih = Math.round(w * 0.625);
+    this.inset.style.width = w + "px"; this.inset.style.height = ih + "px";
+    this.cam.reserveX = portrait ? 0 : w + 24; this.cam.reserveY = portrait ? ih + 16 : 0;
+    if (this.mode === "plan" && this.map) {      // the square map: in the room between the dock and the inset; on a portrait phone the width of the window, with the inset below it
+      const x0 = portrait ? 12 : this.planBox ? 316 : 12, x1 = portrait ? vw - 12 : vw - w - 24, room = vh - bar - 16 - (portrait ? ih + 8 : 0);
+      const px = Math.round(Math.max(120, Math.min(x1 - x0, room))), cx = Math.round((x0 + x1) / 2), key = px + "," + cx;
       if (key !== this.lastMapKey) { this.lastMapKey = key; this.map.setPrimary(true, px, cx); }
     }
+    const s = this.inset.style;      // the inset: the top right corner, or on a portrait phone under the main-view tile
+    if (portrait && this.hasInset) { const bottom = this.mode === "camera" ? this.cam.bottom : this.map ? this.map.box.getBoundingClientRect().bottom : bar; s.left = "12px"; s.right = "auto"; s.top = Math.round(bottom + 8) + "px"; }
+    else { s.left = ""; s.right = ""; s.top = ""; }
   }
 
   /** the rectangle the chase view is drawn into (CSS pixels, origin bottom left), or null for the whole window */

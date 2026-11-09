@@ -27,7 +27,8 @@ export class TopBar {
     const tabs = h("div", "tabs");
     for (const m of MODES) { const t = h("button", "tab", m.label); t.title = `${m.label} (${m.key})`; t.addEventListener("click", () => on.setMode(m.id)); this.tabs.set(m.id, t); tabs.append(t); }
     const sp = () => h("span", "spacer");
-    bar.append(logo, tabs, sp(), route, battery, tilt, wall, hz, recChip, sp(), help, gear);
+    const chipRow = h("div", "chips"); chipRow.append(route, battery, tilt, wall, hz, recChip);
+    bar.append(logo, tabs, sp(), chipRow, sp(), help, gear);
 
     this.batteryDetail.innerHTML = "";
     layout.popover("battery", battery, this.batteryDetail);

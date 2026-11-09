@@ -16,13 +16,16 @@ export class PlanPanel {
   private last = ""; private drag: { x: number; z: number; sx: number; sy: number; headingDeg: number; moved: boolean; pid: number } | null = null; private pose: Pose = { x: 0, z: 0, headingDeg: 0 };
 
   constructor(layout: Layout, readonly route: Route, private map: Minimap, private sun: { bearingDeg: number; elevationDeg: number }, private active: () => boolean) {
-    layout.left.append(this.box); this.box.style.display = "none";
+    layout.left.append(this.box); this.box.style.display = "none"; this.touch = layout.coarse;
     map.overlay = (g) => this.drawOverlay(g); map.onCentre = () => this.centre();
-    const c = map.canvas;
-    c.addEventListener("pointerdown", (e) => { if (!this.active()) return; const w = map.toWorld(e.clientX, e.clientY); if (!w) return; c.setPointerCapture(e.pointerId); if (e.button === 2 || e.shiftKey) { this.pan = { x: e.clientX, y: e.clientY, pid: e.pointerId }; return; } this.drag = { x: w.x, z: w.z, sx: e.clientX, sy: e.clientY, headingDeg: NaN, moved: false, pid: e.pointerId }; });
-    c.addEventListener("pointermove", (e) => { const p = this.pan; if (p && e.pointerId === p.pid) { const m = (2 * map.vhalf) / c.getBoundingClientRect().width; map.pan(-(e.clientX - p.x) * m, -(e.clientY - p.y) * m); p.x = e.clientX; p.y = e.clientY; return; } const d = this.drag; if (!d || e.pointerId !== d.pid) return; const dx = e.clientX - d.sx, dy = e.clientY - d.sy; if (Math.hypot(dx, dy) > 8) { d.moved = true; d.headingDeg = bearingDeg(dx, -dy); } });
-    c.addEventListener("pointerup", (e) => { if (this.pan && e.pointerId === this.pan.pid) { this.pan = null; return; } const d = this.drag; if (!d || e.pointerId !== d.pid) return; this.drag = null; this.release(d); });
-    c.addEventListener("pointercancel", () => { this.drag = null; this.pan = null; });
+    const c = map.canvas, touches = new Map<number, { x: number; y: number }>();      // two fingers pinch to zoom and drag to pan; one finger places and sets headings
+    const pinch = () => { const [a, b] = [...touches.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 }; };
+    let last: { d: number; mx: number; my: number } | null = null;
+    c.addEventListener("pointerdown", (e) => { if (!this.active()) return; if (e.pointerType === "touch") { touches.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (touches.size === 2) { this.drag = null; last = pinch(); return; } } const w = map.toWorld(e.clientX, e.clientY); if (!w) return; c.setPointerCapture(e.pointerId); if (e.button === 2 || e.shiftKey) { this.pan = { x: e.clientX, y: e.clientY, pid: e.pointerId }; return; } this.drag = { x: w.x, z: w.z, sx: e.clientX, sy: e.clientY, headingDeg: NaN, moved: false, pid: e.pointerId }; });
+    c.addEventListener("pointermove", (e) => { if (touches.has(e.pointerId)) { touches.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (touches.size === 2 && last) { const n = pinch(), m = (2 * map.vhalf) / c.getBoundingClientRect().width, w = map.toWorld(n.mx, n.my); if (w && n.d > 0) map.zoom(last.d / n.d, w.x, w.z); map.pan(-(n.mx - last.mx) * m, -(n.my - last.my) * m); last = n; return; } }
+      const p = this.pan; if (p && e.pointerId === p.pid) { const m = (2 * map.vhalf) / c.getBoundingClientRect().width; map.pan(-(e.clientX - p.x) * m, -(e.clientY - p.y) * m); p.x = e.clientX; p.y = e.clientY; return; } const d = this.drag; if (!d || e.pointerId !== d.pid) return; const dx = e.clientX - d.sx, dy = e.clientY - d.sy; if (Math.hypot(dx, dy) > 8) { d.moved = true; d.headingDeg = bearingDeg(dx, -dy); } });
+    c.addEventListener("pointerup", (e) => { const wasPinch = touches.size >= 2; touches.delete(e.pointerId); if (wasPinch) { last = null; this.drag = null; return; } if (this.pan && e.pointerId === this.pan.pid) { this.pan = null; return; } const d = this.drag; if (!d || e.pointerId !== d.pid) return; this.drag = null; this.release(d); });
+    c.addEventListener("pointercancel", (e) => { touches.delete(e.pointerId); this.drag = null; this.pan = null; });
     this.box.addEventListener("click", (e) => {
       const t = e.target as HTMLElement, row = t.closest<HTMLElement>("[data-i]"), i = row ? Number(row.dataset.i) : -1;
       if (t.closest("[data-act=del]")) route.remove(i); else if (t.closest("[data-act=sun]")) this.solar(i); else if (t.closest("[data-act=undo]")) route.undo(); else if (t.closest("[data-act=clear]")) route.clear(); else if (i >= 0) route.select(i);
@@ -48,7 +51,7 @@ export class PlanPanel {
   /** the map window: 800 m across, centred on the rover (on entering Plan mode and with the centre button) */
   centre() { this.map.setView(this.pose.x, this.pose.z, 400); }
 
-  private centred = false;
+  private centred = false; private touch = false;
   update(pose: Pose, force = false) {
     this.pose = pose; if (!this.centred) { this.centred = true; if (this.active()) this.centre(); }
     const r = this.route, m = metrics(pose, r.wps);
@@ -60,7 +63,7 @@ export class PlanPanel {
     const summary = r.wps.length
       ? `<h4>route</h4><div class="row"><span>path</span><span>${m.distanceM.toFixed(0)} m, ${m.turnDeg.toFixed(0)}° of turns</span></div><div class="row"><span>time</span><span>${formatAge(m.seconds)}</span></div><div class="row"><span>energy</span><span>${m.wh.toFixed(2)} Wh (${m.batteryPct.toFixed(1)}% of the pack)</span></div><div class="row"><span>solar at the end</span><span>${solarWatts(last.headingDeg, this.sun.bearingDeg, this.sun.elevationDeg).toFixed(1)} of ${best.toFixed(1)} W</span></div><div class="dim note">estimates: ${SPEED} m/s, ${TURN_RATE}°/s turns, ${DRIVE_W} W while moving; slope, soil and rocks not counted. Sun ${hdg(this.sun.bearingDeg)} ${cardinal(this.sun.bearingDeg)}, ${this.sun.elevationDeg.toFixed(0)}° up.</div><div class="btns"><button data-act="undo">undo (Backspace)</button><button data-act="clear">clear</button></div>`
       : "";
-    const html = `<h4>plan</h4><div class="dim hint">${this.map.shown ? "Click the map to place a waypoint; drag to set its heading. Wheel zooms, shift-drag or right-drag pans. ☀ turns the selected waypoint to face the panels to the sun." : ""}</div>${rows}${summary}`;
+    const html = `<h4>plan</h4><div class="dim hint">${this.map.shown ? (this.touch ? "Tap the map to place a waypoint; drag to set its heading. Pinch to zoom, two fingers to pan. ☀ turns the selected waypoint to face the panels to the sun." : "Click the map to place a waypoint; drag to set its heading. Wheel zooms, shift-drag or right-drag pans. ☀ turns the selected waypoint to face the panels to the sun.") : ""}</div>${rows}${summary}`;
     if (force || html !== this.last) { this.last = html; this.box.innerHTML = html; }
   }
 

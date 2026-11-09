@@ -18,8 +18,8 @@ export class CameraRoll {
 
   constructor() {
     this.strip.className = "tile-roll"; this.strip.style.display = "none";
-    const snap = this.button("snap (P)"); snap.addEventListener("click", () => this.onSnap?.());
-    this.liveBtn = this.button("live (V)"); this.liveBtn.addEventListener("click", () => this.live());
+    const snap = this.button("snap<span class=\"k\"> (P)</span>"); snap.addEventListener("click", () => this.onSnap?.());
+    this.liveBtn = this.button("live<span class=\"k\"> (V)</span>"); this.liveBtn.addEventListener("click", () => this.live());
     this.thumbs.style.cssText = "display:flex;gap:4px;flex-wrap:wrap";
     this.strip.append(this.thumbs, this.liveBtn, snap);
     this.flags.className = "flags";
@@ -28,7 +28,7 @@ export class CameraRoll {
   onSnap?: () => void;
 
   private button(text: string) {
-    const b = document.createElement("button"); b.textContent = text;
+    const b = document.createElement("button"); b.innerHTML = text;
     b.style.cssText = "padding:3px 8px;border-radius:5px;background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.4);font:11px system-ui;cursor:pointer";
     return b;
   }
