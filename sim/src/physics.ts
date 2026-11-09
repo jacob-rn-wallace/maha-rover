@@ -31,6 +31,9 @@ const SERVO = { tMax: 1.91, wMax: (52 * 2 * Math.PI) / 60 };
  *  = 1.62 * 0.68 = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm); at 0.53 m/s a full brake through the 1.6 A cap (about 5 m/s2) flips it in the first test.
  *  1.5 per second from full duty is about 0.8 m/s2. A design consequence: the motor controller firmware needs a deceleration limit. */
 const DUTY_SLEW = 1.5;
+/** Tilt guard (a firmware rule the build would need: an IMU on the Pi, ASSUMPTION): with the chassis tilted past TILT_CUT the drive is cut and braked until it is back under TILT_BACK.
+ *  Found by experiment: a wheel-high rock is not a motor stall (the wheels spin at nearly no-load current while the rover rides up the rock), so a current-based stall rule never fired. */
+const TILT_CUT = 25 * Math.PI / 180, TILT_BACK = 15 * Math.PI / 180;
 const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4, G_GROUSER = 8, G_ROCK = 16;
 const groups = (member: number, filter: number) => (member << 16) | filter;
 const v3 = (a: number[]) => ({ x: a[0], y: a[1], z: a[2] });
@@ -56,6 +59,8 @@ export class RoverPhysics {
   panAngle = 0; tiltAngle = 0;
   linkAngle = { L: 0, R: 0 };
   wheelCurrent: Record<string, number> = {};
+  tiltGuard = true;
+  tiltCut = false;
   motorPackAmps = 0;                                  // drive current drawn from the pack: the sum of duty x motor current over the wheels (a PWM buck: pack current = duty x motor current; regeneration not returned)
   servoMoving = false;
   wheelRate: Record<string, number> = {};
@@ -208,9 +213,13 @@ export class RoverPhysics {
     // wheels: skid steering from throttle and turn; the 37D model with the current cap; a forward turn is negative about +Z
     const m = MOTOR;
     this.motorPackAmps = 0;
+    {
+      const r = this.bodies.chassis.rotation(), pitch = Math.asin(Math.max(-1, Math.min(1, 2 * (r.x * r.y + r.w * r.z)))), roll = Math.asin(Math.max(-1, Math.min(1, 2 * (r.w * r.x - r.y * r.z)))), tilt = Math.max(Math.abs(pitch), Math.abs(roll));
+      if (tilt > TILT_CUT) this.tiltCut = true; else if (tilt < TILT_BACK) this.tiltCut = false;
+    }
     for (const w of WHEELS) {
       const side = w[1] === "L" ? 1 : -1;
-      const target = c.brake ? 0 : Math.max(-1, Math.min(1, c.throttle + side * c.turn));
+      const target = c.brake || (this.tiltGuard && this.tiltCut) ? 0 : Math.max(-1, Math.min(1, c.throttle + side * c.turn));
       const du = Math.max(-DUTY_SLEW * this.dt, Math.min(DUTY_SLEW * this.dt, target - this.duty[w]));      // firmware-style slew limit: unlimited braking tips the rover (see below)
       const u = (this.duty[w] += du);
       const r = this.rel("link" + w[1], "wheel" + w, Z);

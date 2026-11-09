@@ -70,7 +70,7 @@ async function rockScenario(name: string, d: number, h: number) {
   console.log(`\n== ${name}: a rock ${d} m wide and ${h} m high in front of both wheel tracks (1.2 m ahead)`);
   let maxPitch = 0, maxRoll = 0;
   const ang = () => { const r = p.bodies.chassis.rotation(); return { pitch: Math.asin(Math.max(-1, Math.min(1, 2 * (r.x * r.y + r.w * r.z)))) * 180 / Math.PI, roll: Math.asin(Math.max(-1, Math.min(1, 2 * (r.w * r.x - r.y * r.z)))) * 180 / Math.PI }; };
-  for (let k = 1; k <= 12; k++) { run(p, 1, go(1)); const a = ang(); maxPitch = Math.max(maxPitch, Math.abs(a.pitch)); maxRoll = Math.max(maxRoll, Math.abs(a.roll)); const s = state(p); if (k % 3 === 0) console.log(`${k}s x ${s.x.toFixed(2)} m, speed ${s.speed.toFixed(3)} m/s, height ${s.y.toFixed(3)} m`); }
+  for (let k = 1; k <= 12; k++) { if (process.env.TRACE && k >= 3 && k <= 4) for (let q = 0; q < 3; q++) { run(p, 0.25, go(1)); console.log(`   ${(k - 1 + 0.25 * (q + 1)).toFixed(2)}s cut ${p.tiltCut} pitch ${ang().pitch.toFixed(0)} amps ${WHEELS.map((w) => p.wheelCurrent[w].toFixed(2)).join(' ')}`); } run(p, k >= 3 && k <= 4 && process.env.TRACE ? 0.25 : 1, go(1)); const a = ang(); maxPitch = Math.max(maxPitch, Math.abs(a.pitch)); maxRoll = Math.max(maxRoll, Math.abs(a.roll)); if (process.env.TRACE) console.log(`  t${k}s stalled ${p.stalled} pitch ${a.pitch.toFixed(0)} roll ${a.roll.toFixed(0)}`); const s = state(p); if (k % 3 === 0) console.log(`${k}s x ${s.x.toFixed(2)} m, speed ${s.speed.toFixed(3)} m/s, height ${s.y.toFixed(3)} m`); }
   console.log(`largest pitch ${maxPitch.toFixed(1)} deg, roll ${maxRoll.toFixed(1)} deg`);
 }
 

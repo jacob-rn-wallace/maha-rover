@@ -4,7 +4,7 @@ import { addLunarScene } from "./lunar";
 import { Terrain } from "./terrain";
 import { FJS1 } from "./soil";
 import { RockField } from "./rocks";
-import { loadTerrainShadow, applyTerrainShadow } from "./terrainShadow";
+import { loadTerrainShadow, applyTerrainShadow, computeTerrainShadow } from "./terrainShadow";
 import { TerrainView } from "./terrainView";
 import { Power } from "./power";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
@@ -25,7 +25,8 @@ camera.position.set(0.9, 0.6, 0.9);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0.1, 0.3, 0);
 
-const lunar = addLunarScene(scene, renderer);
+const sunParam = new URLSearchParams(location.search).get("sun")?.split(",").map(Number);      // ?sun=elevation,azimuth (degrees; azimuth counterclockwise from east, 90 = north): another sun, its terrain shadows computed at load
+const lunar = addLunarScene(scene, renderer, sunParam && sunParam.length === 2 && sunParam.every(isFinite) ? { sunElevationDeg: sunParam[0], sunAzimuthDeg: sunParam[1] } : undefined);
 const ground = lunar.ground;
 
 addEventListener("error", (e) => { hud.textContent = "error: " + e.message; });
@@ -55,7 +56,14 @@ async function main() {
     view = new TerrainView(terrain, lunar.groundMaterial);
     scene.add(view.group);
     view.update(spawn.x, spawn.z);
-    const ts = await loadTerrainShadow();
+    let ts = await loadTerrainShadow();
+    if (ts.sunElevationDeg !== lunar.sunElevationDeg || ts.sunAzimuthDeg !== lunar.sunAzimuthDeg) {
+      hud.textContent = "computing terrain shadows for the sun...";
+      await new Promise((r) => setTimeout(r));
+      const t0 = performance.now();
+      ts = computeTerrainShadow(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg);
+      console.log("terrain shadows computed in", ((performance.now() - t0) / 1000).toFixed(1), "s");
+    }
     if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) {
       applyTerrainShadow(lunar.groundMaterial, ts);
       for (const n of names) nodes[n].traverse((o) => { const m = (o as THREE.Mesh).material; if (m) for (const x of Array.isArray(m) ? m : [m]) applyTerrainShadow(x, ts); });
@@ -172,7 +180,7 @@ function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view; gamepad: left stick drive, right stick mast</span>`;
+  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view; gamepad: left stick drive, right stick mast</span>`;
 }
 
 let resetRequested = false;                 // T: stand the rover upright where it is
