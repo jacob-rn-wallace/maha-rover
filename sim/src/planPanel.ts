@@ -17,7 +17,7 @@ export class PlanPanel {
 
   constructor(layout: Layout, readonly route: Route, private map: Minimap, private sun: { bearingDeg: number; elevationDeg: number }, private active: () => boolean) {
     layout.left.append(this.box); this.box.style.display = "none"; this.touch = layout.coarse;
-    map.overlay = (g) => this.drawOverlay(g); map.onCentre = () => this.centre();
+    map.overlays.push((g) => this.drawOverlay(g)); map.onCentre = () => this.centre();
     const c = map.canvas, touches = new Map<number, { x: number; y: number }>();      // two fingers pinch to zoom and drag to pan; one finger places and sets headings
     const pinch = () => { const [a, b] = [...touches.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 }; };
     let last: { d: number; mx: number; my: number } | null = null;

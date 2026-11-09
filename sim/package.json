@@ -14,6 +14,7 @@
     "check:limits": "esbuild tests/limits-check.ts --bundle --platform=node --format=esm --outfile=.check/limits-check.mjs --log-level=warning && node .check/limits-check.mjs",
     "check:freshness": "esbuild tests/freshness-check.ts --bundle --platform=node --format=esm --outfile=.check/freshness-check.mjs --log-level=warning && node .check/freshness-check.mjs",
     "check:plan": "esbuild tests/plan-check.ts --bundle --platform=node --format=esm --outfile=.check/plan-check.mjs --log-level=warning && node .check/plan-check.mjs",
+    "check:delay": "esbuild tests/delay-check.ts --bundle --platform=node --format=esm --outfile=.check/delay-check.mjs --log-level=warning && node .check/delay-check.mjs",
     "bench:summary": "node tests/bench-summary.mjs"
   },
   "dependencies": {

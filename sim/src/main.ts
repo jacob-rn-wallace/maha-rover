@@ -15,6 +15,8 @@ import { Modes, MODES, type Mode } from "./modes";
 import { Route, type Pose } from "./plan";
 import { PlanPanel } from "./planPanel";
 import { RouteView } from "./routeView";
+import { ControlLog, History, predict, CRUISE_THROTTLE, MOON_ONE_WAY_S } from "./delay";
+import { DelayView } from "./delayView";
 import { bearingDeg } from "./freshness";
 import { HazardOverlay } from "./hazard";
 import { CameraView } from "./cameraView";
@@ -36,8 +38,8 @@ const wantReverse = new URLSearchParams(location.search).get("depth") === "rever
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
 const hazard = new HazardOverlay(coarse);      // H toggles it; ?hazard=1 starts it on
-const handlers = { toggleLog: () => {}, setMode: (_m: Mode) => {} };      // set once the performance log and the modes exist
-const ui: UI = new UI(coarse, hazard, { toggleHazard: () => hazard.toggle(), toggleHelp: () => ui.help.toggle(), toggleLog: () => handlers.toggleLog(), setMode: (m) => handlers.setMode(m) });
+const handlers = { toggleLog: () => {}, setMode: (_m: Mode) => {}, setDelay: (_s: number) => {}, toggleCruise: () => {} };      // set once the performance log and the modes exist
+const ui: UI = new UI(coarse, hazard, { toggleHazard: () => hazard.toggle(), toggleHelp: () => ui.help.toggle(), toggleLog: () => handlers.toggleLog(), setMode: (m) => handlers.setMode(m), setDelay: (s) => handlers.setDelay(s), toggleCruise: () => handlers.toggleCruise() });
 (window as any).__ui = ui;      // for scripted checks
 // The drawing buffer is capped in total pixels (default 1 million, about 1280 x 780; ?maxpx=megapixels, e.g. 2.1 for a 1080p frame), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
 // (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
@@ -197,7 +199,17 @@ async function main() {
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
   handlers.toggleLog = toggleLog;
-  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, toggleCamera: () => modes.toggleCamera(), setMode: (i) => modes.set(MODES[i - 1].id), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), undoWaypoint: () => { if (modes.mode === "plan") route.undo(); }, closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
+  // signal delay: the commands reach the rover delayS late and the operator sees the rover's state delayS old (the pose history below); a ghost shows where it will be when a command issued now arrives
+  let delayS = 0, cruise = false;
+  const ctlLog = new ControlLog(), nB = names.length, W = 7 * nB + 5, hist = new History(W, names.map((_, i) => 7 * i + 3)), hvals = new Float64Array(W), hbuf = new Float64Array(W), ci = names.indexOf("chassis");
+  const sc = { t: { x: 0, y: 0, z: 0 }, r: { x: 0, y: 0, z: 0, w: 1 }, v: { x: 0, y: 0, z: 0 }, translation() { return this.t; }, rotation() { return this.r; }, linvel() { return this.v; } };      // the chassis as the operator sees it
+  const shownQ = new THREE.Quaternion(); let shownPan = 0, shownTilt = 0;
+  const delayView = new DelayView(scene, (x, z) => (terrain ? terrain.height(x, z) : 0));
+  minimap?.overlays.push((g) => delayView.drawOverlay(minimap, g));
+  handlers.setDelay = (v) => { delayS = Math.max(0, Math.min(5, v)); ui.bar.setDelay(delayS); cameraView.roll.delayS = delayS; };
+  handlers.toggleCruise = () => { cruise = !cruise; ui.bar.setCruise(cruise); };
+  ui.bar.setDelay(0); if (q.has("delay")) handlers.setDelay(Number(q.get("delay")));
+  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { if (delayS > 0) setTimeout(() => { resetRequested = true; }, delayS * 1000); else resetRequested = true; }, toggleDelay: () => handlers.setDelay(delayS > 0 ? 0 : MOON_ONE_WAY_S), toggleCruise: () => handlers.toggleCruise(), toggleCamera: () => modes.toggleCamera(), setMode: (i) => modes.set(MODES[i - 1].id), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), undoWaypoint: () => { if (modes.mode === "plan") route.undo(); }, closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -217,21 +229,31 @@ async function main() {
     if (fpsCap > 0) { const step = Math.max(1, Math.round(1000 / fpsCap / refreshMsRef.v)); if (++skip < step) return; skip = 0; }
     const jsStart = performance.now();
     const dt = (now - last) / 1000; last = now;
+    const tNow = performance.now() / 1000;
+    let user = input.read();
+    if (cruise && (user.throttle < 0 || user.brake)) { cruise = false; ui.bar.setCruise(false); }      // S or the brake cancels the cruise control
+    if (cruise && user.throttle === 0) user = { ...user, throttle: CRUISE_THROTTLE };
+    ctlLog.push(tNow, user);
     if (resetRequested) { resetRequested = false; phys.resetUpright(); }
-    phys.advance(dt, input.read());
+    phys.advance(dt, delayS > 0 ? ctlLog.at(tNow - delayS) : user);
     { const r = phys.bodies.chassis.rotation(); chassisQ.set(r.x, r.y, r.z, r.w); power.step(Math.min(dt, 0.1), phys.motorPackAmps, phys.servoMoving, sunDir, chassisQ); }
-    for (const n of names) {
-      const b = phys.bodies[n], t = b.translation(), r = b.rotation();
-      node(n).position.set(t.x, t.y, t.z);
-      node(n).quaternion.set(r.x, r.y, r.z, r.w);
-    }
+    for (let i = 0; i < nB; i++) { const b = phys.bodies[names[i]], t = b.translation(), r = b.rotation(); hvals.set([t.x, t.y, t.z, r.x, r.y, r.z, r.w], 7 * i); }
+    { const v = phys.bodies.chassis.linvel(); hvals.set([v.x, v.y, v.z, phys.panAngle, phys.tiltAngle], 7 * nB); }
+    hist.push(tNow, hvals);
+    const src = delayS > 0 && hist.sample(tNow - delayS, hbuf) ? hbuf : hvals;      // what the operator sees: the state delayS ago
+    for (let i = 0; i < nB; i++) { node(names[i]).position.set(src[7 * i], src[7 * i + 1], src[7 * i + 2]); node(names[i]).quaternion.set(src[7 * i + 3], src[7 * i + 4], src[7 * i + 5], src[7 * i + 6]); }
+    sc.t.x = src[7 * ci]; sc.t.y = src[7 * ci + 1]; sc.t.z = src[7 * ci + 2]; sc.r.x = src[7 * ci + 3]; sc.r.y = src[7 * ci + 4]; sc.r.z = src[7 * ci + 5]; sc.r.w = src[7 * ci + 6]; sc.v.x = src[7 * nB]; sc.v.y = src[7 * nB + 1]; sc.v.z = src[7 * nB + 2];
+    shownPan = src[7 * nB + 3]; shownTilt = src[7 * nB + 4];
+    (window as any).__shown = { real: hvals[7 * ci], shown: src[7 * ci], delay: delayS };      // for scripted checks
     cable?.update(dt);
-    const c = phys.bodies.chassis, ct = c.translation();
+    const c = delayS > 0 ? sc : phys.bodies.chassis, ct = c.translation();
+    { const r = c.rotation(); shownQ.set(r.x, r.y, r.z, r.w); }
+    if (delayS > 0) { fwd.set(1, 0, 0).applyQuaternion(shownQ); const v = c.linvel(); const p = predict({ x: ct.x, z: ct.z, headingDeg: bearingDeg(fwd.x, -fwd.z) }, v.x * fwd.x + v.y * fwd.y + v.z * fwd.z, ctlLog, tNow, delayS); delayView.update(p.distance > 0.04 ? p : null); }      // the ghost is shown only while the rover is predicted to move else delayView.update(null);
     const delta = new THREE.Vector3(ct.x, ct.y + 0.25, ct.z).sub(chase);
     chase.add(delta); camera.position.add(delta); controls.target.copy(chase);
     lunar.followSun(new THREE.Vector3(ct.x, ct.y, ct.z));
     mapT += dt;
-    if (minimap && mapT > 0.1) { mapT = 0; fwd.set(1, 0, 0).applyQuaternion(chassisQ); minimap.update(ct.x, ct.z, fwd.x, fwd.z); }
+    if (minimap && mapT > 0.1) { mapT = 0; fwd.set(1, 0, 0).applyQuaternion(shownQ); minimap.update(ct.x, ct.z, fwd.x, fwd.z); }
     hazard.update(ct.x, ct.z);
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
@@ -248,7 +270,7 @@ async function main() {
       }
     }
     if (hudT > 0.1) {      // the route: guidance to the next waypoint (the top-bar chip), the world markers and the panel
-      fwd.set(1, 0, 0).applyQuaternion(chassisQ); const pose: Pose = { x: ct.x, z: ct.z, headingDeg: bearingDeg(fwd.x, -fwd.z) }, g = route.guide(pose);
+      fwd.set(1, 0, 0).applyQuaternion(shownQ); const pose: Pose = { x: ct.x, z: ct.z, headingDeg: bearingDeg(fwd.x, -fwd.z) }, g = route.guide(pose);
       ui.bar.set("route", g ? `wp ${g.index + 1}/${g.count} · ${g.distance.toFixed(0)} m · ${Math.abs(g.turn) < 3 ? "ahead" : (g.turn > 0 ? "right " : "left ") + Math.abs(g.turn).toFixed(0) + "°"}` : null, "route");
       routeView.update(pose); plan?.update(pose);
     }
@@ -270,8 +292,8 @@ async function main() {
     if (benchT !== null) { benchT = (performance.now() - benchStart) / 1000; if (benchT > BENCH_SECONDS) { benchT = null; finish(BENCH_WARMUP, "Benchmark"); } }
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
-    roverPose.x = ct.x; roverPose.z = ct.z; roverPose.quat.copy(chassisQ); roverPose.pan = phys.panAngle; roverPose.tilt = phys.tiltAngle;
-    hazard.without(() => routeView.without(() => cameraView.render(scene, node("head"), vw, vh, roverPose)));
+    roverPose.x = ct.x; roverPose.z = ct.z; roverPose.quat.copy(shownQ); roverPose.pan = shownPan; roverPose.tilt = shownTilt;
+    hazard.without(() => routeView.without(() => delayView.without(() => cameraView.render(scene, node("head"), vw, vh, roverPose))));
   });
 }
 

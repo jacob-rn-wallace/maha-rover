@@ -2,7 +2,7 @@ import type { Controls } from "./physics";
 import { touchSticks } from "./touch";
 
 /** what the keys and touch buttons trigger (main.ts owns the things they act on) */
-export interface Actions { upright(): void; toggleCamera(): void; setMode(index: number): void; cycleMap(): void; toggleLog(): void; toggleHazard(): void; toggleTelemetry(): void; toggleHelp(): void; undoWaypoint(): void; closeAll(): void; snap(): void; stepRoll(dir: -1 | 1): void; live(): void }
+export interface Actions { upright(): void; toggleCamera(): void; setMode(index: number): void; cycleMap(): void; toggleLog(): void; toggleHazard(): void; toggleTelemetry(): void; toggleHelp(): void; toggleDelay(): void; toggleCruise(): void; undoWaypoint(): void; closeAll(): void; snap(): void; stepRoll(dir: -1 | 1): void; live(): void }
 
 const autoDrive = (new URLSearchParams(location.search).get("autodrive") ?? "").split(",").map(Number).filter(isFinite) as number[];      // ?autodrive=from,to: full throttle between those seconds after load (for scripted screenshots)
 const t0 = performance.now();
@@ -11,7 +11,7 @@ const t0 = performance.now();
 export function setupInput(coarse: boolean, parent: HTMLElement, on: Actions, scripted: () => Controls | null) {
   const touch = coarse ? touchSticks(parent, on) : undefined;
   const keys = new Set<string>();
-  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.repeat) return; if (e.code === "KeyT") on.upright(); if (e.code === "KeyC") on.toggleCamera(); const d = /^(Digit|Numpad)([1-4])$/.exec(e.code); if (d) on.setMode(Number(d[2])); if (e.code === "KeyM") on.cycleMap(); if (e.code === "KeyL") on.toggleLog(); if (e.code === "KeyH") on.toggleHazard(); if (e.code === "KeyP") on.snap(); if (e.code === "BracketLeft") on.stepRoll(-1); if (e.code === "BracketRight") on.stepRoll(1); if (e.code === "KeyV") on.live(); if (e.code === "KeyI") on.toggleTelemetry(); if (e.key === "?" || e.code === "F1") { e.preventDefault(); on.toggleHelp(); } if (e.code === "Escape") on.closeAll(); if (e.code === "Backspace") on.undoWaypoint(); });
+  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.repeat) return; if (e.code === "KeyT") on.upright(); if (e.code === "KeyC") on.toggleCamera(); const d = /^(Digit|Numpad)([1-4])$/.exec(e.code); if (d) on.setMode(Number(d[2])); if (e.code === "KeyM") on.cycleMap(); if (e.code === "KeyL") on.toggleLog(); if (e.code === "KeyH") on.toggleHazard(); if (e.code === "KeyP") on.snap(); if (e.code === "BracketLeft") on.stepRoll(-1); if (e.code === "BracketRight") on.stepRoll(1); if (e.code === "KeyV") on.live(); if (e.code === "KeyI") on.toggleTelemetry(); if (e.key === "?" || e.code === "F1") { e.preventDefault(); on.toggleHelp(); } if (e.code === "Escape") on.closeAll(); if (e.code === "Backspace") on.undoWaypoint(); if (e.code === "KeyZ") on.toggleDelay(); if (e.code === "KeyX") on.toggleCruise(); });
   addEventListener("keyup", (e) => keys.delete(e.code));
   addEventListener("blur", () => keys.clear());
   const k = (...c: string[]) => (c.some((x) => keys.has(x)) ? 1 : 0);

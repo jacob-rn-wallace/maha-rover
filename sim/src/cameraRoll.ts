@@ -13,6 +13,7 @@ export class CameraRoll {
   readonly flags = document.createElement("div");
   shots: Shot[] = [];
   selected = -1;
+  delayS = 0;      // the signal delay: the live view is this old
   private thumbs = document.createElement("span");
   private liveBtn = document.createElement("button");
 
@@ -62,7 +63,7 @@ export class CameraRoll {
   updateFlags(now: CamPose) {
     const chip = (text: string, colour: string) => `<span style="padding:1px 6px;border-radius:9px;background:rgba(0,0,0,.6);border:1px solid ${colour};color:${colour}">${text}</span>`;
     const s = this.current;
-    if (!s) { this.flags.innerHTML = chip("live", GREEN); return; }
+    if (!s) { this.flags.innerHTML = this.delayS > 0 ? chip(`live, ${this.delayS.toFixed(1)} s old`, AMBER) : chip("live", GREEN); return; }
     const f = freshness(s.pose, now);
     this.flags.innerHTML = chip(`past image, ${formatAge(f.ageS)} old`, f.fresh ? GREEN : GREY) + chip(f.roverMoved ? "rover has moved" : "rover has not moved", f.roverMoved ? AMBER : GREEN) + chip(f.cameraMoved ? "camera has moved" : "camera unchanged", f.cameraMoved ? AMBER : GREEN);
   }

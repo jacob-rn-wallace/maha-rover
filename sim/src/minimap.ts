@@ -13,7 +13,7 @@ export class Minimap {
   private trail: [number, number][] = [];
   mode = 1;                       // 0 off, 1 small, 2 large
   shown = true;                   // false in the modes that have no map
-  overlay?: (g: CanvasRenderingContext2D) => void;      // drawn over the trail, under the rover (the route); `toCanvas` maps world to canvas
+  overlays: ((g: CanvasRenderingContext2D) => void)[] = [];      // drawn over the trail, under the rover (the route, the delay ghost); `toCanvas` maps world to canvas
   private primaryX = NaN;          // the centre of the main-view square, when it is not the window's
   private primary = false;        // the main view (Plan): a big square in the middle
   private primaryPx = 400;
@@ -115,7 +115,7 @@ export class Minimap {
     g.strokeStyle = "rgba(255,200,80,.9)"; g.lineWidth = 1.5; g.beginPath();
     this.trail.forEach(([tx, tz], i) => { const [X, Y] = this.toCanvas(tx, tz); if (i) g.lineTo(X, Y); else g.moveTo(X, Y); });
     g.lineTo(px, py); g.stroke();
-    this.overlay?.(g);
+    for (const o of this.overlays) o(g);
     // heading arrow, drawn at a fixed size whatever the scale
     const ang = Math.atan2(fz, fx);
     g.save(); g.translate(px, py); g.rotate(ang);
