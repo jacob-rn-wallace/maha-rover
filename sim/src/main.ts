@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { addLunarScene } from "./lunar";
 import { Terrain } from "./terrain";
 import { FJS1 } from "./soil";
@@ -46,7 +47,7 @@ const ground = lunar.ground;
 addEventListener("error", (e) => { hud.textContent = "error: " + e.message; });
 async function main() {
   const [gltf, spec] = await Promise.all([
-    new GLTFLoader().loadAsync("rover.glb"),
+    new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync("rover.glb"),
     fetch("rover.json").then((r) => r.json() as Promise<Spec>),
   ]);
   gltf.scene.traverse((o) => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.receiveShadow = true; } });
