@@ -10,6 +10,7 @@ import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { applyMetalDetail } from "./metal";
 import { Power } from "./power";
+import { PhysicsProxy, type PhysicsView } from "./physicsProxy";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -100,8 +101,19 @@ async function main() {
   if (still) { hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
 
   const soil = q.get("soil") === "0" || (flat && q.get("soil") !== "1") ? undefined : FJS1;     // ?soil=0 Coulomb friction instead; ?soil=1 with ?flat=1 or ?test=1
-  const phys = await RoverPhysics.create(spec, 0.03, terrain, soil);
-  if (q.get("test") === "1") { runTest(phys); return; }
+  // the physics runs in a worker (its own copy of the terrain) unless ?worker=0, in the scripted test, or without the terrain
+  const useWorker = q.get("worker") !== "0" && q.get("test") !== "1" && typeof Worker !== "undefined";
+  let phys: PhysicsView;
+  if (useWorker) {
+    hud.textContent = "starting physics...";
+    phys = await PhysicsProxy.create(spec, { spawnHeight: 0.03, terrainBase: terrain ? new URL("terrain/", location.href).href : undefined,
+      terrainOpts: { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined }, rocks: !!terrain && q.get("rocks") !== "0", soil: !!soil });
+  } else {
+    const direct = await RoverPhysics.create(spec, 0.03, terrain, soil);
+    if (q.get("test") === "1") { runTest(direct); return; }
+    phys = direct;
+  }
+  (window as any).__phys = phys;      // for scripted checks (tests/cdp-shot.mjs)
   const input = setupInput();
   // the mast camera: Raspberry Pi HQ (IMX477, 6.287 x 4.712 mm active area, Raspberry Pi documentation) behind a 4 mm lens: 76.6 x 61.4 degrees, 4:3, no distortion
   const cam = spec.camera, mastCam = new THREE.PerspectiveCamera(61.4, 4 / 3, 0.02, 200000);
@@ -116,7 +128,8 @@ async function main() {
   const chassisQ = new THREE.Quaternion();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
-  let last = performance.now(), hudT = 0;
+  let last = performance.now(), hudT = 0, fpsEma = 60, drawCalls = 0, drawTris = 0;
+  const showStats = q.get("stats") === "1";      // ?stats=1: frame rate and draw load of the main view on the HUD
   renderer.setAnimationLoop((now) => {
     const dt = (now - last) / 1000; last = now;
     if (resetRequested) { resetRequested = false; phys.resetUpright(); }
@@ -134,12 +147,15 @@ async function main() {
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
     hudT += dt;
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : ""); }
+    fpsEma += ((1 / Math.max(dt, 1e-3)) - fpsEma) * 0.05;
+    fpsEma += (1 / Math.max(dt, 1e-3) - fpsEma) * 0.05;
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${fpsEma.toFixed(0)} fps, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
     renderer.setScissorTest(false); renderer.setViewport(0, 0, vw, vh);
     renderer.render(scene, camera);
+    drawCalls = renderer.info.render.calls; drawTris = renderer.info.render.triangles;
     if (pip.mode > 0) {
       const hb = node("head"), hp = hb.position;
       headQ.copy(hb.quaternion);
@@ -156,7 +172,7 @@ async function main() {
 /** phones: three lines, tap the panel for the full readout */
 let hudFull = false;
 if (coarse) { hud.style.fontSize = "11px"; hud.style.maxWidth = "230px"; hud.addEventListener("click", () => { hudFull = !hudFull; }); }
-function shortText(phys: RoverPhysics, c: any, euler: THREE.Euler, p: Power) {
+function shortText(phys: PhysicsView, c: any, euler: THREE.Euler, p: Power) {
   const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
   const v = c.linvel(), deg = (x: number) => (x * 180 / Math.PI).toFixed(0);
   return `<b>المَهَا al-maha</b> ${Math.hypot(v.x, v.z).toFixed(2)} m/s<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°, battery ${(p.soc * 100).toFixed(0)}%${phys.tiltCut ? '<br><span style="color:#ffb04a">tilt guard: drive cut</span>' : ""}<br><span style="opacity:.6">tap for more</span>`;
@@ -184,14 +200,14 @@ function edgeText(x: number, z: number, t: Terrain) {
 }
 
 /** with the soil model: the mean tip-referred slip of the wheels in contact and the sinkage the model predicts for it (the ground itself stays rigid) */
-function soilLine(phys: RoverPhysics) {
+function soilLine(phys: PhysicsView) {
   const on = WHEELS.map((w) => phys.soilState[w]).filter((s) => s && s.load > 0.02);
   if (!on.length) return "";
   const slip = on.reduce((a, s) => a + s.slip, 0) / on.length, sink = on.reduce((a, s) => a + s.sinkage, 0) / on.length, load = on.reduce((a, s) => a + s.load, 0);
   return `, soil slip ${(slip * 100).toFixed(0)}%, sinkage about ${sink.toFixed(0)} mm, load ${load.toFixed(1)} N`;
 }
 
-function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
+function hudText(phys: PhysicsView, c: any, euler: THREE.Euler) {
   const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
   const v = c.linvel(), fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));
   const speed = v.x * fwd.x + v.y * fwd.y + v.z * fwd.z;
@@ -233,6 +249,8 @@ function touchSticks() {
   return out;
 }
 
+const autoDrive = (new URLSearchParams(location.search).get("autodrive") ?? "").split(",").map(Number).filter(isFinite) as number[];      // ?autodrive=from,to: full throttle between those seconds after load (for scripted screenshots)
+const t0 = performance.now();
 function setupInput() {
   const touch = coarse ? touchSticks() : undefined;
   const keys = new Set<string>();
@@ -251,6 +269,7 @@ function setupInput() {
         pan += -dz(gp.axes[2] ?? 0); tilt += -dz(gp.axes[3] ?? 0);
       }
       if (touch) { throttle += touch.drive[1]; turn += touch.drive[0]; pan += -touch.mast[0]; tilt += touch.mast[1]; }
+      if (autoDrive.length === 2 && performance.now() - t0 < autoDrive[1] * 1000 && performance.now() - t0 > autoDrive[0] * 1000) throttle += 1;
       const cl = (x: number) => Math.max(-1, Math.min(1, x));
       return { throttle: cl(throttle), turn: cl(turn), pan: cl(pan), tilt: cl(tilt), brake: keys.has("Space") };
     },

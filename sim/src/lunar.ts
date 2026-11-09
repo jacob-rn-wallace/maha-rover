@@ -15,7 +15,9 @@ export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer,
   const sun = new THREE.DirectionalLight(0xfff6ea, 3.0);
   sun.position.copy(sunDir).multiplyScalar(20);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(4096, 4096);
+  const q = new URLSearchParams(location.search), coarse = matchMedia("(pointer: coarse)").matches || q.get("touch") === "1";
+  const smap = q.has("shadow") ? Number(q.get("shadow")) : coarse ? 2048 : 4096;      // 4 m across: 4096 is 1 mm per texel and 64 MB of depth; 2048 (2 mm, 16 MB) on phones; ?shadow=N overrides
+  sun.shadow.mapSize.set(smap, smap);
   Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2, near: 1, far: 60 });
   sun.shadow.bias = -0.0002;
   sun.shadow.normalBias = 0.002;
