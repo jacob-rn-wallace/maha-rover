@@ -63,8 +63,9 @@ def lens_detail(lens):
     for k in range(6):                                           # focus ring grooves
         xg = xf - 9.0 - 1.6 * k
         barrel = barrel - Pos(xg, cy, cz) * Rot(0, 90, 0) * (Cylinder(16.0, 0.7) - Cylinder(14.2, 0.7))
-    ring = Pos(xf - 0.5, cy, cz) * Rot(0, 90, 0) * (Cylinder(10.5, 1.0) - Cylinder(7.5, 1.0))
-    glass = Pos(xf - 0.9, cy, cz) * Rot(0, 90, 0) * Cylinder(7.5, 0.4)
+    barrel = barrel - Pos(xf - 0.6, cy, cz) * Rot(0, 90, 0) * Cylinder(10.5, 1.2)     # pocket for the retaining ring, so no two faces are coplanar (they z-fought as a jagged line)
+    ring = Pos(xf - 0.7, cy, cz) * Rot(0, 90, 0) * (Cylinder(10.3, 1.0) - Cylinder(7.4, 1.0))
+    glass = Pos(xf - 0.9, cy, cz) * Rot(0, 90, 0) * Cylinder(7.6, 0.4)
     return barrel, glass, ring
 
 
