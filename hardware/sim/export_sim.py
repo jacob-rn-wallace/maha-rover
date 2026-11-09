@@ -49,6 +49,62 @@ PARENT = {"chassis": None, "linkL": "chassis", "linkR": "chassis", "pan": "chass
           **{f"wheel{k}": "link" + k[1] for k in WHEELS}}
 
 
+# ---- visual layer: T-slot profiles in place of the CAD's plain extrusion boxes (the CAD ignores slots; mass is from catalogue kg/m) ----
+from build123d import Box, Cylinder, Pos, Rot  # noqa: E402
+
+# (opening, lip thickness, cavity width, cavity depth, bore): 5-series 20 mm profile (6 mm slot) and 8-series 40 mm profile (10 mm slot)   ASSUMPTION (typical catalogue values)
+PROFILES = {20.0: (6.2, 1.8, 11.0, 4.5, 4.2), 40.0: (10.2, 3.0, 20.0, 9.0, 8.5)}
+
+
+def tslot_bar(size, length):
+    """A square T-slot bar of side `size` (20 or 40), `length` along Z, centred on the origin."""
+    op, lip, cw, cd, bore = PROFILES[size]
+    bar = Box(size, size, length)
+    for k in range(4):
+        cut = Pos(0, size / 2 - lip / 2 + 0.5, 0) * Box(op, lip + 1.0, length + 2) + Pos(0, size / 2 - lip - cd / 2, 0) * Box(cw, cd, length + 2)
+        bar = bar - Rot(0, 0, 90 * k) * cut
+    t = size * 0.12                                                 # diagonal webs joining the core to the corners
+    sq = Box(size, size, length)
+    for ang in (45, -45):
+        bar = bar + ((Rot(0, 0, ang) * Box(t, size * 1.5, length)) & sq)
+    return bar - Cylinder(bore / 2, length + 2)
+
+
+def refine(group, name, shape):
+    """Swap a plain extrusion box of the frame or mast for a slotted profile, keeping holes cut in the box."""
+    if not (group in ("frame", "frame upper") or (group == "mast" and name == "tube")):
+        return shape
+    bb = shape.bounding_box()
+    d = np.array([bb.size.X, bb.size.Y, bb.size.Z])
+    ax = int(np.argmax(d))
+    sec = sorted(float(x) for i, x in enumerate(d) if i != ax)
+    ok = lambda a, b: abs(a - b) < 0.6
+    if not ((ok(sec[0], 20) and ok(sec[1], 20)) or (ok(sec[0], 20) and ok(sec[1], 40)) or (ok(sec[0], 40) and ok(sec[1], 40))):
+        return shape
+    L = float(d[ax])
+    c = ((bb.min.X + bb.max.X) / 2, (bb.min.Y + bb.max.Y) / 2, (bb.min.Z + bb.max.Z) / 2)
+    if ok(sec[0], 20) and ok(sec[1], 40):
+        bar = Pos(-10, 0, 0) * tslot_bar(20.0, L) + Pos(10, 0, 0) * tslot_bar(20.0, L)      # local X is the 40 mm direction
+    else:
+        bar = tslot_bar(20.0 if ok(sec[1], 20) else 40.0, L)
+    rotations = {0: Rot(0, 90, 0), 1: Rot(-90, 0, 0), 2: Rot(0, 0, 0)}
+    base = rotations[ax]
+    box_vol = bb.size.X * bb.size.Y * bb.size.Z
+    best = None
+    for roll in (0, 90):
+        cand = Pos(*c) * base * Rot(0, 0, roll) * bar
+        cb = cand.bounding_box()
+        err = abs(cb.size.X - bb.size.X) + abs(cb.size.Y - bb.size.Y) + abs(cb.size.Z - bb.size.Z)
+        if best is None or err < best[0]:
+            best = (err, cand)
+    err, cand = best
+    if err > 1.0:
+        return shape
+    if abs(shape.volume - box_vol) > 1.0:                                  # holes or cuts in the CAD member: keep them
+        cand = cand - (Pos(*c) * Box(bb.size.X, bb.size.Y, bb.size.Z) - shape)
+    return cand
+
+
 def body_of(group, name):
     """Which rigid body a part of rover.collect() belongs to."""
     if group == "wheels":
@@ -144,7 +200,7 @@ def main():
     raw = {k: [] for k in BODIES}            # body -> triangles for the inertia
     for g, n, s in items:
         b = body_of(g, n)
-        v, t = mesh_of(s)
+        v, t = mesh_of(refine(g, n, s))
         if len(t) == 0:
             continue
         v = to_gl(v - np.array(BODIES[b]))
