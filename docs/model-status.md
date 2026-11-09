@@ -47,7 +47,7 @@ between panels, and the stiffness of the side panels (65 mm overhang beyond the 
 ## Unverified
 
 The depth of the recessed end faces (taken from the owner's reading of the CAD models; the dense cloud had it shallower, and the perspective views hint that the lower and upper parts may differ); the gusset size;
-the 2.4 GHz antenna position (y +58); whether the B0091 CSI extender works with a Pi Zero and takes the HQ camera's 15-pin ribbon directly; whether the Waveshare servo adapter works at 6 V; the deck's stiffness under the mast
+the 2.4 GHz antenna position (y +58); whether the B0091 CSI extender works with the HQ camera and a Pi Zero 2 W in practice (the vendor lists both; untested) and which slim HDMI cord carries all its pins; whether the Waveshare servo adapter works at 6 V; the deck's stiffness under the mast
 (estimated in `frame-spec.md`, not analysed); the hat size (70 mm against the original's 84).
 
 ## Original features left out (open decision)
