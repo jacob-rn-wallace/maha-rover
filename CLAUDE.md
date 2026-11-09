@@ -85,6 +85,9 @@ differential with skid steering [S25]). The extrusion-frame idea from those sess
 - **Graphics and other docs** (wordmark, poster, headers, READMEs): CC BY 4.0 (`LICENSE-DOCUMENTATION.txt`)
 - Third-party material (NASA photos in `graphic-design/source-photos/`) is covered by `NOTICE.md`, not these licences.
 
+## Current focus (2026-11-08)
+Hardware purchases and physical tests are blocked, so the work is a high-fidelity browser simulation of al-maha on real lunar terrain (three.js + Rapier, `sim/`, GitHub Pages). **Read `docs/sim-handoff.md` first**, then `docs/sim-spec.md`. The terrain data files are large and not in git (see the hand-off for where they live and their checksums).
+
 ## Status
 - Done: first pass at sourcing the original's dimensions from MBRSC and
   instrument-team papers (`docs/original-dimensions.md`). A WebAR model of the
