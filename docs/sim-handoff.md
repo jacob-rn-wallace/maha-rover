@@ -34,7 +34,7 @@ Do not fetch these from the archives again: **the LROC archive's CDN rate-limite
 - Python: `python3 -m venv .venv && .venv/bin/pip install -r requirements-lock.txt` (pinned from the laptop's Python 3.12; the pins resolve on 3.14).
 - Terrain: `.venv/bin/python hardware/sim/terrain/site_select.py ~/lunar-data/NAC_DTM_ATLAS_E468N0446.IMG <cache dir>`; `.venv/bin/python hardware/sim/terrain/atlas_tile.py build-local ~/lunar-data/NAC_DTM_ATLAS_E468N0446.IMG sim/public/terrain`.
 - Model export: `.venv/bin/python hardware/sim/export_sim.py` (about 30 s). CAD checks: `.venv/bin/python hardware/mast/mast.py`, `hardware/mass/replica.py`, etc.
-- Web app: `cd sim && npm install && npm run dev` (needs Node; see below). Scripted physics check: open `?test=1` and read `<pre id="test">`; screenshots with headless Chrome (`--use-angle=swiftshader --enable-unsafe-swiftshader --virtual-time-budget=...`, macOS path in `docs`-less notes: `/Applications/Google Chrome.app/...`).
+- Web app: `cd sim && npm install && npm run dev` (needs Node; see below). Scripted physics check: open `?test=1` and read `<pre id="test">`; screenshots with headless Chrome (`--headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --virtual-time-budget=15000 --screenshot=out.png "http://127.0.0.1:5173/?still=1&cam=..."`; the laptop's binary is `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`).
 - **Server notes:** Python 3.14.4 only; Node was not installed (not set up on 2026-11-08: needs the owner's go-ahead); no Chrome found; `claude` is at `~/.local/bin/claude`. Git over SSH works (gh logged in as the owner).
 
 ## Next steps, in order
@@ -49,5 +49,9 @@ Do not fetch these from the archives again: **the LROC archive's CDN rate-limite
 - Rapier: no joint motor torque limit in 0.14, so actuators are explicit torques; `addTorque` persists until `resetTorques`; a wheel through a 131:1 gearbox needs the rotor's reflected inertia or the explicit torque loop chatters.
 - glTF nodes: look all body nodes up before re-parenting them to the scene root, or the children vanish from the lookup.
 - Wheel grousers look like needles seen edge-on: not an artifact.
+- Regenerating `sim/public/rover.glb` on another machine gives slightly different bytes: only the chassis mesh differs (118 of 29,476 triangles on the server, probably fillet tessellation), the masses, centres of mass and inertia agree to 0.01% and the collision hulls are identical. Commit a regenerated model only if the CAD changed.
 - Site data: the Atlas DTM's valid area is irregular; a fully covered window must be checked, not assumed (the first tile was all missing values).
 - `site_select.py` slopes come from stereo-matched 2 m posts averaged to 8 m: comparable to the paper's 7.4 m/px Kaguya slopes, not identical.
+
+## Server verification (2026-11-08)
+Clones at `~/maha-rover` (same commit as the laptop's `main`) and `~/maha-rover-private`; the private untracked files match the laptop's by checksum; venv built from `requirements-lock.txt` on Python 3.14; `hardware/mass/replica.py` reproduces the laptop's result (centre of mass x 23.2, z 234.6 mm, tip angles 34/26/47 degrees) and `export_sim.py` runs (total 9.579 kg).
