@@ -130,7 +130,7 @@ def body_of(group, name):
     if group in ("mast", "camera", "camera module", "GNSS patch", "servos", "pan base", "cable"):
         if name in HB.TILTING:
             return "head"
-        if name in ("tube", "bracket", "spindle", "tilt servo"):
+        if name in ("tube", "bracket", "spindle", "tilt servo", "mast cap", "mast cap screw"):
             return "pan"
     return "chassis"
 
@@ -204,7 +204,9 @@ def material_key(group, name):
         return "anodised T-slot"
     if name in ("pan housing", "enclosure", "base", "pan coupling disc"):
         return "cast aluminium"
-    if name in ("bracket", "disk", "antenna hat") or group == "panels":
+    if name == "mast cap screw":
+        return "steel"
+    if name in ("bracket", "disk", "antenna hat", "mast cap") or group == "panels":
         return "sheet aluminium"
     if name == "GNSS patch":
         return "ceramic patch"
@@ -289,7 +291,7 @@ def main():
     ch = sum(p[0] * np.array([p[1].X, p[1].Y, p[1].Z]) for p in head_pts) / mh
     cm = np.array([xc, 0.0, zc])
     # the turning pan body: extrusion, sheet bracket, tilt servo, spindle; the rest of the mast mass (base plate, pan servo, housing, bearings, hardware) is fixed to the chassis
-    pan_pts = [((MAST.TUBE_Z1 - MAST.TUBE_Z0) / 1000.0 * MAST.EXT_KG_PER_M, cen("tube")), (rot["bracket"].volume / 1e6 * MAST.AL_G_CM3, cen("bracket")),
+    pan_pts = [((MAST.EXT_TOP - MAST.TUBE_Z0) / 1000.0 * MAST.EXT_KG_PER_M, cen("tube")), (rot["mast cap"].volume / 1e6 * MAST.AL_G_CM3, cen("mast cap")), (MAST.CAP_SCREW_KG, cen("mast cap screw")), (rot["bracket"].volume / 1e6 * MAST.AL_G_CM3, cen("bracket")),
                (MAST.H.SERVO_MASS, cen("tilt servo")), (MAST._BASE_INFO["al_kg"], cen("spindle"))]
     vec = lambda c: np.array([c.X, c.Y, c.Z])
     pan_m = sum(p[0] for p in pan_pts)
@@ -413,7 +415,7 @@ def main():
         "ground_reference": "y = 0 is the rim line (grouser tips reach 12.2 mm below it)",
     }
     (OUT / "rover.json").write_text(json.dumps(spec, indent=1))
-    print(f"glb {len(glb) / 1e6:.1f} MB, {sum(stats.values())} triangles, total {total:.3f} kg (replica.py 9.55)")
+    print(f"glb {len(glb) / 1e6:.1f} MB, {sum(stats.values())} triangles, total {total:.3f} kg (replica.py 9.58)")
     for b in order:
         print(f"  {b:10s} {mass[b]:6.3f} kg  {stats[b]:7d} tri")
 

@@ -10,28 +10,28 @@ pieces) are marked ASSUMPTION in the script: they are not designed. The goal is 
 group                                  kg   share      x      z
 panels                               2.36     25%      0    246
 T-slot frame                         1.69     18%      0    211
-mast, head and camera                1.46     15%    162    504
+mast, head and camera                1.47     15%    162    505
 wheels                               0.94     10%     -0    100
-link plates, sleeves, shafts         0.88      9%      0    132
+link plates, sleeves, shafts         0.88      9%     -0    126
 drive motors                         0.78      8%      0    100
 electronics                          0.42      4%    -47    165
 harness and fasteners                0.40      4%      0    190
 differential                         0.30      3%      0    146
 pivot standoffs                      0.12      1%      0    240
 solar pieces                         0.09      1%      0    255
-antennas and radios                  0.06      1%     43    441
+antennas and radios                  0.07      1%     58    447
 terminals, diodes, fuses             0.05      1%      0    255
 bushings                             0.02      0%     -0    146
-TOTAL                                9.56   goal 10 kg: +0.44 kg; ceiling 10.5 kg: margin +0.94 kg
+TOTAL                                9.58   goal 10 kg: +0.42 kg; ceiling 10.5 kg: margin +0.92 kg
 
-centre of mass: x 22.8, y -0.3, z 234.3 (mm, ground at the rim line)
+centre of mass: x 23.2, y -0.3, z 234.6 (mm, ground at the rim line)
 static tip angles: nose-down 34 deg, nose-up 26 deg, sideways 47 deg  (the slope requirement is 20 deg)
   assumptions: wheels 1.07 g/cm3 solid (0.24 kg each), allowances 0.84 kg
 ```
 
 ## Reading the result
 
-- **9.56 kg: 0.44 kg under the 10 kg goal, 0.94 kg under the 10.5 kg ceiling** (2026-11-08: six deck gussets, +0.09 kg; 2026-11-08: the end panels were recessed to the wheel axle line, full height, and the rail under the mast was removed, `original-dimensions.md` 3n: the floor, end panels and rails got shorter, -0.59 kg; before that 10.06 kg) (2026-11-08: the round-cable camera link, option A of `electronics-spec.md`, added 0.067 kg: Tx board in the camera box, Rx board and the 1 m cord, hanging loose like the original's harness; before it the total was 9.998 kg, with) (the GNSS board and the servo bus adapter became placed parts, 0.029 kg, in place of 0.020 kg of allowances, and the RF cables and ribbon are 0.008 kg; any camera-cable fix in `electronics-spec.md` costs more) (the GNSS patch on an aluminium hat disc, the 2.4 GHz dipole and the radio allowances added 0.05 kg; the disk in aluminium instead of print: +0.011 kg; 9.88 before the HQ camera and 4 mm lens replaced the 10 g stand-in: +0.09 kg, less 0.05 kg of printed collar and plate that went). Applied 2026-11-08 in the mass second pass (after the die-cast boxes had taken the replica to 10.50 kg): the link plates are 4 mm instead of 8 (the pivot boss grows from 12 to 16 mm so the shaft keeps its 20 mm bond; net 0.40 kg), the wheels are printed in ASA (1.07 g/cm3) instead of PETG (0.18 kg), and the mast base plate is 3 mm instead of 6 (0.05 kg). The mast column stays the 40 x 40 T-slot extrusion (a 60 x 60 x 2 tube would have saved 0.10 kg, declined so that others can mount things on the mast). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are a solid printed estimate (0.24 kg each in ASA; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each), and
+- **9.58 kg: 0.42 kg under the 10 kg goal, 0.92 kg under the 10.5 kg ceiling** (2026-11-08: a 40 x 40 x 6 aluminium end plate and an M10 countersunk screw on the mast extrusion, which is 6 mm shorter under it: +0.025 kg; 2026-11-08: six deck gussets, +0.09 kg; 2026-11-08: the end panels were recessed to the wheel axle line, full height, and the rail under the mast was removed, `original-dimensions.md` 3n: the floor, end panels and rails got shorter, -0.59 kg; before that 10.06 kg) (2026-11-08: the round-cable camera link, option A of `electronics-spec.md`, added 0.067 kg: Tx board in the camera box, Rx board and the 1 m cord, hanging loose like the original's harness; before it the total was 9.998 kg, with) (the GNSS board and the servo bus adapter became placed parts, 0.029 kg, in place of 0.020 kg of allowances, and the RF cables and ribbon are 0.008 kg; any camera-cable fix in `electronics-spec.md` costs more) (the GNSS patch on an aluminium hat disc, the 2.4 GHz dipole and the radio allowances added 0.05 kg; the disk in aluminium instead of print: +0.011 kg; 9.88 before the HQ camera and 4 mm lens replaced the 10 g stand-in: +0.09 kg, less 0.05 kg of printed collar and plate that went). Applied 2026-11-08 in the mass second pass (after the die-cast boxes had taken the replica to 10.50 kg): the link plates are 4 mm instead of 8 (the pivot boss grows from 12 to 16 mm so the shaft keeps its 20 mm bond; net 0.40 kg), the wheels are printed in ASA (1.07 g/cm3) instead of PETG (0.18 kg), and the mast base plate is 3 mm instead of 6 (0.05 kg). The mast column stays the 40 x 40 T-slot extrusion (a 60 x 60 x 2 tube would have saved 0.10 kg, declined so that others can mount things on the mast). The estimate is only as good as its guesses: 0.84 kg of it is allowances, the wheels are a solid printed estimate (0.24 kg each in ASA; the same CAD wheel in the original's magnesium alloy would be 0.40 kg each), and
   the differential's gears and housing are sized (0.17 kg, with 0.30 kg allowed for bushings and hardware) but its mounts are not designed. The margin is small; the levers below are the first things to cut if it vanishes.
 - **The chassis is the biggest item:** panels 2.4 kg and frame 2.1 kg are 46 percent of the total, against the original's 2 kg
   structure [S26] (the original's figure excludes mobility, and does not count panels the same way).

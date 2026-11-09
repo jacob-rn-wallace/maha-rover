@@ -20,7 +20,7 @@ import math
 import sys
 from pathlib import Path
 
-from build123d import Axis, Box, Compound, Cylinder, Pos, Rot, export_step
+from build123d import Axis, Box, Compound, Cone, Cylinder, Pos, Rot, export_step
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent / "body"))
@@ -42,6 +42,9 @@ TOP_Z = B.TOP_Z                    # top of the head                            
 BASE_Z0, BASE_Z1 = B.DECK_TOP_Z, B.DECK_TOP_Z + PLATE_T   # base plate on the deck
 _BASE_PARTS, _BASE_INFO = BASE.build(TUBE_X, BASE_Z1)      # pan drive housing, servo, spindle and bearings (base.py)
 TUBE_Z0, TUBE_Z1 = _BASE_INFO["z_flange_top"], 597.0  # extrusion from the spindle flange up into the bracket; the original's tube tops out at 577 [3j], this one is raised to 597 (the bracket's web is bolted to it); limit about 600 from the tilt sweep
+CAP_T = 6.0                        # aluminium end plate on the extrusion's top end, 40 x 40 x 6, held by one countersunk M10 screw into the tapped centre bore (owner's choice, 2026-11-08). The stack top stays at TUBE_Z1: the extrusion is 6 mm shorter
+CAP_SCREW_KG = 0.013               # M10 x 16 countersunk screw (ISO 10642 head: 20 mm across, 5.5 deep; 8.5 mm bore tapped M10)   ASSUMPTION (catalogue figures remembered, not looked up)
+EXT_TOP = TUBE_Z1 - CAP_T          # top of the extrusion, under the plate
 CAM_Y = B.CAM_Y                    # 28 right of the centreline                   derived [S8], confirmed [3j]
 CAM_AXIS_Z = HB.AZ                 # CAM-1 optical axis and tilt axis height: 667 measured on the original's Fig. 1 (stated 660 [S12])
 CAM_FRONT_X = B.WHEELBASE / 2 + 77.9   # [S8] 77.9 ahead of the front axle: matches the lens front in [3j]
@@ -60,9 +63,23 @@ PRINTED_HEAD = ("baffle", "hood")
 
 def parts():
     base = Pos(TUBE_X, 0, (BASE_Z0 + BASE_Z1) / 2) * Box(PLATE_X, PLATE_Y, PLATE_T)
-    tube = Pos(TUBE_X, 0, (TUBE_Z0 + TUBE_Z1) / 2) * Box(EXT, EXT, TUBE_Z1 - TUBE_Z0)   # slots ignored, as in frame.py
+    tube = Pos(TUBE_X, 0, (TUBE_Z0 + EXT_TOP) / 2) * Box(EXT, EXT, EXT_TOP - TUBE_Z0)   # slots ignored, as in frame.py
+    cap, screw = end_cap()
     hp = HB.head()
-    return {"base": base, "tube": tube, **hp, **_BASE_PARTS}
+    return {"base": base, "tube": tube, "mast cap": cap, "mast cap screw": screw, **hp, **_BASE_PARTS}
+
+
+def end_cap():
+    """The 40 x 40 x 6 aluminium end plate with an 11 mm hole and a 90 degree countersink, and its M10 countersunk screw (head and the shank through the plate; the thread in the bore is not modelled)."""
+    z0, z1 = EXT_TOP, TUBE_Z1
+    csk_r, hole_r, depth = 10.0, 5.5, 4.5                         # 20 mm head across, 11 mm hole, 90 degree countersink
+    plate = Pos(TUBE_X, 0, (z0 + z1) / 2) * Box(EXT, EXT, CAP_T)
+    hole = Pos(TUBE_X, 0, (z0 + z1) / 2) * Cylinder(hole_r, CAP_T + 2)
+    plate = plate - hole - Pos(TUBE_X, 0, z1 - depth / 2) * Cone(hole_r, csk_r, depth)
+    head = Pos(TUBE_X, 0, z1 - depth / 2) * Cone(hole_r, csk_r, depth)
+    head = head - Pos(TUBE_X, 0, z1 - 1.5) * Cylinder(2.8, 3.0)                  # socket (round stand-in for the 5 mm hex)
+    shank = Pos(TUBE_X, 0, (z0 + z1 - depth) / 2) * Cylinder(5.0, CAP_T - depth)
+    return plate, head + shank
 
 
 def cg_and_moment():
@@ -70,7 +87,9 @@ def cg_and_moment():
     pts = []   # (mass, x, z)
     c = lambda n: rot[n].center()
     pts.append((PLATE_X * PLATE_Y * PLATE_T / 1e3 * 2.70 / 1000.0, c("base").X, c("base").Z))                 # aluminium plate
-    pts.append(((TUBE_Z1 - TUBE_Z0) / 1000.0 * EXT_KG_PER_M, c("tube").X, c("tube").Z))                          # extrusion
+    pts.append(((EXT_TOP - TUBE_Z0) / 1000.0 * EXT_KG_PER_M, c("tube").X, c("tube").Z))                          # extrusion
+    pts.append((rot["mast cap"].volume / 1e6 * AL_G_CM3, c("mast cap").X, c("mast cap").Z))                   # aluminium end plate
+    pts.append((CAP_SCREW_KG, c("mast cap screw").X, c("mast cap screw").Z))
     pts.append((rot["bracket"].volume / 1e6 * AL_G_CM3, c("bracket").X, c("bracket").Z))
     for n in PRINTED_HEAD:
         pts.append((H.shell_mass(rot[n]), c(n).X, c(n).Z))
@@ -120,7 +139,7 @@ def head_checks(p):
     print(f"  lens recess behind the hood face: {HB.FX - HB.LENS_FRONT:.1f} mm (8.0 as before); HDMI gland hole x {HB.GLAND_X:.1f}, z {HB.AZ:.0f}, diameter {HB.GLAND_D:.1f} in the -y wall")
     eb = p["enclosure"].bounding_box()
     print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
-    turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
+    turning = ("bracket", "tube", "mast cap", "mast cap screw", "spindle", "tilt servo") + HB.TILTING
     static = [p["base"], p["pan housing"], p["pan servo"], p["pan bearings"], p["pan coupling disc"]]
     moving = Compound([p[n] for n in turning])
     worst = 0.0
@@ -129,7 +148,7 @@ def head_checks(p):
         worst = max(worst, sum(_vol(m_, s_) for s_ in static))
     print(f"\npan sweep, -180 to +180 degrees in 30 degree steps: overlap of the whole turning mast with the base plate, pan housing, servo and bearings: worst {worst:.1f} mm3")
     unit = Compound([p[n] for n in HB.TILTING])
-    fixed = [p["bracket"], p["tilt servo"], p["tube"]]
+    fixed = [p["bracket"], p["tilt servo"], p["tube"], p["mast cap"], p["mast cap screw"]]
     print("tilt sweep, the camera unit (disk, enclosure, hat, camera) about the tilt axis (x %.1f, z %.0f), overlap with the bracket, tilt servo and extrusion:" % (TUBE_X, CAM_AXIS_Z))
     for sgn, nm in ((1, "positive"), (-1, "negative")):
         first = None
@@ -154,7 +173,7 @@ if __name__ == "__main__":
     print(f"mast x {bb.min.X:.0f}..{bb.max.X:.0f}, y {bb.min.Y:.0f}..{bb.max.Y:.0f}, z {bb.min.Z:.0f}..{bb.max.Z:.0f}")
     print(f"top z {bb.max.Z:.0f} (stated 700); camera axis z {CAM_AXIS_Z:.0f}; lens front x {CAM_FRONT_X:.1f} "
           f"({B.WHEELBASE / 2:.1f} + 77.9); body front end x {B.BODY_X0 + B.SIDE_PLATE_LEN / 2:.0f}")
-    print(f"base plate x {TUBE_X - PLATE_X / 2:.0f}..{TUBE_X + PLATE_X / 2:.0f}, y +-{PLATE_Y / 2:.0f}; extrusion {EXT:.0f} x {EXT:.0f}, z {TUBE_Z0:.0f}..{TUBE_Z1:.0f}; deck half-width {B.TOP_WIDTH / 2:.0f}, "
+    print(f"base plate x {TUBE_X - PLATE_X / 2:.0f}..{TUBE_X + PLATE_X / 2:.0f}, y +-{PLATE_Y / 2:.0f}; extrusion {EXT:.0f} x {EXT:.0f}, z {TUBE_Z0:.0f}..{EXT_TOP:.0f} under a {CAP_T:.0f} mm end plate to z {TUBE_Z1:.0f}; deck half-width {B.TOP_WIDTH / 2:.0f}, "
           f"deck x +-{B.DECK_LEN / 2:.0f}")
     print(f"overlap with body+cells (mm3, want 0): {(allp & hull).volume:.1f}")
     # the base plate must sit on the deck
@@ -166,7 +185,7 @@ if __name__ == "__main__":
     print(f"moment at the base for a sideways acceleration of 1 g: {tq:.2f} N.m "
           f"(rover tilted 45 degrees: the same; a 20 degree slope gives {tq * math.sin(math.radians(20)):.2f} N.m)")
 
-    print(f"extrusion {(TUBE_Z1 - TUBE_Z0):.0f} mm x {EXT_KG_PER_M} kg/m = {(TUBE_Z1 - TUBE_Z0) / 1000 * EXT_KG_PER_M:.2f} kg; its slots carry the camera and servo cables")
+    print(f"extrusion {(EXT_TOP - TUBE_Z0):.0f} mm x {EXT_KG_PER_M} kg/m = {(EXT_TOP - TUBE_Z0) / 1000 * EXT_KG_PER_M:.2f} kg; its slots carry the camera and servo cables")
     print()
     BASE.checks(p, _BASE_INFO, TUBE_X, moment_1g_nm=tq, mast_kg=m)
     head_checks(p)

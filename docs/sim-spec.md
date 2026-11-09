@@ -18,12 +18,12 @@ optimisation, then phones (owner's order).
 - `hardware/sim/export_sim.py` splits the assembly (187 parts, 50.9k triangles) into 9 rigid bodies and writes
   `sim/public/rover.glb` (1.7 MB) and `sim/public/rover.json` (joints, masses, centres of mass, inertia, camera).
   Bodies: chassis; link plate L and R (each with its two motors and a differential side gear); four wheels; mast pan; camera head.
-  Body masses come from `hardware/mass/replica.py` (total 9.554 kg, as `docs/replica-mass.md`), the inertia from the meshes at uniform density.
+  Body masses come from `hardware/mass/replica.py` (total 9.58 kg, as `docs/replica-mass.md`), the inertia from the meshes at uniform density.
 - `sim/` is the web app: it loads the model on a placeholder plane and exercises every joint (pan, tilt, differential links, wheels).
 - Axes: glTF Y up, metres; rover X forward stays X, rover Y (left) becomes -Z, rover Z (up) becomes Y.
 
 ## Visual layer (not in the CAD checks or the mass budget)
-`hardware/sim/export_sim.py` and `hardware/sim/detail.py` add detail to the exported model only, so the CAD, its fit checks and the 9.55 kg estimate stay as they are:
+`hardware/sim/export_sim.py` and `hardware/sim/detail.py` add detail to the exported model only, so the CAD, its fit checks and the 9.58 kg estimate stay as they are:
 - T-slot profiles (20 x 20, 20 x 40, 40 x 40: slots, diagonal webs, bore) in place of the plain extrusion boxes, with drilled holes kept; typical catalogue slot sizes, ASSUMPTION.
 - Real-world materials by part (cast and sheet aluminium, anodised T-slot, black plastic, black cord, glossy dark cells, ASA wheels); the finishes are ASSUMPTIONS.
 - Head and base: rounded vertical edges and a lid seam on the pan base box (seam 15 mm below the top, Takachi cover height) with four lid screws; a lid seam 10 mm behind the front face of the camera box (ASSUMPTION, not from the drawing); a PG7 hex gland with a domed cap nut; the lens with a grooved focus ring, front glass and retaining ring; two M5 bolts through the bracket web (positions ASSUMPTION).

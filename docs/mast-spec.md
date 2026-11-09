@@ -18,7 +18,7 @@ spindle flange (the whole mast turns on a pan drive in a housing on the deck, be
 cover screws; drawing AL080807 (2025): cavity 70.5 x 66.8 at the mouth, interior height 62.75, base 55 deep, cover 15 deep; stated) stands on the base plate (3 mm since the mass second pass of 2026-11-08) with its **lid on top** (z 351 to 421). The original's base block measures about 79 mm wide and 73 mm tall with its
 top near z 425 (measured on Fig. 1, `original-dimensions.md` 3m): the box matches it. Inside: the pan servo (STS3215, shaft vertical on the mast axis, long side along y so the 45.2 mm body clears the 70.5 mm cavity by 0.1 mm; z 354.6 to 391.8), a coupling disc
 on its upper horn, and an aluminium bearing tower (OD 52) hung under the lid holding two 30 x 42 x 7 mm bearings (6806 size) 12.6 mm apart, the upper one against the lid's underside (z 401.3 and 413.9). The aluminium spindle (tube 30/22) runs up through them and
-a 36 mm hole in the lid to a 60 mm flange at z 423 to 429 on which the extrusion stands (now z 429 to 597, 168 mm, 0.31 kg). No cable passes through the box or the spindle: the harness hangs outside the mast in a loose loop, as the original's does (below). The servo only turns the mast; the bearings carry the weight and bending, with the lid carrying the bearings: mast, bearings, tower, lid, four M4 cover screws, base,
+a 36 mm hole in the lid to a 60 mm flange at z 423 to 429 on which the extrusion stands (now z 429 to 591, 162 mm, 0.30 kg, under a 6 mm end plate to z 597). No cable passes through the box or the spindle: the harness hangs outside the mast in a loose loop, as the original's does (below). The servo only turns the mast; the bearings carry the weight and bending, with the lid carrying the bearings: mast, bearings, tower, lid, four M4 cover screws, base,
 box, plate. With the bearings only 12.6 mm apart the radial load at 1 g sideways is 156 N each (468 N at 3 g) from the 1.96 N.m moment, three times the earlier 30 mm spacing; far below a 6806 bearing's rating (not checked). The cables run down the extrusion slots, through the hollow
 spindle bore is empty. Not designed: the lid's stiffness under that load (a 3.6 mm cast cap; a plate under it may be needed), the gasket and a seal where the spindle leaves the lid, fixing the box to the base plate (the box has two M4
 external mounting holes) and the plate to the deck, the compliant joint between servo horn and disc, axial retention of the bearings, the hard stop for the 320 degree range, the cable loop. Mass: the box is 0.347 kg against 0.145 kg for the printed housing it replaces.
@@ -36,6 +36,11 @@ external mounting holes) and the plate to the deck, the compliant joint between 
 visible column is slimmer below the 58 mm printed neck. A 60 x 60 extrusion would match, but at about 4.17 kg/m it would weigh 0.93 kg
 (0.52 kg more) and the mass margin would shrink to about 0.1 kg; a 40 x 60 would be a compromise (not looked up). The extrusion's end is
 tapped (M8) to take the neck's base plate; its slots carry the camera and servo cables, and the centre bore can pass a connector lead.
+
+**End plate (owner's choice, 2026-11-08).** The extrusion's top end is closed by a 40 x 40 x 6 mm aluminium plate (23 g) held by one countersunk M10 x 16 screw (about 13 g, ISO 10642 head 20 mm across and
+5.5 deep, ASSUMPTION: remembered figures, not looked up) into the tapped centre bore. The bore is taken as 8.5 mm, the M10 tap drill; the real HFS8-4040 bore is not confirmed. The extrusion is 6 mm shorter (top z 591),
+so the stack top stays at z 597 and the tilt sweep is unchanged (clear to 90 degrees either way, 0 mm3). A catalogue metal cap was looked for: MISUMI's standard 8-series caps are polyamide, and a zinc alloy cap
+(LCECA8-4040-B class, Economy Series) was found without dimensions, so the plate was chosen instead. The plate is machined, not bought; the slots stay open at the end beside it, which leaves the cable path. Mass +0.025 kg (replica 9.58 kg).
 
 The original's mast is additively manufactured ULTEM 1010 with titanium and aluminium parts [S19]; the replica's neck, arm and head are printed
 (material not chosen).

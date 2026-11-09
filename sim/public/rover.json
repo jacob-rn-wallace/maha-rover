@@ -1,7 +1,7 @@
 {
  "units": "metres, kilograms, seconds; axes are glTF (Y up, -Z is rover left, +X forward)",
  "source": "hardware/sim/export_sim.py from hardware/assembly/rover.py and hardware/mass/replica.py; docs/sim-spec.md",
- "total_mass_kg": 9.5544,
+ "total_mass_kg": 9.5793,
  "wheel": {
   "radius_m": 0.1,
   "width_m": 0.08,
@@ -93,22 +93,22 @@
     0.0,
     -0.0
    ],
-   "mass_kg": 0.56075,
+   "mass_kg": 0.5856,
    "com_m": [
     0.0,
-    0.51906,
-    -0.00743
+    0.52225,
+    -0.00712
    ],
-   "triangles": 2552,
+   "triangles": 3204,
    "mesh_com_m": [
     0.0,
-    0.53885,
-    -0.00982
+    0.53996,
+    -0.00962
    ],
    "inertia_principal_kgm2": [
-    0.000219,
-    0.003808,
-    0.003851
+    0.0002305,
+    0.00393,
+    0.003978
    ]
   },
   "head": {

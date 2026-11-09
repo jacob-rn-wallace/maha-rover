@@ -4,7 +4,7 @@
 `docs/images/rover-assembly.png`: exterior from front-left and rear-right, a side view, a view with panels and cells hidden to show the frame and interior, a top view and a front
 view, two views of the electronics bay, two sectioned close-ups of the mast head (a front-half section at the mast axis and a plan section at the camera axis height) and two of the
 pivot of the left side (a cut at the shaft axis seen from above, and a cut at x = 0 seen from the rear left). Overall extent over the grouser tips: 503 x 495 x 714 mm (the height with the
-mast up is 700 plus the hat). Shapes are simplified; nothing has been built. The replica mass from the CAD is **9.55 kg** (goal 10, ceiling 10.5; `replica-mass.md`), centre of mass z 234 mm,
+mast up is 700 plus the hat). Shapes are simplified; nothing has been built. The replica mass from the CAD is **9.58 kg** (goal 10, ceiling 10.5; `replica-mass.md`), centre of mass z 234 mm,
 static tip angles 34 / 26 / 47 degrees (nose-down / nose-up / sideways).
 
 ## Modelled, with simplified geometry
