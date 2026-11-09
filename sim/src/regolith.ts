@@ -4,7 +4,7 @@ import * as THREE from "three";
  *
  *  Photometry: the sun's direct light is weighted like a Lommel-Seeliger surface with a shadow-hiding opposition surge instead of a Lambertian one, as the lunar-regolith renderers do
  *  (Chrono::Sensor's lunar model, arXiv 2410.04371, "modern Hapke with simplifications": single scattering Lommel-Seeliger, shadow hiding B(g) = 1 + B0 / (1 + tan(g/2) / h),
- *  B0 = 1.80238 and h = 0.07145 from its Table I, fitted for 30 S to 30 N, so only roughly right at this site's 47.6 N; coherent backscatter, multiple scattering and macroscopic roughness are left out).
+ *  B0 = 1.80238 from its Table I; h = 0.050 from Sato et al. 2014 (maria, 40 S to 40 N: poleward of about 40 degrees the paper calls hS poorly constrained, and this site is at 47.6 N, so it is a mare value assumed to hold); coherent backscatter, multiple scattering and macroscopic roughness are left out).
  *  Lambert: radiance ~ cos(i). Lommel-Seeliger: radiance ~ cos(i) / (cos(i) + cos(e)), brighter towards grazing views and no darkening towards the limb;
  *  the weight on the irradiance is 2 / (cos i + cos e), equal to Lambert's at the vertical. The surge is normalised to 1 at a phase angle of 30 degrees (the full-Moon look: the picture brightens
  *  and loses contrast looking along the sun's direction). Look-development choices on top: the weight is capped at 3 and the albedo is the material's colour.
@@ -13,7 +13,7 @@ import * as THREE from "three";
  *  evaluated per pixel, octaves faded out as their wavelength drops under about two pixel footprints so nothing shimmers; the mesh carries the relief down to 0.5 m (terrain.ts).
  *  Octave strengths are look-development choices, not measurements.
  */
-const B0 = 1.80238, H = 0.07145;
+const B0 = 1.80238, H = 0.050;                      // B0: Chrono's; H: the maria's median hS 0.050 +- 0.008 (Sato et al. 2014, Fig. 16e text; Chrono's 0.07145 is the highlands' 0.074)
 
 export function applyRegolithPhotometry(material: THREE.MeshStandardMaterial, opts: { ground?: boolean } = {}) {
   const prev = material.onBeforeCompile, prevKey = material.customProgramCacheKey.bind(material);
@@ -24,7 +24,7 @@ export function applyRegolithPhotometry(material: THREE.MeshStandardMaterial, op
 	float lsw = min( 2.0 / ( dotNL + dotNV_r + 1e-3 ), 3.0 );
 	float cosg = clamp( dot( directLight.direction, geometryViewDir ), -1.0, 1.0 );
 	float tanHalf = sqrt( max( ( 1.0 - cosg ) / ( 1.0 + cosg + 1e-4 ), 0.0 ) );
-	float surge = ( 1.0 + ${B0.toFixed(5)} / ( 1.0 + tanHalf / ${H.toFixed(5)} ) ) / 1.3790;
+	float surge = ( 1.0 + ${B0.toFixed(5)} / ( 1.0 + tanHalf / ${H.toFixed(5)} ) ) / 1.2835;
 	vec3 irradiance = dotNL * directLight.color * lsw * surge;`);
     shader.fragmentShader = shader.fragmentShader.replace("#include <lights_physical_pars_fragment>", phys);
     if (opts.ground) {
