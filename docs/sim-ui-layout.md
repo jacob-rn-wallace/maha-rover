@@ -1,6 +1,6 @@
 # Sim interface layout: where everything goes (proposal, 2026-11-09)
 
-Status: **parts A to C built (2026-11-09), see section 10; D (modes and swap) and E (phone sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
+Status: **parts A to D built (2026-11-09), see sections 10 and 11; E (the phone bottom sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
 
 ## 1. The problem today
 
@@ -114,4 +114,23 @@ Not checked or known:
 - A real GPU or touch device; the cost of the DOM over the canvas; the large-map plus large-camera combination on small windows; the wordmark's contrast on a bright sky.
 - On a phone the open telemetry dock sits under the left stick's area.
 - The bench and recording chips were not triggered in a screenshot.
-- Modes (D) and the phone bottom sheet (E) are not built; the camera's "large" is still the C key's size cycle.
+- The phone bottom sheet (E) is not built.
+
+## 11. Modes (part D, built 2026-11-09)
+
+`sim/src/modes.ts`; tabs in the top bar, keys **1 to 4**, `?mode=drive|plan|camera|data` at the start.
+
+| Mode | Main view | Panels |
+|---|---|---|
+| Drive | chase view | map and camera as small tiles; telemetry closed |
+| Camera | the mast camera, as a centred 4:3 tile with its header, flags, picture, compass, readout and roll | chase view as an inset; map hidden; telemetry closed |
+| Plan | the map, a centred square on a higher-resolution base map (768 samples, painted once on first use) | chase view as an inset; camera hidden. **No planner yet** (step 4) |
+| Data | chase view | telemetry dock open; map small; camera hidden. **No strips yet** (step 6) |
+
+- A mode is a preset: switching sets the telemetry dock, the tiles and the inset; it does not remember a manual toggle.
+- **C** toggles Camera mode and back (it used to cycle small, large, off); **M** still cycles the map small, large, off, in Drive and Data. The camera tile in Drive has a fold button (–) in its header; `?pip=0` starts it folded and `?pip=2` starts in Camera mode.
+- The **inset** is a transparent box in the top-right corner (under the bar, where the map is in Drive) and the chase view is drawn into its rectangle with a scissor; clicking it returns to Drive. It sits at the top right, not the bottom as in the wireframe, so it never meets the touch sticks or the alerts.
+- The main-view tile is sized to the largest fit under the bar with the inset's width kept free on both sides, so the inset never overlaps it.
+- Checked in headless screenshots (1280 x 800, 844 x 390): all four modes, the keys 1 to 4 and C, the inset click, the fold button, Camera mode on a phone. `tsc`, `vite build` and the node checks pass.
+- Not checked: a real GPU; the cost of the chase view as an inset plus the camera view; the camera's picture when the window is very narrow; orbit dragging on the canvas while the chase view is only an inset (it still moves the chase camera); the 768-sample map's first-use pause (it is a one-off paint of 590,000 height samples).
+- On phones the two touch buttons ("camera view", "stand upright") sit over the bottom of the Camera mode picture.

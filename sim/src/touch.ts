@@ -1,5 +1,5 @@
 /** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and two buttons, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
-export function touchSticks(parent: HTMLElement, on: { upright: () => void; cycleCamera: () => void }) {
+export function touchSticks(parent: HTMLElement, on: { upright: () => void; toggleCamera: () => void }) {
   const out = { drive: [0, 0], mast: [0, 0] };
   const R = 50;
   const make = (side: "left" | "right", key: "drive" | "mast") => {
@@ -24,6 +24,6 @@ export function touchSticks(parent: HTMLElement, on: { upright: () => void; cycl
     b.addEventListener("click", fn); parent.appendChild(b);
   };
   mk("stand upright", 24, on.upright);
-  mk("camera view", 64, on.cycleCamera);
+  mk("camera view", 64, on.toggleCamera);
   return out;
 }

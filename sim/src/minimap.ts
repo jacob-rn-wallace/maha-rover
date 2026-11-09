@@ -3,7 +3,7 @@ import type { Terrain } from "./terrain";
 /** A map of the 5 x 5 km sandbox: the elevation tile as hill shading (the sim's own sun) tinted by height, the rover as an arrow with its path behind it, north up.
  *  Built once from the smoothed tile (SIZE x SIZE samples, 20 m each); the rover and path are redrawn at 10 Hz. M cycles small, large, off.
  *  The tile is the only thing mapped: the ring beyond it is not shown. Height tint is relative to the tile's own range. */
-const SIZE = 256, TRAIL_STEP = 3, TRAIL_MAX = 800;
+const SIZE = 256, BIG = 768, TRAIL_STEP = 3, TRAIL_MAX = 800;      // BIG: the resolution of the base map when the map is the main view (Plan mode)
 
 export class Minimap {
   readonly box = document.createElement("div");
@@ -12,14 +12,19 @@ export class Minimap {
   private label = document.createElement("div");
   private trail: [number, number][] = [];
   mode = 1;                       // 0 off, 1 small, 2 large
+  shown = true;                   // false in the modes that have no map
+  private primary = false;        // the main view (Plan): a big square in the middle
+  private primaryPx = 400;
+  private res = SIZE;             // samples a side of the base map
+  private sunEl: number; private sunAz: number;
   private half: number;
 
   constructor(private terrain: Terrain, sunElevationDeg: number, sunAzimuthDeg: number, private coarse: boolean, parent: HTMLElement) {
-    this.half = terrain.half;
+    this.half = terrain.half; this.sunEl = sunElevationDeg; this.sunAz = sunAzimuthDeg;
     this.base.width = this.base.height = SIZE;
     this.paintBase(sunElevationDeg, sunAzimuthDeg);
     this.canvas.width = this.canvas.height = SIZE;
-    this.box.className = "panel tile map-tile"; this.box.style.cssText = "position:relative;background:#000";
+    this.box.className = "panel tile map-tile";
     this.canvas.style.cssText = "display:block";
     this.label.style.cssText = "position:absolute;left:4px;bottom:2px;font:10px system-ui;color:#ddd;text-shadow:0 0 3px #000";
     this.box.append(this.canvas, this.label);
@@ -29,6 +34,7 @@ export class Minimap {
 
   /** hill shading with the sim's sun, tinted dark to light by height (a tile-relative ramp) */
   private paintBase(el: number, az: number) {
+    const SIZE = this.res;
     const g = this.base.getContext("2d")!, img = g.createImageData(SIZE, SIZE), step = 2 * this.half / SIZE;
     const hs = new Float32Array(SIZE * SIZE);
     let lo = Infinity, hi = -Infinity;
@@ -49,11 +55,19 @@ export class Minimap {
     g.putImageData(img, 0, 0);
   }
 
-  /** the tile's size: 200 px small, large up to 420 but at most 38% of the window's height (the camera tile stacks under it); 110 and 240 on phones */
+  /** the tile's size: 200 px small, large up to 420 but at most 38% of the window's height (the camera tile stacks under it); 96 and 240 on phones; as the main view, a square of `primaryPx` */
   layout() {
-    const size = this.mode === 2 ? (this.coarse ? Math.min(240, innerHeight * 0.45) : Math.min(420, innerHeight * 0.38)) : this.coarse ? 96 : 200;
-    this.box.style.display = this.mode === 0 ? "none" : "block";
+    const size = this.primary ? this.primaryPx : this.mode === 2 ? (this.coarse ? Math.min(240, innerHeight * 0.45) : Math.min(420, innerHeight * 0.38)) : this.coarse ? 96 : 200;
+    this.box.style.display = this.mode === 0 || !this.shown ? "none" : "block";
+    this.box.classList.toggle("primary", this.primary);
     this.canvas.style.width = this.canvas.style.height = Math.round(size) + "px";
+  }
+
+  /** the main view (Plan mode): a bigger base map (painted once, on first use) in a square of `px` */
+  setPrimary(on: boolean, px = this.primaryPx) {
+    this.primaryPx = px;
+    if (on && this.res !== BIG) { this.res = BIG; this.base.width = this.base.height = BIG; this.canvas.width = this.canvas.height = BIG; this.paintBase(this.sunEl, this.sunAz); }
+    this.primary = on; this.layout();
   }
 
   cycle() { this.mode = (this.mode + 1) % 3; this.layout(); }
@@ -63,7 +77,8 @@ export class Minimap {
     if (this.mode === 0) return;
     const last = this.trail[this.trail.length - 1];
     if (!last || Math.hypot(x - last[0], z - last[1]) > TRAIL_STEP) { this.trail.push([x, z]); if (this.trail.length > TRAIL_MAX) this.trail.shift(); }
-    const g = this.canvas.getContext("2d")!, S = SIZE, k = S / (2 * this.half);
+    if (!this.shown) return;      // the trail is kept, the drawing is not
+    const g = this.canvas.getContext("2d")!, S = this.res, k = S / (2 * this.half);
     const px = (x + this.half) * k, py = (z + this.half) * k;
     g.drawImage(this.base, 0, 0);
     g.strokeStyle = "rgba(255,200,80,.9)"; g.lineWidth = 1.5; g.beginPath();

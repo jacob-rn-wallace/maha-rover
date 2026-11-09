@@ -9,14 +9,14 @@ export function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", html 
  *  top: the bar. left: the telemetry dock (slides in over a handle). right: a column of tiles (map, camera). cluster: bottom left. alerts: bottom centre. sticks: the touch controls. modal: the centre. */
 export class Layout {
   readonly root = h("div"); readonly top = h("div"); readonly left = h("div"); readonly handle = h("button", "iconbtn", "›");
-  readonly right = h("div"); readonly cluster = h("div"); readonly alerts = h("div"); readonly sticks = h("div"); readonly modal = h("div");
+  readonly right = h("div"); readonly cluster = h("div"); readonly alerts = h("div"); readonly sticks = h("div"); readonly modal = h("div"); readonly inset = h("div");
   private pops = new Map<string, { pop: HTMLElement; anchor: HTMLElement }>();
 
   constructor(readonly coarse: boolean) {
     this.root.id = "ui"; if (coarse) this.root.classList.add("coarse");
-    this.top.id = "ui-top"; this.left.id = "ui-left"; this.handle.id = "ui-handle"; this.right.id = "ui-right"; this.cluster.id = "ui-cluster"; this.alerts.id = "ui-alerts"; this.sticks.id = "ui-sticks"; this.modal.id = "ui-modal";
+    this.top.id = "ui-top"; this.left.id = "ui-left"; this.handle.id = "ui-handle"; this.right.id = "ui-right"; this.cluster.id = "ui-cluster"; this.alerts.id = "ui-alerts"; this.sticks.id = "ui-sticks"; this.modal.id = "ui-modal"; this.inset.id = "ui-inset";
     this.handle.title = "telemetry (I)";
-    this.root.append(this.top, this.left, this.handle, this.right, this.cluster, this.alerts, this.sticks, this.modal);
+    this.root.append(this.top, this.left, this.handle, this.right, this.inset, this.cluster, this.alerts, this.sticks, this.modal);
     document.body.appendChild(this.root);
     addEventListener("pointerdown", (e) => { if (!(e.target as Element).closest?.(".pop, .chip, .iconbtn")) this.closePops(); });
     addEventListener("keydown", (e) => { if (e.code === "Escape") this.closePops(); });

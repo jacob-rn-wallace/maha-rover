@@ -14,7 +14,10 @@ const HFOV_DEG = 76.6;      // horizontal field of view of the HQ camera behind 
  *  the body's attitude, the sun) and the camera roll of stills (docs/sim-ui-research.md, Open MCT's imagery view). The picture is drawn into the canvas under the tile's picture box, so the tile's place in the layout
  *  is the only place the view is. A past still pauses the live view and gives the tile an orange border. */
 export class CameraView {
-  mode = 1;
+  shown = true;           // false in the modes that have no camera tile
+  primary = false;        // the main view (Camera mode): a big tile in the middle
+  collapsed = false;      // the tile shrunk to its header (the button in it)
+  reserveX = 0;           // as the main view, the width kept free on each side (for the chase inset)
   readonly roll = new CameraRoll();
   private tile = h("div", "panel tile cam-tile");
   private label = h("span");
@@ -23,7 +26,7 @@ export class CameraView {
   private still = h("canvas", "still");
   private stillKey = "";
   private compass = new Compass(HFOV_DEG);
-  private snapPending = false;
+  private snapPending = false; private fold!: HTMLElement;
   // the mast camera: Raspberry Pi HQ (IMX477, 6.287 x 4.712 mm active area, Raspberry Pi documentation) behind a 4 mm lens: 76.6 x 61.4 degrees, 4:3, no distortion
   private cam = new THREE.PerspectiveCamera(61.4, 4 / 3, 0.02, 200000);
   private offset: THREE.Vector3;
@@ -35,7 +38,9 @@ export class CameraView {
   /** `sun`: compass bearing (clockwise from north) and elevation of the fixed sun, degrees; `parent`: the layout's right column */
   constructor(private fx: MastCameraFx, positionM: [number, number, number], private coarse: boolean, private sun: { bearingDeg: number; elevationDeg: number }, parent: HTMLElement) {
     this.offset = new THREE.Vector3(...positionM);
-    const head = h("div", "panel-head"); this.label.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap"; head.append(this.label);
+    const head = h("div", "panel-head"); this.label.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+    const fold = h("button", "tbtn", "–"); fold.title = "fold the tile away"; fold.addEventListener("click", () => { this.collapsed = !this.collapsed; fold.textContent = this.collapsed ? "+" : "–"; });
+    head.append(this.label, fold); this.fold = fold;
     this.pic.append(this.still);
     this.readout.style.cssText = "color:#eee";
     const foot = h("div", "tile-foot"); foot.append(this.compass.el, this.readout);
@@ -44,22 +49,24 @@ export class CameraView {
     this.roll.onSnap = () => this.snap();
   }
 
-  cycle() { this.mode = (this.mode + 1) % 3; }
   /** takes a still of the live view at the next draw (nothing while a past still is shown or the view is off) */
-  snap() { if (this.mode > 0 && !this.roll.past) this.snapPending = true; }
+  snap() { if (this.shown && !this.collapsed && !this.roll.past) this.snapPending = true; }
 
-  /** the tile's width: small is a fifth of the window (110 to 200 px on phones, 220 to 320 otherwise); large fills the room under the map, at most 46% of the width */
+  /** the tile's width: a fifth of the window (110 to 140 px on phones, 220 to 320 otherwise), or as the main view the largest 4:3 picture that fits under the bar with the chase inset's room kept free on both sides */
   private size(vw: number, vh: number) {
     let w: number;
-    if (this.mode === 1) w = this.coarse ? Math.max(110, Math.min(140, vw * 0.16)) : Math.max(220, Math.min(320, vw * 0.2));
-    else { const free = vh - this.tile.getBoundingClientRect().top - 12 - (this.tile.offsetHeight - this.pic.offsetHeight); w = Math.max(this.coarse ? 160 : 240, Math.min(vw * 0.46, (free * 4) / 3)); }
+    if (this.primary) { const free = vh - this.tile.getBoundingClientRect().top - 12 - (this.tile.offsetHeight - this.pic.offsetHeight); w = Math.max(this.coarse ? 160 : 240, Math.min(vw - 2 * this.reserveX, (free * 4) / 3)); }
+    else w = this.coarse ? Math.max(110, Math.min(140, vw * 0.16)) : Math.max(220, Math.min(320, vw * 0.2));
     this.tile.style.width = Math.round(w) + "px";
   }
 
   /** draws the view into the canvas under the tile's picture box (vw x vh: the canvas in CSS pixels) */
   render(scene: THREE.Scene, head: THREE.Object3D, vw: number, vh: number, rover: RoverPose) {
-    if (this.mode === 0) { this.tile.style.display = "none"; return; }
+    if (!this.shown) { this.tile.style.display = "none"; return; }
     this.tile.style.display = "";
+    this.tile.classList.toggle("primary", this.primary); this.tile.classList.toggle("collapsed", this.collapsed && !this.primary);
+    this.fold.style.display = this.primary ? "none" : "";
+    if (this.collapsed && !this.primary) { this.tile.style.width = ""; return; }
     const { cam, fx, roll } = this;
     this.headQ.copy(head.quaternion);
     cam.position.copy(this.offset).applyQuaternion(this.headQ).add(head.position);

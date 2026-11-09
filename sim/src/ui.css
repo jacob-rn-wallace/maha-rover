@@ -28,6 +28,16 @@
 .pop pre { margin: 6px 0 0; white-space: pre-wrap; font: 11px/1.4 system-ui; color: var(--dim); }
 .pop button.act { margin-top: 6px; padding: 3px 10px; border-radius: 6px; background: rgba(255,255,255,.12); border: 1px solid var(--line); }
 
+/* mode tabs and the chase inset */
+.tabs { display: flex; gap: 4px; }
+.tab { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; color: var(--dim); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+#ui-inset { position: absolute; right: var(--pad); top: calc(var(--bar-h) + var(--gap)); display: none; overflow: hidden; cursor: pointer; }      /* transparent: the chase view is drawn into the canvas under it */
+#ui-inset.panel { background: none; }
+.inset-label { position: absolute; left: 6px; top: 3px; font-size: 10px; color: #fff; text-shadow: 0 0 3px #000; }
+.tile.collapsed > :not(.panel-head) { display: none; }
+.tbtn { margin-left: auto; background: none; border: 0; padding: 0 4px; color: var(--dim); }
+
 /* regions */
 #ui-left { z-index: 1; position: absolute; left: 0; top: var(--bar-h); bottom: 0; width: 280px; max-width: 80vw; padding: var(--gap); transform: translateX(-100%); transition: transform .18s; pointer-events: none; overflow: auto; }
 #ui-left.open { transform: none; }
@@ -68,7 +78,9 @@
 .tile-foot { display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-size: 10px; line-height: 1.4; }
 .tile-roll { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 0 6px 6px; font-size: 11px; }
 .tile .flags { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 4px; font-size: 10px; }
+.map-tile { position: relative; background: #000; }
 .map-tile canvas { display: block; }
+.tile.primary { position: fixed; left: 50%; top: calc(var(--bar-h) + var(--gap)); transform: translateX(-50%); }      /* as the main view: after .map-tile, which is relative */
 
 /* phones and tablets */
 #ui.coarse { --fs: 11px; --bar-h: 32px; }
@@ -76,4 +88,5 @@
 #ui.coarse #ui-alerts { bottom: 108px; max-width: 70vw; }
 #ui.coarse .cluster { padding: 4px 8px; } #ui.coarse .cluster canvas { display: none; }
 #ui.coarse #ui-top { gap: 6px; }
+#ui.coarse .tab { padding: 0 6px; font-size: 10px; }
 #ui.coarse #ui-top .logo { height: 20px; }

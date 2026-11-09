@@ -11,6 +11,7 @@ import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { WHEELS } from "./constants";
 import { UI } from "./ui";
+import { Modes, MODES, type Mode } from "./modes";
 import { HazardOverlay } from "./hazard";
 import { CameraView } from "./cameraView";
 import { PerfPanel } from "./perfPanel";
@@ -31,8 +32,8 @@ const wantReverse = new URLSearchParams(location.search).get("depth") === "rever
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
 const hazard = new HazardOverlay(coarse);      // H toggles it; ?hazard=1 starts it on
-const handlers = { toggleLog: () => {} };      // set once the performance log exists
-const ui = new UI(coarse, hazard, { toggleHazard: () => hazard.toggle(), toggleHelp: () => ui.help.toggle(), toggleLog: () => handlers.toggleLog() });
+const handlers = { toggleLog: () => {}, setMode: (_m: Mode) => {} };      // set once the performance log and the modes exist
+const ui: UI = new UI(coarse, hazard, { toggleHazard: () => hazard.toggle(), toggleHelp: () => ui.help.toggle(), toggleLog: () => handlers.toggleLog(), setMode: (m) => handlers.setMode(m) });
 (window as any).__ui = ui;      // for scripted checks
 // The drawing buffer is capped in total pixels (default 1 million, about 1280 x 780; ?maxpx=megapixels, e.g. 2.1 for a 1080p frame), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
 // (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
@@ -163,7 +164,10 @@ async function main() {
   if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
   const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse, { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg }, ui.layout.right);      // the sun's azimuth is counterclockwise from east: bearing = 90 - azimuth
   (window as any).__camview = cameraView;      // for scripted checks
-  if (q.has("pip")) cameraView.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
+  const modes = new Modes(ui, cameraView, minimap, coarse);
+  handlers.setMode = (m) => modes.set(m);
+  if (q.has("pip")) { const v = Number(q.get("pip")); if (v === 2) modes.set("camera"); else if (v === 0) (cameraView as any).fold.click(); }      // ?pip=0|1|2: camera tile folded away, small, as the main view at the start
+  if (MODES.some((m) => m.id === q.get("mode"))) modes.set(q.get("mode") as Mode);      // ?mode=drive|plan|camera|data
   const fwd = new THREE.Vector3();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
@@ -180,7 +184,7 @@ async function main() {
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
   handlers.toggleLog = toggleLog;
-  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
+  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, toggleCamera: () => modes.toggleCamera(), setMode: (i) => modes.set(MODES[i - 1].id), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -234,8 +238,16 @@ async function main() {
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
-    renderer.setScissorTest(false); renderer.setViewport(0, 0, vw, vh);
-    renderer.render(scene, camera);
+    modes.layout(vw, vh);
+    const cr = modes.chaseRect(vh);
+    renderer.setScissorTest(false);
+    if (!cr) { renderer.setViewport(0, 0, vw, vh); renderer.render(scene, camera); }
+    else {      // the chase view as an inset (Camera and Plan modes): the rest of the window is cleared
+      renderer.clear(); renderer.setViewport(cr.x, cr.y, cr.w, cr.h); renderer.setScissor(cr.x, cr.y, cr.w, cr.h); renderer.setScissorTest(true);
+      const aspect = camera.aspect; camera.aspect = cr.w / cr.h; camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      camera.aspect = aspect; camera.updateProjectionMatrix(); renderer.setScissorTest(false);
+    }
     drawCalls = renderer.info.render.calls; drawTris = renderer.info.render.triangles;
     if (benchT !== null) { benchT = (performance.now() - benchStart) / 1000; if (benchT > BENCH_SECONDS) { benchT = null; finish(BENCH_WARMUP, "Benchmark"); } }
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
