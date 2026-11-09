@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { addLunarScene } from "./lunar";
 import { Terrain } from "./terrain";
 import { FJS1 } from "./soil";
+import { RockField } from "./rocks";
 import { loadTerrainShadow, applyTerrainShadow } from "./terrainShadow";
 import { TerrainView } from "./terrainView";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
@@ -43,7 +44,7 @@ async function main() {
   const q = new URLSearchParams(location.search);
   // terrain: the real lunar tile and ring (default); ?flat=1 keeps the flat plane, which the scripted ?test=1 check assumes (add ?terrain=1 to run it on the terrain)
   const flat = q.get("flat") === "1" || (q.get("test") === "1" && q.get("terrain") !== "1");
-  let terrain: Terrain | undefined, view: TerrainView | undefined;
+  let terrain: Terrain | undefined, view: TerrainView | undefined, rockField: RockField | undefined;
   const spawn = new THREE.Vector3();
   if (!flat) {
     hud.textContent = "loading terrain...";
@@ -58,6 +59,16 @@ async function main() {
       applyTerrainShadow(lunar.groundMaterial, ts);
       for (const n of names) nodes[n].traverse((o) => { const m = (o as THREE.Mesh).material; if (m) for (const x of Array.isArray(m) ? m : [m]) applyTerrainShadow(x, ts); });
     } else console.warn("terrain shadow textures are for another sun: not applied (run hardware/sim/terrain/shadow.py)");
+    let rocks: RockField | undefined;
+    if (q.get("rocks") !== "0") {
+      const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.17, 0.165, 0.16), roughness: 1, metalness: 0 });
+      if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) applyTerrainShadow(rockMat, ts);
+      rocks = new RockField(terrain, rockMat, terrain.spawn);
+      terrain.rocks = rocks;
+      scene.add(rocks.group);
+      rocks.update(terrain.spawn.x, terrain.spawn.z);
+    }
+    rockField = rocks;
     view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children[Number(k)].visible = false; });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
     for (const n of names) node(n).position.add(spawn);       // the rover model starts at the spawn point
     camera.position.add(spawn); controls.target.add(spawn);
@@ -80,6 +91,7 @@ async function main() {
   let last = performance.now(), hudT = 0;
   renderer.setAnimationLoop((now) => {
     const dt = (now - last) / 1000; last = now;
+    if (resetRequested) { resetRequested = false; phys.resetUpright(); }
     phys.advance(dt, input.read());
     for (const n of names) {
       const b = phys.bodies[n], t = b.translation(), r = b.rotation();
@@ -91,6 +103,7 @@ async function main() {
     chase.add(delta); camera.position.add(delta); controls.target.copy(chase);
     lunar.followSun(new THREE.Vector3(ct.x, ct.y, ct.z));
     view?.update(ct.x, ct.z);
+    rockField?.update(ct.x, ct.z);
     hudT += dt;
     if (hudT > 0.1) { hudT = 0; hud.innerHTML = hudText(phys, c, euler) + (terrain ? edgeText(ct.x, ct.z, terrain) : ""); }
     resize();
@@ -121,12 +134,13 @@ function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt; gamepad: left stick drive, right stick mast</span>`;
+  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright; gamepad: left stick drive, right stick mast</span>`;
 }
 
+let resetRequested = false;                 // T: stand the rover upright where it is
 function setupInput() {
   const keys = new Set<string>();
-  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); });
+  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; });
   addEventListener("keyup", (e) => keys.delete(e.code));
   addEventListener("blur", () => keys.clear());
   const k = (...c: string[]) => (c.some((x) => keys.has(x)) ? 1 : 0);

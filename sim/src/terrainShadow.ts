@@ -34,7 +34,7 @@ export function applyTerrainShadow(material: THREE.Material, ts: TerrainShadow) 
     shader.uniforms.tsTileHalf = { value: ts.tileHalf };
     shader.uniforms.tsCoarseHalf = { value: ts.coarseHalf };
     shader.vertexShader = "varying vec3 vTsPos;\n" + shader.vertexShader.replace("#include <begin_vertex>",
-      "#include <begin_vertex>\n  vTsPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+      "#include <begin_vertex>\n  #ifdef USE_INSTANCING\n  vTsPos = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n  #else\n  vTsPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\n  #endif");
     const chunk = THREE.ShaderChunk.lights_fragment_begin.replace("getDirectionalLightInfo( directionalLight, directLight );",
       "getDirectionalLightInfo( directionalLight, directLight );\n\t\tdirectLight.color *= terrainShadow( vTsPos );");
     shader.fragmentShader = `varying vec3 vTsPos;

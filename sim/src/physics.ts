@@ -31,12 +31,15 @@ const SERVO = { tMax: 1.91, wMax: (52 * 2 * Math.PI) / 60 };
  *  = 1.62 * 0.68 = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm); at 0.53 m/s a full brake through the 1.6 A cap (about 5 m/s2) flips it in the first test.
  *  1.5 per second from full duty is about 0.8 m/s2. A design consequence: the motor controller firmware needs a deceleration limit. */
 const DUTY_SLEW = 1.5;
-const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4, G_GROUSER = 8;
+const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4, G_GROUSER = 8, G_ROCK = 16;
 const groups = (member: number, filter: number) => (member << 16) | filter;
 const v3 = (a: number[]) => ({ x: a[0], y: a[1], z: a[2] });
 
 /** what the physics needs of the terrain (terrain.ts): world height y at (x, z), the half width of the sandbox and the spawn point */
-export interface GroundSource { height(x: number, z: number, minWavelength?: number): number; half: number; spawn: { x: number; y: number; z: number }; }
+export interface GroundSource {
+  height(x: number, z: number, minWavelength?: number): number; half: number; spawn: { x: number; y: number; z: number };
+  rocks?: { physics(x: number, z: number): { version: number; hulls: Float32Array[] } };      // convex hulls (world-space points) of the rocks near a point, `version` changing when the set does
+}
 const PATCH = { cell: 0.25, cells: 128, rebuild: 4 };      // heightfield collider: 32 m square at 0.25 m, re-centred when the rover is 4 m from its centre
 const SOLVER_ITERATIONS = 8;
 const IMPULSE_CAL = SOLVER_ITERATIONS / (SOLVER_ITERATIONS + 1);   // the contact impulses Rapier reports sum to (n + 1) / n times the weight at rest (measured: tests/soil-check.ts), n the solver iterations
@@ -63,6 +66,9 @@ export class RoverPhysics {
   private patch: { body: RAPIER.RigidBody; collider: RAPIER.Collider; cx: number; cz: number } | null = null;
 
   private soil?: Soil;
+  private rockBody?: RAPIER.RigidBody;
+  private rockColliders: RAPIER.Collider[] = [];
+  private rockVersion = -1;
   private tipR = 0.1;
   private load: Record<string, number> = { FL: 0, FR: 0, RL: 0, RR: 0 };       // smoothed normal load per wheel, N
   soilState: Record<string, { load: number; slip: number; sinkage: number }> = {};
@@ -83,6 +89,7 @@ export class RoverPhysics {
     const sx = ground?.spawn.x ?? 0, sz = ground?.spawn.z ?? 0, sy = ground?.spawn.y ?? 0;
     if (ground) {
       p.updateGround(sx, sz);
+      if (ground.rocks) p.updateRocks(sx, sz);
       const h = ground.half - EDGE_MARGIN, wb = p.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());     // hard walls round the sandbox (the HUD warns before them)
       for (const [x, z, hx, hz] of [[h + 5, 0, 5, h + 10], [-h - 5, 0, 5, h + 10], [0, h + 5, h + 10, 5], [0, -h - 5, h + 10, 5]])
         p.world.createCollider(RAPIER.ColliderDesc.cuboid(hx, 600, hz).setTranslation(x, 0, z).setFriction(0.2).setCollisionGroups(groups(G_GROUND, G_CHASSIS | G_WHEEL)), wb);
@@ -105,15 +112,15 @@ export class RoverPhysics {
       p.bodies[name] = body;
       if (b.collider_hull_points_m) {                                  // all colliders have zero density: mass comes from the CAD mass properties above
         const hull = RAPIER.ColliderDesc.convexHull(new Float32Array(b.collider_hull_points_m));
-        if (hull) p.world.createCollider(hull.setDensity(0).setFriction(0.5).setRestitution(0).setCollisionGroups(groups(G_CHASSIS, G_GROUND)), body);
+        if (hull) p.world.createCollider(hull.setDensity(0).setFriction(0.5).setRestitution(0).setCollisionGroups(groups(G_CHASSIS, G_GROUND | G_ROCK)), body);
       }
       if (b.grouser_hulls_m) {
         p.world.createCollider(RAPIER.ColliderDesc.cylinder(spec.wheel.width_m / 2, spec.wheel.radius_m).setRotation({ x: half, y: 0, z: 0, w: half })
-          .setDensity(0).setFriction(wheelFriction).setFrictionCombineRule(combine).setRestitution(0).setCollisionGroups(groups(G_WHEEL, G_GROUND)), body);
+          .setDensity(0).setFriction(wheelFriction).setFrictionCombineRule(combine).setRestitution(0).setCollisionGroups(groups(G_WHEEL, G_GROUND | G_ROCK)), body);
         for (const h of b.grouser_hulls_m) {
           const c = RAPIER.ColliderDesc.convexHull(new Float32Array(h));
           if (c) p.world.createCollider(c.setDensity(0).setFriction(wheelFriction).setFrictionCombineRule(combine).setRestitution(0)
-            .setCollisionGroups(soil ? groups(G_GROUSER, 0) : groups(G_WHEEL, G_GROUND)), body);   // with the soil model the grousers dig in: the rim carries the wheel (they will collide with rocks)
+            .setCollisionGroups(soil ? groups(G_GROUSER, G_ROCK) : groups(G_WHEEL, G_GROUND | G_ROCK)), body);   // with the soil model the grousers dig into the ground (the rim carries the wheel) but still strike rocks
         }
       }
     }
@@ -155,6 +162,7 @@ export class RoverPhysics {
     for (let k = 0; k < body.numColliders(); k++) {
       const col = body.collider(k);
       this.world.contactPairsWith(col, (other) => {
+        if (other.handle !== this.patch?.collider.handle) return;                              // only the soil: contacts with rocks have their own friction
         this.world.contactPair(col, other, (m, flipped) => {
           const nm = m.normal(), sg = (flipped ? -1 : 1);
           for (let i = 0; i < m.numContacts(); i++) imp += m.contactImpulse(i);
@@ -227,7 +235,6 @@ export class RoverPhysics {
     this.world.step();
   }
 
-  /** advance by wall-clock seconds (clamped), in fixed substeps */
   /** heightfield collider of the terrain round (x, z): the same height function as the visual mesh, sampled on a world-aligned 0.25 m lattice */
   private updateGround(x: number, z: number) {
     const g = this.ground!, { cell, cells } = PATCH, n = cells + 1;
@@ -242,10 +249,43 @@ export class RoverPhysics {
     this.patch = { body, collider, cx, cz };
   }
 
+  /** stand the rover upright where it is, keeping its heading: every body back at its model pose (turned by the heading), at rest, the wheel and servo states cleared */
+  resetUpright() {
+    const c = this.bodies.chassis, t = c.translation(), r = c.rotation();
+    const fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));
+    const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(-fwd.z, fwd.x));
+    const o0 = this.spec.bodies.chassis.origin_m, ground = this.ground?.height(t.x, t.z, 0.5) ?? 0;
+    for (const [name, b] of Object.entries(this.spec.bodies)) {
+      const off = new THREE.Vector3(b.origin_m[0] - o0[0], b.origin_m[1] - o0[1], b.origin_m[2] - o0[2]).applyQuaternion(q);
+      const body = this.bodies[name];
+      body.setTranslation({ x: t.x + off.x, y: ground + o0[1] + 0.05 + off.y, z: t.z + off.z }, true);
+      body.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+      body.setLinvel({ x: 0, y: 0, z: 0 }, true); body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+    }
+    for (const w of WHEELS) { this.duty[w] = 0; this.load[w] = 0; }
+    this.panTarget = 0; this.tiltTarget = 0;
+  }
+
+  /** the rocks near the rover as fixed convex hulls: friction 0.6 and the maximum combine rule, so the wheels (friction 0 under the soil model) grip them */
+  private updateRocks(x: number, z: number) {
+    const set = this.ground!.rocks!.physics(x, z);
+    if (set.version === this.rockVersion) return;
+    this.rockVersion = set.version;
+    this.rockBody ??= this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+    for (const c of this.rockColliders) this.world.removeCollider(c, false);
+    this.rockColliders = [];
+    for (const pts of set.hulls) {
+      const d = RAPIER.ColliderDesc.convexHull(pts);
+      if (d) this.rockColliders.push(this.world.createCollider(d.setFriction(0.6).setFrictionCombineRule(RAPIER.CoefficientCombineRule.Max).setRestitution(0)
+        .setCollisionGroups(groups(G_ROCK, G_CHASSIS | G_WHEEL | G_GROUSER)), this.rockBody));
+    }
+  }
+
   advance(seconds: number, c: Controls) {
     if (this.ground) {
       const t = this.bodies.chassis.translation();
       if (!this.patch || Math.hypot(t.x - this.patch.cx, t.z - this.patch.cz) > PATCH.rebuild) this.updateGround(t.x, t.z);
+      if (this.ground.rocks) this.updateRocks(t.x, t.z);
     }
     this.acc += Math.min(seconds, 0.05);
     while (this.acc >= this.dt) { this.substep(c); this.acc -= this.dt; }

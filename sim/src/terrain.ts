@@ -25,6 +25,7 @@ export class Terrain {
   private ring!: Ring;
   private hc = 0;                                   // raw height of the tile centre, metres
   spawn = { x: 0, z: 0, y: 0 };
+  rocks?: { physics(x: number, z: number): { version: number; hulls: Float32Array[] } };      // set by main.ts: the rock population the physics needs near a point
   detailScale = 1;                                  // ?detail=0 switches the procedural roughness off
 
   static async load(base = "terrain/", opts: { smoothPosts?: number; detail?: number } = {}): Promise<Terrain> {
