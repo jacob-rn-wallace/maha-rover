@@ -2,9 +2,10 @@
 //   node tests/cdp-shot.mjs out.png "query" [seconds] [width height] [keys]
 // keys: e.g. "w:3" holds W for 3 s before the shot. Prints the HUD text and console errors.
 import { spawn } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, rmSync } from "node:fs";
 const [out, query = "", secs = "20", w = "1280", h = "800", keys = ""] = process.argv.slice(2);
-const chrome = spawn("google-chrome", ["--headless=new", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--no-sandbox", `--window-size=${w},${h}`, "--remote-debugging-port=9333", "--user-data-dir=/tmp/cdp-profile-" + process.pid, "about:blank"], { stdio: "ignore" });
+const PROFILE_DIR = "/tmp/cdp-profile-" + process.pid;      // removed at exit: each profile grows to about 100 MB
+const chrome = spawn("google-chrome", ["--headless=new", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--no-sandbox", `--window-size=${w},${h}`, "--remote-debugging-port=9333", "--user-data-dir=" + PROFILE_DIR, "about:blank"], { stdio: "ignore" });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let list;
 for (let i = 0; i < 50; i++) { try { list = await (await fetch("http://127.0.0.1:9333/json")).json(); if (list.length) break; } catch {} await sleep(200); }
@@ -30,4 +31,6 @@ const shot = await send("Page.captureScreenshot", { format: "png" });
 writeFileSync(out, Buffer.from(shot.data, "base64"));
 console.log(hud.result.value); if (logs.length) console.log("LOGS:", logs.slice(0, 8).join("\n"));
 ws.close(); chrome.kill();
+await sleep(500);
+rmSync(PROFILE_DIR, { recursive: true, force: true });
 process.exit(0);

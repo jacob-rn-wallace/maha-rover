@@ -18,7 +18,7 @@ import type { RoverPhysics, Spec, Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
-const hud = document.getElementById("hud")!;
+const hud = document.getElementById("hudtext")!;      // the text under the wordmark logo (index.html)
 // ?depth=reverse: a reversed floating-point depth buffer instead of the logarithmic one, if the browser offers EXT_clip_control (the logarithmic buffer writes depth in every fragment shader, which switches off early-z
 // rejection and is slow on tile-based GPUs such as Apple's). Experimental in three r170 and not testable here (no GPU): opt in, compare with ?stats=1, report.
 const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
@@ -114,7 +114,7 @@ async function main() {
   }
   const still = q.get("still") === "1";
   lunar.followSun(spawn);
-  if (still) { hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
+  if (still) { hud.innerHTML = `model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
 
   const soil = q.get("soil") === "0" || (flat && q.get("soil") !== "1") ? undefined : FJS1;     // ?soil=0 Coulomb friction instead; ?soil=1 with ?flat=1 or ?test=1
   // the physics runs in a worker (its own copy of the terrain) unless ?worker=0, in the scripted test, or without the terrain
@@ -213,7 +213,7 @@ if (coarse) { hud.style.fontSize = "11px"; hud.style.maxWidth = "230px"; hud.add
 function shortText(phys: PhysicsView, c: any, euler: THREE.Euler, p: Power) {
   const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
   const v = c.linvel(), deg = (x: number) => (x * 180 / Math.PI).toFixed(0);
-  return `<b>المَهَا al-maha</b> ${Math.hypot(v.x, v.z).toFixed(2)} m/s<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°, battery ${(p.soc * 100).toFixed(0)}%${phys.tiltCut ? '<br><span style="color:#ffb04a">tilt guard: drive cut</span>' : ""}<br><span style="opacity:.6">tap for more</span>`;
+  return `${Math.hypot(v.x, v.z).toFixed(2)} m/s<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°, battery ${(p.soc * 100).toFixed(0)}%${phys.tiltCut ? '<br><span style="color:#ffb04a">tilt guard: drive cut</span>' : ""}<br><span style="opacity:.6">tap for more</span>`;
 }
 
 function powerText(p: Power) {
@@ -253,7 +253,7 @@ function hudText(phys: PhysicsView, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map; gamepad: left stick drive, right stick mast</span>`;
+  return `lunar gravity ${phys.gravity} m/s2<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map; gamepad: left stick drive, right stick mast</span>`;
 }
 
 let mapToggle: (() => void) | undefined;      // set once the minimap exists (M key)

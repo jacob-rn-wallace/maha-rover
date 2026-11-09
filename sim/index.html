@@ -9,11 +9,12 @@
   canvas { display: block; width: 100%; height: 100%; }
   #hud { position: fixed; left: 12px; top: 12px; padding: 8px 10px; background: rgba(0,0,0,.55); border-radius: 6px; max-width: 320px; }
   #hud b { color: #fff; }
+  #logo { display: block; height: 46px; width: auto; margin: 0 0 6px; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><b>المَهَا al-maha</b> loading…</div>
+<div id="hud"><img id="logo" src="almaha-wordmark-white.svg" alt="المَهَا al-maha"><div id="hudtext">loading…</div></div>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
