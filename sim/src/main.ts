@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
@@ -23,6 +24,9 @@ sun.position.set(2, 1.2, 1);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, { left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10 });
+// stand-in reflections so metals read in the viewer; phase 3 replaces this with the black sky, sunlit regolith bounce and earthshine
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.35;
 scene.add(sun, new THREE.HemisphereLight(0x8890a0, 0x202020, 0.4));
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 1 }));
 ground.rotation.x = -Math.PI / 2;

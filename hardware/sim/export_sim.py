@@ -167,13 +167,53 @@ def smooth(v, t):
     return np.array(out_v), np.array(out_n), np.array(out_i, dtype=np.uint32)
 
 
-# (base colour, metallic, roughness): the groups of rover.py; bare aluminium, dark cells, black plastic and so on
-def material(group):
-    r, g, b = R.COLORS.get(group, (150, 150, 150))
-    metal = {"panels": 0.85, "frame": 0.8, "frame upper": 0.8, "mast": 0.8, "pan base": 0.7, "link plates": 0.7, "differential": 0.9,
-             "differential housing": 0.7, "pivot shaft": 0.9, "bearings": 0.9, "servos": 0.2, "motors": 0.6, "solar pieces": 0.4}.get(group, 0.15)
-    rough = {"solar pieces": 0.25, "wheels": 0.65, "camera": 0.5}.get(group, 0.45)
-    return ((r / 255) ** 2.2, (g / 255) ** 2.2, (b / 255) ** 2.2, 1.0), metal, rough
+# Real-world materials, by part, for the visual layer (sRGB colour, metallic, roughness).  Interior parts keep the group colours of rover.py.   ASSUMPTION (finishes are not sourced)
+MATERIALS = {
+    "cast aluminium": ((158, 162, 166), 0.9, 0.55),        # die-cast Takachi boxes, the mast base and camera box
+    "sheet aluminium": ((190, 194, 198), 0.9, 0.38),       # deck, panels, bracket, disk, hat
+    "anodised T-slot": ((176, 180, 186), 0.85, 0.32),      # extrusions
+    "black plastic": ((22, 22, 24), 0.05, 0.65),           # printed hood and baffle, servo cases, antenna
+    "lens glass": ((8, 10, 14), 0.1, 0.08),
+    "cord": ((20, 20, 22), 0.0, 0.55),                     # the HDMI cord jacket (black assumed)
+    "solar cell": ((12, 18, 38), 0.35, 0.14),              # back-contact silicon behind glass: dark, glossy
+    "wheel print": ((70, 72, 76), 0.05, 0.6),              # ASA print, mid-grey
+    "steel": ((120, 124, 130), 0.95, 0.4),
+    "ceramic patch": ((128, 112, 84), 0.0, 0.5),           # GNSS patch antenna
+}
+
+
+def material_key(group, name):
+    if group == "solar pieces":
+        return "solar cell"
+    if group == "wheels":
+        return "wheel print"
+    if group in ("frame", "frame upper") or name == "tube":
+        return "anodised T-slot"
+    if name in ("pan housing", "enclosure", "base", "pan coupling disc"):
+        return "cast aluminium"
+    if name in ("bracket", "disk", "antenna hat") or group == "panels":
+        return "sheet aluminium"
+    if name == "GNSS patch":
+        return "ceramic patch"
+    if name in ("hood", "baffle", "cable gland", "HDMI plug") or "servo" in name or group == "wifi antenna":
+        return "black plastic"
+    if name == "lens":
+        return "lens glass"
+    if name == "camera-link cable":
+        return "cord"
+    if group in ("pivot shaft", "bearings", "wheel hardware", "differential") or name == "spindle":
+        return "steel"
+    return group
+
+
+def material(key):
+    if key in MATERIALS:
+        (r, g, b), metal, rough = MATERIALS[key]
+    else:
+        r, g, b = R.COLORS.get(key, (150, 150, 150))
+        metal, rough = {"link plates": 0.7, "differential housing": 0.7, "motors": 0.6}.get(key, 0.15), 0.45
+    lin = lambda c: (c / 255) ** 2.2
+    return (lin(r), lin(g), lin(b), 1.0), metal, rough
 
 
 def mass_props(v, t, mass):
@@ -204,7 +244,7 @@ def main():
         if len(t) == 0:
             continue
         v = to_gl(v - np.array(BODIES[b]))
-        per[b].setdefault(g, []).append((v, t))
+        per[b].setdefault(material_key(g, n), []).append((v, t))
         raw[b].append((v, t))
 
     # --- masses (replica.py, the same list as docs/replica-mass.md), placed in the bodies by the same rules ---
