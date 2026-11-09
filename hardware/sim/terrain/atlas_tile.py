@@ -10,6 +10,7 @@ and stops at the first 429 instead of retrying.
 
   python hardware/sim/terrain/atlas_tile.py fetch CACHE_DIR            # downloads the blocks (resumable) into CACHE_DIR
   python hardware/sim/terrain/atlas_tile.py build CACHE_DIR OUT_DIR    # crops, fills gaps, writes atlas_5km.png (16 bit) and atlas_5km.json
+  python hardware/sim/terrain/atlas_tile.py build-local IMG OUT_DIR    # the same from a full local copy of NAC_DTM_ATLAS_E468N0446.IMG (1.25 GB, downloaded by hand)
 """
 import json
 import math
@@ -66,15 +67,22 @@ def fetch(cache):
         time.sleep(3)
 
 
-def build(cache, out):
+def build(cache, out, local_img=None):
     import numpy as np
     from PIL import Image
     l0, s0 = window()
-    rows = []
-    for a, b in blocks():
-        arr = np.fromfile(Path(cache) / f"lines_{a}_{b}.f32", dtype="<f4").reshape(b - a, SAMPLES)
-        rows.append(arr[:, s0:s0 + N])
-    h = np.concatenate(rows).astype(np.float64)
+    if local_img:                                                   # a full copy of the product: memory-map it and cut the window
+        size = Path(local_img).stat().st_size
+        if size != OFFSET + LINES * SAMPLES * 4:
+            sys.exit(f"{local_img} is {size} bytes, expected {OFFSET + LINES * SAMPLES * 4}: not the complete .IMG product (not the .TIF extras)")
+        full = np.memmap(local_img, dtype="<f4", mode="r", offset=OFFSET, shape=(LINES, SAMPLES))
+        h = np.array(full[l0:l0 + N, s0:s0 + N], dtype=np.float64)
+    else:
+        rows = []
+        for a, b in blocks():
+            arr = np.fromfile(Path(cache) / f"lines_{a}_{b}.f32", dtype="<f4").reshape(b - a, SAMPLES)
+            rows.append(arr[:, s0:s0 + N])
+        h = np.concatenate(rows).astype(np.float64)
     bad = h < MISSING
     if bad.any():                                                   # fill gaps with the mean of the valid neighbours, repeated
         print(f"{bad.sum()} missing posts ({bad.mean() * 100:.2f}%), filled")
@@ -109,5 +117,7 @@ if __name__ == "__main__":
         fetch(sys.argv[2])
     elif len(sys.argv) >= 4 and sys.argv[1] == "build":
         build(sys.argv[2], sys.argv[3])
+    elif len(sys.argv) >= 4 and sys.argv[1] == "build-local":
+        build(None, sys.argv[3], local_img=sys.argv[2])
     else:
         sys.exit(__doc__)
