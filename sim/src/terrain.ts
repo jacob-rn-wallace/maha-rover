@@ -35,15 +35,19 @@ export class Terrain {
     const [meta, tile, ring, mask, ringMeta] = await Promise.all([
       fetch(base + "atlas_5km.json").then((r) => r.json()), png("atlas_5km.png"), png("ring.png"), png("ring_mask.png"), fetch(base + "ring.json").then((r) => r.json()),
     ]);
+    const t0 = performance.now(); const lap = (l: string) => console.debug("terrain.load", l, (performance.now() - t0).toFixed(0), "ms");
+    lap("decoded");
     const n = tile.width;
     const raw = new Float32Array(n * n);
     const k = (meta.height_max_m - meta.height_min_m) / 65535;
     for (let i = 0; i < raw.length; i++) raw[i] = meta.height_min_m + (tile.data as Uint16Array)[i] * k;
     t.n = n;
     t.tile = gaussian(raw, n, opts.smoothPosts ?? SMOOTH_SIGMA_POSTS);
+    lap("smoothed");
     t.hc = t.tileAt(0, 0);
     t.ring = { nAz: ringMeta.n_az, nR: ringMeta.n_range, r0: ringMeta.r0_m, growth: ringMeta.growth, hMin: ringMeta.height_min_m, hMax: ringMeta.height_max_m, h: ring.data as Uint16Array, mask: mask.data as Uint8Array };
     t.spawn = t.flattestSpot();
+    lap("spawn search");
     return t;
   }
 
@@ -138,16 +142,23 @@ function gaussian(src: Float32Array, n: number, sigma: number): Float32Array {
   let sum = 0;
   for (let i = -r; i <= r; i++) sum += (k[i + r] = Math.exp(-(i * i) / (2 * sigma * sigma)));
   for (let i = 0; i < k.length; i++) k[i] /= sum;
-  const tmp = new Float32Array(n * n), out = new Float32Array(n * n);
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-    let s = 0;
-    for (let i = -r; i <= r; i++) s += src[y * n + Math.min(n - 1, Math.max(0, x + i))] * k[i + r];
-    tmp[y * n + x] = s;
+  const tmp = new Float32Array(n * n), out = new Float32Array(n * n), kl = k.length;
+  // rows then columns; the interior (no clamping) is the hot loop, the r posts at each edge clamp
+  for (let y = 0; y < n; y++) {
+    const row = y * n;
+    for (let x = 0; x < n; x++) {
+      let s = 0;
+      if (x >= r && x < n - r) { const b = row + x - r; for (let i = 0; i < kl; i++) s += src[b + i] * k[i]; }
+      else for (let i = -r; i <= r; i++) s += src[row + Math.min(n - 1, Math.max(0, x + i))] * k[i + r];
+      tmp[row + x] = s;
+    }
   }
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-    let s = 0;
-    for (let i = -r; i <= r; i++) s += tmp[Math.min(n - 1, Math.max(0, y + i)) * n + x] * k[i + r];
-    out[y * n + x] = s;
+  for (let y = 0; y < n; y++) {                       // columns, accumulated a whole row at a time (sequential memory)
+    const o = y * n;
+    for (let i = -r; i <= r; i++) {
+      const w = k[i + r], src2 = Math.min(n - 1, Math.max(0, y + i)) * n;
+      for (let x = 0; x < n; x++) out[o + x] += tmp[src2 + x] * w;
+    }
   }
   return out;
 }

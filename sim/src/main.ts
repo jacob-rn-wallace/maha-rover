@@ -13,7 +13,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 const canvas = document.getElementById("c") as HTMLCanvasElement;
 const hud = document.getElementById("hud")!;
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true });   // terrain from 5 cm to 74 km
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
+renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.25 : 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -50,7 +51,9 @@ async function main() {
   const spawn = new THREE.Vector3();
   if (!flat) {
     hud.textContent = "loading terrain...";
+    const tl = performance.now();
     terrain = await Terrain.load("terrain/", { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined });   // ?smooth=posts, ?detail=scale: tuning
+    console.log("load: terrain", (performance.now() - tl).toFixed(0), "ms");
     spawn.set(terrain.spawn.x, terrain.spawn.y, terrain.spawn.z);
     scene.remove(ground);
     view = new TerrainView(terrain, lunar.groundMaterial);
@@ -78,7 +81,7 @@ async function main() {
       rocks.update(terrain.spawn.x, terrain.spawn.z);
     }
     rockField = rocks;
-    view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children[Number(k)].visible = false; });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
+    view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles, at", performance.now().toFixed(0), "ms"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children[Number(k)].visible = false; });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
     for (const n of names) node(n).position.add(spawn);       // the rover model starts at the spawn point
     camera.position.add(spawn); controls.target.add(spawn);
   }
@@ -123,7 +126,7 @@ async function main() {
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
     hudT += dt;
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : ""); }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
@@ -134,14 +137,23 @@ async function main() {
       headQ.copy(hb.quaternion);
       mastCam.position.copy(camOff).applyQuaternion(headQ).add(hp);
       mastCam.quaternion.copy(headQ).multiply(new THREE.Quaternion().setFromRotationMatrix(camBasis));
-      const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = 12;
+      const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - 12 : 12;
       renderer.setScissorTest(true); renderer.setViewport(px, py, pw, ph); renderer.setScissor(px, py, pw, ph);
       renderer.clear();
       renderer.render(scene, mastCam);
       renderer.setScissorTest(false);
-      Object.assign(pip.box.style, { display: "block", right: "12px", bottom: "12px", width: pw + "px", height: ph + "px" });
+      Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: "12px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
     } else pip.box.style.display = "none";
   });
+}
+
+/** phones: three lines, tap the panel for the full readout */
+let hudFull = false;
+if (coarse) { hud.style.fontSize = "11px"; hud.style.maxWidth = "230px"; hud.addEventListener("click", () => { hudFull = !hudFull; }); }
+function shortText(phys: RoverPhysics, c: any, euler: THREE.Euler, p: Power) {
+  const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
+  const v = c.linvel(), deg = (x: number) => (x * 180 / Math.PI).toFixed(0);
+  return `<b>المَهَا al-maha</b> ${Math.hypot(v.x, v.z).toFixed(2)} m/s<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°, battery ${(p.soc * 100).toFixed(0)}%${phys.tiltCut ? '<br><span style="color:#ffb04a">tilt guard: drive cut</span>' : ""}<br><span style="opacity:.6">tap for more</span>`;
 }
 
 function powerText(p: Power) {
@@ -184,7 +196,38 @@ function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
 }
 
 let resetRequested = false;                 // T: stand the rover upright where it is
+/** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and a T button, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
+function touchSticks() {
+  const out = { drive: [0, 0], mast: [0, 0] };
+  const R = 60;
+  const make = (side: "left" | "right", key: "drive" | "mast") => {
+    const base = document.createElement("div"), knob = document.createElement("div");
+    base.style.cssText = `position:fixed;${side}:24px;bottom:24px;width:${2 * R}px;height:${2 * R}px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);touch-action:none`;
+    knob.style.cssText = `position:absolute;left:${R - 22}px;top:${R - 22}px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.45);pointer-events:none`;
+    base.appendChild(knob); document.body.appendChild(base);
+    const set = (e: PointerEvent) => {
+      const b = base.getBoundingClientRect();
+      let dx = (e.clientX - b.left - R) / R, dy = (e.clientY - b.top - R) / R; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
+      out[key] = [dx, -dy]; knob.style.transform = `translate(${dx * (R - 22)}px,${dy * (R - 22)}px)`;
+    };
+    const end = () => { out[key] = [0, 0]; knob.style.transform = ""; };
+    base.addEventListener("pointerdown", (e) => { base.setPointerCapture(e.pointerId); set(e); });
+    base.addEventListener("pointermove", (e) => { if (base.hasPointerCapture(e.pointerId)) set(e); });
+    base.addEventListener("pointerup", end); base.addEventListener("pointercancel", end);
+  };
+  make("left", "drive"); make("right", "mast");
+  const mk = (label: string, bottom: number, on: () => void) => {
+    const b = document.createElement("button"); b.textContent = label;
+    b.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);bottom:${bottom}px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font:13px system-ui`;
+    b.addEventListener("click", on); document.body.appendChild(b);
+  };
+  mk("stand upright", 24, () => { resetRequested = true; });
+  mk("camera view", 64, () => { pip.mode = (pip.mode + 1) % 3; });
+  return out;
+}
+
 function setupInput() {
+  const touch = coarse ? touchSticks() : undefined;
   const keys = new Set<string>();
   addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; });
   addEventListener("keyup", (e) => keys.delete(e.code));
@@ -200,6 +243,7 @@ function setupInput() {
         throttle += -dz(gp.axes[1] ?? 0); turn += dz(gp.axes[0] ?? 0);
         pan += -dz(gp.axes[2] ?? 0); tilt += -dz(gp.axes[3] ?? 0);
       }
+      if (touch) { throttle += touch.drive[1]; turn += touch.drive[0]; pan += -touch.mast[0]; tilt += touch.mast[1]; }
       const cl = (x: number) => Math.max(-1, Math.min(1, x));
       return { throttle: cl(throttle), turn: cl(turn), pan: cl(pan), tilt: cl(tilt), brake: keys.has("Space") };
     },
