@@ -17,3 +17,4 @@ hardware/**/out/*.stl
 hardware/assembly/out/*.step
 sim/node_modules/
 sim/dist/
+sim/.check/

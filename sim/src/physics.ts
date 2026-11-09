@@ -1,5 +1,6 @@
 import RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
+import { soilForce, type Soil } from "./soil";
 
 /** al-maha physics (phase 2): rigid bodies and joints from rover.json, the differential as a stiff torque coupling of the two link plates,
  *  the Pololu 37D motor model on each wheel, PD-driven servos for the mast.  glTF axes (Y up, metres); wheel, link and tilt axes are +Z, pan is +Y.
@@ -10,7 +11,7 @@ export interface BodySpec {
   inertia_principal_kgm2?: number[]; inertia_frame_quat_xyzw?: number[];
   collider_hull_points_m?: number[]; grouser_hulls_m?: number[][];
 }
-export interface Spec { total_mass_kg: number; wheel: { radius_m: number; width_m: number }; bodies: Record<string, BodySpec>; }
+export interface Spec { total_mass_kg: number; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; }
 
 // ---- Pololu 37D #4746 (131.25:1) from docs/drive-spec.md: 76 rpm and 0.2 A no load at 12 V, 5.5 A stall at 12 V, 0.59 N.m at 0.74 A (best efficiency) ----
 export const MOTOR = (() => {
@@ -30,13 +31,15 @@ const SERVO = { tMax: 1.91, wMax: (52 * 2 * Math.PI) / 60 };
  *  = 1.62 * 0.68 = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm); at 0.53 m/s a full brake through the 1.6 A cap (about 5 m/s2) flips it in the first test.
  *  1.5 per second from full duty is about 0.8 m/s2. A design consequence: the motor controller firmware needs a deceleration limit. */
 const DUTY_SLEW = 1.5;
-const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4;
+const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4, G_GROUSER = 8;
 const groups = (member: number, filter: number) => (member << 16) | filter;
 const v3 = (a: number[]) => ({ x: a[0], y: a[1], z: a[2] });
 
 /** what the physics needs of the terrain (terrain.ts): world height y at (x, z), the half width of the sandbox and the spawn point */
 export interface GroundSource { height(x: number, z: number, minWavelength?: number): number; half: number; spawn: { x: number; y: number; z: number }; }
 const PATCH = { cell: 0.25, cells: 128, rebuild: 4 };      // heightfield collider: 32 m square at 0.25 m, re-centred when the rover is 4 m from its centre
+const SOLVER_ITERATIONS = 8;
+const IMPULSE_CAL = SOLVER_ITERATIONS / (SOLVER_ITERATIONS + 1);   // the contact impulses Rapier reports sum to (n + 1) / n times the weight at rest (measured: tests/soil-check.ts), n the solver iterations
 const EDGE_MARGIN = 20;                                    // the boundary walls stand this far inside the tile edge
 
 export interface Controls { throttle: number; turn: number; pan: number; tilt: number; brake: boolean; }
@@ -59,15 +62,24 @@ export class RoverPhysics {
   private ground?: GroundSource;
   private patch: { body: RAPIER.RigidBody; collider: RAPIER.Collider; cx: number; cz: number } | null = null;
 
-  static async create(spec: Spec, spawnHeight = 0.03, ground?: GroundSource): Promise<RoverPhysics> {
+  private soil?: Soil;
+  private tipR = 0.1;
+  private load: Record<string, number> = { FL: 0, FR: 0, RL: 0, RR: 0 };       // smoothed normal load per wheel, N
+  soilState: Record<string, { load: number; slip: number; sinkage: number }> = {};
+
+  /** soil: wheel-soil force model (soil.ts) in place of Coulomb friction at the wheels; without it the wheels have friction 0.9 */
+  static async create(spec: Spec, spawnHeight = 0.03, ground?: GroundSource, soil?: Soil): Promise<RoverPhysics> {
     await RAPIER.init();
     const p = new RoverPhysics();
     p.spec = spec;
     p.world = new RAPIER.World({ x: 0, y: -p.gravity, z: 0 });
     p.world.integrationParameters.dt = p.dt;
-    p.world.integrationParameters.numSolverIterations = 8;
+    p.world.integrationParameters.numSolverIterations = SOLVER_ITERATIONS;
 
     p.ground = ground;
+    p.soil = soil;
+    p.tipR = spec.wheel.radius_m + (spec.wheel.grouser_height_m ?? 0);
+    const wheelFriction = soil ? 0 : 0.9, combine = soil ? RAPIER.CoefficientCombineRule.Min : RAPIER.CoefficientCombineRule.Average;   // with the soil model the ground gives no friction of its own
     const sx = ground?.spawn.x ?? 0, sz = ground?.spawn.z ?? 0, sy = ground?.spawn.y ?? 0;
     if (ground) {
       p.updateGround(sx, sz);
@@ -97,10 +109,11 @@ export class RoverPhysics {
       }
       if (b.grouser_hulls_m) {
         p.world.createCollider(RAPIER.ColliderDesc.cylinder(spec.wheel.width_m / 2, spec.wheel.radius_m).setRotation({ x: half, y: 0, z: 0, w: half })
-          .setDensity(0).setFriction(0.9).setRestitution(0).setCollisionGroups(groups(G_WHEEL, G_GROUND)), body);
+          .setDensity(0).setFriction(wheelFriction).setFrictionCombineRule(combine).setRestitution(0).setCollisionGroups(groups(G_WHEEL, G_GROUND)), body);
         for (const h of b.grouser_hulls_m) {
           const c = RAPIER.ColliderDesc.convexHull(new Float32Array(h));
-          if (c) p.world.createCollider(c.setDensity(0).setFriction(0.9).setRestitution(0).setCollisionGroups(groups(G_WHEEL, G_GROUND)), body);
+          if (c) p.world.createCollider(c.setDensity(0).setFriction(wheelFriction).setFrictionCombineRule(combine).setRestitution(0)
+            .setCollisionGroups(soil ? groups(G_GROUSER, 0) : groups(G_WHEEL, G_GROUND)), body);   // with the soil model the grousers dig in: the rim carries the wheel (they will collide with rocks)
         }
       }
     }
@@ -135,8 +148,44 @@ export class RoverPhysics {
     this.bodies[parent].addTorque({ x: -axW.x * tau, y: -axW.y * tau, z: -axW.z * tau }, true);
   }
 
+  /** the soil's force on one wheel from the contacts of the last step: normal load (smoothed over 30 ms), contact point and normal */
+  private soilOnWheel(w: string) {
+    const body = this.bodies["wheel" + w], dt = this.dt;
+    let imp = 0, n = 0, px = 0, py = 0, pz = 0, nx = 0, ny = 0, nz = 0;
+    for (let k = 0; k < body.numColliders(); k++) {
+      const col = body.collider(k);
+      this.world.contactPairsWith(col, (other) => {
+        this.world.contactPair(col, other, (m, flipped) => {
+          const nm = m.normal(), sg = (flipped ? -1 : 1);
+          for (let i = 0; i < m.numContacts(); i++) imp += m.contactImpulse(i);
+          for (let i = 0; i < m.numSolverContacts(); i++) { const q = m.solverContactPoint(i); px += q.x; py += q.y; pz += q.z; n++; }
+          nx += sg * nm.x; ny += sg * nm.y; nz += sg * nm.z;
+        });
+      });
+    }
+    this.load[w] += (imp * IMPULSE_CAL / dt - this.load[w]) * Math.min(1, dt / 0.03);
+    const load = this.load[w];
+    this.soilState[w] = { load, slip: 0, sinkage: 0 };
+    if (n === 0 || load < 0.02) return;
+    const l = Math.hypot(nx, ny, nz) || 1;
+    let N = new THREE.Vector3(nx / l, ny / l, nz / l);
+    if (N.y < 0) N.negate();
+    const r = body.rotation(), a = new THREE.Vector3(0, 0, 1).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));      // the axle
+    const t = new THREE.Vector3().crossVectors(N, a).normalize();                                                            // rolling direction on the ground (forward is +x for a = +z, N = +y)
+    const lat = a.clone().addScaledVector(N, -a.dot(N)).normalize();
+    const v = body.linvel(), w3 = body.angvel();
+    const vx = v.x * t.x + v.y * t.y + v.z * t.z, vy = v.x * lat.x + v.y * lat.y + v.z * lat.z;
+    const u = -(w3.x * a.x + w3.y * a.y + w3.z * a.z) * this.tipR;                                                           // forward rim speed at the grouser tips (a forward wheel turns negative about +z)
+    const f = soilForce(this.soil!, load, u, vx, vy);
+    this.soilState[w] = { load, slip: f.slip, sinkage: f.sinkage };
+    const F = t.clone().multiplyScalar(f.thrust).addScaledVector(lat, f.side);
+    body.addForceAtPoint({ x: F.x, y: F.y, z: F.z }, { x: px / n, y: py / n, z: pz / n }, true);
+    const Rr = -Math.sign(vx) * f.resist;
+    body.addForce({ x: t.x * Rr, y: t.y * Rr, z: t.z * Rr }, true);
+  }
+
   private substep(c: Controls) {
-    for (const b of Object.values(this.bodies)) b.resetTorques(false);
+    for (const b of Object.values(this.bodies)) { b.resetTorques(false); b.resetForces(false); }
     const Z = new THREE.Vector3(0, 0, 1), Y = new THREE.Vector3(0, 1, 0);
 
     // differential: the two link plates are coupled so that angle L + angle R = 0 (bevel gear differential, 1:1), as a stiff spring and damper
@@ -163,6 +212,8 @@ export class RoverPhysics {
       const tOut = m.N * tm * (tm * wm >= 0 ? m.eta : 1 / m.eta);
       this.torquePair("link" + w[1], "wheel" + w, r.axW, -tOut);
     }
+
+    if (this.soil) for (const w of WHEELS) this.soilOnWheel(w);
 
     // servos: a PD loop on the target angle, torque limited to the stall torque, target moved at the no-load speed
     const dtc = this.dt;

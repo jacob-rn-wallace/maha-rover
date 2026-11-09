@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { addLunarScene } from "./lunar";
 import { Terrain } from "./terrain";
+import { FJS1 } from "./soil";
 import { TerrainView } from "./terrainView";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -64,7 +65,8 @@ async function main() {
   lunar.followSun(spawn);
   if (still) { hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
 
-  const phys = await RoverPhysics.create(spec, 0.03, terrain);
+  const soil = q.get("soil") === "0" || (flat && q.get("soil") !== "1") ? undefined : FJS1;     // ?soil=0 Coulomb friction instead; ?soil=1 with ?flat=1 or ?test=1
+  const phys = await RoverPhysics.create(spec, 0.03, terrain, soil);
   if (q.get("test") === "1") { runTest(phys); return; }
   const input = setupInput();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
@@ -97,6 +99,14 @@ function edgeText(x: number, z: number, t: Terrain) {
   return `<br>position ${x.toFixed(0)} m E, ${(-z).toFixed(0)} m N of the tile centre${warn}`;
 }
 
+/** with the soil model: the mean tip-referred slip of the wheels in contact and the sinkage the model predicts for it (the ground itself stays rigid) */
+function soilLine(phys: RoverPhysics) {
+  const on = WHEELS.map((w) => phys.soilState[w]).filter((s) => s && s.load > 0.02);
+  if (!on.length) return "";
+  const slip = on.reduce((a, s) => a + s.slip, 0) / on.length, sink = on.reduce((a, s) => a + s.sinkage, 0) / on.length, load = on.reduce((a, s) => a + s.load, 0);
+  return `, soil slip ${(slip * 100).toFixed(0)}%, sinkage about ${sink.toFixed(0)} mm, load ${load.toFixed(1)} N`;
+}
+
 function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
   const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
   const v = c.linvel(), fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));
@@ -105,7 +115,7 @@ function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt; gamepad: left stick drive, right stick mast</span>`;
+  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt; gamepad: left stick drive, right stick mast</span>`;
 }
 
 function setupInput() {
