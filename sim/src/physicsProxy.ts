@@ -7,7 +7,7 @@ export interface PhysicsView {
   bodies: Record<string, BodyView>; gravity: number;
   linkAngle: { L: number; R: number }; panAngle: number; tiltAngle: number;
   wheelCurrent: Record<string, number>; wheelRate: Record<string, number>; soilState: Record<string, { load: number; slip: number; sinkage: number }>;
-  motorPackAmps: number; servoMoving: boolean; tiltCut: boolean;
+  motorPackAmps: number; servoMoving: boolean; tiltCut: boolean; stepMs?: number; snapHz?: number;
   advance(seconds: number, c: Controls): void; resetUpright(): void;
 }
 
@@ -17,6 +17,7 @@ export class PhysicsProxy implements PhysicsView {
   linkAngle = { L: 0, R: 0 }; panAngle = 0; tiltAngle = 0;
   wheelCurrent: Record<string, number> = {}; wheelRate: Record<string, number> = {}; soilState: Record<string, { load: number; slip: number; sinkage: number }> = {};
   motorPackAmps = 0; servoMoving = false; tiltCut = false;
+  stepMs = 0; snapHz = 0; private snaps = 0; private snapT = performance.now();      // the worker's smoothed tick time and the snapshot rate seen here
   private worker: Worker; private names: string[]; private buf = new Float32Array(0); private linv = [0, 0, 0];
   private constructor(worker: Worker, spec: Spec) {
     this.worker = worker; this.names = Object.keys(spec.bodies);
@@ -32,6 +33,7 @@ export class PhysicsProxy implements PhysicsView {
       const m = e.data;
       if (m.type !== "state") return;
       this.buf = m.buf; this.linv = m.linvel;
+      this.snaps++; const now = performance.now(); if (now - this.snapT > 1000) { this.snapHz = Math.round(this.snaps * 1000 / (now - this.snapT)); this.snaps = 0; this.snapT = now; }
       Object.assign(this, m.tel);
     };
   }

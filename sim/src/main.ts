@@ -11,6 +11,7 @@ import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { applyMetalDetail } from "./metal";
 import { Minimap } from "./minimap";
+import { PerfLog, downloadJson } from "./perfLog";
 import { Power } from "./power";
 import { PhysicsProxy, type PhysicsView } from "./physicsProxy";
 import { WHEELS, MOTOR } from "./constants";
@@ -24,9 +25,9 @@ const hud = document.getElementById("hudtext")!;      // the text under the word
 const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
-// The drawing buffer is capped in total pixels (default 2.1 million, a 1080p frame; ?maxpx=megapixels), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
+// The drawing buffer is capped in total pixels (default 1 million, about 1280 x 780; ?maxpx=megapixels, e.g. 2.1 for a 1080p frame), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
 // (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
-const maxPixels = (Number(new URLSearchParams(location.search).get("maxpx")) || 2.1) * 1e6;
+const maxPixels = (Number(new URLSearchParams(location.search).get("maxpx")) || 1) * 1e6;
 const ratioCap = () => Math.min(devicePixelRatio, coarse ? 1.25 : 1.5, Math.sqrt(maxPixels / Math.max(1, canvas.clientWidth * canvas.clientHeight)));
 let maxRatio = ratioCap();
 let ratio = maxRatio;                                     // adaptive: lowered while frames take longer than FRAME_BUDGET, raised again when there is room (?res=1 fixes it at 1, ?res=auto is the default)
@@ -156,10 +157,29 @@ async function main() {
   mapToggle = () => minimap?.cycle();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
-  let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
+  // performance log: L records, L again stops and offers the file; ?bench=1 runs the scripted benchmark and offers the file at the end
+  const perf = new PerfLog(() => ({
+    build: __BUILD__, url: location.href, userAgent: navigator.userAgent, gpu: gpuName, devicePixelRatio, screen: `${screen.width}x${screen.height}`, window: `${innerWidth}x${innerHeight}`,
+    canvas: `${canvas.width}x${canvas.height}`, maxPixelsM: maxPixels / 1e6, cores: navigator.hardwareConcurrency, deviceMemoryGB: (navigator as any).deviceMemory ?? null, physicsInWorker: useWorker,
+  }));
+  const result = document.createElement("div");
+  result.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(0,0,0,.85);border:1px solid #888;border-radius:8px;padding:14px 18px;max-width:440px;font:13px/1.5 system-ui;color:#eee;display:none";
+  document.body.appendChild(result);
+  const finish = (stopSkip: number, name: string) => {
+    const data = perf.stop(stopSkip); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data; const sm = data.summary, stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    result.innerHTML = `<b>${name} finished</b><br>${sm.frames} frames over ${sm.seconds} s: <b>${sm.meanFps} fps</b> mean, ${sm.onePercentLowFps} fps 1% low<br>frame time median ${sm.frameMs.median} ms, 95th percentile ${sm.frameMs.p95} ms, worst ${sm.frameMs.worst} ms<br>main thread ${sm.meanJsMs} ms/frame, physics step ${sm.physicsStepMs} ms, pixel ratio ${sm.meanPixelRatio}, buffer ${canvas.width} x ${canvas.height}<br><br>`;
+    const b = document.createElement("button"); b.textContent = "Download the log file"; b.style.cssText = "padding:6px 12px;margin-right:8px"; b.onclick = () => downloadJson(`almaha-perf-${stamp}.json`, data);
+    const c = document.createElement("button"); c.textContent = "Close"; c.style.cssText = "padding:6px 12px"; c.onclick = () => { result.style.display = "none"; };
+    result.append(b, c); result.style.display = "block";
+    return data;
+  };
+  logToggle = () => { if (perf.recording) { finish(0, "Recording"); } else { result.style.display = "none"; perf.start("manual", { search: location.search }); } };
+  let benchStart = 0;
+  if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
+  let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   let jsMs = 0;
-  const showStats = q.get("stats") === "1";      // ?stats=1: frame rate and draw load of the main view on the HUD
+  const showStats = q.get("stats") === "1" || bench;      // ?stats=1: frame rate and draw load of the main view on the HUD
   renderer.setAnimationLoop((now) => {
     const jsStart = performance.now();
     const dt = (now - last) / 1000; last = now;
@@ -182,7 +202,7 @@ async function main() {
     hudT += dt;
     (window as any).__frames = ((window as any).__frames ?? 0) + 1;
     fpsEma += (1 / Math.max(dt, 1e-3) - fpsEma) * 0.05;
-    if (!fixedRes || fixedRes === "auto") {
+    if ((!fixedRes || fixedRes === "auto") && !(bench && q.get("adapt") !== "1")) {
       maxRatio = ratioCap(); if (ratio > maxRatio) { ratio = maxRatio; renderer.setPixelRatio(ratio); }
       // adaptive resolution: a slow frame (a smoothed 1 / fps below 50) steps the pixel ratio down, a long run of fast frames steps it back up
       frameEma += (dt - frameEma) * 0.1; resNote++;
@@ -191,13 +211,15 @@ async function main() {
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (perf.recording ? `<br><span style="color:#ff6a5a">● recording ${perf.seconds.toFixed(0)} s${benchT !== null ? ` of ${BENCH_SECONDS} (benchmark: keep the window in front)` : " (L to stop)"}</span>` : "") + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
     renderer.setScissorTest(false); renderer.setViewport(0, 0, vw, vh);
     renderer.render(scene, camera);
     drawCalls = renderer.info.render.calls; drawTris = renderer.info.render.triangles;
+    if (benchT !== null) { benchT = (performance.now() - benchStart) / 1000; if (benchT > BENCH_SECONDS) { benchT = null; finish(BENCH_WARMUP, "Benchmark"); } }
+    perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
     if (pip.mode > 0) {
       const hb = node("head"), hp = hb.position;
@@ -258,9 +280,10 @@ function hudText(phys: PhysicsView, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `lunar gravity ${phys.gravity} m/s2<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map; gamepad: left stick drive, right stick mast</span>`;
+  return `lunar gravity ${phys.gravity} m/s2<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map, L performance log; gamepad: left stick drive, right stick mast</span>`;
 }
 
+let logToggle: (() => void) | undefined;      // L: start or stop the performance log
 let mapToggle: (() => void) | undefined;      // set once the minimap exists (M key)
 let resetRequested = false;                 // T: stand the rover upright where it is
 /** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and a T button, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
@@ -293,17 +316,32 @@ function touchSticks() {
   return out;
 }
 
+const bench = new URLSearchParams(location.search).get("bench") === "1";      // ?bench=1: the scripted benchmark run (see runBench)
+const BENCH_SECONDS = Number(new URLSearchParams(location.search).get("benchsecs")) || 60, BENCH_WARMUP = 3;
+let benchT: number | null = null;                    // seconds into the benchmark while it runs: the input is then the script below, not the keyboard
+/** the benchmark's fixed route (the same whatever the machine; the physics runs in real time): 3 s settling, 17 s straight, 4 s turning, 16 s straight, 15 s of mast sweeps while creeping, 5 s stopped */
+function benchControls(t: number): Controls {
+  let throttle = 0, turn = 0, pan = 0, tilt = 0, brake = false;
+  if (t < 3) brake = true;
+  else if (t < 20) throttle = 1;
+  else if (t < 24) turn = 0.6;
+  else if (t < 40) throttle = 1;
+  else if (t < 55) { throttle = 0.3; const ph = Math.floor((t - 40) / 2.5) % 2 ? -1 : 1; pan = ph; tilt = -ph * 0.6; }
+  else brake = true;
+  return { throttle, turn, pan, tilt, brake };
+}
 const autoDrive = (new URLSearchParams(location.search).get("autodrive") ?? "").split(",").map(Number).filter(isFinite) as number[];      // ?autodrive=from,to: full throttle between those seconds after load (for scripted screenshots)
 const t0 = performance.now();
 function setupInput() {
   const touch = coarse ? touchSticks() : undefined;
   const keys = new Set<string>();
-  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; if (e.code === "KeyM" && !e.repeat) mapToggle?.(); });
+  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; if (e.code === "KeyM" && !e.repeat) mapToggle?.(); if (e.code === "KeyL" && !e.repeat) logToggle?.(); });
   addEventListener("keyup", (e) => keys.delete(e.code));
   addEventListener("blur", () => keys.clear());
   const k = (...c: string[]) => (c.some((x) => keys.has(x)) ? 1 : 0);
   return {
     read(): Controls {
+      if (benchT !== null) return benchControls(benchT);
       let throttle = k("KeyW", "ArrowUp") - k("KeyS", "ArrowDown"), turn = k("KeyD", "ArrowRight") - k("KeyA", "ArrowLeft");
       let pan = k("KeyQ") - k("KeyE"), tilt = k("KeyR") - k("KeyF");
       const gp = navigator.getGamepads?.().find((g) => g);

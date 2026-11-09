@@ -10,6 +10,7 @@ let phys: RoverPhysics | undefined;
 let controls: Controls = { throttle: 0, turn: 0, pan: 0, tilt: 0, brake: true };
 let resetFlag = false;
 let names: string[] = [];
+let stepMs = 0;      // smoothed wall time of one tick of the physics (advance), ms
 
 (self as any).onmessage = async (e: MessageEvent) => {
   const m = e.data;
@@ -28,13 +29,15 @@ let names: string[] = [];
     setInterval(() => {
       const now = performance.now(), dt = (now - last) / 1000; last = now;
       if (resetFlag) { resetFlag = false; phys!.resetUpright(); }
+      const t1 = performance.now();
       phys!.advance(dt, controls);
+      stepMs += (performance.now() - t1 - stepMs) * 0.05;
       const buf = new Float32Array(names.length * 7);
       names.forEach((n, i) => { const b = phys!.bodies[n], t = b.translation(), r = b.rotation(); buf.set([t.x, t.y, t.z, r.x, r.y, r.z, r.w], i * 7); });
       const v = phys!.bodies.chassis.linvel();
       (self as any).postMessage({
         type: "state", buf, linvel: [v.x, v.y, v.z],
-        tel: { linkAngle: phys!.linkAngle, panAngle: phys!.panAngle, tiltAngle: phys!.tiltAngle, wheelCurrent: phys!.wheelCurrent, wheelRate: phys!.wheelRate, soilState: phys!.soilState, motorPackAmps: phys!.motorPackAmps, servoMoving: phys!.servoMoving, tiltCut: phys!.tiltCut },
+        tel: { linkAngle: phys!.linkAngle, panAngle: phys!.panAngle, tiltAngle: phys!.tiltAngle, wheelCurrent: phys!.wheelCurrent, wheelRate: phys!.wheelRate, soilState: phys!.soilState, motorPackAmps: phys!.motorPackAmps, servoMoving: phys!.servoMoving, tiltCut: phys!.tiltCut, stepMs },
       }, [buf.buffer]);
     }, 8);
   } else if (m.type === "controls") controls = m.controls;
