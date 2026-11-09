@@ -69,7 +69,7 @@ async function main() {
   for (const n of names) { const p = new THREE.Group(); p.position.set(...(spec.bodies[n].origin_m as [number, number, number])); scene.add(p); p.updateMatrixWorld(true); pivots[n] = p; }
   for (const n of names) pivots[n].attach(nodes[n]);
   const node = (n: string) => pivots[n];
-  const cable = spec.cable ? new Cable(spec.cable, pivots.chassis, pivots.head) : null;
+  const cable = spec.cable ? new Cable(spec.cable, pivots) : null;
   if (cable) scene.add(cable.mesh);
   (window as any).rover = { node, spec };
 

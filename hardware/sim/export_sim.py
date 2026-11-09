@@ -260,7 +260,13 @@ def main():
     per = {k: {} for k in BODIES}            # body -> material group -> [mesh pieces (in joint-origin frame, glTF metres)]
     raw = {k: [] for k in BODIES}            # body -> triangles for the inertia
     wheel_mesh = {}                          # wheel body -> its rim-and-grouser vertices (glTF metres, hub-centred), for the collision hulls
+    colliders = []                           # boxes the cable rope collides with: the mast column, pan housing, tilt servo, camera box and disk, in their body's frame (glTF metres, axis-aligned there)
     for g, n, s in items:
+        if n in ("tube", "pan housing", "tilt servo", "enclosure", "disk"):
+            bb = s.bounding_box(); bn = body_of(g, n)
+            lo, hi = BODIES[bn], None
+            c = to_gl(np.array([[x, y, z] for x in (bb.min.X, bb.max.X) for y in (bb.min.Y, bb.max.Y) for z in (bb.min.Z, bb.max.Z)]) - np.array(lo))
+            colliders.append({"name": n, "body": bn, "min_m": c.min(0).round(5).tolist(), "max_m": c.max(0).round(5).tolist()})
         if n == "camera-link cable":                                      # not a mesh: the sim simulates it as a rope (spec["cable"])
             continue
         b = body_of(g, n)
@@ -453,6 +459,7 @@ def main():
     cp = np.array([[(path @ (k / 24)).X, (path @ (k / 24)).Y, (path @ (k / 24)).Z] for k in range(25)])
     cable = {"radius_m": 0.00275, "colour_srgb": [20, 20, 22], "points_m": to_gl(cp - np.array(BODIES["chassis"])).round(5).tolist(),
              "head_end_m": to_gl(cp[0] - np.array(BODIES["head"])).round(5).tolist(), "chassis_end_m": to_gl(cp[-1] - np.array(BODIES["chassis"])).round(5).tolist(),
+             "colliders": colliders,
              "note": "centre line from headb.camera_link_path(); radius 2.75 mm (a 5.5 mm cord); the sim treats it as a rope"}
     spec = {
         "units": "metres, kilograms, seconds; axes are glTF (Y up, -Z is rover left, +X forward)",

@@ -10877,6 +10877,78 @@
    0.352,
    0.036
   ],
+  "colliders": [
+   {
+    "name": "tube",
+    "body": "pan",
+    "min_m": [
+     -0.02,
+     0.429,
+     -0.02
+    ],
+    "max_m": [
+     0.02,
+     0.591,
+     0.02
+    ]
+   },
+   {
+    "name": "tilt servo",
+    "body": "pan",
+    "min_m": [
+     -0.01236,
+     0.63189,
+     -0.0567
+    ],
+    "max_m": [
+     0.01236,
+     0.67711,
+     -0.0195
+    ]
+   },
+   {
+    "name": "disk",
+    "body": "head",
+    "min_m": [
+     -0.02,
+     -0.02,
+     -0.0195
+    ],
+    "max_m": [
+     0.02,
+     0.02,
+     -0.004
+    ]
+   },
+   {
+    "name": "enclosure",
+    "body": "head",
+    "min_m": [
+     -0.023,
+     -0.029,
+     -0.004
+    ],
+    "max_m": [
+     0.0245,
+     0.029,
+     0.06
+    ]
+   },
+   {
+    "name": "pan housing",
+    "body": "chassis",
+    "min_m": [
+     0.1232,
+     0.351,
+     -0.04
+    ],
+    "max_m": [
+     0.1982,
+     0.421,
+     0.04
+    ]
+   }
+  ],
   "note": "centre line from headb.camera_link_path(); radius 2.75 mm (a 5.5 mm cord); the sim treats it as a rope"
  },
  "joints": [

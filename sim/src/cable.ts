@@ -2,8 +2,8 @@ import * as THREE from "three";
 
 /** The camera-link cable as a rope (the exporter drops its mesh; rover.json `cable` has its centre line): Verlet points with stretch constraints and "shape memory" ones (every second and third neighbour keeps its rest distance),
  *  so it hangs in its designed loop and swings as the head pans and tilts or the rover moves. The two ends are pinned: one to the head (it tilts), one to the chassis' deck gland.
- *  Gravity is the Moon's. No collision with the body or the ground (the loop hangs clear of both in the CAD). Drawn as a round tube, rebuilt each frame. */
-export interface CableSpec { radius_m: number; colour_srgb: number[]; points_m: number[][]; head_end_m: number[]; chassis_end_m: number[] }
+ *  Gravity is the Moon's. Nodes (but not the pinned ends) are pushed out of boxes round the mast column, pan housing, tilt servo, camera box and disk, so the cable wraps the mast when the head pans round. No collision with the ground. Drawn as a round tube, rebuilt each frame. */
+export interface CableSpec { radius_m: number; colour_srgb: number[]; points_m: number[][]; head_end_m: number[]; chassis_end_m: number[]; colliders?: { body: string; min_m: number[]; max_m: number[] }[] }
 
 const SIDES = 8, STEP = 1 / 120, ITER = 8, DAMP = 0.985, SKIP_K = 0.6;
 
@@ -14,7 +14,11 @@ export class Cable {
   private ready = false; private acc = 0;
   private pos: Float32Array; private nor: Float32Array; private geo = new THREE.BufferGeometry();
   private tmp = new THREE.Vector3(); private headEnd: THREE.Vector3; private chassisEnd: THREE.Vector3;
-  constructor(private spec: CableSpec, private chassis: THREE.Object3D, private head: THREE.Object3D, private gravity = 1.62) {
+  private chassis: THREE.Object3D; private head: THREE.Object3D;
+  private boxes: { obj: THREE.Object3D; box: THREE.Box3; inv: THREE.Matrix4 }[];
+  constructor(private spec: CableSpec, bodies: Record<string, THREE.Object3D>, private gravity = 1.62) {
+    this.chassis = bodies.chassis; this.head = bodies.head;
+    this.boxes = (spec.colliders ?? []).map((c) => ({ obj: bodies[c.body], box: new THREE.Box3(new THREE.Vector3(...(c.min_m as [number, number, number])).subScalar(spec.radius_m), new THREE.Vector3(...(c.max_m as [number, number, number])).addScalar(spec.radius_m)), inv: new THREE.Matrix4() }));
     const pts = spec.points_m.map((a) => new THREE.Vector3(a[0], a[1], a[2]));
     this.n = pts.length; this.p = pts.map((v) => v.clone()); this.q = pts.map((v) => v.clone());
     this.d1 = pts.slice(1).map((v, i) => v.distanceTo(pts[i]));
@@ -45,8 +49,24 @@ export class Cable {
     t.multiplyScalar(k * 0.5 * (l - rest) / l); a.add(t); b.sub(t);
   }
 
+  /** push a point out of every box (through the face it is nearest to) */
+  private collide(p: THREE.Vector3, prev: THREE.Vector3) {
+    for (const c of this.boxes) {
+      const l = this.tmp.copy(p).applyMatrix4(c.inv), b = c.box;
+      if (l.x <= b.min.x || l.x >= b.max.x || l.y <= b.min.y || l.y >= b.max.y || l.z <= b.min.z || l.z >= b.max.z) continue;
+      const d = [l.x - b.min.x, b.max.x - l.x, l.y - b.min.y, b.max.y - l.y, l.z - b.min.z, b.max.z - l.z];
+      let k = 0; for (let i = 1; i < 6; i++) if (d[i] < d[k]) k = i;
+      const ax = k >> 1, sign = k & 1 ? 1 : -1, push = d[k];
+      const dir = this.dirv.set(0, 0, 0); (ax === 0 ? dir.x = sign : ax === 1 ? dir.y = sign : dir.z = sign);
+      const w = dir.transformDirection(c.obj.matrixWorld);
+      p.addScaledVector(w, push); prev.copy(p);               // slides along the surface: its velocity into the box is dropped
+    }
+  }
+  private dirv = new THREE.Vector3();
+
   update(dt: number) {
     this.chassis.updateMatrixWorld(true); this.head.updateMatrixWorld(true);
+    for (const c of this.boxes) { c.obj.updateMatrixWorld(true); c.inv.copy(c.obj.matrixWorld).invert(); }
     if (!this.ready) {                                   // first call: lay the designed loop on the chassis where it now is
       for (let i = 0; i < this.n; i++) { const a = this.spec.points_m[i]; this.p[i].set(a[0], a[1], a[2]).applyMatrix4(this.chassis.matrixWorld); this.q[i].copy(this.p[i]); }
       this.ready = true;
@@ -64,6 +84,7 @@ export class Cable {
         for (let i = 0; i < this.n - 1; i++) this.pull(this.p[i], this.p[i + 1], this.d1[i], 1);
         for (let i = 0; i < this.n - 2; i++) this.pull(this.p[i], this.p[i + 2], this.d2[i], SKIP_K);
         for (let i = 0; i < this.n - 3; i++) this.pull(this.p[i], this.p[i + 3], this.d3[i], SKIP_K);
+        for (let i = 2; i < this.n - 2; i++) this.collide(this.p[i], this.q[i]);
         this.pin();
       }
     }
