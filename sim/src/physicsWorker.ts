@@ -21,6 +21,7 @@ let names: string[] = [];
       if (m.rocks) terrain.rocks = new RockField(terrain, new THREE.MeshBasicMaterial(), terrain.spawn);
     }
     phys = await RoverPhysics.create(spec, m.spawnHeight, terrain, m.soil ? FJS1 : undefined);
+    if (typeof m.mastRateDeg === "number" && m.mastRateDeg > 0) phys.mastRate = m.mastRateDeg * Math.PI / 180;
     names = Object.keys(spec.bodies);
     (self as any).postMessage({ type: "ready" });
     let last = performance.now();

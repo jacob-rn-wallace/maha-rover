@@ -20,6 +20,8 @@ export { MOTOR, WHEELS };
 // ---- Feetech STS3215 (7.4 V): 19.5 kg.cm stall, 52 rpm no load (docs/electronics-spec.md); the PD gains are tuning choices ----
 const PAN_LIMIT = (160 * Math.PI) / 180;      // the design's 320 degree pan stop (docs/mast-spec.md)
 const SERVO = { tMax: 1.91, wMax: (52 * 2 * Math.PI) / 60 };
+/** how fast a held key or a full stick moves the pan and tilt targets: a teleoperation choice (ASSUMPTION), well under the servo's own 312 deg/s no-load speed, which made the mast whip round; `mastRate` below overrides it (?mastrate=deg/s) */
+const MAST_RATE_DEG = 35;
 
 /** Duty slew rate, per second. The rover tips nose-over if it decelerates harder than g * (half wheelbase + centre of mass offset) / centre of mass height
  *  = 1.62 * 0.68 = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm); at 0.53 m/s a full brake through the 1.6 A cap (about 5 m/s2) flips it in the first test.
@@ -52,6 +54,7 @@ export class RoverPhysics {
   panAngle = 0; tiltAngle = 0;
   linkAngle = { L: 0, R: 0 };
   wheelCurrent: Record<string, number> = {};
+  mastRate = (MAST_RATE_DEG * Math.PI) / 180;         // rad/s of target movement at full command
   tiltGuard = true;
   tiltCut = false;
   motorPackAmps = 0;                                  // drive current drawn from the pack: the sum of duty x motor current over the wheels (a PWM buck: pack current = duty x motor current; regeneration not returned)
@@ -231,8 +234,8 @@ export class RoverPhysics {
 
     // servos: a PD loop on the target angle, torque limited to the stall torque, target moved at the no-load speed
     const dtc = this.dt;
-    this.panTarget = Math.max(-PAN_LIMIT, Math.min(PAN_LIMIT, this.panTarget + c.pan * SERVO.wMax * dtc));
-    this.tiltTarget = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.tiltTarget + c.tilt * SERVO.wMax * dtc));
+    this.panTarget = Math.max(-PAN_LIMIT, Math.min(PAN_LIMIT, this.panTarget + c.pan * this.mastRate * dtc));
+    this.tiltTarget = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.tiltTarget + c.tilt * this.mastRate * dtc));
     this.servoMoving = c.pan !== 0 || c.tilt !== 0;
     const P = this.rel("chassis", "pan", Y), T = this.rel("pan", "head", Z);
     this.panAngle = P.angle; this.tiltAngle = T.angle;

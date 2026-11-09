@@ -10,6 +10,7 @@ import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { applyMetalDetail } from "./metal";
+import { Minimap } from "./minimap";
 import { Power } from "./power";
 import { PhysicsProxy, type PhysicsView } from "./physicsProxy";
 import { WHEELS, MOTOR } from "./constants";
@@ -122,11 +123,12 @@ async function main() {
   if (useWorker) {
     hud.textContent = "starting physics...";
     phys = await PhysicsProxy.create(spec, { spawnHeight: 0.03, terrainBase: terrain ? new URL("terrain/", location.href).href : undefined,
-      terrainOpts: { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined }, rocks: !!terrain && q.get("rocks") !== "0", soil: !!soil });
+      terrainOpts: { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined }, rocks: !!terrain && q.get("rocks") !== "0", soil: !!soil, mastRateDeg: q.has("mastrate") ? Number(q.get("mastrate")) : undefined });
   } else {
     const { RoverPhysics: RP } = await import("./physics");      // loaded only here: it carries Rapier and its WASM
     const direct = await RP.create(spec, 0.03, terrain, soil);
     if (q.get("test") === "1") { runTest(direct); return; }
+    if (q.has("mastrate")) direct.mastRate = Number(q.get("mastrate")) * Math.PI / 180;
     phys = direct;
   }
   (window as any).__phys = phys;      // for scripted checks (tests/cdp-shot.mjs)
@@ -143,9 +145,14 @@ async function main() {
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
   const sunDir = new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), -Math.cos(el) * Math.sin(az));
   const chassisQ = new THREE.Quaternion();
+  const minimap = terrain && q.get("map") !== "0" ? new Minimap(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg, coarse) : undefined;      // M cycles it; ?map=0 leaves it out
+  if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
+  const mapOffset = () => (minimap && minimap.mode ? (minimap.mode === 2 ? 240 : 110) + 24 : 12);      // on phones the camera view sits under the map
+  const fwd = new THREE.Vector3();
+  mapToggle = () => minimap?.cycle();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
-  let last = performance.now(), hudT = 0, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
+  let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
   let jsMs = 0;
   const showStats = q.get("stats") === "1";      // ?stats=1: frame rate and draw load of the main view on the HUD
@@ -164,6 +171,8 @@ async function main() {
     const delta = new THREE.Vector3(ct.x, ct.y + 0.25, ct.z).sub(chase);
     chase.add(delta); camera.position.add(delta); controls.target.copy(chase);
     lunar.followSun(new THREE.Vector3(ct.x, ct.y, ct.z));
+    mapT += dt;
+    if (minimap && mapT > 0.1) { mapT = 0; fwd.set(1, 0, 0).applyQuaternion(chassisQ); minimap.update(ct.x, ct.z, fwd.x, fwd.z); }
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
     hudT += dt;
@@ -190,10 +199,10 @@ async function main() {
       headQ.copy(hb.quaternion);
       mastCam.position.copy(camOff).applyQuaternion(headQ).add(hp);
       mastCam.quaternion.copy(headQ).multiply(new THREE.Quaternion().setFromRotationMatrix(camBasis));
-      const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - 12 : 12;
+      const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - mapOffset() : 12;
       camFx.render(scene, mastCam, px, py, pw, ph);
       pip.label.textContent = `mast camera, HQ + 4 mm lens, 76.6 x 61.4 deg, exposure gain x${camFx.gain.toFixed(2)}`;
-      Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: "12px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
+      Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: mapOffset() + "px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
     } else pip.box.style.display = "none";
   });
 }
@@ -244,9 +253,10 @@ function hudText(phys: PhysicsView, c: any, euler: THREE.Euler) {
   const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
   const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
   const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view; gamepad: left stick drive, right stick mast</span>`;
+  return `<b>المَهَا al-maha</b> (lunar gravity ${phys.gravity} m/s2)<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map; gamepad: left stick drive, right stick mast</span>`;
 }
 
+let mapToggle: (() => void) | undefined;      // set once the minimap exists (M key)
 let resetRequested = false;                 // T: stand the rover upright where it is
 /** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and a T button, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
 function touchSticks() {
@@ -283,7 +293,7 @@ const t0 = performance.now();
 function setupInput() {
   const touch = coarse ? touchSticks() : undefined;
   const keys = new Set<string>();
-  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; });
+  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; if (e.code === "KeyM" && !e.repeat) mapToggle?.(); });
   addEventListener("keyup", (e) => keys.delete(e.code));
   addEventListener("blur", () => keys.clear());
   const k = (...c: string[]) => (c.some((x) => keys.has(x)) ? 1 : 0);

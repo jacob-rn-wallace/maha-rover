@@ -36,7 +36,7 @@ export class PhysicsProxy implements PhysicsView {
     };
   }
 
-  static async create(spec: Spec, opts: { spawnHeight: number; terrainBase?: string; terrainOpts?: object; rocks: boolean; soil: boolean }): Promise<PhysicsProxy> {
+  static async create(spec: Spec, opts: { spawnHeight: number; terrainBase?: string; terrainOpts?: object; rocks: boolean; soil: boolean; mastRateDeg?: number }): Promise<PhysicsProxy> {
     const worker = new Worker(new URL("./physicsWorker.ts", import.meta.url), { type: "module" });
     const ready = new Promise<void>((res, rej) => { worker.onmessage = (e) => { if (e.data.type === "ready") res(); }; worker.onerror = (e) => rej(new Error("physics worker: " + e.message)); });
     worker.postMessage({ type: "init", spec, ...opts });
