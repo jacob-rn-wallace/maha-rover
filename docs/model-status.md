@@ -50,9 +50,10 @@ The depth of the recessed end faces (taken from the owner's reading of the CAD m
 the 2.4 GHz antenna position (y +58); whether the B0091 CSI extender works with the HQ camera and a Pi Zero 2 W in practice (the vendor lists both; untested) and which slim HDMI cord carries all its pins; whether the Waveshare servo adapter works at 6 V; the deck's stiffness under the mast
 (estimated in `frame-spec.md`, not analysed); the hat size (70 mm against the original's 84).
 
-## Original features left out (open decision)
+## Original features left out (decided 2026-11-08)
 
-The original's CAM-M, CAM-2 and CAM-T camera windows on the end faces, the Langmuir probe whips and the flag plate are not modelled; the instruments are out of scope, but cosmetic dummies would be cheap.
+The original's CAM-M, CAM-2 and CAM-T camera windows on the end faces, the Langmuir probe whips and the flag plate are not modelled and will not be, not even as cosmetic dummies (owner, 2026-11-08):
+al-maha is a Rashid-like rover, not a copy of Rashid, so features that exist only to carry the original's instruments stay out of the model and the simulation.
 
 ## What the pictures show that the numbers do not
 

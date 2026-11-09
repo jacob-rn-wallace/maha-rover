@@ -42,9 +42,16 @@ async function main() {
   hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${Object.keys(spec.bodies).length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`;
   // joint test, to check the export's axes: the pan, the tilt, the link plates (differential) and the wheels move
   (window as any).rover = { node, spec };
+  const q = new URLSearchParams(location.search);
+  if (q.get("cam")) {                      // ?cam=x,y,z,tx,ty,tz&still=1: fixed view for screenshots (metres, glTF axes)
+    const v = q.get("cam")!.split(",").map(Number);
+    camera.position.set(v[0], v[1], v[2]);
+    controls.target.set(v[3], v[4], v[5]);
+  }
+  const still = q.get("still") === "1";
   const t0 = performance.now();
   renderer.setAnimationLoop(() => {
-    const t = (performance.now() - t0) / 1000;
+    const t = still ? 0 : (performance.now() - t0) / 1000;
     node("pan").rotation.y = Math.sin(t * 0.6) * 1.2;
     node("head").rotation.z = Math.sin(t * 0.9) * 0.6;
     node("linkL").rotation.z = Math.sin(t * 0.5) * 0.15;

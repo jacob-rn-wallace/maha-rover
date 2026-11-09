@@ -22,7 +22,7 @@ of Sawppy or the Beatty sisters' rover replicas, not an exact copy of the flight
   the original's 10 kg. The first pass is not optimised for mass: size the system (motors, drivers, battery,
   bearings, shafts) for 10 kg. A second pass trims toward 10 kg where it comes out over, but 10 kg is a goal, not a hard limit (owner, 2026-11-08): the ceiling is 10.5 kg, and no part is weakened or made non-metal just to reach 10 (the original uses ultra-light materials). Document each substitution in `docs/bom.md`.
 - **Out of scope:** flight qualification, vacuum or thermal fidelity, the science
-  instruments (Langmuir probes, microscope, thermal camera, sampler).
+  instruments (Langmuir probes, microscope, thermal camera, sampler). No cosmetic dummies of them either (owner, 2026-11-08): al-maha is a Rashid-like rover, not Rashid, in the model and in the simulation.
 
 ## Dimensional record
 - The original's real dimensions remain the reference for the five "must" items above. Design
