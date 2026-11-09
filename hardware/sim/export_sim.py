@@ -32,6 +32,7 @@ import body as B         # noqa: E402
 import arms as A         # noqa: E402
 import mast as MAST      # noqa: E402
 import headb as HB       # noqa: E402
+import detail as DT      # noqa: E402
 
 OUT = ROOT / "sim" / "public"
 M = 1e-3
@@ -71,6 +72,17 @@ def tslot_bar(size, length):
 
 
 def refine(group, name, shape):
+    """Visual detail for the head and base (hardware/sim/detail.py), then the T-slot swap below."""
+    if name == "pan housing":
+        return DT.seam(DT.soften(shape, 3.0), 2, 406.0, 1.0, 0.9)                                   # lid seam 15 mm below the top (Takachi cover height)
+    if name == "enclosure":
+        return DT.seam(DT.soften(shape, 2.5), 0, HB.FX - 73.0 + 47.5 - 10.0, 1.0, 0.9)    # lid seam 10 mm back from the front face   ASSUMPTION
+    if name == "cable gland":
+        return DT.gland_pg7(HB.GLAND_X, HB.AZ, -60.0)
+    return refine_extrusion(group, name, shape)
+
+
+def refine_extrusion(group, name, shape):
     """Swap a plain extrusion box of the frame or mast for a slotted profile, keeping holes cut in the box."""
     if not (group in ("frame", "frame upper") or (group == "mast" and name == "tube")):
         return shape
@@ -178,6 +190,7 @@ MATERIALS = {
     "solar cell": ((12, 18, 38), 0.35, 0.14),              # back-contact silicon behind glass: dark, glossy
     "wheel print": ((70, 72, 76), 0.05, 0.6),              # ASA print, mid-grey
     "steel": ((120, 124, 130), 0.95, 0.4),
+    "black anodised": ((26, 26, 28), 0.7, 0.4),            # lens barrel
     "ceramic patch": ((128, 112, 84), 0.0, 0.5),           # GNSS patch antenna
 }
 
@@ -198,7 +211,7 @@ def material_key(group, name):
     if name in ("hood", "baffle", "cable gland", "HDMI plug") or "servo" in name or group == "wifi antenna":
         return "black plastic"
     if name == "lens":
-        return "lens glass"
+        return "black anodised"
     if name == "camera-link cable":
         return "cord"
     if group in ("pivot shaft", "bearings", "wheel hardware", "differential") or name == "spindle":
@@ -240,12 +253,23 @@ def main():
     raw = {k: [] for k in BODIES}            # body -> triangles for the inertia
     for g, n, s in items:
         b = body_of(g, n)
-        v, t = mesh_of(refine(g, n, s))
-        if len(t) == 0:
-            continue
-        v = to_gl(v - np.array(BODIES[b]))
-        per[b].setdefault(material_key(g, n), []).append((v, t))
-        raw[b].append((v, t))
+        pieces = [(material_key(g, n), refine(g, n, s))]
+        if n == "lens":                                                   # visual detail: grooved barrel, glass, retaining ring
+            barrel, glass, ring = DT.lens_detail(s)
+            pieces = [("black anodised", barrel), ("lens glass", glass), ("steel", ring)]
+        if n == "bracket":
+            pieces += [("steel", bolt) for bolt in DT.bracket_bolts(s)]
+        if n == "pan housing":                                            # four lid screws on the cover, inset 7 mm from the corners
+            bb = s.bounding_box()
+            pieces += [("steel", DT.cap_screw(x, y, bb.max.Z, "+z")) for x in (bb.min.X + 7, bb.max.X - 7) for y in (bb.min.Y + 7, bb.max.Y - 7)]
+        for key, sh in pieces:
+            v, t = mesh_of(sh)
+            if len(t) == 0:
+                continue
+            bb_ = "pan" if (n == "bracket" and key == "steel") else b
+            v = to_gl(v - np.array(BODIES[bb_]))
+            per[bb_].setdefault(key, []).append((v, t))
+            raw[bb_].append((v, t))
 
     # --- masses (replica.py, the same list as docs/replica-mass.md), placed in the bodies by the same rules ---
     mass = {k: 0.0 for k in BODIES}

@@ -22,6 +22,13 @@ optimisation, then phones (owner's order).
 - `sim/` is the web app: it loads the model on a placeholder plane and exercises every joint (pan, tilt, differential links, wheels).
 - Axes: glTF Y up, metres; rover X forward stays X, rover Y (left) becomes -Z, rover Z (up) becomes Y.
 
+## Visual layer (not in the CAD checks or the mass budget)
+`hardware/sim/export_sim.py` and `hardware/sim/detail.py` add detail to the exported model only, so the CAD, its fit checks and the 9.55 kg estimate stay as they are:
+- T-slot profiles (20 x 20, 20 x 40, 40 x 40: slots, diagonal webs, bore) in place of the plain extrusion boxes, with drilled holes kept; typical catalogue slot sizes, ASSUMPTION.
+- Real-world materials by part (cast and sheet aluminium, anodised T-slot, black plastic, black cord, glossy dark cells, ASA wheels); the finishes are ASSUMPTIONS.
+- Head and base: rounded vertical edges and a lid seam on the pan base box (seam 15 mm below the top, Takachi cover height) with four lid screws; a lid seam 10 mm behind the front face of the camera box (ASSUMPTION, not from the drawing); a PG7 hex gland with a domed cap nut; the lens with a grooved focus ring, front glass and retaining ring; two M5 bolts through the bracket web (positions ASSUMPTION).
+- No Rashid-only features are added (owner, 2026-11-08).
+
 ## Fidelity criteria (proposed; the owner has not confirmed them)
 1. **Geometry:** the sim rover is the CAD, to the millimetre; wheels have their 14 grousers as real collision geometry.
 2. **Mass:** per-body mass and centre of mass from `replica.py`; lunar gravity 1.62 m/s2.
