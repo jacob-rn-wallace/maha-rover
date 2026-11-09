@@ -92,7 +92,7 @@ The existing HUD is a text block over a first-person view. The cheapest, most se
 
 0. **Split the UI out of `main.ts`** (done 2026-11-09, section 9): `hud.ts`, `cameraView.ts`, `perfPanel.ts`, `touch.ts`, `input.ts`. Each later step is then a small change in one file.
 1. **Limits table and status colours** (done 2026-11-09, section 10). One rule table (a `limits.ts`: name, value function, yellow and red thresholds, in the style of Open MCT's condition sets) for battery state, motor current, pitch and roll, tilt-guard state and wall distance. The HUD colours each readout from it; the same table later drives the telemetry strips and the minimap. The current HUD shows numbers only, and the tilt guard and wall warnings are ad hoc strings.
-2. **Hazard and slope overlay on the terrain.** A tint of the ground by local slope against the rover's tilt limits (25 degrees cut, 15 resume), four classes, switching to the slope colour at the limit as VERVE does; a second layer for rock step height from the generator; toggled by a key, drawn on the main view and optionally on the minimap. Slope comes from the heightfield the sim already samples.
+2. **Hazard and slope overlay on the terrain** (done 2026-11-09, section 11). A tint of the ground by local slope against the rover's tilt limits (25 degrees cut, 15 resume), four classes, switching to the slope colour at the limit as VERVE does; a second layer for rock step height from the generator; toggled by a key, drawn on the main view and optionally on the minimap. Slope comes from the heightfield the sim already samples.
 3. **Mast camera view: freshness and compass.** Age, position-changed and camera-moved flags (Open MCT's three), a compass rose with north-up or camera-up, the camera angle against the body, the body attitude and the sun angle, an orange border and paused refresh when viewing a past frame (a short frame history). Cheap, and useful before any delay mode exists.
 4. **Waypoint planning.** Click the terrain to place a waypoint and heading; a turn-direction arrow; a **footprint** of the mast camera on the ground at the waypoint (RSVP); a path preview on the minimap in a colour distinct from the trail, with distance and energy cost from `power.ts`; a "best heading for solar" shortcut from the fixed sun (VERVE). The rover drives it with the existing controls first (assisted driving), autonomy later if wanted.
 5. **Delay mode.** Command and video delayed by an adjustable one-way time (default 1.3 s for the Moon), with a ghost at the predicted pose and a predicted-path circle (NASA lunar vehicle studies); an optional cruise control for the 1 to 1.5 kph range operators chose. Needs steps 3 and 4.
@@ -129,7 +129,17 @@ Not copied: collaboration and map markup sync, stereo or head-mounted views, gro
 
 Changes you can see: pitch and roll, motor current and battery turn yellow or red; the wall warning is yellow, then red; the phone short form gains the wall warning (it had none). `npm run check:limits` checks the thresholds (16 cases, all pass). Checked in a headless screenshot with the chassis forced to a 23 degree roll (the pitch and roll line turned yellow). Not checked: red in the page, the battery and current colours in the page, the phone form.
 
-## 11. Gaps
+## 11. Hazard overlay (done 2026-11-09)
+
+`sim/src/hazard.ts`, key **H** (a "hazard" button on touch, `?hazard=1` to start on). A shader blend on the ground and rock materials, before tone mapping, with a legend box at the bottom left.
+- **Ground:** tinted by the slope of the drawn mesh's normal (the 0.25 m mesh near the rover, not the centimetre shading noise), four classes: under 7.5 degrees (green, faint), up to 15 (yellow-green), up to 25 (orange), over 25 (red). The 15 and 25 are the tilt guard's resume and cut angles (`limits.ts`, `constants.ts`); the 7.5 is half the first, a look choice.
+- **Rocks:** tinted by height above the ground (0.7 of the instance's vertical scale, as they are buried 20 to 40%): 5, 10 and 20 cm and over (yellow-green, orange, red); under 5 cm untinted. The 10 and 20 cm come from the sim's own tilt-guard findings (a 0.1 m rock is climbed, a 0.2 m rock lifts the front to 48 degrees).
+- **Range:** full within 25 m of the rover, fading out by 70 m, because beyond that the mesh cells are 1 to 10 m and their slope does not say what the wheels will meet.
+- Colours and alphas are look choices. The red and the orange match the HUD's.
+- **Not done:** the overlay on the minimap, a slope-versus-limit gradient that follows the actual tilt limit if it changes at run time (the thresholds are read once), and the camera view's own overlay (it is drawn on the mast camera's render too, since it shares the materials: not checked whether that is wanted).
+- **Checked:** `tsc`, `vite build`, and headless screenshots on the real terrain (chase view and an overview): crater walls come out yellow to red, flat ground faint green, rocks yellow to red, legend shown. Not checked: a real GPU (cost of the extra fragment work), the phone layout beyond a screenshot at 844 x 390, other suns.
+
+## 12. Gaps
 
 - No source found on MBRSC's or Rashid's own ground interface; nothing here is Rashid-specific.
 - The Chinese rover console details are thin: the Yutu-2 papers cover imaging and mapping, not the interface.

@@ -11,6 +11,7 @@ import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { WHEELS } from "./constants";
 import { Hud } from "./hud";
+import { HazardOverlay } from "./hazard";
 import { CameraView } from "./cameraView";
 import { PerfPanel } from "./perfPanel";
 import { setupInput } from "./input";
@@ -79,6 +80,9 @@ async function main() {
   (window as any).rover = { node, spec };
 
   const q = new URLSearchParams(location.search);
+  const hazard = new HazardOverlay(coarse);      // H toggles it; ?hazard=1 starts it on
+  hazard.apply(lunar.groundMaterial, "ground");
+  if (q.get("hazard") === "1") hazard.set(true);
   // terrain: the real lunar tile and ring (default); ?flat=1 keeps the flat plane, which the scripted ?test=1 check assumes (add ?terrain=1 to run it on the terrain)
   const flat = q.get("flat") === "1" || (q.get("test") === "1" && q.get("terrain") !== "1");
   let terrain: Terrain | undefined, view: TerrainView | undefined, rockField: RockField | undefined;
@@ -110,6 +114,7 @@ async function main() {
     if (q.get("rocks") !== "0") {
       const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.24, 0.23, 0.22), roughness: 1, metalness: 0 });
       applyRegolithPhotometry(rockMat);
+      hazard.apply(rockMat, "rock");
       if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) applyTerrainShadow(rockMat, ts);
       rocks = new RockField(terrain, rockMat, terrain.spawn);
       terrain.rocks = rocks;
@@ -172,7 +177,7 @@ async function main() {
     return data;
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
-  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog }, () => (benchT !== null ? benchControls(benchT) : null));
+  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -205,6 +210,7 @@ async function main() {
     lunar.followSun(new THREE.Vector3(ct.x, ct.y, ct.z));
     mapT += dt;
     if (minimap && mapT > 0.1) { mapT = 0; fwd.set(1, 0, 0).applyQuaternion(chassisQ); minimap.update(ct.x, ct.z, fwd.x, fwd.z); }
+    hazard.update(ct.x, ct.z);
     view?.update(ct.x, ct.z);
     rockField?.update(ct.x, ct.z);
     hudT += dt;
