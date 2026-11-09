@@ -2,6 +2,7 @@
 
 Read this first in a new session. `docs/sim-spec.md` is the specification and status; this file is the working state: what was decided, where the data is, how to run things, what to do next, and what went wrong before.
 Also see the memory files (`simulation-goal`, `no-instrument-dummies`, `purchases-deferred`) in the Claude project memory.
+**The interface** (top bar, modes, planner, delay, phone layouts) has its own hand-off since 2026-11-09: `docs/sim-ui-handoff.md`. Parts of the state below are older than that (for example the HUD it describes is gone).
 
 ## Goal and decisions (owner)
 - **Goal (2026-11-08):** nothing can be bought or tested physically for the foreseeable future, so the current goal is a high-fidelity browser simulation of al-maha on the lunar surface that runs from GitHub (like PUTvision/LunarSim in spirit). Fidelity first, then optimisation, then phones.
