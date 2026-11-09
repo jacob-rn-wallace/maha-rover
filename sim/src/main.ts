@@ -141,8 +141,11 @@ async function main() {
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
   let last = performance.now(), hudT = 0, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
+  const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
+  let jsMs = 0;
   const showStats = q.get("stats") === "1";      // ?stats=1: frame rate and draw load of the main view on the HUD
   renderer.setAnimationLoop((now) => {
+    const jsStart = performance.now();
     const dt = (now - last) / 1000; last = now;
     if (resetRequested) { resetRequested = false; phys.resetUpright(); }
     phys.advance(dt, input.read());
@@ -160,6 +163,7 @@ async function main() {
     rockField?.update(ct.x, ct.z);
     hudT += dt;
     fpsEma += ((1 / Math.max(dt, 1e-3)) - fpsEma) * 0.05;
+    (window as any).__frames = ((window as any).__frames ?? 0) + 1;
     fpsEma += (1 / Math.max(dt, 1e-3) - fpsEma) * 0.05;
     if (!fixedRes || fixedRes === "auto") {                  // adaptive resolution: a slow frame (a smoothed 1 / fps below 50) steps the pixel ratio down, a long run of fast frames steps it back up
       frameEma += (dt - frameEma) * 0.1; resNote++;
@@ -168,13 +172,14 @@ async function main() {
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)}, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)}, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
     renderer.setScissorTest(false); renderer.setViewport(0, 0, vw, vh);
     renderer.render(scene, camera);
     drawCalls = renderer.info.render.calls; drawTris = renderer.info.render.triangles;
+    jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
     if (pip.mode > 0) {
       const hb = node("head"), hp = hb.position;
       headQ.copy(hb.quaternion);
