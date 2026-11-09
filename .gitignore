@@ -15,3 +15,5 @@ hardware/**/out/*.stl
 
 # generated full-assembly STEP (6 MB, regenerate with hardware/assembly/rover.py)
 hardware/assembly/out/*.step
+sim/node_modules/
+sim/dist/

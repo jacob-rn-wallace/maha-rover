@@ -1,0 +1,368 @@
+{
+ "units": "metres, kilograms, seconds; axes are glTF (Y up, -Z is rover left, +X forward)",
+ "source": "hardware/sim/export_sim.py from hardware/assembly/rover.py and hardware/mass/replica.py; docs/sim-spec.md",
+ "total_mass_kg": 9.5544,
+ "wheel": {
+  "radius_m": 0.1,
+  "width_m": 0.08,
+  "grousers": 14,
+  "grouser_height_m": 0.015
+ },
+ "wheelbase_m": 0.273,
+ "track_m": 0.4154,
+ "bodies": {
+  "chassis": {
+   "parent": null,
+   "origin_m": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "mass_kg": 6.05688,
+   "com_m": [
+    0.01191,
+    0.23636,
+    -0.00031
+   ],
+   "triangles": 21860,
+   "mesh_com_m": [
+    0.00753,
+    0.23151,
+    0.00102
+   ],
+   "inertia_principal_kgm2": [
+    0.07267,
+    0.1035,
+    0.1219
+   ]
+  },
+  "linkL": {
+   "parent": "chassis",
+   "origin_m": [
+    0.0,
+    0.1457,
+    -0.0
+   ],
+   "mass_kg": 0.82805,
+   "com_m": [
+    -2e-05,
+    -0.03211,
+    -0.16675
+   ],
+   "triangles": 4728,
+   "mesh_com_m": [
+    -2e-05,
+    -0.03302,
+    -0.16165
+   ],
+   "inertia_principal_kgm2": [
+    0.001574,
+    0.01121,
+    0.01222
+   ]
+  },
+  "linkR": {
+   "parent": "chassis",
+   "origin_m": [
+    0.0,
+    0.1457,
+    -0.0
+   ],
+   "mass_kg": 0.82805,
+   "com_m": [
+    -2e-05,
+    -0.03211,
+    0.16675
+   ],
+   "triangles": 4728,
+   "mesh_com_m": [
+    -2e-05,
+    -0.03302,
+    0.16165
+   ],
+   "inertia_principal_kgm2": [
+    0.001574,
+    0.01121,
+    0.01222
+   ]
+  },
+  "pan": {
+   "parent": "chassis",
+   "origin_m": [
+    0.16069999999999998,
+    0.0,
+    -0.0
+   ],
+   "mass_kg": 0.56075,
+   "com_m": [
+    0.0,
+    0.51906,
+    -0.00743
+   ],
+   "triangles": 1764,
+   "mesh_com_m": [
+    -0.0,
+    0.52926,
+    -0.00617
+   ],
+   "inertia_principal_kgm2": [
+    0.0001968,
+    0.002997,
+    0.003039
+   ]
+  },
+  "head": {
+   "parent": "pan",
+   "origin_m": [
+    0.16069999999999998,
+    0.667,
+    -0.0
+   ],
+   "mass_kg": 0.34013,
+   "com_m": [
+    0.00348,
+    0.0028,
+    0.02585
+   ],
+   "triangles": 6146,
+   "mesh_com_m": [
+    0.00653,
+    0.00236,
+    0.0264
+   ],
+   "inertia_principal_kgm2": [
+    0.0002312,
+    0.0002346,
+    0.0002628
+   ]
+  },
+  "wheelFL": {
+   "parent": "linkL",
+   "origin_m": [
+    0.1365,
+    0.1,
+    -0.2077
+   ],
+   "mass_kg": 0.23514,
+   "com_m": [
+    -0.0,
+    -0.0,
+    -0.0
+   ],
+   "triangles": 2908,
+   "mesh_com_m": [
+    -1e-05,
+    0.0,
+    6e-05
+   ],
+   "inertia_principal_kgm2": [
+    0.0009705,
+    0.0009908,
+    0.001752
+   ]
+  },
+  "wheelFR": {
+   "parent": "linkR",
+   "origin_m": [
+    0.1365,
+    0.1,
+    0.2077
+   ],
+   "mass_kg": 0.23514,
+   "com_m": [
+    -0.0,
+    0.0,
+    -0.0
+   ],
+   "triangles": 2908,
+   "mesh_com_m": [
+    -1e-05,
+    -0.0,
+    -6e-05
+   ],
+   "inertia_principal_kgm2": [
+    0.0009705,
+    0.0009908,
+    0.001752
+   ]
+  },
+  "wheelRL": {
+   "parent": "linkL",
+   "origin_m": [
+    -0.1365,
+    0.1,
+    -0.2077
+   ],
+   "mass_kg": 0.23514,
+   "com_m": [
+    -0.0,
+    -0.0,
+    0.0
+   ],
+   "triangles": 2908,
+   "mesh_com_m": [
+    -1e-05,
+    0.0,
+    6e-05
+   ],
+   "inertia_principal_kgm2": [
+    0.0009705,
+    0.0009908,
+    0.001752
+   ]
+  },
+  "wheelRR": {
+   "parent": "linkR",
+   "origin_m": [
+    -0.1365,
+    0.1,
+    0.2077
+   ],
+   "mass_kg": 0.23514,
+   "com_m": [
+    -0.0,
+    0.0,
+    -0.0
+   ],
+   "triangles": 2908,
+   "mesh_com_m": [
+    -1e-05,
+    -0.0,
+    -6e-05
+   ],
+   "inertia_principal_kgm2": [
+    0.0009705,
+    0.0009908,
+    0.001752
+   ]
+  }
+ },
+ "joints": [
+  {
+   "name": "wheelFL",
+   "type": "revolute",
+   "body": "wheelFL",
+   "parent": "linkL",
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "actuated": true,
+   "note": "axis is rover +Y (glTF (0,0,-1)); the rover rolls forward for a positive rotation about it with the right-hand rule"
+  },
+  {
+   "name": "wheelFR",
+   "type": "revolute",
+   "body": "wheelFR",
+   "parent": "linkR",
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "actuated": true,
+   "note": "axis is rover +Y (glTF (0,0,-1)); the rover rolls forward for a positive rotation about it with the right-hand rule"
+  },
+  {
+   "name": "wheelRL",
+   "type": "revolute",
+   "body": "wheelRL",
+   "parent": "linkL",
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "actuated": true,
+   "note": "axis is rover +Y (glTF (0,0,-1)); the rover rolls forward for a positive rotation about it with the right-hand rule"
+  },
+  {
+   "name": "wheelRR",
+   "type": "revolute",
+   "body": "wheelRR",
+   "parent": "linkR",
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "actuated": true,
+   "note": "axis is rover +Y (glTF (0,0,-1)); the rover rolls forward for a positive rotation about it with the right-hand rule"
+  }
+ ],
+ "differential": {
+  "links": [
+   "linkL",
+   "linkR"
+  ],
+  "pivot_axis_gltf": [
+   0,
+   0,
+   -1
+  ],
+  "pivot_height_m": 0.1457,
+  "coupling": "angle_L = -angle_R (bevel gear differential, mitre gears 1:1)",
+  "friction": "none modelled yet"
+ },
+ "mast": {
+  "pan": {
+   "origin_m": [
+    0.16069999999999998,
+    0.0,
+    -0.0
+   ],
+   "axis": [
+    0,
+    1,
+    0
+   ],
+   "limit_deg": [
+    -180,
+    180
+   ],
+   "servo": "STS3215",
+   "note": "pan range: ASSUMPTION"
+  },
+  "tilt": {
+   "origin_m": [
+    0.16069999999999998,
+    0.667,
+    -0.0
+   ],
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "limit_deg": [
+    -90,
+    90
+   ],
+   "note": "swept clear to 90 either way in the CAD; the original tilts +-75 [S19]"
+  }
+ },
+ "camera": {
+  "mount": "head",
+  "position_m": [
+   -0.16048559999999998,
+   0.0,
+   -0.0
+  ],
+  "direction": [
+   1,
+   0,
+   0
+  ],
+  "sensor": "Raspberry Pi HQ (IMX477) with a 4 mm CS lens",
+  "fov_deg_horizontal_approx": 76.6,
+  "fov_deg_vertical_approx": 61.4,
+  "note": "FOV from a 6.287 x 4.712 mm active area (remembered, UNVERIFIED) and 4 mm focal length, no distortion"
+ },
+ "motor": {
+  "model": "Pololu 37D 131:1 (candidate #4746)",
+  "current_cap_A": 1.6,
+  "note": "speed and torque curves: docs/drive-spec.md"
+ },
+ "ground_reference": "y = 0 is the rim line (grouser tips reach 12.2 mm below it)"
+}

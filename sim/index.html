@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المَهَا al-maha: lunar rover simulation</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; color: #ddd; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #hud { position: fixed; left: 12px; top: 12px; padding: 8px 10px; background: rgba(0,0,0,.55); border-radius: 6px; max-width: 320px; }
+  #hud b { color: #fff; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"><b>المَهَا al-maha</b> loading…</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
