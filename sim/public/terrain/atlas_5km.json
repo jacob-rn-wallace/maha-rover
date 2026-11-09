@@ -1,0 +1,27 @@
+{
+ "source": "LROC NAC DTM NAC_DTM_ATLAS_E468N0446 (ASU, 2012), https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/DATA/SDP/NAC_DTM/ATLAS/",
+ "reference": "Henriksen et al., Icarus 2016, doi 10.1016/j.icarus.2016.05.012",
+ "size_px": 2500,
+ "post_m": 2.0,
+ "extent_m": 5000.0,
+ "centre_lat": 47.58,
+ "centre_lon": 44.81,
+ "height_min_m": -3210.177490234375,
+ "height_max_m": -2895.64599609375,
+ "height_encoding": "metres = min + value / 65535 * (max - min); rows run north to south, columns west to east",
+ "dtm_lines": [
+  1576,
+  4076
+ ],
+ "dtm_samples": [
+  6046,
+  8546
+ ],
+ "vertical_precision_m": 2.89,
+ "rms_vs_lola_m": [
+  3.47,
+  13.0
+ ],
+ "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top",
+ "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University"
+}

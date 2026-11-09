@@ -2,7 +2,7 @@
 
 Source: LROC NAC DTM "NAC_DTM_ATLAS_E468N0446" (Arizona State University, 2012), 2.0 m posts, float32 elevation, equirectangular (standard parallel 47 deg,
 planetocentric, R 1737.4 km), 29426 lines x 10607 samples, extents 45.826 to 47.766 N and 44.104 to 45.130 E. Stated vertical precision 2.89 m; RMS difference to LOLA tracks 3.47 to 13.0 m
-(product README). Reference: Henriksen et al., Icarus (2016), doi 10.1016/j.icarus.2016.05.012. Usage terms of the product are not stated on the pages read: check before redistributing.
+(product README). Reference: Henriksen et al., Icarus (2016), doi 10.1016/j.icarus.2016.05.012. Terms: LROC states that data products on the LROC Data Node of the PDS and the NASA PDS interfaces are in the public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University.
 
 The product is 1.25 GB; this tool reads only the 2500 lines it needs (13 sequential range requests of 200 full lines, about 106 MB in all) and crops the columns.
 The archive's CDN rate-limited a first attempt of 2500 parallel row requests (HTTP 429, retry-after 3600 s): this tool never sends more than one request at a time, pauses between them,
@@ -24,7 +24,8 @@ URL = ("https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds
 LINES, SAMPLES, OFFSET = 29426, 10607, 42428                      # from the PDS4 label (the file size checks: 42428 + 29426 * 10607 * 4 = 1248528756)
 R, PHI1 = 1737400.0, math.radians(47.0)
 WEST, NORTH, POST = 44.10437844, 47.76639058, 2.0
-CENTRE_LAT, CENTRE_LON, N = 47.58, 44.23, 2500                    # 5 x 5 km; the Hakuto-R impact point (47.581 N, 44.094 E) is 0.01 deg west of the DTM's edge
+CENTRE_LAT, CENTRE_LON, N = 47.58, 44.81, 2500                    # 5 x 5 km. The DTM is three strips (stereo swaths) with a large empty north-west part: the Hakuto-R impact point (47.581 N, 44.094 E) is outside the raster
+#   and the nearest fully covered 5 x 5 km window is 14 km east of it, at the same latitude (checked on a 50 m grid; the build stage reports any missing posts)
 BLOCK = 200
 MISSING = -3.0e38                                                 # the label's missing constant is 0xFF7FFFFB (about -3.4e38)
 
@@ -106,7 +107,8 @@ def build(cache, out, local_img=None):
         "size_px": N, "post_m": POST, "extent_m": N * POST, "centre_lat": CENTRE_LAT, "centre_lon": CENTRE_LON,
         "height_min_m": lo, "height_max_m": hi, "height_encoding": "metres = min + value / 65535 * (max - min); rows run north to south, columns west to east",
         "dtm_lines": [l0, l0 + N], "dtm_samples": [s0, s0 + N], "vertical_precision_m": 2.89, "rms_vs_lola_m": [3.47, 13.0],
-        "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top; usage terms of the product are not stated on the pages read",
+        "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top",
+        "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University",
     }
     (out / "atlas_5km.json").write_text(json.dumps(meta, indent=1))
     print(f"tile {N} x {N} posts, heights {lo:.1f} to {hi:.1f} m (range {hi - lo:.1f} m), step {(hi - lo) / 65535 * 100:.2f} cm")

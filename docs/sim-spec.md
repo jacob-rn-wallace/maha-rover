@@ -55,6 +55,15 @@ Scripted check (`?test=1`, 7.4 V, flat ground, grouser tip radius 115 mm):
 - **Braking tips the rover:** it tips nose-over if it decelerates harder than about 0.68 x g = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm, half wheelbase 136.5 mm; the threshold scales with g). With zero duty the 37D shorts its terminals and a full brake through the 1.6 A cap is about 5 m/s2; the first test flipped to pitch -100 degrees. The sim limits duty change to 1.5 per second (about 0.8 m/s2). The real motor controller firmware needs the same deceleration limit; this is a finding for the electronics, not only the sim.
 - **Wheel spin and friction:** with the placeholder friction the rover can spin in place; the real soil may not allow it.
 
+## Terrain data (decided 2026-11-08)
+Real terrain for the high-detail area: a 5 x 5 km window of the LROC Atlas crater DTM (2 m posts, `hardware/sim/terrain/atlas_tile.py`, tile in `sim/public/terrain/`). Beyond it, a low-detail ring (LOLA, 237 m posts); the physics runs only on a patch of about 30 m around the rover
+built from the tile plus procedural detail (owner's layering, 2026-11-08).
+- **Site:** the DTM is three strips (stereo swaths) with a large empty north-west part (about 43% of the file has no data), and the Hakuto-R impact point (47.581 N, 44.094 E) is outside the raster. The nearest fully covered 5 x 5 km window is about 14 km east of it, at the same latitude: the tile is centred on 47.58 N, 44.81 E (0 missing posts).
+- **Terrain character:** heights -3210 to -2895 m (314 m of relief), slope over 20 m baselines mean 6 degrees, 95th percentile 12, maximum 26; rolling hummocky ground with one fresh crater of about 100 m. Not the flat mare floor: it is probably the slope of Atlas crater (inference). The 2 m posts show stereo-matching stripes: smoothing needed.
+- **Accuracy:** the product states 2.89 m vertical precision and 3.47 to 13.0 m RMS against LOLA tracks, so small features come from procedural detail, not from the data.
+- **Licence:** public domain per https://lroc.im-ldi.com/about/terms (the file came from pds.lroc.im-ldi.com); credit NASA/GSFC/Arizona State University. Entered in `NOTICE.md`.
+- **Data handling:** the 1.25 GB source file stays outside the repo (the owner's `~/Downloads`; suggested home `~/lunar-data/`); only the cropped 16 bit tile (6 MB) is committed.
+
 ## Fidelity criteria (proposed; the owner has not confirmed them)
 1. **Geometry:** the sim rover is the CAD, to the millimetre; wheels have their 14 grousers as real collision geometry.
 2. **Mass:** per-body mass and centre of mass from `replica.py`; lunar gravity 1.62 m/s2.
