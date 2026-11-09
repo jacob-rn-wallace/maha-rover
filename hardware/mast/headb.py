@@ -36,10 +36,11 @@ def cyl_y(y0, y1, x, z, r):
 
 
 # Camera: Raspberry Pi High Quality Camera (CS mount, IMX477) with a 4 mm CS-mount lens, replacing the 3D Plus CASPEX module and its custom optics (2026-11-08).
-# HQ camera: board 38 x 38 mm, four Ø2.5 holes 4 mm from the edges, lens mount (focus ring) Ø36 reaching 10.35 mm in front of the board, board 1.4 mm, connectors about 5.7 mm behind
+# HQ camera: board 38 x 38 mm, four Ø2.5 holes 4 mm from the edges, lens mount (focus ring) Ø36 reaching 10.35 mm in front of the board, board 1.4 mm, FPC connector 5.71 mm tall at the bottom edge standing 2.75 behind the board
 # [Raspberry Pi HQ camera product brief, Jan 2023, p. 4]. Lens: generic 4 mm 5 MP CS-mount, 1/2", f/1.2, 80 degrees horizontal, 30 x 42 mm (Ø x length, order not stated on the
 # listing), 49 g [PiShop SKU 485-1, a retailer listing; no maker named]. The original's 3DCM739 camera is a 4 MP, f/8, 7.8 mm, 82 x 82 degree unit [S12].
-HQ_PCB, HQ_T, HQ_RING_D, HQ_RING_L, HQ_REAR = 38.0, 1.4, 36.0, 10.35, 5.71
+HQ_PCB, HQ_T, HQ_RING_D, HQ_RING_L, HQ_REAR = 38.0, 1.4, 36.0, 10.35, 2.75
+HQ_CONN_H, HQ_CONN_W = 5.71, 16.0                 # FPC connector block on the board's rear: 5.71 tall (z) at the board's bottom edge, standing 2.75 behind the board (brief p. 4, corrected 2026-11-08: 5.71 was the height, not the depth); width ASSUMPTION (the ribbon is 13.97 wide); the ribbon leaves downward
 LENS_D, LENS_L = 30.0, 42.0
 CAM_SHIFT = 0.0                                   # the camera stack's shift forward to make room for the CSI extender board: not needed since the audio jack is removed from the Tx board (2026-11-08), so 0; with the jack kept it was 2.5 mm
 LENS_FRONT = FX - 8.0 + CAM_SHIFT                 # the lens front sits 8 mm behind the hood face, like the original's recessed front element
@@ -57,7 +58,7 @@ def camera():
         for sz in (-1, 1):
             pcb = pcb - cyl_x(x_p0 - 1, x_p1 + 1, CY + sy * 15.0, AZ + sz * 15.0, 1.25)
     ring = cyl_x(x_p1, x_m1, CY, AZ, HQ_RING_D / 2)
-    rear = box(x_p0 - HQ_REAR, x_p0, CY - 11.0, CY + 11.0, AZ - 14.0, AZ - 8.0)       # FPC connector block, ASSUMPTION
+    rear = box(x_p0 - HQ_REAR, x_p0, CY - HQ_CONN_W / 2, CY + HQ_CONN_W / 2, AZ - HQ_PCB / 2, AZ - HQ_PCB / 2 + HQ_CONN_H)   # FPC connector block at the bottom edge [brief p. 4]
     body = pcb + ring + rear
     lens = cyl_x(x_m1, LENS_FRONT, CY, AZ, LENS_D / 2) - cyl_x(LENS_FRONT - 1.0, LENS_FRONT + 1.0, CY, AZ, 9.0)   # barrel with a recessed glass
     r0 = ENC_X1                                   # baffle ring from the box cover to the hood
@@ -155,11 +156,12 @@ TXB_RECEPT = (15.0, 12.0, 6.08)                   # width, length, height above 
 TXB_PINS = 0.53                                   # the receptacle's pins stand this far below the PCB bottom (STEP z -2.2 against -1.67); the audio jack (12 x 6 x 4.87 under the board) is desoldered and not modelled
 TXB_FPC = (21.3, 7.6, 2.65)                       # FPC connector on the top face, X 1.85..23.15, Y 16.1..23.7
 TXB_Y_FAR = 23.8                                  # far end of the board from the box axis (CY): the four M3 screw heads that hold the disk stand about 3 mm into the cavity from the +y wall (to 25.3), so 1.5 mm clear
-TXB_STANDOFF = 3.0                                # M2 standoffs from the box's inner back wall (x FX - 73) to the PCB's underside: 0.53 pins plus 2.47 clearance (a stock 3 mm M2 standoff) (ASSUMPTION: M2 threaded studs tapped into the wall's inner face, not through it, so the IP65 wall stays closed)
+TXB_STANDOFF = 2.0                                # M2 standoffs from the box's inner back wall (x FX - 73) to the PCB's underside: 0.53 pins plus 1.47 clearance (a 2 mm M2 spacer; it also moves the plug axis back so a thicker plug passes the HQ board) (ASSUMPTION: M2 threaded studs tapped into the wall's inner face, not through it, so the IP65 wall stays closed)
 TXB_HOLES = [(2.0, 13.2), (23.0, 13.2), (2.0, 25.7), (23.0, 25.7)]   # M2 holes: across the board (z), along it from the mouth edge (y); datasheet 21.0 x 12.5, STEP centres
-GLAND_D = 10.0                                    # hole in the -y wall for the HDMI cord (a grommet or small gland; ASSUMPTION)
+GLAND_D = 12.5                                    # hole in the -y wall for a PG7 cable gland (thread Ø12.5; for cords of 3 to 6.5 mm; ASSUMPTION: a catalogue part, not chosen)
+GLAND_OUT, GLAND_NUT = 12.0, 15.0                 # gland body length outside the wall and its across-corners size (ASSUMPTION, typical PG7)
 GLAND_X = FX - 73.0 + TXB_STANDOFF + TXB_T + TXB_RECEPT[2] / 2   # centred on the receptacle
-PLUG_H, PLUG_W = 6.0, 14.0                        # a slim HDMI plug as the cord's end (ASSUMPTION: shell 14 x 4.5, a slim boot at most 6 mm tall); a normal moulded boot (about 10 to 14 mm) will not fit
+PLUG_H, PLUG_W, PLUG_L = 8.0, 16.2, 21.0         # envelope of a slim HDMI plug head: slim cables list heads of 16.2 x 6.8 x about 14 to 21 (Lindy) and 16.0 x 8.0 (Kramer); a standard moulded boot (10 to 14 mm thick) will not fit
 
 
 def _txb_x():
@@ -190,7 +192,7 @@ def tx_board():
     board = pcb + rec + fpc + posts
     xm = (xp1 + xr1) / 2
     wall = CY - ENC_Y / 2 + ENC_WALL
-    plug = box(xm - PLUG_H / 2, xm + PLUG_H / 2, wall, y_open - 0.45, zc - PLUG_W / 2, zc + PLUG_W / 2)     # from the mouth to the wall's inner face; the cord leaves through the gland hole
+    plug = box(xm - PLUG_H / 2, xm + PLUG_H / 2, y_open - 0.45 - PLUG_L, y_open - 0.45, zc - PLUG_W / 2, zc + PLUG_W / 2)     # from the mouth outward, 21 long; the cord runs on to the gland
     return board, plug
 
 
@@ -202,10 +204,16 @@ def camera_link_cable():
     from build123d import Circle, Plane, Spline, sweep
     xc = ENC_X1 - ENC_X / 2
     y1 = CY - ENC_Y / 2
-    pts = [(GLAND_X, y1 - 3.0, AZ), (xc + 8.0, -92.0, 620.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
+    pts = [(GLAND_X, y1 - GLAND_OUT - 2.0, AZ), (xc + 8.0, -92.0, 620.0), (xc - 6.0, -104.0, 520.0), (xc - 30.0, -92.0, 440.0), (xc - 46.0, -66.0, 380.0), (112.0, -36.0, 352.0)]
     path = Spline(*pts)
     prof = Plane(origin=path @ 0, z_dir=path % 0) * Circle(2.75)
     return sweep(prof, path)
+
+
+def gland():
+    """PG7 cable gland through the -y wall: a hex body (across corners 15) outside the wall, GLAND_OUT long. Simplified solid for clearance and mass (about 5 g, ASSUMPTION)."""
+    y_out = CY - ENC_Y / 2
+    return cyl_y(y_out - GLAND_OUT, y_out, GLAND_X, AZ, GLAND_NUT / 2) - cyl_y(y_out - GLAND_OUT - 1.0, y_out + 1.0, GLAND_X, AZ, 2.0)
 
 
 def cyl_z_hole(x, y, z0, z1, r):
@@ -249,10 +257,11 @@ def head(z_ext=Z_EXT):
     parts["antenna hat"] = Pos(xc, CY, hz + HAT_T / 2) * Cylinder(35.0, HAT_T)                                 # aluminium ground-plane disc, Ø70 x 1.5 mm
     parts["GNSS patch"] = box(xc - 17.5, xc + 17.5, CY - 17.5, CY + 17.5, hz + HAT_T, hz + HAT_T + 4.0)       # GNSS L1 ceramic patch, 35 x 35 x 4 mm (top at z 701.5)
     parts["CSI extender Tx"], parts["HDMI plug"] = tx_board()
+    parts["cable gland"] = gland()
     parts["camera-link cable"] = camera_link_cable()
     c = camera()
     parts["camera body"], parts["lens"], parts["baffle"], parts["hood"] = (c[k] for k in ("camera body", "lens", "baffle", "hood"))
     return parts
 
 
-TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood", "CSI extender Tx", "HDMI plug")
+TILTING = ("disk", "enclosure", "antenna hat", "GNSS patch", "camera body", "lens", "baffle", "hood", "CSI extender Tx", "HDMI plug", "cable gland")

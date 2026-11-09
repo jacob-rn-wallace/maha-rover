@@ -81,6 +81,7 @@ def cg_and_moment():
     pts.append((CAMBODY_KG, c("camera body").X, c("camera body").Z))
     pts.append((HB.LENS_KG, c("lens").X, c("lens").Z))
     pts.append((HB.TX_BOARD_KG, c("CSI extender Tx").X, c("CSI extender Tx").Z))
+    pts.append((0.005, c("cable gland").X, c("cable gland").Z))                                               # PG7 gland, ASSUMPTION
     for n in ("pan servo", "tilt servo"):
         pts.append((H.SERVO_MASS, c(n).X, c(n).Z))
     pts.append((MASSES["hardware"] + _BASE_INFO["hardware_kg"], TUBE_X, B.DECK_TOP_Z + 30.0))
@@ -110,13 +111,13 @@ def head_checks(p):
           f"bracket x {br.min.X:.1f}..{br.max.X:.1f} y {br.min.Y:.1f}..{br.max.Y:.1f} z {br.min.Z:.1f}..{br.max.Z:.1f}")
     print(f"  bracket vs extrusion: {_vol(p['bracket'], p['tube']):.1f}; disk vs bracket {_vol(p['disk'], p['bracket']):.1f}; enclosure vs bracket {_vol(p['enclosure'], p['bracket']):.1f}")
     print("  camera stack vs die-cast enclosure (mm3, want 0): " + ", ".join(f"{n} {_vol(p[n], p['enclosure']):.1f}" for n in ("camera body", "lens", "baffle", "hood")))
-    print("  CSI extender Tx board inside the box (mm3, want 0): " + ", ".join(f"{a} vs {b} {_vol(p[a], p[b]):.1f}" for a in ("CSI extender Tx", "HDMI plug") for b in ("enclosure", "camera body", "lens", "baffle", "hood")))
+    print("  CSI extender Tx board inside the box (mm3, want 0): " + ", ".join(f"{a} vs {b} {_vol(p[a], p[b]):.1f}" for a in ("CSI extender Tx", "HDMI plug") for b in ("enclosure", "camera body", "lens", "baffle", "hood")) + f", gland vs bracket {_vol(p['cable gland'], p['bracket']):.1f}")
     tb = p["CSI extender Tx"].bounding_box()
     cb = p["camera body"].bounding_box()
     xb0, xp0, xp1, xr1 = HB._txb_x()
     print(f"  Tx board x {tb.min.X:.2f}..{tb.max.X:.2f} y {tb.min.Y:.1f}..{tb.max.Y:.1f} z {tb.min.Z:.1f}..{tb.max.Z:.1f}; box inner back wall x {HB.FX - 73.0:.2f} (the pin tips are {xb0 - (HB.FX - 73.0):.2f} off it, on {HB.TXB_STANDOFF} mm standoffs); "
           f"camera board back face x {cb.min.X + HB.HQ_REAR:.2f} (gap to receptacle top {cb.min.X + HB.HQ_REAR - xr1:.2f}); HQ rear connector block back x {cb.min.X:.2f} (gap to Tx board's PCB top {cb.min.X - xp1:.2f})")
-    print(f"  lens recess behind the hood face: {HB.FX - HB.LENS_FRONT:.1f} mm (8.0 as before); HDMI gland hole x {HB.GLAND_X:.1f}, z {HB.AZ:.0f}, diameter {HB.GLAND_D:.0f} in the -y wall")
+    print(f"  lens recess behind the hood face: {HB.FX - HB.LENS_FRONT:.1f} mm (8.0 as before); HDMI gland hole x {HB.GLAND_X:.1f}, z {HB.AZ:.0f}, diameter {HB.GLAND_D:.1f} in the -y wall")
     eb = p["enclosure"].bounding_box()
     print(f"  enclosure x {eb.min.X:.1f}..{eb.max.X:.1f} y {eb.min.Y:.1f}..{eb.max.Y:.1f} z {eb.min.Z:.1f}..{eb.max.Z:.1f}; the disk (40 mm, x {TUBE_X - 20:.0f}..{TUBE_X + 20:.0f}) reaches {TUBE_X + 20 - eb.max.X:.1f} mm past the box front")
     turning = ("bracket", "tube", "spindle", "tilt servo") + HB.TILTING
