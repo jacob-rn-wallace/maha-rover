@@ -10,3 +10,6 @@ export const MOTOR = (() => {
   const rotor = 1.0e-6;                                      // motor armature inertia kg.m2: ASSUMPTION (typical 37 mm brushed motor, not from the datasheet)
   return { N, R, i0, Ke, eta, iCap: 1.6, vBatt: 7.4, rotorReflected: rotor * N * N };       // 1.6 A current cap: docs/differential-spec.md; 7.4 V nominal 2S pack: docs/power-spec.md
 })();
+
+/** Tilt guard thresholds in degrees (physics.ts cuts the drive past CUT until the tilt is back under BACK; the HUD's tilt limit uses the same two numbers) */
+export const TILT_CUT_DEG = 25, TILT_BACK_DEG = 15;

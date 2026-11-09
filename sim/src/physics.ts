@@ -13,7 +13,7 @@ export interface BodySpec {
 }
 export interface Spec { total_mass_kg: number; camera: { position_m: [number, number, number]; fov_deg_vertical_approx: number }; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; cable?: import("./cable").CableSpec; }
 
-import { MOTOR, WHEELS } from "./constants";
+import { MOTOR, WHEELS, TILT_CUT_DEG, TILT_BACK_DEG } from "./constants";
 export { MOTOR, WHEELS };
 
 
@@ -29,7 +29,7 @@ const MAST_RATE_DEG = 35;
 const DUTY_SLEW = 1.5;
 /** Tilt guard (a firmware rule the build would need: an IMU on the Pi, ASSUMPTION): with the chassis tilted past TILT_CUT the drive is cut and braked until it is back under TILT_BACK.
  *  Found by experiment: a wheel-high rock is not a motor stall (the wheels spin at nearly no-load current while the rover rides up the rock), so a current-based stall rule never fired. */
-const TILT_CUT = 25 * Math.PI / 180, TILT_BACK = 15 * Math.PI / 180;
+const TILT_CUT = TILT_CUT_DEG * Math.PI / 180, TILT_BACK = TILT_BACK_DEG * Math.PI / 180;
 const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4, G_GROUSER = 8, G_ROCK = 16;
 const groups = (member: number, filter: number) => (member << 16) | filter;
 const v3 = (a: number[]) => ({ x: a[0], y: a[1], z: a[2] });

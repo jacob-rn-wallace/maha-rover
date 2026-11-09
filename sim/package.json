@@ -11,6 +11,7 @@
     "check:load": "esbuild tests/load-time.ts --bundle --platform=node --format=esm --outfile=.check/load-time.mjs --log-level=warning && node .check/load-time.mjs",
     "check:soil": "esbuild tests/soil-check.ts --bundle --platform=node --format=esm --outfile=.check/soil-check.mjs --log-level=warning && node .check/soil-check.mjs",
     "check:rocks": "esbuild tests/rocks-check.ts --bundle --platform=node --format=esm --outfile=.check/rocks-check.mjs --log-level=warning && node .check/rocks-check.mjs",
+    "check:limits": "esbuild tests/limits-check.ts --bundle --platform=node --format=esm --outfile=.check/limits-check.mjs --log-level=warning && node .check/limits-check.mjs",
     "bench:summary": "node tests/bench-summary.mjs"
   },
   "dependencies": {

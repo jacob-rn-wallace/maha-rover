@@ -91,7 +91,7 @@ Read in full: the [VERVE SpaceOps 2025 presentation](https://ntrs.nasa.gov/api/c
 The existing HUD is a text block over a first-person view. The cheapest, most self-contained items come first, and each step leaves the sim working.
 
 0. **Split the UI out of `main.ts`** (done 2026-11-09, section 9): `hud.ts`, `cameraView.ts`, `perfPanel.ts`, `touch.ts`, `input.ts`. Each later step is then a small change in one file.
-1. **Limits table and status colours.** One rule table (a `limits.ts`: name, value function, yellow and red thresholds, in the style of Open MCT's condition sets) for battery state, motor current, pitch and roll, tilt-guard state and wall distance. The HUD colours each readout from it; the same table later drives the telemetry strips and the minimap. The current HUD shows numbers only, and the tilt guard and wall warnings are ad hoc strings.
+1. **Limits table and status colours** (done 2026-11-09, section 10). One rule table (a `limits.ts`: name, value function, yellow and red thresholds, in the style of Open MCT's condition sets) for battery state, motor current, pitch and roll, tilt-guard state and wall distance. The HUD colours each readout from it; the same table later drives the telemetry strips and the minimap. The current HUD shows numbers only, and the tilt guard and wall warnings are ad hoc strings.
 2. **Hazard and slope overlay on the terrain.** A tint of the ground by local slope against the rover's tilt limits (25 degrees cut, 15 resume), four classes, switching to the slope colour at the limit as VERVE does; a second layer for rock step height from the generator; toggled by a key, drawn on the main view and optionally on the minimap. Slope comes from the heightfield the sim already samples.
 3. **Mast camera view: freshness and compass.** Age, position-changed and camera-moved flags (Open MCT's three), a compass rose with north-up or camera-up, the camera angle against the body, the body attitude and the sun angle, an orange border and paused refresh when viewing a past frame (a short frame history). Cheap, and useful before any delay mode exists.
 4. **Waypoint planning.** Click the terrain to place a waypoint and heading; a turn-direction arrow; a **footprint** of the mast camera on the ground at the waypoint (RSVP); a path preview on the minimap in a colour distinct from the trail, with distance and energy cost from `power.ts`; a "best heading for solar" shortcut from the fixed sun (VERVE). The rover drives it with the existing controls first (assisted driving), autonomy later if wanted.
@@ -116,7 +116,20 @@ Not copied: collaboration and map markup sync, stereo or head-mounted views, gro
 
 `main.ts` keeps the scene set-up, the frame loop, the benchmark route and the `?test=1` script (283 lines, from 405). Checked: `tsc --noEmit` and `vite build` pass; headless screenshots through `tests/cdp-shot.mjs` (flat ground, `pip=1`, and `pip=2&touch=1`) show the HUD text, camera view and touch sticks drawn as expected. Not checked: a real GPU or touch device, the recording line and the benchmark panel (not triggered), the minimap offset on phones with terrain loaded, and a before-and-after pixel comparison (the old build was not screenshotted).
 
-## 10. Gaps
+## 10. Limits table (done 2026-11-09)
+
+`sim/src/limits.ts` holds one table of yellow and red thresholds; `evaluate()` gives each readout a level (OK, yellow, red) and the HUD colours the readout from it (`hud.ts`). The tilt thresholds moved to `constants.ts` (`TILT_CUT_DEG` 25, `TILT_BACK_DEG` 15) so the tilt guard in `physics.ts` and the HUD share them.
+
+| Readout | Yellow | Red | Basis |
+|---|---|---|---|
+| battery state of charge | below 30% | below 15% | look choice, not sourced |
+| motor current (largest wheel) | 1.2 A (75% of the cap) | 1.52 A (95%) | fractions of the 1.6 A cap (`differential-spec.md`) |
+| tilt (larger of pitch and roll) | 15 degrees | 25 degrees | the tilt guard's resume and cut angles (an assumed firmware rule) |
+| distance to the sandbox wall ahead | under 100 m | under 20 m | the 100 m the HUD already warned at; red is a look choice |
+
+Changes you can see: pitch and roll, motor current and battery turn yellow or red; the wall warning is yellow, then red; the phone short form gains the wall warning (it had none). `npm run check:limits` checks the thresholds (16 cases, all pass). Checked in a headless screenshot with the chassis forced to a 23 degree roll (the pitch and roll line turned yellow). Not checked: red in the page, the battery and current colours in the page, the phone form.
+
+## 11. Gaps
 
 - No source found on MBRSC's or Rashid's own ground interface; nothing here is Rashid-specific.
 - The Chinese rover console details are thin: the Yutu-2 papers cover imaging and mapping, not the interface.
