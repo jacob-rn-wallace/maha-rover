@@ -119,10 +119,15 @@ built from the tile plus procedural detail (owner's layering, 2026-11-08).
 6. **Optimise (later):** meshopt or Draco, instancing, LOD, shadow budget, a worker for physics, touch controls, phone profile.
 
 ## Open items and unverified
-- The camera field of view (76.6 x 61.4 degrees) uses a sensor size remembered, not sourced: **unverified**.
+- Camera field of view: 76.6 x 61.4 degrees from the IMX477's 6.287 x 4.712 mm image area (Raspberry Pi camera documentation, read 2026-11-09) and the 4 mm lens's focal length (one retailer's listing: the lens figure is unverified). No distortion, vignetting, noise or auto-exposure; the view renders at the window's resolution, not the sensor's 4056 x 3040.
 - Pan range of the pan servo and servo speeds are assumptions.
 - The wheel is a single solid mesh; its collision shape is the full mesh (grousers included); the cost of a trimesh wheel in Rapier is untested.
 - The differential's internal friction and backlash are not modelled yet.
 - Soil parameters: now from Hurrell et al. 2025 (see Soil model). Still FJS-1 simulant at 25% relative density, not lunar regolith: the paper itself says the flight wheel's sinkage needs the final wheel model.
 - The camera-link cable is fixed to the chassis in the model; it does not follow the pan yet.
 - Physics inertia is mesh-derived at uniform density, so heavy small parts (motors, battery) are only right in the total mass and centre of mass.
+
+## Mast camera and telemetry (done 2026-11-09)
+- **Camera view:** a second three.js camera on the head body (position from `rover.json` `camera.position_m`, looking along the head's +x), vertical field of view 61.4 degrees at 4:3, drawn as a scissored picture-in-picture at the bottom right; **C** cycles small, large, off. (The exporter had put the camera 161 mm behind the tilt axis: it multiplied a value already in metres by 1e-3 a second time; fixed in `export_sim.py` and the JSON patched to the same value, 0.0537 m ahead of the axis, without regenerating the model.)
+- **Power model (`sim/src/power.ts`, HUD line):** the 2S2P 30Q pack of `power-spec.md` (6 Ah), drive current as the sum of duty x motor current, Pi and camera 0.8 A, servos 0.3 A moving or 0.04 A holding, solar 9.6 W per side times the cosine of the sun's incidence on each leaning panel times 0.9 charger efficiency. **ASSUMPTIONS, not sourced:** the linear open-circuit curve 8.4 to 6.4 V, pack resistance 0.05 ohm, the servo currents, the charger efficiency. The solar input ignores shadows (terrain and rover) and uses the fixed sun. Flat driving draws about 2 A (14 W); the HUD shows state of charge, volts, load, solar input and time left.
+- Telemetry on the HUD: speed, slip, soil slip and sinkage, pitch and roll, link angles, mast pan and tilt, motor currents, battery, position.

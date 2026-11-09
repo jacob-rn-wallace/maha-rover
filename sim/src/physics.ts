@@ -11,7 +11,7 @@ export interface BodySpec {
   inertia_principal_kgm2?: number[]; inertia_frame_quat_xyzw?: number[];
   collider_hull_points_m?: number[]; grouser_hulls_m?: number[][];
 }
-export interface Spec { total_mass_kg: number; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; }
+export interface Spec { total_mass_kg: number; camera: { position_m: [number, number, number]; fov_deg_vertical_approx: number }; wheel: { radius_m: number; width_m: number; grouser_height_m?: number }; bodies: Record<string, BodySpec>; }
 
 // ---- Pololu 37D #4746 (131.25:1) from docs/drive-spec.md: 76 rpm and 0.2 A no load at 12 V, 5.5 A stall at 12 V, 0.59 N.m at 0.74 A (best efficiency) ----
 export const MOTOR = (() => {
@@ -56,6 +56,8 @@ export class RoverPhysics {
   panAngle = 0; tiltAngle = 0;
   linkAngle = { L: 0, R: 0 };
   wheelCurrent: Record<string, number> = {};
+  motorPackAmps = 0;                                  // drive current drawn from the pack: the sum of duty x motor current over the wheels (a PWM buck: pack current = duty x motor current; regeneration not returned)
+  servoMoving = false;
   wheelRate: Record<string, number> = {};
   private duty: Record<string, number> = { FL: 0, FR: 0, RL: 0, RR: 0 };
   private acc = 0;
@@ -205,6 +207,7 @@ export class RoverPhysics {
 
     // wheels: skid steering from throttle and turn; the 37D model with the current cap; a forward turn is negative about +Z
     const m = MOTOR;
+    this.motorPackAmps = 0;
     for (const w of WHEELS) {
       const side = w[1] === "L" ? 1 : -1;
       const target = c.brake ? 0 : Math.max(-1, Math.min(1, c.throttle + side * c.turn));
@@ -215,6 +218,7 @@ export class RoverPhysics {
       let i = (u * m.vBatt - m.Ke * wm) / m.R;
       i = Math.max(-m.iCap, Math.min(m.iCap, i));
       this.wheelCurrent[w] = i;
+      this.motorPackAmps += Math.max(0, u * i);
       this.wheelRate[w] = -r.rate;
       const tm = m.Ke * (i - Math.sign(wm || i) * m.i0 * (Math.abs(i) > 1e-6 ? 1 : 0));
       const tOut = m.N * tm * (tm * wm >= 0 ? m.eta : 1 / m.eta);
@@ -227,6 +231,7 @@ export class RoverPhysics {
     const dtc = this.dt;
     this.panTarget = Math.max(-PAN_LIMIT, Math.min(PAN_LIMIT, this.panTarget + c.pan * SERVO.wMax * dtc));
     this.tiltTarget = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.tiltTarget + c.tilt * SERVO.wMax * dtc));
+    this.servoMoving = c.pan !== 0 || c.tilt !== 0;
     const P = this.rel("chassis", "pan", Y), T = this.rel("pan", "head", Z);
     this.panAngle = P.angle; this.tiltAngle = T.angle;
     const clampT = (x: number) => Math.max(-SERVO.tMax, Math.min(SERVO.tMax, x));

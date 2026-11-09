@@ -428,7 +428,7 @@ def main():
             entry["grouser_hulls_m"] = hulls
         bodies[b] = entry
     hx, hy, hz = HX * M, HY * M, HZ * M
-    cam_x = HB.FX * M
+    cam_x = HB.FX
     spec = {
         "units": "metres, kilograms, seconds; axes are glTF (Y up, -Z is rover left, +X forward)",
         "source": "hardware/sim/export_sim.py from hardware/assembly/rover.py and hardware/mass/replica.py; docs/sim-spec.md",
@@ -445,7 +445,7 @@ def main():
                  "tilt": {"origin_m": to_gl(np.array(TILT)).tolist(), "axis": [0, 0, -1], "limit_deg": [-90, 90], "note": "swept clear to 90 either way in the CAD; the original tilts +-75 [S19]"}},
         "camera": {"mount": "head", "position_m": to_gl(np.array([cam_x, 0.0, MAST.CAM_AXIS_Z]) - np.array(TILT)).tolist(), "direction": [1, 0, 0],
                    "sensor": "Raspberry Pi HQ (IMX477) with a 4 mm CS lens", "fov_deg_horizontal_approx": 76.6, "fov_deg_vertical_approx": 61.4,
-                   "note": "FOV from a 6.287 x 4.712 mm active area (remembered, UNVERIFIED) and 4 mm focal length, no distortion"},
+                   "note": "FOV from a 6.287 x 4.712 mm active area (Raspberry Pi camera documentation, checked 2026-11-09) and 4 mm focal length, no distortion"},
         "motor": {"model": "Pololu 37D 131:1 (candidate #4746)", "current_cap_A": 1.6, "note": "speed and torque curves: docs/drive-spec.md"},
         "ground_reference": "y = 0 is the rim line (grouser tips reach 12.2 mm below it)",
     }

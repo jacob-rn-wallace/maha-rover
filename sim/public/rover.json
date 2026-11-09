@@ -11471,7 +11471,7 @@
  "camera": {
   "mount": "head",
   "position_m": [
-   -0.16048559999999998,
+   0.0537,
    0.0,
    -0.0
   ],
@@ -11483,7 +11483,7 @@
   "sensor": "Raspberry Pi HQ (IMX477) with a 4 mm CS lens",
   "fov_deg_horizontal_approx": 76.6,
   "fov_deg_vertical_approx": 61.4,
-  "note": "FOV from a 6.287 x 4.712 mm active area (remembered, UNVERIFIED) and 4 mm focal length, no distortion"
+  "note": "FOV from a 6.287 x 4.712 mm active area (Raspberry Pi camera documentation, checked 2026-11-09) and 4 mm focal length, no distortion"
  },
  "motor": {
   "model": "Pololu 37D 131:1 (candidate #4746)",
