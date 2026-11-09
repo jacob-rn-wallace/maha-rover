@@ -22,31 +22,42 @@ class LevelMesh {
   readonly mesh: THREE.Mesh;
   cx = NaN; cz = NaN;                      // lattice centre of the current build
   private holeKey = "";
-  private pos: Float32Array; private nor: Float32Array; private uv: Float32Array; private idx: Uint32Array;
+  private pos: Float32Array; private nor: Float32Array; private idx: Uint32Array;
   private geo = new THREE.BufferGeometry();
   private hts: Float32Array;
   constructor(readonly level: Level, material: THREE.Material, readonly terrain: Terrain, readonly finer: LevelMesh | null, readonly coarser: Level | null) {
     const v = (level.n + 1) ** 2;
-    this.pos = new Float32Array(v * 3); this.nor = new Float32Array(v * 3); this.uv = new Float32Array(v * 2); this.idx = new Uint32Array(level.n * level.n * 6);
+    this.pos = new Float32Array(v * 3); this.nor = new Float32Array(v * 3); this.idx = new Uint32Array(level.n * level.n * 6);
     this.hts = new Float32Array((level.n + 3) ** 2);
     this.geo.setAttribute("position", new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
     this.geo.setAttribute("normal", new THREE.BufferAttribute(this.nor, 3).setUsage(THREE.DynamicDrawUsage));
-    this.geo.setAttribute("uv", new THREE.BufferAttribute(this.uv, 2));
     this.geo.setIndex(new THREE.BufferAttribute(this.idx, 1).setUsage(THREE.DynamicDrawUsage));
     this.mesh = new THREE.Mesh(this.geo, material);
     this.mesh.frustumCulled = false;
     this.mesh.receiveShadow = true;
   }
 
-  /** rebuild the heights if the rover left the snap cell; returns true if they changed */
-  follow(x: number, z: number): boolean {
+  private job: { cx: number; cz: number; row: number; h: Float32Array } | null = null;
+
+  /** rebuild the heights if the rover left the snap cell; returns true if they changed. The height sampling is spread over frames (rows of the lattice until `deadline`, a performance.now() time):
+   *  the old mesh stays until the new one is complete, then the swap is cheap. The first build (no mesh yet) runs to the end. */
+  follow(x: number, z: number, deadline: number): boolean {
     const { s, n, snap, fixed } = this.level;
-    const cx = fixed ? 0 : Math.round(x / snap) * snap, cz = fixed ? 0 : Math.round(z / snap) * snap;
-    const moved = cx !== this.cx || cz !== this.cz;
-    if (!moved) { if (this.finer && this.holeKey !== `${this.finer.cx},${this.finer.cz}`) this.indices(); return false; }
+    if (!this.job) {
+      const cx = fixed ? 0 : Math.round(x / snap) * snap, cz = fixed ? 0 : Math.round(z / snap) * snap;
+      if (cx === this.cx && cz === this.cz) { if (this.finer && this.holeKey !== `${this.finer.cx},${this.finer.cz}`) this.indices(); return false; }
+      this.job = { cx, cz, row: 0, h: new Float32Array((n + 3) ** 2) };
+      if (!Number.isFinite(this.cx)) deadline = Infinity;
+    }
+    const J = this.job, m = n + 3, minWl = 2 * s, half = n / 2;
+    while (J.row < m && performance.now() < deadline) {
+      const j = J.row++;
+      for (let i = 0; i < m; i++) J.h[j * m + i] = this.terrain.height(J.cx + (i - 1 - half) * s, J.cz + (j - 1 - half) * s, minWl);
+    }
+    if (J.row < m) return false;
+    this.job = null;
+    const h = J.h, cx = J.cx, cz = J.cz;
     this.cx = cx; this.cz = cz;
-    const m = n + 3, h = this.hts, minWl = 2 * s, half = n / 2;
-    for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) h[j * m + i] = this.terrain.height(cx + (i - 1 - half) * s, cz + (j - 1 - half) * s, minWl);
     const stride = n + 1;
     for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) {
       const k = j * stride + i, x = cx + (i - half) * s, z = cz + (j - half) * s;
@@ -56,11 +67,9 @@ class LevelMesh {
       const dx = (h[(j + 1) * m + i + 2] - h[(j + 1) * m + i]) / (2 * s), dz = (h[(j + 2) * m + i + 1] - h[j * m + i + 1]) / (2 * s);
       const l = Math.hypot(dx, 1, dz);
       this.nor[k * 3] = -dx / l; this.nor[k * 3 + 1] = 1 / l; this.nor[k * 3 + 2] = -dz / l;
-      this.uv[k * 2] = x / 400; this.uv[k * 2 + 1] = z / 400;       // the regolith texture repeats 160 times over 400 m (lunar.ts): one tile per 2.5 m
     }
     (this.geo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
     (this.geo.attributes.normal as THREE.BufferAttribute).needsUpdate = true;
-    (this.geo.attributes.uv as THREE.BufferAttribute).needsUpdate = true;
     this.indices();
     return true;
   }
@@ -110,7 +119,8 @@ export class TerrainView {
   }
 
   update(x: number, z: number) {
-    for (const l of this.levels) l.follow(x, z);                      // a level's hole follows the finer level inside it: indices() is rebuilt when either moved
+    const deadline = performance.now() + 4;                          // at most about 4 ms a frame on rebuilding heights (the first build ignores it)
+    for (const l of this.levels) l.follow(x, z, deadline);                      // a level's hole follows the finer level inside it: indices() is rebuilt when either moved
   }
 
   /** the ring beyond the tile: a polar mesh with only the cells (and a one-cell margin) that some observer on the tile can see */
@@ -135,7 +145,7 @@ export class TerrainView {
       for (let dr = -1; dr <= 1 && !on; dr++) for (let da = -1; da <= 1 && !on; da++) on = vis(r + dr, a + da);
       used[r * nA + a] = on ? 1 : 0;
     }
-    const pos = new Float32Array(nR * nA * 3), nor = new Float32Array(nR * nA * 3), uv = new Float32Array(nR * nA * 2);
+    const pos = new Float32Array(nR * nA * 3), nor = new Float32Array(nR * nA * 3);
     const inside = new Uint8Array(nR * nA);
     for (let r = 0; r < nR; r++) for (let a = 0; a < nA; a++) {
       const k = r * nA + a;
@@ -144,7 +154,6 @@ export class TerrainView {
       inside[k] = din >= 0 ? 1 : 0;
       // where the ring lies under the tile's own mesh it is sunk, by up to 2 m at 10 m inside the edge: the tile mesh is a linear interpolation (10 m cells) and sags below the surface on convex ground
       pos[k * 3] = x; pos[k * 3 + 1] = this.terrain.height(x, z, 1e9) - Math.min(2, Math.max(0, din) * 0.2); pos[k * 3 + 2] = z;
-      uv[k * 2] = x / 400; uv[k * 2 + 1] = z / 400;
     }
     // normals from the neighbours in the polar grid
     const P = (r: number, a: number, o: number) => pos[(Math.min(nR - 1, Math.max(0, r)) * nA + ((a + nA) % nA)) * 3 + o];
@@ -158,21 +167,30 @@ export class TerrainView {
       if (ny < 0) { nx = -nx; ny = -ny; nz = -nz; }
       nor[k * 3] = nx / l; nor[k * 3 + 1] = ny / l; nor[k * 3 + 2] = nz / l;
     }
-    const idx: number[] = [];
+    // the ring is cut into SECTORS azimuth sectors x BANDS range bands, one mesh each over shared vertex buffers, so the frustum culling drops what is behind the camera (792,000 triangles in all)
+    const SECTORS = 16, BANDS = 6, posAttr = new THREE.BufferAttribute(pos, 3), norAttr = new THREE.BufferAttribute(nor, 3);
+    const chunks: number[][] = Array.from({ length: SECTORS * BANDS }, () => []);
+    let triangles = 0;
     for (let r = 0; r < nR - 1; r++) for (let a = 0; a < nA; a++) {
       const a1 = (a + 1) % nA, A = r * nA + a, B = r * nA + a1, C = (r + 1) * nA + a, D = (r + 1) * nA + a1;
       if (!(used[A] && used[B] && used[C] && used[D])) continue;
       if (inside[A] && inside[B] && inside[C] && inside[D]) continue;
-      idx.push(A, B, C, B, D, C);
+      chunks[Math.floor(r * BANDS / nR) * SECTORS + Math.floor(a * SECTORS / nA)].push(A, B, C, B, D, C);
+      triangles += 2;
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
-    g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-    g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
-    const mesh = new THREE.Mesh(g, this.material);
-    mesh.frustumCulled = false;
-    this.group.add(mesh);
-    return { triangles: idx.length / 3, radius: MOON_R };
+    const box = new THREE.Box3(), v = new THREE.Vector3();
+    for (const idx of chunks) {
+      if (!idx.length) continue;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", posAttr); g.setAttribute("normal", norAttr);
+      g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+      box.makeEmpty();
+      for (const i of idx) box.expandByPoint(v.set(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]));
+      g.boundingSphere = box.getBoundingSphere(new THREE.Sphere());
+      g.boundingSphere.radius += 50;
+      const mesh = new THREE.Mesh(g, this.material);
+      this.group.add(mesh);
+    }
+    return { triangles, radius: MOON_R };
   }
 }

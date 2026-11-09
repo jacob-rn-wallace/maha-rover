@@ -20,7 +20,8 @@ import * as THREE from "three";
 const FULL_WELL = 4000, READ_E = 3;
 const SENSOR_W = 6.287, SENSOR_H = 4.712, FOCAL = 4.0;
 const K1 = 0.08, K2 = 0;
-const AE_TARGET = 0.18, AE_TAU = 0.5, AE_MIN = 0.05, AE_MAX = 32, METER_W = 32, METER_H = 24, METER_EVERY = 4;
+const SKY_L = 0.003;
+const AE_TARGET = 0.18, AE_TAU = 0.5, AE_MIN = 0.05, AE_MAX = 32, METER_W = 32, METER_H = 24, METER_EVERY = 6, SCENE_EVERY = 3;
 
 export class MastCameraFx {
   readonly target: THREE.WebGLRenderTarget;
@@ -29,15 +30,16 @@ export class MastCameraFx {
   private frame = 0;
   readonly k1: number; private sMax: number;
   private ae: boolean; gain = 1;
-  private meterTarget = new THREE.WebGLRenderTarget(METER_W, METER_H, { type: THREE.FloatType, colorSpace: THREE.LinearSRGBColorSpace });
-  private meterMat: THREE.ShaderMaterial; private meterBuf = new Float32Array(METER_W * METER_H * 4);
+  private meterTarget = new THREE.WebGLRenderTarget(METER_W, METER_H, { type: THREE.UnsignedByteType, colorSpace: THREE.LinearSRGBColorSpace });      // 8 bit: the read-back is asynchronous (no GPU stall); the luminance is stored as sqrt(L / 4)
+  private meterMat: THREE.ShaderMaterial; private meterBuf = new Uint8Array(METER_W * METER_H * 4); private metering = false;
   private lastT = performance.now();
   /** metered scene luminance, for display */
   metered = 0;
+  stats = { started: 0, done: 0, failed: '' };
 
   constructor(private renderer: THREE.WebGLRenderer, width = 640, height = 480, vignette = 0.6, noise = 1, distort = 1, ae = true) {
     this.k1 = K1 * distort; this.sMax = Math.max(1, 1 + this.k1 + K2); this.ae = ae;
-    this.target = new THREE.WebGLRenderTarget(width, height, { type: THREE.HalfFloatType, samples: 4, colorSpace: THREE.LinearSRGBColorSpace });
+    this.target = new THREE.WebGLRenderTarget(width, height, { type: THREE.HalfFloatType, samples: 0, colorSpace: THREE.LinearSRGBColorSpace });
     this.mat = new THREE.ShaderMaterial({
       uniforms: { tex: { value: this.target.texture }, seed: { value: 0 }, vig: { value: vignette }, noiseOn: { value: noise }, k1: { value: this.k1 }, k2: { value: K2 }, sMax: { value: this.sMax }, gain: { value: 1 }, sensorHalf: { value: new THREE.Vector2(SENSOR_W / 2, SENSOR_H / 2) } },
       vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
@@ -66,7 +68,7 @@ export class MastCameraFx {
       uniforms: { tex: { value: this.target.texture } },
       vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
       fragmentShader: `uniform sampler2D tex; varying vec2 vUv;
-        void main(){ vec3 s = vec3(0.0); for (int i = 0; i < 5; i++) for (int j = 0; j < 5; j++) s += texture2D(tex, vUv + (vec2(float(i), float(j)) - 2.0) / vec2(${METER_W * 5}.0, ${METER_H * 5}.0)).rgb; gl_FragColor = vec4(s / 25.0, 1.0); }`,
+        void main(){ vec3 s = vec3(0.0); for (int i = 0; i < 5; i++) for (int j = 0; j < 5; j++) s += texture2D(tex, vUv + (vec2(float(i), float(j)) - 2.0) / vec2(${METER_W * 5}.0, ${METER_H * 5}.0)).rgb; gl_FragColor = vec4(sqrt(clamp(s / 25.0 / 4.0, 0.0, 1.0)), 1.0); }`,
       toneMapped: false, depthTest: false, depthWrite: false,
     });
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.mat);
@@ -77,17 +79,24 @@ export class MastCameraFx {
   renderFov(fovDeg: number) { return 2 * Math.atan(Math.tan(fovDeg * Math.PI / 360) * this.sMax) * 180 / Math.PI; }
 
   private meter() {
+    if (this.metering) return;
     const r = this.renderer;
     this.quad.material = this.meterMat; r.setRenderTarget(this.meterTarget); r.setScissorTest(false); r.setViewport(0, 0, METER_W, METER_H); r.render(this.scene, this.cam); r.setRenderTarget(null);
-    r.readRenderTargetPixels(this.meterTarget, 0, 0, METER_W, METER_H, this.meterBuf);
     this.quad.material = this.mat;
+    this.metering = true; this.stats.started++;
+    r.readRenderTargetPixelsAsync(this.meterTarget, 0, 0, METER_W, METER_H, this.meterBuf).then(() => { this.metering = false; this.stats.done++; this.adapt(); }, (e) => { this.metering = false; this.stats.failed = String(e); });
+  }
+
+  private adapt() {
     let sum = 0, wsum = 0;
     for (let j = 0; j < METER_H; j++) for (let i = 0; i < METER_W; i++) {
       const x = (i + 0.5) / METER_W - 0.5, y = ((j + 0.5) / METER_H - 0.5) * METER_H / METER_W, w = Math.exp(-(x * x + y * y) / (2 * (0.4 * 0.5 * METER_H / METER_W) ** 2));
-      const k = (j * METER_W + i) * 4, L = 0.2126 * this.meterBuf[k] + 0.7152 * this.meterBuf[k + 1] + 0.0722 * this.meterBuf[k + 2];
+      const k = (j * METER_W + i) * 4, d = (c: number) => { const v = this.meterBuf[c] / 255; return v * v * 4; };
+      const L = 0.2126 * d(k) + 0.7152 * d(k + 1) + 0.0722 * d(k + 2);
+      if (L < SKY_L) continue;                                 // black sky carries no information to meter on (a highlight- and shadow-aware metering, like the Pi's histogram weighting; ASSUMPTION)
       sum += w * L; wsum += w;
     }
-    this.metered = sum / wsum;
+    this.metered = wsum > 0 ? sum / wsum : AE_TARGET;
     const now = performance.now(), dt = Math.min((now - this.lastT) / 1000, 0.5); this.lastT = now;
     const want = Math.min(AE_MAX, Math.max(AE_MIN, AE_TARGET / Math.max(this.metered, 1e-4)));
     this.gain *= Math.exp(Math.log(want / this.gain) * (1 - Math.exp(-dt / AE_TAU)));
@@ -97,8 +106,10 @@ export class MastCameraFx {
   render(scene: THREE.Scene, camera: THREE.Camera, x: number, y: number, w: number, h: number) {
     const r = this.renderer;
     r.setScissorTest(false);
-    r.setRenderTarget(this.target); r.clear(); r.render(scene, camera); r.setRenderTarget(null);
-    if (this.ae && this.frame % METER_EVERY === 0) this.meter();
+    if (this.frame % SCENE_EVERY === 0) {                      // the scene is rendered into the sensor image at 1 / SCENE_EVERY of the frame rate (the stream's rate; a second full pass of the scene is the costly part); the noise pass runs every frame
+      r.setRenderTarget(this.target); r.clear(); r.render(scene, camera); r.setRenderTarget(null);
+      if (this.ae && this.frame % (METER_EVERY * SCENE_EVERY) === 0) this.meter();
+    }
     this.mat.uniforms.gain.value = this.ae ? this.gain : 1;
     this.mat.uniforms.seed.value = (this.frame++ % 997) * 0.37;
     r.setViewport(x, y, w, h); r.setScissor(x, y, w, h); r.setScissorTest(true);

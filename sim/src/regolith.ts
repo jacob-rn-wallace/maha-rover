@@ -43,13 +43,14 @@ float rgFbm( vec2 p, float wl0, int n, float footprint, float decay ) {
   return s; }
 ` + shader.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
       float fpt = max( length( fwidth( vRegPos ) ), 1e-4 );
-      float mott = rgFbm( vRegPos.xz, 90.0, 6, fpt, 0.8 ) * 1.2 + rgFbm( vRegPos.xz + 311.0, 0.9, 4, fpt, 0.7 ) * 0.3;      // metre-scale patches and finer grain
+      float mott = rgFbm( vRegPos.xz, 90.0, 6, fpt, 0.8 ) * 1.2;
+      if ( fpt < 0.1 ) mott += rgFbm( vRegPos.xz + 311.0, 0.9, 3, fpt, 0.7 ) * 0.3;      // the fine grain only where a pixel is under 10 cm      // metre-scale patches and finer grain
       diffuseColor.rgb *= clamp( 1.0 + 0.45 * mott, 0.7, 1.35 );`)
         .replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>
-      {
+      if ( fpt < 0.1 ) {                                                      // the centimetre relief only where a pixel is under 10 cm: its octaves are faded out beyond that anyway
         float e = 0.02;
         vec2 P = vRegPos.xz;
-        float h0 = rgFbm( P, 0.5, 5, fpt, 0.476 ), hx = rgFbm( P + vec2( e, 0.0 ), 0.5, 5, fpt, 0.476 ), hz = rgFbm( P + vec2( 0.0, e ), 0.5, 5, fpt, 0.476 );
+        float h0 = rgFbm( P, 0.5, 4, fpt, 0.476 ), hx = rgFbm( P + vec2( e, 0.0 ), 0.5, 4, fpt, 0.476 ), hz = rgFbm( P + vec2( 0.0, e ), 0.5, 4, fpt, 0.476 );
         vec3 gw = vec3( hx - h0, 0.0, hz - h0 ) / e * 0.045;                       // world-space slope of the centimetre-scale relief
         vec3 gv = ( viewMatrix * vec4( gw, 0.0 ) ).xyz;
         gv -= dot( gv, normal ) * normal;

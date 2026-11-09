@@ -21,6 +21,7 @@ if (keys) { const [k, t] = keys.split(":"); const code = { w: "KeyW", s: "KeyS",
   const fire = (type) => send("Runtime.evaluate", { expression: `window.dispatchEvent(new KeyboardEvent('${type}', { code: '${code}', key: '${k}' }))` });
   await fire("keydown"); await sleep(+t * 500); { const m = await send("Runtime.evaluate", { expression: "document.getElementById('hud').innerText.split('\\n').filter(l => /speed|position/.test(l)).join(' | ')", returnByValue: true }); console.log("mid-hold:", m.result.value); } await sleep(+t * 500); await fire("keyup"); await sleep(500); }
 const dbg = await send("Runtime.evaluate", { expression: "(() => { const p = window.__phys; if (!p) return 'no phys'; const t = p.bodies.chassis.translation(); return JSON.stringify({ x: +t.x.toFixed(2), y: +t.y.toFixed(2), z: +t.z.toFixed(2), cur: p.wheelCurrent, cut: p.tiltCut }); })()", returnByValue: true }); console.log("phys:", dbg.result.value);
+const fx = await send("Runtime.evaluate", { expression: "window.__fx ? JSON.stringify({ gain: window.__fx.gain, metered: window.__fx.metered, stats: window.__fx.stats }) : 'no fx'", returnByValue: true }); console.log("fx:", fx.result.value);
 const hud = await send("Runtime.evaluate", { expression: "document.getElementById('hud').innerText", returnByValue: true });
 const shot = await send("Page.captureScreenshot", { format: "png" });
 writeFileSync(out, Buffer.from(shot.data, "base64"));

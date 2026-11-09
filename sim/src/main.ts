@@ -17,11 +17,19 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
 const hud = document.getElementById("hud")!;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true });   // terrain from 5 cm to 74 km
+// ?depth=reverse: a reversed floating-point depth buffer instead of the logarithmic one, if the browser offers EXT_clip_control (the logarithmic buffer writes depth in every fragment shader, which switches off early-z
+// rejection and is slow on tile-based GPUs such as Apple's). Experimental in three r170 and not testable here (no GPU): opt in, compare with ?stats=1, report.
+const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
-renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.25 : 2));
+const maxRatio = Math.min(devicePixelRatio, coarse ? 1.25 : 1.5);
+let ratio = maxRatio;                                     // adaptive: lowered while frames take longer than FRAME_BUDGET, raised again when there is room (?res=1 fixes it at 1, ?res=auto is the default)
+renderer.setPixelRatio(ratio);
+const fixedRes = new URLSearchParams(location.search).get("res");
+if (fixedRes && fixedRes !== "auto") { ratio = Number(fixedRes); renderer.setPixelRatio(ratio); }
+const FRAME_BUDGET = 1 / 50;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.85;
 
@@ -88,7 +96,7 @@ async function main() {
       rocks.update(terrain.spawn.x, terrain.spawn.z);
     }
     rockField = rocks;
-    view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles, at", performance.now().toFixed(0), "ms"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children[Number(k)].visible = false; });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
+    view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles, at", performance.now().toFixed(0), "ms"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children.forEach((c, n) => { if (n === Number(k) || (Number(k) === 4 && n >= 4)) c.visible = false; }); });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
     for (const n of names) node(n).position.add(spawn);       // the rover model starts at the spawn point
     camera.position.add(spawn); controls.target.add(spawn);
   }
@@ -122,6 +130,7 @@ async function main() {
   const camOff = new THREE.Vector3(...cam.position_m), camBasis = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0), new THREE.Vector3(-1, 0, 0));     // camera looks along the head's +x, up is its +y
   if (q.has("pip")) pip.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1, q.has("distort") ? Number(q.get("distort")) : 1, q.get("ae") !== "0");      // ?vignette=0..1, ?noise=0, ?distort=0..., ?ae=0
+  (window as any).__fx = camFx;
   mastCam.fov = camFx.renderFov(61.4); mastCam.updateProjectionMatrix();
   const headQ = new THREE.Quaternion();
   const power = new Power();
@@ -130,7 +139,7 @@ async function main() {
   const chassisQ = new THREE.Quaternion();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
-  let last = performance.now(), hudT = 0, fpsEma = 60, drawCalls = 0, drawTris = 0;
+  let last = performance.now(), hudT = 0, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   const showStats = q.get("stats") === "1";      // ?stats=1: frame rate and draw load of the main view on the HUD
   renderer.setAnimationLoop((now) => {
     const dt = (now - last) / 1000; last = now;
@@ -151,7 +160,14 @@ async function main() {
     hudT += dt;
     fpsEma += ((1 / Math.max(dt, 1e-3)) - fpsEma) * 0.05;
     fpsEma += (1 / Math.max(dt, 1e-3) - fpsEma) * 0.05;
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${fpsEma.toFixed(0)} fps, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
+    if (!fixedRes || fixedRes === "auto") {                  // adaptive resolution: a slow frame (a smoothed 1 / fps below 50) steps the pixel ratio down, a long run of fast frames steps it back up
+      frameEma += (dt - frameEma) * 0.1; resNote++;
+      if (resNote > 20) {
+        if (frameEma > FRAME_BUDGET * 1.15 && ratio > 0.5) { ratio = Math.max(0.5, ratio * 0.85); renderer.setPixelRatio(ratio); resNote = 0; }
+        else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
+      }
+    }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (showStats ? `<br>${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)}, ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;

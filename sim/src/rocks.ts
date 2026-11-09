@@ -80,7 +80,7 @@ export class RockField {
     for (const tier of TIERS) {
       const max = Math.ceil(Math.PI * tier.radius * tier.radius * nBetween(tier.d0, tier.d1) * 6) + 64;       // room for fields several times the mean
       const mesh = new THREE.InstancedMesh(geo, material, max);
-      mesh.count = 0; mesh.frustumCulled = false; mesh.castShadow = tier.d0 < 0.5; mesh.receiveShadow = true;
+      mesh.count = 0; mesh.frustumCulled = false; mesh.castShadow = tier.d0 < 0.5;      // only the stones cast into the rover's 4 m shadow map (instanced meshes are drawn whole into it every frame) mesh.receiveShadow = true;
       this.group.add(mesh);
       this.tiers.push({ tier, mesh, cx: NaN, cz: NaN, max });
     }
