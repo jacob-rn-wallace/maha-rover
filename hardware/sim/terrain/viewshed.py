@@ -93,25 +93,43 @@ def sample_atlas(a8, lat, lon):
 
 
 def sample_ldem(crop, r0, c0, lat, lon):
-    return bilinear(crop, (90 - lat) * 128 - 0.5 - r0, lon * 128 - 0.5 - c0)
+    """LDEM height by cubic spline (a bilinear sample shows the 237 m pixels as blocks in the rendered ring)"""
+    from scipy import ndimage
+    return ndimage.map_coordinates(crop, [(90 - lat) * 128 - 0.5 - r0, lon * 128 - 0.5 - c0], order=3, mode="nearest").astype(np.float32)
 
 
 def build_grid(a8, crop, r0, c0, half, step):
-    """combined elevation grid (rows north to south, columns west to east), Atlas wherever it has data, LDEM elsewhere; returns grid and the Atlas coverage fraction"""
+    """combined elevation grid (rows north to south, columns west to east): Atlas wherever it has data, LDEM elsewhere, joined without a step.
+    The two sources differ by about 17 m (standard deviation) where they meet, which showed up in the simulation as a lit scarp along the Atlas coverage edge. Outside the Atlas
+    the LDEM is shifted by the Atlas-minus-LDEM difference averaged over about 200 m round the edge, the shift fading with distance (1.5 km); inside, the Atlas's outer 150 m is
+    eased onto the same surface, so the join is continuous. Returns the grid and the Atlas coverage fraction"""
+    from scipy import ndimage
     n = int(2 * half / step) + 1
     xs = -half + step * np.arange(n)
-    g = np.empty((n, n), np.float32)
-    cover = 0.0
+    la = np.empty((n, n), np.float32)
+    ld = np.empty((n, n), np.float32)
     for i0 in range(0, n, 250):
         i1 = min(i0 + 250, n)
         y = (half - step * np.arange(i0, i1))[:, None] + 0 * xs[None, :]
         x = xs[None, :] + 0 * y
         lat, lon = inverse(x, y)
-        la = sample_atlas(a8, lat, lon)
-        ld = sample_ldem(crop, r0, c0, lat, lon)
-        g[i0:i1] = np.where(np.isnan(la), ld, la)
-        cover += np.count_nonzero(~np.isnan(la))
-    return g, cover / g.size
+        la[i0:i1] = sample_atlas(a8, lat, lon)
+        ld[i0:i1] = sample_ldem(crop, r0, c0, lat, lon)
+    valid = np.isfinite(la)
+    cover = float(valid.mean())
+    if not valid.any():
+        return ld, cover
+    sigma = 200.0 / step
+    diff = np.where(valid, la - ld, 0.0).astype(np.float64)
+    den = ndimage.gaussian_filter(valid.astype(np.float64), sigma)
+    local = ndimage.gaussian_filter(diff, sigma) / np.maximum(den, 1e-3)        # mean difference near each point, from the Atlas cells around it
+    dist_out = ndimage.distance_transform_edt(~valid) * step                    # metres from the Atlas area (outside it)
+    dist_in = ndimage.distance_transform_edt(valid) * step                      # metres from its edge (inside it)
+    w = np.exp(-dist_out / 1500.0) * np.clip((den - 0.01) / 0.1, 0.0, 1.0) ** 2         # the local difference is only trusted where Atlas cells surround the point: fades out smoothly (a hard cut left a step)
+    outside = ld + (local * w).astype(np.float32)
+    inside = la - ((diff - local) * np.exp(-dist_in / 150.0)).astype(np.float32)
+    g = np.where(valid, inside, outside).astype(np.float32)
+    return g, cover
 
 
 def prep(img, ldem, cache):

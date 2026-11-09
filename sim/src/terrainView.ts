@@ -15,7 +15,7 @@ const LEVELS: Level[] = [
   { s: 0.25, n: 256, snap: 4 },          // 64 m, aligned to the next level's 1 m lattice
   { s: 1, n: 256, snap: 16 },            // 256 m
   { s: 4, n: 250, snap: 80 },            // 1000 m
-  { s: 20, n: 250, snap: 0, fixed: true }, // the whole 5 km tile
+  { s: 10, n: 500, snap: 0, fixed: true }, // the whole 5 km tile
 ];
 
 class LevelMesh {
@@ -121,26 +121,30 @@ export class TerrainView {
       fetch(base + "ring_mask.png").then((r) => r.arrayBuffer()).then((b) => decode(b)),
     ]);
     const nA: number = meta.n_az, nR: number = meta.n_range, edges: number[] = meta.range_edges_m, mask = mpng.data as Uint8Array;
+    const H = this.terrain.half, BAND = 150;                       // the ring is also drawn within BAND metres of the tile whether or not an observer sees it: no gap at the edge
+    const cx = new Float32Array(nR * nA), cz = new Float32Array(nR * nA);
+    for (let r = 0; r < nR; r++) {
+      const d = Math.sqrt(edges[r] * edges[r + 1]);
+      for (let a = 0; a < nA; a++) { const az = (a + 0.5) * 2 * Math.PI / nA; cx[r * nA + a] = d * Math.sin(az); cz[r * nA + a] = -d * Math.cos(az); }
+    }
+    const near = (k: number) => Math.max(Math.abs(cx[k]), Math.abs(cz[k])) <= H + BAND;
     const used = new Uint8Array(nR * nA);
-    const vis = (r: number, a: number) => r >= 0 && r < nR && mask[r * nA + (a + nA) % nA] > 0;
+    const vis = (r: number, a: number) => r >= 0 && r < nR && (mask[r * nA + (a + nA) % nA] > 0 || near(r * nA + (a + nA) % nA));
     for (let r = 0; r < nR; r++) for (let a = 0; a < nA; a++) {
       let on = false;
       for (let dr = -1; dr <= 1 && !on; dr++) for (let da = -1; da <= 1 && !on; da++) on = vis(r + dr, a + da);
       used[r * nA + a] = on ? 1 : 0;
     }
     const pos = new Float32Array(nR * nA * 3), nor = new Float32Array(nR * nA * 3), uv = new Float32Array(nR * nA * 2);
-    const H = this.terrain.half;
     const inside = new Uint8Array(nR * nA);
-    for (let r = 0; r < nR; r++) {
-      const d = Math.sqrt(edges[r] * edges[r + 1]);
-      for (let a = 0; a < nA; a++) {
-        const k = r * nA + a;
-        if (!used[k]) continue;
-        const az = (a + 0.5) * 2 * Math.PI / nA, x = d * Math.sin(az), z = -d * Math.cos(az);
-        inside[k] = Math.abs(x) <= H && Math.abs(z) <= H ? 1 : 0;
-        pos[k * 3] = x; pos[k * 3 + 1] = this.terrain.height(x, z, 1e9) - (inside[k] ? 0.05 : 0); pos[k * 3 + 2] = z;
-        uv[k * 2] = x / 400; uv[k * 2 + 1] = z / 400;
-      }
+    for (let r = 0; r < nR; r++) for (let a = 0; a < nA; a++) {
+      const k = r * nA + a;
+      if (!used[k]) continue;
+      const x = cx[k], z = cz[k], din = H - Math.max(Math.abs(x), Math.abs(z));          // metres inside the tile edge (negative outside)
+      inside[k] = din >= 0 ? 1 : 0;
+      // where the ring lies under the tile's own mesh it is sunk, by up to 2 m at 10 m inside the edge: the tile mesh is a linear interpolation (10 m cells) and sags below the surface on convex ground
+      pos[k * 3] = x; pos[k * 3 + 1] = this.terrain.height(x, z, 1e9) - Math.min(2, Math.max(0, din) * 0.2); pos[k * 3 + 2] = z;
+      uv[k * 2] = x / 400; uv[k * 2 + 1] = z / 400;
     }
     // normals from the neighbours in the polar grid
     const P = (r: number, a: number, o: number) => pos[(Math.min(nR - 1, Math.max(0, r)) * nA + ((a + nA) % nA)) * 3 + o];

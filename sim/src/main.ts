@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { addLunarScene } from "./lunar";
 import { Terrain } from "./terrain";
 import { FJS1 } from "./soil";
+import { loadTerrainShadow, applyTerrainShadow } from "./terrainShadow";
 import { TerrainView } from "./terrainView";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -52,7 +53,12 @@ async function main() {
     view = new TerrainView(terrain, lunar.groundMaterial);
     scene.add(view.group);
     view.update(spawn.x, spawn.z);
-    view.addRing().then((r) => console.log("ring mesh", r.triangles, "triangles"));
+    const ts = await loadTerrainShadow();
+    if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) {
+      applyTerrainShadow(lunar.groundMaterial, ts);
+      for (const n of names) nodes[n].traverse((o) => { const m = (o as THREE.Mesh).material; if (m) for (const x of Array.isArray(m) ? m : [m]) applyTerrainShadow(x, ts); });
+    } else console.warn("terrain shadow textures are for another sun: not applied (run hardware/sim/terrain/shadow.py)");
+    view.addRing().then((r) => { console.log("ring mesh", r.triangles, "triangles"); for (const k of (q.get("hide") ?? "").split(",").filter(Boolean)) view!.group.children[Number(k)].visible = false; });   // ?hide=0,1,2,3,4: hide a terrain level (0 finest to 3) or 4 the ring, for finding seams
     for (const n of names) node(n).position.add(spawn);       // the rover model starts at the spawn point
     camera.position.add(spawn); controls.target.add(spawn);
   }

@@ -1,0 +1,16 @@
+{
+ "sun_elevation_deg": 14.0,
+ "sun_azimuth_deg": 40.0,
+ "azimuth_note": "sim world frame: sun direction (cos el cos az, sin el, -cos el sin az), x east, z south",
+ "tile": {
+  "half_m": 2500.0,
+  "size_px": 1250
+ },
+ "coarse": {
+  "half_m": 100000.0,
+  "size_px": 2000
+ },
+ "soft_m": 2.0,
+ "rows": "row 0 = north (z = -half), columns west to east",
+ "values": "255 = lit"
+}

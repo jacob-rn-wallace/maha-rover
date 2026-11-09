@@ -68,7 +68,7 @@ export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer,
   ground.receiveShadow = true;
   for (const t of [tex.map, tex.bump]) { t.repeat.set(160, 160); }
   scene.add(ground);
-  return { sun, ground, sunDir, groundMaterial: ground.material as THREE.MeshStandardMaterial, followSun(target: THREE.Vector3) { sun.target.position.copy(target); sun.position.copy(sunDir).multiplyScalar(20).add(target); sun.target.updateMatrixWorld(); } };
+  return { sun, ground, sunDir, sunElevationDeg: opts.sunElevationDeg, sunAzimuthDeg: opts.sunAzimuthDeg, groundMaterial: ground.material as THREE.MeshStandardMaterial, followSun(target: THREE.Vector3) { sun.target.position.copy(target); sun.position.copy(sunDir).multiplyScalar(20).add(target); sun.target.updateMatrixWorld(); } };
 }
 
 function regolithTexture(size: number) {

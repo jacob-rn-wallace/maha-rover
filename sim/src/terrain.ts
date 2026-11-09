@@ -12,7 +12,7 @@ const HALF = 2500, POST = 2;
 const SMOOTH_SIGMA_POSTS = 2;                       // removes stereo noise: the product's vertical precision is 2.89 m (atlas_5km.json)
 const DETAIL_WAVELENGTHS = [8, 4, 2, 1, 0.5];       // metres: procedural octaves below the smoothed tile's scale
 const DETAIL_SLOPE = 0.006;                         // amplitude = DETAIL_SLOPE x wavelength (a third of a degree of slope per octave; 0.02 looked like water ripples): ASSUMPTION
-const BLEND_M = 200;                                // beyond the tile edge the ring takes over, offset so the two meet, the offset fading over this distance
+const BLEND_M = 500;                                // beyond the tile edge the ring takes over, offset so the two meet; the offset fades out over this distance with a cosine (zero slope at both ends: an exponential fade lit up as a band)
 
 interface Ring {
   nAz: number; nR: number; r0: number; growth: number; hMin: number; hMax: number;
@@ -83,7 +83,7 @@ export class Terrain {
   height(x: number, z: number, minWavelength = 0.5): number {
     if (Math.abs(x) <= HALF && Math.abs(z) <= HALF) return this.tileAt(x, z) - this.hc - (x * x + z * z) / (2 * MOON_R) + this.detail(x, z, minWavelength);
     const cx = Math.min(HALF, Math.max(-HALF, x)), cz = Math.min(HALF, Math.max(-HALF, z));
-    const fade = Math.exp(-Math.hypot(x - cx, z - cz) / BLEND_M);
+    const dist = Math.hypot(x - cx, z - cz), fade = dist >= BLEND_M ? 0 : 0.5 * (1 + Math.cos(Math.PI * dist / BLEND_M));
     const edge = this.tileAt(cx, cz) - this.hc - (cx * cx + cz * cz) / (2 * MOON_R);
     return this.ringWorld(x, z) + (edge - this.ringWorld(cx, cz)) * fade + this.detail(x, z, minWavelength) * fade;
   }
