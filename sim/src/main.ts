@@ -8,6 +8,7 @@ import { loadTerrainShadow, applyTerrainShadow, computeTerrainShadow } from "./t
 import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
+import { applyMetalDetail } from "./metal";
 import { Power } from "./power";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -39,6 +40,7 @@ async function main() {
     fetch("rover.json").then((r) => r.json() as Promise<Spec>),
   ]);
   gltf.scene.traverse((o) => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  gltf.scene.traverse((o) => { const m = (o as THREE.Mesh).material; if (m) for (const x of Array.isArray(m) ? m : [m]) applyMetalDetail(x); });
   scene.add(gltf.scene);
   const names = Object.keys(spec.bodies);
   const nodes: Record<string, THREE.Object3D> = Object.fromEntries(names.map((n) => [n, gltf.scene.getObjectByName(n)!]));   // look all up before re-parenting
