@@ -34,7 +34,7 @@ let ratio = maxRatio;                                     // adaptive: lowered w
 renderer.setPixelRatio(ratio);
 const fixedRes = new URLSearchParams(location.search).get("res");
 if (fixedRes && fixedRes !== "auto") { ratio = Number(fixedRes); renderer.setPixelRatio(ratio); }
-const FRAME_BUDGET = 1 / 50;
+const FRAME_BUDGET = 1 / 55;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -161,13 +161,13 @@ async function main() {
   // performance log: L records, L again stops and offers the file; ?bench=1 runs the scripted benchmark and offers the file at the end
   const perf = new PerfLog(() => ({
     build: __BUILD__, url: location.href, userAgent: navigator.userAgent, gpu: gpuName, devicePixelRatio, screen: `${screen.width}x${screen.height}`, window: `${innerWidth}x${innerHeight}`,
-    canvas: `${canvas.width}x${canvas.height}`, maxPixelsM: maxPixels / 1e6, cores: navigator.hardwareConcurrency, deviceMemoryGB: (navigator as any).deviceMemory ?? null, physicsInWorker: useWorker,
+    canvas: `${canvas.width}x${canvas.height}`, maxPixelsM: maxPixels / 1e6, cores: navigator.hardwareConcurrency, deviceMemoryGB: (navigator as any).deviceMemory ?? null, physicsInWorker: useWorker, refreshHz: +(1000 / refreshMsRef.v).toFixed(1), fpsCap: q.has("fps") ? Number(q.get("fps")) : 60,
   }));
   const result = document.createElement("div");
   result.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(0,0,0,.85);border:1px solid #888;border-radius:8px;padding:14px 18px;max-width:440px;font:13px/1.5 system-ui;color:#eee;display:none";
   document.body.appendChild(result);
   const finish = (stopSkip: number, name: string) => {
-    const data = perf.stop(stopSkip); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data; const sm = data.summary, stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    const data = perf.stop(stopSkip); (data.summary as any).snapshotUnderrunPct = +(100 * ((phys as any).underruns ?? 0) / Math.max(1, (phys as any).frames ?? 1)).toFixed(1); (data.meta as any).refreshHzAtEnd = +(1000 / refreshMsRef.v).toFixed(1); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data; const sm = data.summary, stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
     result.innerHTML = `<b>${name} finished</b><br>${sm.frames} frames over ${sm.seconds} s: <b>${sm.meanFps} fps</b> mean, ${sm.onePercentLowFps} fps 1% low<br>frame time median ${sm.frameMs.median} ms, 95th percentile ${sm.frameMs.p95} ms, worst ${sm.frameMs.worst} ms<br>main thread ${sm.meanJsMs} ms/frame, physics step ${sm.physicsStepMs} ms, pixel ratio ${sm.meanPixelRatio}, buffer ${canvas.width} x ${canvas.height}<br><br>`;
     const b = document.createElement("button"); b.textContent = "Download the log file"; b.style.cssText = "padding:6px 12px;margin-right:8px"; b.onclick = () => downloadJson(`almaha-perf-${stamp}.json`, data);
     const c = document.createElement("button"); c.textContent = "Close"; c.style.cssText = "padding:6px 12px"; c.onclick = () => { result.style.display = "none"; };
@@ -180,7 +180,16 @@ async function main() {
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   let jsMs = 0;
   const showStats = q.get("stats") === "1" || bench;      // ?stats=1: frame rate and draw load of the main view on the HUD
+  // Frame pacing: on a display faster than the cap (a 120 Hz MacBook screen) only every Nth animation frame is drawn, N = round(cap interval / refresh interval), so the frames come at an even 60 Hz.
+  // Drawing every frame at 120 Hz, with the camera view's extra scene pass on every third, gave frame times alternating 8 and 17 ms: judder although the mean was 90 fps (the owner's log, 2026-11-09).
+  // ?fps=N sets the cap (default 60, 0 = draw every frame).
+  const fpsCap = q.has("fps") ? Number(q.get("fps")) : 60;
+  let rafLast = 0, skip = 0;
+  refreshMsRef.v = 1000 / 60;
   renderer.setAnimationLoop((now) => {
+    if (rafLast) { const d = now - rafLast; if (d > 2 && d < 60) refreshMsRef.v += (d - refreshMsRef.v) * 0.05; }
+    rafLast = now;
+    if (fpsCap > 0) { const step = Math.max(1, Math.round(1000 / fpsCap / refreshMsRef.v)); if (++skip < step) return; skip = 0; }
     const jsStart = performance.now();
     const dt = (now - last) / 1000; last = now;
     if (resetRequested) { resetRequested = false; phys.resetUpright(); }
@@ -316,6 +325,7 @@ function touchSticks() {
   return out;
 }
 
+const refreshMsRef = { v: 1000 / 60 };      // smoothed interval between animation frames (the display's refresh)
 const bench = new URLSearchParams(location.search).get("bench") === "1";      // ?bench=1: the scripted benchmark run (see runBench)
 const BENCH_SECONDS = Number(new URLSearchParams(location.search).get("benchsecs")) || 60, BENCH_WARMUP = 3;
 let benchT: number | null = null;                    // seconds into the benchmark while it runs: the input is then the script below, not the keyboard

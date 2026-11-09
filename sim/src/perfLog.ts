@@ -35,10 +35,12 @@ export class PerfLog {
     const mean = (i: number) => f.length ? f.reduce((a, r) => a + r[i], 0) / f.length : NaN;
     const secs = new Map<number, { n: number; ms: number; worst: number; js: number }>();
     for (const r of this.frames) { const k = Math.floor(r[0]); const e = secs.get(k) ?? { n: 0, ms: 0, worst: 0, js: 0 }; e.n++; e.ms += r[1]; e.worst = Math.max(e.worst, r[1]); e.js += r[2]; secs.set(k, e); }
+    const med = pct(0.5), meanMs = mean(1), std = Math.sqrt(f.reduce((a, r) => a + (r[1] - meanMs) ** 2, 0) / Math.max(1, f.length));
     const span = f.length ? f[f.length - 1][0] - f[0][0] : 0;
     const summary = {
       skippedSeconds: skipSeconds, frames: f.length, seconds: +span.toFixed(1), meanFps: +(f.length / Math.max(span, 1e-6)).toFixed(1),
       frameMs: { mean: +mean(1).toFixed(2), median: pct(0.5), p95: pct(0.95), p99: pct(0.99), worst: ms[ms.length - 1] },
+      frameMsStd: +std.toFixed(2), stutterFramesPct: +(100 * f.filter((r) => r[1] > 1.5 * med).length / Math.max(1, f.length)).toFixed(1),      // stutter: frames over 1.5 x the median
       onePercentLowFps: +(1000 / pct(0.99)).toFixed(1), meanJsMs: +mean(2).toFixed(2), meanPixelRatio: +mean(3).toFixed(3), meanDrawCalls: +mean(4).toFixed(0), meanTriangles: +mean(5).toFixed(0),
       physicsStepMs: +mean(8).toFixed(3), snapshotHz: +mean(9).toFixed(0),
     };

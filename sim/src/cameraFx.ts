@@ -21,7 +21,7 @@ const FULL_WELL = 4000, READ_E = 3;
 const SENSOR_W = 6.287, SENSOR_H = 4.712, FOCAL = 4.0;
 const K1 = 0.08, K2 = 0;
 const SKY_L = 0.003;
-const AE_TARGET = 0.18, AE_TAU = 0.5, AE_MIN = 0.05, AE_MAX = 32, METER_W = 32, METER_H = 24, METER_EVERY = 6, SCENE_EVERY = 3;
+const AE_TARGET = 0.18, AE_TAU = 0.5, AE_MIN = 0.05, AE_MAX = 32, METER_W = 32, METER_H = 24, METER_EVERY = 6, SCENE_EVERY = 2;
 
 export class MastCameraFx {
   readonly target: THREE.WebGLRenderTarget;

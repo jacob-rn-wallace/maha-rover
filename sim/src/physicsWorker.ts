@@ -36,7 +36,7 @@ let stepMs = 0;      // smoothed wall time of one tick of the physics (advance),
       names.forEach((n, i) => { const b = phys!.bodies[n], t = b.translation(), r = b.rotation(); buf.set([t.x, t.y, t.z, r.x, r.y, r.z, r.w], i * 7); });
       const v = phys!.bodies.chassis.linvel();
       (self as any).postMessage({
-        type: "state", buf, linvel: [v.x, v.y, v.z],
+        type: "state", buf, linvel: [v.x, v.y, v.z], ts: performance.timeOrigin + performance.now(),
         tel: { linkAngle: phys!.linkAngle, panAngle: phys!.panAngle, tiltAngle: phys!.tiltAngle, wheelCurrent: phys!.wheelCurrent, wheelRate: phys!.wheelRate, soilState: phys!.soilState, motorPackAmps: phys!.motorPackAmps, servoMoving: phys!.servoMoving, tiltCut: phys!.tiltCut, stepMs },
       }, [buf.buffer]);
     }, 8);
