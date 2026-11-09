@@ -12,6 +12,11 @@ const HALF = 2500, POST = 2;
 const SMOOTH_SIGMA_POSTS = 2;                       // removes stereo noise: the product's vertical precision is 2.89 m (atlas_5km.json)
 const DETAIL_WAVELENGTHS = [8, 4, 2, 1, 0.5];       // metres: procedural octaves below the smoothed tile's scale
 const DETAIL_SLOPE = 0.006;                         // amplitude = DETAIL_SLOPE x wavelength (a third of a degree of slope per octave; 0.02 looked like water ripples): ASSUMPTION
+/** Small craters below the Atlas tile's resolution (it resolves about 10 m and up), by the equilibrium law: cumulative density N(>D) = CRATER_SAT x 1.54 D^-2 per m2 (geometric saturation 1.54 D^-2, Gault 1970 as quoted in the crater-counting literature,
+ *  recalled not read here: ASSUMPTION; CRATER_SAT = 3% is a look-development choice). Six size tiers of a factor 2, 0.75 m to 48 m; per cell of 4 x the tier's top diameter a hash decides the craters (expected 0.55 per cell for every tier). Profile: a parabolic bowl with a low rim, depth/diameter 0.04 to 0.20
+ *  (fresh craters are deeper; degraded ones are shallow). The same function feeds the visuals, the physics and the rocks, so they agree. */
+const CRATER_SAT = 0.03;
+const CRATER_TIERS: { d1: number; cell: number }[] = [0.75, 1.5, 3, 6, 12, 24].map((d1) => ({ d1, cell: 8 * d1 }));
 const BLEND_M = 500;                                // beyond the tile edge the ring takes over, offset so the two meet; the offset fades out over this distance with a cosine (zero slope at both ends: an exponential fade lit up as a band)
 
 interface Ring {
@@ -86,11 +91,52 @@ export class Terrain {
 
   /** world height y of the ground at (x, z); minWavelength drops the procedural octaves a coarse mesh cannot show */
   height(x: number, z: number, minWavelength = 0.5): number {
-    if (Math.abs(x) <= HALF && Math.abs(z) <= HALF) return this.tileAt(x, z) - this.hc - (x * x + z * z) / (2 * MOON_R) + this.detail(x, z, minWavelength);
+    if (Math.abs(x) <= HALF && Math.abs(z) <= HALF) return this.tileAt(x, z) - this.hc - (x * x + z * z) / (2 * MOON_R) + this.detail(x, z, minWavelength) + this.craters(x, z, minWavelength);
     const cx = Math.min(HALF, Math.max(-HALF, x)), cz = Math.min(HALF, Math.max(-HALF, z));
     const dist = Math.hypot(x - cx, z - cz), fade = dist >= BLEND_M ? 0 : 0.5 * (1 + Math.cos(Math.PI * dist / BLEND_M));
     const edge = this.tileAt(cx, cz) - this.hc - (cx * cx + cz * cz) / (2 * MOON_R);
-    return this.ringWorld(x, z) + (edge - this.ringWorld(cx, cz)) * fade + this.detail(x, z, minWavelength) * fade;
+    return this.ringWorld(x, z) + (edge - this.ringWorld(cx, cz)) * fade + (this.detail(x, z, minWavelength) + this.craters(x, z, minWavelength)) * fade;
+  }
+
+  /** height change of the small craters at (x, z); tiers whose craters the sampling (minWavelength = 2 x the mesh cell) cannot show with 4 cells across are skipped */
+  craters(x: number, z: number, minWavelength: number): number {
+    if (this.detailScale === 0) return 0;
+    let h = 0;
+    for (let t = 0; t < CRATER_TIERS.length; t++) {
+      const { d1, cell } = CRATER_TIERS[t];
+      if (d1 < 2 * minWavelength) continue;
+      const cx = Math.floor(x / cell), cz = Math.floor(z / cell), m = 2 * d1;        // a crater reaches at most 2 radii = 2 d1 beyond its centre's cell: neighbours matter only near the cell's edges
+      const fx = x - cx * cell, fz = z - cz * cell;
+      const i0 = fx < m ? -1 : 0, i1 = fx > cell - m ? 1 : 0, j0 = fz < m ? -1 : 0, j1 = fz > cell - m ? 1 : 0;
+      for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+        const list = this.craterCell(t, cx + i, cz + j);
+        for (let q = 0; q < list.length; q += 4) {
+          const dx = x - list[q], dz = z - list[q + 1], R = list[q + 2], r2 = (dx * dx + dz * dz) / (R * R);
+          if (r2 > 4) continue;
+          const d = list[q + 3], r = Math.sqrt(r2), rim = 0.22 * d * Math.exp(-((r - 1) * (r - 1)) / 0.045);
+          h += r < 1 ? -d * (1 - r2) + rim : rim * (r < 1.6 ? 1 : (2 - r) / 0.4);
+        }
+      }
+    }
+    return h * this.detailScale;
+  }
+
+  private craterCache = new Map<number, Float32Array>();
+  private craterCell(t: number, ix: number, iz: number): Float32Array {
+    const key = (t * 200003 + ix) * 200003 + iz;
+    let l = this.craterCache.get(key);
+    if (l) return l;
+    const { d1, cell } = CRATER_TIERS[t], k = 40 + t;
+    const lam = CRATER_SAT * 1.54 * (1 / (d1 * d1) - 1 / (4 * d1 * d1)) * cell * cell, e = Math.exp(-lam), u = hash(ix, iz, k);
+    const n = u < e ? 0 : u < e * (1 + lam) ? 1 : u < e * (1 + lam + lam * lam / 2) ? 2 : 3;
+    l = new Float32Array(n * 4);
+    for (let c = 0; c < n; c++) {
+      const kk = k + 10 * (c + 1), D = d1 * Math.pow(2, hash(ix, iz, kk + 200)), eps = 0.04 + 0.16 * hash(ix, iz, kk + 300) ** 2;
+      l[c * 4] = (ix + hash(ix, iz, kk)) * cell; l[c * 4 + 1] = (iz + hash(ix, iz, kk + 100)) * cell; l[c * 4 + 2] = D / 2; l[c * 4 + 3] = eps * D;
+    }
+    if (this.craterCache.size > 60000) this.craterCache.clear();
+    this.craterCache.set(key, l);
+    return l;
   }
 
   /** procedural roughness, deterministic in position */

@@ -6,6 +6,7 @@ import { FJS1 } from "./soil";
 import { RockField } from "./rocks";
 import { loadTerrainShadow, applyTerrainShadow, computeTerrainShadow } from "./terrainShadow";
 import { TerrainView } from "./terrainView";
+import { applyRegolithPhotometry } from "./regolith";
 import { Power } from "./power";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -73,7 +74,8 @@ async function main() {
     } else console.warn("terrain shadow textures are for another sun: not applied (run hardware/sim/terrain/shadow.py)");
     let rocks: RockField | undefined;
     if (q.get("rocks") !== "0") {
-      const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.17, 0.165, 0.16), roughness: 1, metalness: 0 });
+      const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.24, 0.23, 0.22), roughness: 1, metalness: 0 });
+      applyRegolithPhotometry(rockMat);
       if (ts.sunElevationDeg === lunar.sunElevationDeg && ts.sunAzimuthDeg === lunar.sunAzimuthDeg) applyTerrainShadow(rockMat, ts);
       rocks = new RockField(terrain, rockMat, terrain.spawn);
       terrain.rocks = rocks;
