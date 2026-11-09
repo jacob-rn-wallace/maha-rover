@@ -9,23 +9,28 @@ import { loadTerrainShadow, applyTerrainShadow, computeTerrainShadow } from "./t
 import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
+import { WHEELS } from "./constants";
+import { Hud } from "./hud";
+import { CameraView } from "./cameraView";
+import { PerfPanel } from "./perfPanel";
+import { setupInput } from "./input";
 import { applyMetalDetail } from "./metal";
 import { Cable } from "./cable";
 import { Minimap } from "./minimap";
-import { PerfLog, downloadJson } from "./perfLog";
+import { PerfLog } from "./perfLog";
 import { Power } from "./power";
 import { PhysicsProxy, type PhysicsView } from "./physicsProxy";
-import { WHEELS, MOTOR } from "./constants";
 import type { RoverPhysics, Spec, Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
-const hud = document.getElementById("hudtext")!;      // the text under the wordmark logo (index.html)
+const hud = document.getElementById("hudtext")!;      // the text under the wordmark logo (index.html); hudView below draws into it
 // ?depth=reverse: a reversed floating-point depth buffer instead of the logarithmic one, if the browser offers EXT_clip_control (the logarithmic buffer writes depth in every fragment shader, which switches off early-z
 // rejection and is slow on tile-based GPUs such as Apple's). Experimental in three r170 and not testable here (no GPU): opt in, compare with ?stats=1, report.
 const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
+const hudView = new Hud(hud, coarse);
 // The drawing buffer is capped in total pixels (default 1 million, about 1280 x 780; ?maxpx=megapixels, e.g. 2.1 for a 1080p frame), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
 // (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
 const maxPixels = (Number(new URLSearchParams(location.search).get("maxpx")) || 1) * 1e6;
@@ -141,15 +146,10 @@ async function main() {
     phys = direct;
   }
   (window as any).__phys = phys;      // for scripted checks (tests/cdp-shot.mjs)
-  const input = setupInput();
-  // the mast camera: Raspberry Pi HQ (IMX477, 6.287 x 4.712 mm active area, Raspberry Pi documentation) behind a 4 mm lens: 76.6 x 61.4 degrees, 4:3, no distortion
-  const cam = spec.camera, mastCam = new THREE.PerspectiveCamera(61.4, 4 / 3, 0.02, 200000);
-  const camOff = new THREE.Vector3(...cam.position_m), camBasis = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0), new THREE.Vector3(-1, 0, 0));     // camera looks along the head's +x, up is its +y
-  if (q.has("pip")) pip.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1, q.has("distort") ? Number(q.get("distort")) : 1, q.get("ae") !== "0");      // ?vignette=0..1, ?noise=0, ?distort=0..., ?ae=0
   (window as any).__fx = camFx;
-  mastCam.fov = camFx.renderFov(61.4); mastCam.updateProjectionMatrix();
-  const headQ = new THREE.Quaternion();
+  const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse);
+  if (q.has("pip")) cameraView.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const power = new Power();
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
   const sunDir = new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), -Math.cos(el) * Math.sin(az));
@@ -158,27 +158,21 @@ async function main() {
   if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
   const mapOffset = () => (minimap && minimap.mode ? (minimap.mode === 2 ? 240 : 110) + 24 : 12);      // on phones the camera view sits under the map
   const fwd = new THREE.Vector3();
-  mapToggle = () => minimap?.cycle();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
-  const euler = new THREE.Euler();
   const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
   // performance log: L records, L again stops and offers the file; ?bench=1 runs the scripted benchmark and offers the file at the end
   const perf = new PerfLog(() => ({
     build: __BUILD__, url: location.href, userAgent: navigator.userAgent, gpu: gpuName, devicePixelRatio, screen: `${screen.width}x${screen.height}`, window: `${innerWidth}x${innerHeight}`,
     canvas: `${canvas.width}x${canvas.height}`, maxPixelsM: maxPixels / 1e6, cores: navigator.hardwareConcurrency, deviceMemoryGB: (navigator as any).deviceMemory ?? null, physicsInWorker: useWorker, refreshHz: +(1000 / refreshMsRef.v).toFixed(1), fpsCap: q.has("fps") ? Number(q.get("fps")) : 60,
   }));
-  const result = document.createElement("div");
-  result.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(0,0,0,.85);border:1px solid #888;border-radius:8px;padding:14px 18px;max-width:440px;font:13px/1.5 system-ui;color:#eee;display:none";
-  document.body.appendChild(result);
+  const panel = new PerfPanel();
   const finish = (stopSkip: number, name: string) => {
-    const data = perf.stop(stopSkip); (data.summary as any).snapshotUnderrunPct = +(100 * ((phys as any).underruns ?? 0) / Math.max(1, (phys as any).frames ?? 1)).toFixed(1); (data.meta as any).refreshHzAtEnd = +(1000 / refreshMsRef.v).toFixed(1); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data; const sm = data.summary, stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-    result.innerHTML = `<b>${name} finished</b><br>${sm.frames} frames over ${sm.seconds} s: <b>${sm.meanFps} fps</b> mean, ${sm.onePercentLowFps} fps 1% low<br>frame time median ${sm.frameMs.median} ms, 95th percentile ${sm.frameMs.p95} ms, worst ${sm.frameMs.worst} ms<br>main thread ${sm.meanJsMs} ms/frame, physics step ${sm.physicsStepMs} ms, pixel ratio ${sm.meanPixelRatio}, buffer ${canvas.width} x ${canvas.height}<br><br>`;
-    const b = document.createElement("button"); b.textContent = "Download the log file"; b.style.cssText = "padding:6px 12px;margin-right:8px"; b.onclick = () => downloadJson(`almaha-perf-${stamp}.json`, data);
-    const c = document.createElement("button"); c.textContent = "Close"; c.style.cssText = "padding:6px 12px"; c.onclick = () => { result.style.display = "none"; };
-    result.append(b, c); result.style.display = "block";
+    const data = perf.stop(stopSkip); (data.summary as any).snapshotUnderrunPct = +(100 * ((phys as any).underruns ?? 0) / Math.max(1, (phys as any).frames ?? 1)).toFixed(1); (data.meta as any).refreshHzAtEnd = +(1000 / refreshMsRef.v).toFixed(1); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data;
+    panel.show(name, data, canvas.width, canvas.height);
     return data;
   };
-  logToggle = () => { if (perf.recording) { finish(0, "Recording"); } else { result.style.display = "none"; perf.start("manual", { search: location.search }); } };
+  const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
+  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -225,7 +219,7 @@ async function main() {
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = (coarse && !hudFull ? shortText(phys, c, euler, power) : hudText(phys, c, euler) + powerText(power) + (terrain ? edgeText(ct.x, ct.z, terrain) : "")) + (perf.recording ? `<br><span style="color:#ff6a5a">● recording ${perf.seconds.toFixed(0)} s${benchT !== null ? ` of ${BENCH_SECONDS} (benchmark: keep the window in front)` : " (L to stop)"}</span>` : "") + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : ""); }
+    if (hudT > 0.1) { hudT = 0; hudView.update(phys, c, power, terrain, (perf.recording ? `<br><span style="color:#ff6a5a">● recording ${perf.seconds.toFixed(0)} s${benchT !== null ? ` of ${BENCH_SECONDS} (benchmark: keep the window in front)` : " (L to stop)"}</span>` : "") + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : "")); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
@@ -235,101 +229,11 @@ async function main() {
     if (benchT !== null) { benchT = (performance.now() - benchStart) / 1000; if (benchT > BENCH_SECONDS) { benchT = null; finish(BENCH_WARMUP, "Benchmark"); } }
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
-    if (pip.mode > 0) {
-      const hb = node("head"), hp = hb.position;
-      headQ.copy(hb.quaternion);
-      mastCam.position.copy(camOff).applyQuaternion(headQ).add(hp);
-      mastCam.quaternion.copy(headQ).multiply(new THREE.Quaternion().setFromRotationMatrix(camBasis));
-      const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - mapOffset() : 12;
-      camFx.render(scene, mastCam, px, py, pw, ph);
-      pip.label.textContent = `mast camera, HQ + 4 mm lens, 76.6 x 61.4 deg, exposure gain x${camFx.gain.toFixed(2)}`;
-      Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: mapOffset() + "px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
-    } else pip.box.style.display = "none";
+    cameraView.render(scene, node("head"), vw, vh, mapOffset());
   });
 }
 
-/** phones: three lines, tap the panel for the full readout */
-let hudFull = false;
-if (coarse) { hud.style.fontSize = "11px"; hud.style.maxWidth = "230px"; hud.addEventListener("click", () => { hudFull = !hudFull; }); }
-function shortText(phys: PhysicsView, c: any, euler: THREE.Euler, p: Power) {
-  const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
-  const v = c.linvel(), deg = (x: number) => (x * 180 / Math.PI).toFixed(0);
-  return `${Math.hypot(v.x, v.z).toFixed(2)} m/s<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°, battery ${(p.soc * 100).toFixed(0)}%${phys.tiltCut ? '<br><span style="color:#ffb04a">tilt guard: drive cut</span>' : ""}<br><span style="opacity:.6">tap for more</span>`;
-}
-
-function powerText(p: Power) {
-  const t = p.minutesLeft;
-  return `<br>battery ${(p.soc * 100).toFixed(1)}% (${p.volts.toFixed(2)} V), load ${p.wattsLoad.toFixed(1)} W (${p.loadAmps.toFixed(1)} A), solar ${p.solarW.toFixed(1)} W${isFinite(t) ? `, ${t > 120 ? (t / 60).toFixed(1) + " h" : t.toFixed(0) + " min"} left at this draw` : ", charging"}`;
-}
-
-/** the mast camera's picture-in-picture: C cycles small, large, off (frame and label are a DOM box over the canvas) */
-const pip = (() => {
-  const box = document.createElement("div");
-  box.style.cssText = "display:none;position:fixed;border:1px solid #888;box-sizing:border-box;pointer-events:none";
-  const label = document.createElement("span");
-  label.style.cssText = "position:absolute;left:4px;top:2px;font-size:11px;opacity:.8";
-  box.appendChild(label); document.body.appendChild(box);
-  return { box, label, mode: 1 };
-})();
-
-function edgeText(x: number, z: number, t: Terrain) {
-  const edge = t.half - 20 - Math.max(Math.abs(x), Math.abs(z));      // the walls stand 20 m inside the tile edge (physics.ts)
-  const warn = edge < 100 ? `<br><span style="color:#ffb04a">sandbox edge ${Math.max(0, edge).toFixed(0)} m ahead</span>` : "";
-  return `<br>position ${x.toFixed(0)} m E, ${(-z).toFixed(0)} m N of the tile centre${warn}`;
-}
-
-/** with the soil model: the mean tip-referred slip of the wheels in contact and the sinkage the model predicts for it (the ground itself stays rigid) */
-function soilLine(phys: PhysicsView) {
-  const on = WHEELS.map((w) => phys.soilState[w]).filter((s) => s && s.load > 0.02);
-  if (!on.length) return "";
-  const slip = on.reduce((a, s) => a + s.slip, 0) / on.length, sink = on.reduce((a, s) => a + s.sinkage, 0) / on.length, load = on.reduce((a, s) => a + s.load, 0);
-  return `, soil slip ${(slip * 100).toFixed(0)}%, sinkage about ${sink.toFixed(0)} mm, load ${load.toFixed(1)} N`;
-}
-
-function hudText(phys: PhysicsView, c: any, euler: THREE.Euler) {
-  const r = c.rotation(); euler.setFromQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w), "YXZ");
-  const v = c.linvel(), fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));
-  const speed = v.x * fwd.x + v.y * fwd.y + v.z * fwd.z;
-  const deg = (x: number) => (x * 180 / Math.PI).toFixed(0);
-  const amps = WHEELS.map((w) => Math.abs(phys.wheelCurrent[w] ?? 0).toFixed(1)).join(" ");
-  const wrate = (WHEELS.reduce((a, w) => a + (phys.wheelRate[w] ?? 0), 0) / 4) * 0.1;
-  const slip = Math.abs(wrate) > 0.02 ? Math.max(-1, Math.min(1, 1 - speed / wrate)) : 0;
-  return `lunar gravity ${phys.gravity} m/s2<br>speed ${speed.toFixed(2)} m/s, wheel slip ${(slip * 100).toFixed(0)}%${soilLine(phys)}<br>pitch ${deg(euler.z)}°, roll ${deg(euler.x)}°<br>links L ${deg(phys.linkAngle.L)}° R ${deg(phys.linkAngle.R)}° (differential)<br>mast pan ${deg(phys.panAngle)}°, tilt ${deg(phys.tiltAngle)}°<br>motor current ${amps} A (cap ${MOTOR.iCap})${phys.tiltCut ? ' <span style="color:#ffb04a">tilt guard: drive cut (T to stand upright)</span>' : ''}<br><span style="opacity:.7">W/S drive, A/D steer, Space brake, Q/E pan, R/F tilt, T upright, C camera view, M map, L performance log; gamepad: left stick drive, right stick mast</span>`;
-}
-
-let logToggle: (() => void) | undefined;      // L: start or stop the performance log
-let mapToggle: (() => void) | undefined;      // set once the minimap exists (M key)
 let resetRequested = false;                 // T: stand the rover upright where it is
-/** touch: two virtual sticks (left: drive and steer, right: mast pan and tilt) and a T button, shown when the primary pointer is coarse (a phone or tablet) or with ?touch=1 */
-function touchSticks() {
-  const out = { drive: [0, 0], mast: [0, 0] };
-  const R = 60;
-  const make = (side: "left" | "right", key: "drive" | "mast") => {
-    const base = document.createElement("div"), knob = document.createElement("div");
-    base.style.cssText = `position:fixed;${side}:24px;bottom:24px;width:${2 * R}px;height:${2 * R}px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);touch-action:none`;
-    knob.style.cssText = `position:absolute;left:${R - 22}px;top:${R - 22}px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.45);pointer-events:none`;
-    base.appendChild(knob); document.body.appendChild(base);
-    const set = (e: PointerEvent) => {
-      const b = base.getBoundingClientRect();
-      let dx = (e.clientX - b.left - R) / R, dy = (e.clientY - b.top - R) / R; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
-      out[key] = [dx, -dy]; knob.style.transform = `translate(${dx * (R - 22)}px,${dy * (R - 22)}px)`;
-    };
-    const end = () => { out[key] = [0, 0]; knob.style.transform = ""; };
-    base.addEventListener("pointerdown", (e) => { base.setPointerCapture(e.pointerId); set(e); });
-    base.addEventListener("pointermove", (e) => { if (base.hasPointerCapture(e.pointerId)) set(e); });
-    base.addEventListener("pointerup", end); base.addEventListener("pointercancel", end);
-  };
-  make("left", "drive"); make("right", "mast");
-  const mk = (label: string, bottom: number, on: () => void) => {
-    const b = document.createElement("button"); b.textContent = label;
-    b.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);bottom:${bottom}px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font:13px system-ui`;
-    b.addEventListener("click", on); document.body.appendChild(b);
-  };
-  mk("stand upright", 24, () => { resetRequested = true; });
-  mk("camera view", 64, () => { pip.mode = (pip.mode + 1) % 3; });
-  return out;
-}
-
 const refreshMsRef = { v: 1000 / 60 };      // smoothed interval between animation frames (the display's refresh)
 const bench = new URLSearchParams(location.search).get("bench") === "1";      // ?bench=1: the scripted benchmark run (see runBench)
 const BENCH_SECONDS = Number(new URLSearchParams(location.search).get("benchsecs")) || 60, BENCH_WARMUP = 3;
@@ -344,33 +248,6 @@ function benchControls(t: number): Controls {
   else if (t < 55) { throttle = 0.3; const ph = Math.floor((t - 40) / 2.5) % 2 ? -1 : 1; pan = ph; tilt = -ph * 0.6; }
   else brake = true;
   return { throttle, turn, pan, tilt, brake };
-}
-const autoDrive = (new URLSearchParams(location.search).get("autodrive") ?? "").split(",").map(Number).filter(isFinite) as number[];      // ?autodrive=from,to: full throttle between those seconds after load (for scripted screenshots)
-const t0 = performance.now();
-function setupInput() {
-  const touch = coarse ? touchSticks() : undefined;
-  const keys = new Set<string>();
-  addEventListener("keydown", (e) => { keys.add(e.code); if (e.code === "Space") e.preventDefault(); if (e.code === "KeyT" && !e.repeat) resetRequested = true; if (e.code === "KeyC" && !e.repeat) pip.mode = (pip.mode + 1) % 3; if (e.code === "KeyM" && !e.repeat) mapToggle?.(); if (e.code === "KeyL" && !e.repeat) logToggle?.(); });
-  addEventListener("keyup", (e) => keys.delete(e.code));
-  addEventListener("blur", () => keys.clear());
-  const k = (...c: string[]) => (c.some((x) => keys.has(x)) ? 1 : 0);
-  return {
-    read(): Controls {
-      if (benchT !== null) return benchControls(benchT);
-      let throttle = k("KeyW", "ArrowUp") - k("KeyS", "ArrowDown"), turn = k("KeyD", "ArrowRight") - k("KeyA", "ArrowLeft");
-      let pan = k("KeyQ") - k("KeyE"), tilt = k("KeyR") - k("KeyF");
-      const gp = navigator.getGamepads?.().find((g) => g);
-      if (gp) {
-        const dz = (x: number) => (Math.abs(x) < 0.12 ? 0 : x);
-        throttle += -dz(gp.axes[1] ?? 0); turn += dz(gp.axes[0] ?? 0);
-        pan += -dz(gp.axes[2] ?? 0); tilt += -dz(gp.axes[3] ?? 0);
-      }
-      if (touch) { throttle += touch.drive[1]; turn += touch.drive[0]; pan += -touch.mast[0]; tilt += touch.mast[1]; }
-      if (autoDrive.length === 2 && performance.now() - t0 < autoDrive[1] * 1000 && performance.now() - t0 > autoDrive[0] * 1000) throttle += 1;
-      const cl = (x: number) => Math.max(-1, Math.min(1, x));
-      return { throttle: cl(throttle), turn: cl(turn), pan: cl(pan), tilt: cl(tilt), brake: keys.has("Space") };
-    },
-  };
 }
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
