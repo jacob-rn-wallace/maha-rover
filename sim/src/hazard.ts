@@ -31,18 +31,18 @@ export class HazardOverlay {
     hzOn: { value: 0 }, hzCenter: { value: new THREE.Vector2() }, hzNear: { value: this.near }, hzFar: { value: this.far },
     hzSlope: { value: new THREE.Vector3(...SLOPE_CLASSES_DEG) }, hzStep: { value: new THREE.Vector3(...STEP_CLASSES_M) },
   };
-  private legend = document.createElement("div");
+  readonly legend = document.createElement("div");      // shown in the top bar's legend popover
+  onChange?: (on: boolean) => void;
 
   constructor(coarse: boolean) {
     const sw = (i: number) => `<span style="display:inline-block;width:10px;height:10px;background:${CLASS_HEX[i]};margin:0 4px 0 8px;vertical-align:-1px"></span>`;
     const [a, b, c] = SLOPE_CLASSES_DEG;
     this.legend.innerHTML = `<b>hazard</b> slope${sw(0)}under ${a}°${sw(1)}to ${b}°${sw(2)}to ${c}°${sw(3)}over ${c}° (tilt guard cuts the drive)<br>rocks by height${sw(1)}${STEP_CLASSES_M[0] * 100}${sw(2)}${STEP_CLASSES_M[1] * 100}${sw(3)}${STEP_CLASSES_M[2] * 100} cm and over; within ${this.near} m of the rover, fading by ${this.far} m`;
-    this.legend.style.cssText = `display:none;position:fixed;left:12px;${coarse ? "bottom:170px" : "bottom:12px"};max-width:min(560px,70vw);padding:6px 10px;border-radius:6px;background:rgba(0,0,0,.55);font:${coarse ? 10 : 12}px/1.5 system-ui;color:#eee;pointer-events:none`;
-    document.body.appendChild(this.legend);
+    this.legend.style.cssText = `font:${coarse ? 11 : 12}px/1.6 system-ui;white-space:normal`;
   }
 
   toggle() { this.set(!this.on); }
-  set(on: boolean) { this.on = on; this.uniforms.hzOn.value = on ? 1 : 0; this.legend.style.display = on ? "block" : "none"; }
+  set(on: boolean) { this.on = on; this.uniforms.hzOn.value = on ? 1 : 0; this.onChange?.(on); }
   /** runs `draw` with the tint off: the mast camera must not see the operator's overlay */
   without(draw: () => void) { const v = this.uniforms.hzOn.value; this.uniforms.hzOn.value = 0; try { draw(); } finally { this.uniforms.hzOn.value = v; } }
   update(x: number, z: number) { this.uniforms.hzCenter.value.set(x, z); }

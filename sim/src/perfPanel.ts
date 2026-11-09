@@ -1,12 +1,13 @@
 import { downloadJson } from "./perfLog";
+import { h, type Layout } from "./layout";
 
 /** the panel over the middle of the page that shows a finished recording or benchmark, with a button to download the log file */
 export class PerfPanel {
-  private el = document.createElement("div");
+  private el = h("div", "panel");
 
-  constructor() {
-    this.el.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(0,0,0,.85);border:1px solid #888;border-radius:8px;padding:14px 18px;max-width:440px;font:13px/1.5 system-ui;color:#eee;display:none";
-    document.body.appendChild(this.el);
+  constructor(layout: Layout) {
+    this.el.style.cssText = "background:rgba(0,0,0,.85);padding:14px 18px;max-width:440px;font:13px/1.5 system-ui;color:#eee;display:none";
+    layout.modal.appendChild(this.el);
   }
 
   hide() { this.el.style.display = "none"; }

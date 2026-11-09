@@ -14,17 +14,17 @@ export class Minimap {
   mode = 1;                       // 0 off, 1 small, 2 large
   private half: number;
 
-  constructor(private terrain: Terrain, sunElevationDeg: number, sunAzimuthDeg: number, private coarse: boolean) {
+  constructor(private terrain: Terrain, sunElevationDeg: number, sunAzimuthDeg: number, private coarse: boolean, parent: HTMLElement) {
     this.half = terrain.half;
     this.base.width = this.base.height = SIZE;
     this.paintBase(sunElevationDeg, sunAzimuthDeg);
     this.canvas.width = this.canvas.height = SIZE;
-    this.box.style.cssText = "position:fixed;z-index:5;border:1px solid rgba(255,255,255,.35);background:#000;pointer-events:none;box-sizing:content-box";
-    this.canvas.style.cssText = "display:block;width:100%;height:100%";
+    this.box.className = "panel tile map-tile"; this.box.style.cssText = "position:relative;background:#000";
+    this.canvas.style.cssText = "display:block";
     this.label.style.cssText = "position:absolute;left:4px;bottom:2px;font:10px system-ui;color:#ddd;text-shadow:0 0 3px #000";
     this.box.append(this.canvas, this.label);
-    document.body.appendChild(this.box);
-    this.layout();
+    parent.appendChild(this.box);
+    this.layout(); addEventListener("resize", () => this.layout());
   }
 
   /** hill shading with the sim's sun, tinted dark to light by height (a tile-relative ramp) */
@@ -49,11 +49,11 @@ export class Minimap {
     g.putImageData(img, 0, 0);
   }
 
+  /** the tile's size: 200 px small, large up to 420 but at most 38% of the window's height (the camera tile stacks under it); 110 and 240 on phones */
   layout() {
-    const size = this.mode === 2 ? (this.coarse ? 240 : 420) : this.coarse ? 110 : 200;
+    const size = this.mode === 2 ? (this.coarse ? Math.min(240, innerHeight * 0.45) : Math.min(420, innerHeight * 0.38)) : this.coarse ? 96 : 200;
     this.box.style.display = this.mode === 0 ? "none" : "block";
-    this.box.style.width = this.box.style.height = size + "px";
-    this.box.style.right = "12px"; this.box.style.top = "12px";
+    this.canvas.style.width = this.canvas.style.height = Math.round(size) + "px";
   }
 
   cycle() { this.mode = (this.mode + 1) % 3; this.layout(); }

@@ -10,7 +10,7 @@ import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
 import { MastCameraFx } from "./cameraFx";
 import { WHEELS } from "./constants";
-import { Hud } from "./hud";
+import { UI } from "./ui";
 import { HazardOverlay } from "./hazard";
 import { CameraView } from "./cameraView";
 import { PerfPanel } from "./perfPanel";
@@ -25,13 +25,15 @@ import type { RoverPhysics, Spec, Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
-const hud = document.getElementById("hudtext")!;      // the text under the wordmark logo (index.html); hudView below draws into it
 // ?depth=reverse: a reversed floating-point depth buffer instead of the logarithmic one, if the browser offers EXT_clip_control (the logarithmic buffer writes depth in every fragment shader, which switches off early-z
 // rejection and is slow on tile-based GPUs such as Apple's). Experimental in three r170 and not testable here (no GPU): opt in, compare with ?stats=1, report.
 const wantReverse = new URLSearchParams(location.search).get("depth") === "reverse" && !!document.createElement("canvas").getContext("webgl2")?.getExtension("EXT_clip_control");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: devicePixelRatio < 1.75, logarithmicDepthBuffer: !wantReverse, reverseDepthBuffer: wantReverse, powerPreference: "high-performance" });      // MSAA only on low-DPR screens: a retina screen is sharp enough without it, and it is the larger share of the fill cost   // terrain from 5 cm to 74 km
 const coarse = matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).get("touch") === "1";      // phone or tablet: lighter rendering, touch sticks
-const hudView = new Hud(hud, coarse);
+const hazard = new HazardOverlay(coarse);      // H toggles it; ?hazard=1 starts it on
+const handlers = { toggleLog: () => {} };      // set once the performance log exists
+const ui = new UI(coarse, hazard, { toggleHazard: () => hazard.toggle(), toggleHelp: () => ui.help.toggle(), toggleLog: () => handlers.toggleLog() });
+(window as any).__ui = ui;      // for scripted checks
 // The drawing buffer is capped in total pixels (default 1 million, about 1280 x 780; ?maxpx=megapixels, e.g. 2.1 for a 1080p frame), whatever the window or monitor: on a 4K screen the canvas is drawn at that size and scaled up by the browser
 // (a 4K frame is four times the shading of a 1080p one). The cap follows the window and the screen it is on (devicePixelRatio changes when the window moves between monitors).
 const maxPixels = (Number(new URLSearchParams(location.search).get("maxpx")) || 1) * 1e6;
@@ -57,7 +59,7 @@ const sunParam = new URLSearchParams(location.search).get("sun")?.split(",").map
 const lunar = addLunarScene(scene, renderer, sunParam && sunParam.length === 2 && sunParam.every(isFinite) ? { sunElevationDeg: sunParam[0], sunAzimuthDeg: sunParam[1] } : undefined);
 const ground = lunar.ground;
 
-addEventListener("error", (e) => { hud.textContent = "error: " + e.message; });
+addEventListener("error", (e) => { ui.alerts.status("error: " + e.message, 2); });
 async function main() {
   const [gltf, spec] = await Promise.all([
     new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync("rover.glb"),
@@ -80,7 +82,6 @@ async function main() {
   (window as any).rover = { node, spec };
 
   const q = new URLSearchParams(location.search);
-  const hazard = new HazardOverlay(coarse);      // H toggles it; ?hazard=1 starts it on
   hazard.apply(lunar.groundMaterial, "ground");
   if (q.get("hazard") === "1") hazard.set(true);
   // terrain: the real lunar tile and ring (default); ?flat=1 keeps the flat plane, which the scripted ?test=1 check assumes (add ?terrain=1 to run it on the terrain)
@@ -88,7 +89,7 @@ async function main() {
   let terrain: Terrain | undefined, view: TerrainView | undefined, rockField: RockField | undefined;
   const spawn = new THREE.Vector3();
   if (!flat) {
-    hud.textContent = "loading terrain...";
+    ui.alerts.status("loading terrain...");
     const tl = performance.now();
     terrain = await Terrain.load("terrain/", { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined });   // ?smooth=posts, ?detail=scale: tuning
     console.log("load: terrain", (performance.now() - tl).toFixed(0), "ms");
@@ -99,7 +100,7 @@ async function main() {
     view.update(spawn.x, spawn.z);
     let ts = await loadTerrainShadow();
     if (ts.sunElevationDeg !== lunar.sunElevationDeg || ts.sunAzimuthDeg !== lunar.sunAzimuthDeg) {
-      hud.textContent = "computing terrain shadows for the sun...";
+      ui.alerts.status("computing terrain shadows for the sun...");
       await new Promise((r) => setTimeout(r));
       const t0 = performance.now();
       ts = computeTerrainShadow(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg);
@@ -133,14 +134,14 @@ async function main() {
   }
   const still = q.get("still") === "1";
   lunar.followSun(spawn);
-  if (still) { hud.innerHTML = `model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
+  if (still) { ui.alerts.status(`model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`); renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
 
   const soil = q.get("soil") === "0" || (flat && q.get("soil") !== "1") ? undefined : FJS1;     // ?soil=0 Coulomb friction instead; ?soil=1 with ?flat=1 or ?test=1
   // the physics runs in a worker (its own copy of the terrain) unless ?worker=0, in the scripted test, or without the terrain
   const useWorker = q.get("worker") !== "0" && q.get("test") !== "1" && typeof Worker !== "undefined";
   let phys: PhysicsView;
   if (useWorker) {
-    hud.textContent = "starting physics...";
+    ui.alerts.status("starting physics...");
     phys = await PhysicsProxy.create(spec, { spawnHeight: 0.03, terrainBase: terrain ? new URL("terrain/", location.href).href : undefined,
       terrainOpts: { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined }, rocks: !!terrain && q.get("rocks") !== "0", soil: !!soil, mastRateDeg: q.has("mastrate") ? Number(q.get("mastrate")) : undefined });
   } else {
@@ -153,17 +154,16 @@ async function main() {
   (window as any).__phys = phys;      // for scripted checks (tests/cdp-shot.mjs)
   const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1, q.has("distort") ? Number(q.get("distort")) : 1, q.get("ae") !== "0");      // ?vignette=0..1, ?noise=0, ?distort=0..., ?ae=0
   (window as any).__fx = camFx;
-  const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse, { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg });      // the sun's azimuth is counterclockwise from east: bearing = 90 - azimuth
-  (window as any).__camview = cameraView;      // for scripted checks
-  if (q.has("pip")) cameraView.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const power = new Power();
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
   const sunDir = new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), -Math.cos(el) * Math.sin(az));
   const chassisQ = new THREE.Quaternion();
   const roverPose = { x: 0, z: 0, quat: new THREE.Quaternion(), pan: 0, tilt: 0 };
-  const minimap = terrain && q.get("map") !== "0" ? new Minimap(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg, coarse) : undefined;      // M cycles it; ?map=0 leaves it out
+  const minimap = terrain && q.get("map") !== "0" ? new Minimap(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg, coarse, ui.layout.right) : undefined;      // M cycles it; ?map=0 leaves it out
   if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
-  const mapOffset = () => (minimap && minimap.mode ? (minimap.mode === 2 ? 240 : 110) + 24 : 12);      // on phones the camera view sits under the map
+  const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse, { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg }, ui.layout.right);      // the sun's azimuth is counterclockwise from east: bearing = 90 - azimuth
+  (window as any).__camview = cameraView;      // for scripted checks
+  if (q.has("pip")) cameraView.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const fwd = new THREE.Vector3();
   const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info"), gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "unknown GPU";
@@ -172,25 +172,28 @@ async function main() {
     build: __BUILD__, url: location.href, userAgent: navigator.userAgent, gpu: gpuName, devicePixelRatio, screen: `${screen.width}x${screen.height}`, window: `${innerWidth}x${innerHeight}`,
     canvas: `${canvas.width}x${canvas.height}`, maxPixelsM: maxPixels / 1e6, cores: navigator.hardwareConcurrency, deviceMemoryGB: (navigator as any).deviceMemory ?? null, physicsInWorker: useWorker, refreshHz: +(1000 / refreshMsRef.v).toFixed(1), fpsCap: q.has("fps") ? Number(q.get("fps")) : 60,
   }));
-  const panel = new PerfPanel();
+  const panel = new PerfPanel(ui.layout);
   const finish = (stopSkip: number, name: string) => {
     const data = perf.stop(stopSkip); (data.summary as any).snapshotUnderrunPct = +(100 * ((phys as any).underruns ?? 0) / Math.max(1, (phys as any).frames ?? 1)).toFixed(1); (data.meta as any).refreshHzAtEnd = +(1000 / refreshMsRef.v).toFixed(1); (data.meta as any).canvasAtEnd = `${canvas.width}x${canvas.height}`; (window as any).__perfData = data;
     panel.show(name, data, canvas.width, canvas.height);
     return data;
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
-  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
+  handlers.toggleLog = toggleLog;
+  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
   let jsMs = 0;
-  const showStats = q.get("stats") === "1" || bench;      // ?stats=1: frame rate and draw load of the main view on the HUD
+  const showStats = q.get("stats") === "1" || bench;      // ?stats=1: frame rate and draw load of the main view, in the settings popover (opened at the start)
+  if (showStats) ui.layout.togglePop("settings", true);
   // Frame pacing: on a display faster than the cap (a 120 Hz MacBook screen) only every Nth animation frame is drawn, N = round(cap interval / refresh interval), so the frames come at an even 60 Hz.
   // Drawing every frame at 120 Hz, with the camera view's extra scene pass on every third, gave frame times alternating 8 and 17 ms: judder although the mean was 90 fps (the owner's log, 2026-11-09).
   // ?fps=N sets the cap (default 60, 0 = draw every frame).
   const fpsCap = q.has("fps") ? Number(q.get("fps")) : 60;
   let rafLast = 0, skip = 0;
   refreshMsRef.v = 1000 / 60;
+  ui.alerts.status(null);
   renderer.setAnimationLoop((now) => {
     if (rafLast) { const d = now - rafLast; if (d > 2 && d < 60) refreshMsRef.v += (d - refreshMsRef.v) * 0.05; }
     rafLast = now;
@@ -227,7 +230,7 @@ async function main() {
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
-    if (hudT > 0.1) { hudT = 0; hudView.update(phys, c, power, terrain, (perf.recording ? `<br><span style="color:#ff6a5a">● recording ${perf.seconds.toFixed(0)} s${benchT !== null ? ` of ${BENCH_SECONDS} (benchmark: keep the window in front)` : " (L to stop)"}</span>` : "") + (showStats ? `<br>${gpuName}<br>main thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : "")); }
+    if (hudT > 0.1) { hudT = 0; ui.update({ phys, chassis: c, power, terrain, recording: { on: perf.recording, seconds: perf.seconds, benchOf: benchT !== null ? BENCH_SECONDS : undefined }, stats: showStats ? `${gpuName}\nmain thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : `${gpuName}\nopen with ?stats=1 for frame statistics` }); }
     resize();
     controls.update();
     const vw = canvas.clientWidth, vh = canvas.clientHeight;
@@ -238,7 +241,7 @@ async function main() {
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
     roverPose.x = ct.x; roverPose.z = ct.z; roverPose.quat.copy(chassisQ); roverPose.pan = phys.panAngle; roverPose.tilt = phys.tiltAngle;
-    hazard.without(() => cameraView.render(scene, node("head"), vw, vh, mapOffset(), roverPose));
+    hazard.without(() => cameraView.render(scene, node("head"), vw, vh, roverPose));
   });
 }
 
@@ -266,7 +269,7 @@ function resize() {
     camera.updateProjectionMatrix();
   }
 }
-main().catch((e) => { hud.textContent = "load failed: " + e; console.error(e); });
+main().catch((e) => { ui.alerts.status("load failed: " + e, 2); console.error(e); });
 
 /** ?test=1: scripted run without rendering; the numbers go into <pre id="test"> (read with chrome --dump-dom) */
 function runTest(phys: RoverPhysics) {

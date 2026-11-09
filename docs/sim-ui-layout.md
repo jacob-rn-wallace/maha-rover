@@ -1,6 +1,6 @@
 # Sim interface layout: where everything goes (proposal, 2026-11-09)
 
-Status: **a plan, not built.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
+Status: **parts A to C built (2026-11-09), see section 10; D (modes and swap) and E (phone sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
 
 ## 1. The problem today
 
@@ -82,13 +82,36 @@ D. **Modes and swap** (Drive, Camera first; Plan and Data as their features arri
 E. **Phone layout**: bottom sheet, one tile at a time.
 Then plan steps 4 to 8 mount their UI in the regions above.
 
-## 8. Decisions for the owner
+## 8. Decisions (owner, 2026-11-09)
 
-1. **Modes**: four presets (Drive, Plan, Camera, Data) as drawn, or fewer (for example Drive with the camera swap, and Plan)? Plan and Data only matter once steps 4 and 6 exist.
-2. **Wordmark**: shrunk to the top bar's height, or kept large in a corner with the bar starting beside it?
-3. **Telemetry**: the full panel closed by default in Drive (as drawn: the cluster and chips carry the glanceable part), or open as now?
-4. **Real-time hints**: the one-line key hints fade after the first input; is that acceptable, or should the full key list stay one click away only (the `?`)?
+1. **Modes**: four, as drawn (Drive, Plan, Camera, Data).
+2. **Wordmark**: shrunk to the top bar's height (built: 24 px, 20 on phones).
+3. **Telemetry**: the full panel is closed by default (built: the status chips and the instrument cluster carry the glanceable part; **I** or the handle opens it).
+4. **Key list**: only behind `?` (built: `?` button or key; a one-line hint shows until the first input).
 
 ## 9. What this does not cover
 
 No user testing; the proportions are from one 1280 x 800 and one 844 x 390 screenshot. The drone sources are documentation and guides read as search summaries, not the full texts. The 25% budget and the 50% x 50% clear centre are design rules of thumb, not measured limits.
+
+## 10. Built so far (2026-11-09: parts A, B and C)
+
+Files (`sim/src`): `ui.css` (tokens and regions), `layout.ts` (the regions, popovers), `topbar.ts` (wordmark, chips, help and settings), `alerts.ts` (alerts, status banner, hint), `telemetry.ts` (the left dock), `cluster.ts` (attitude ball, speed, heading), `help.ts` (the key list), `ui.ts` (the facade that evaluates `limits.ts` once and feeds each part). `hud.ts` is gone. The minimap, the camera view, the hazard legend, the touch sticks and the performance panel were moved into regions.
+
+What changed on screen:
+- **Top bar**: wordmark; chips for battery, tilt, wall distance (with terrain), hazard (a pair: toggle, and an arrow that opens the legend popover), and a red recording chip; `?` and a gear. The battery chip opens a power popover; the gear opens settings, with the GPU string and frame statistics (open with `?stats=1`) and the record button.
+- **Alerts** (bottom centre): only at yellow or red: tilt guard cut, tilt near or over the limit, wall, battery, motor current at the cap, benchmark running. Loading and error text use the same place.
+- **Instrument cluster** (bottom left): attitude ball, speed, heading, pitch and roll (level-coloured).
+- **Telemetry** (left dock, closed): grouped rows (drive, attitude, mast, power, world) in the old order of information; key I.
+- **Right column**: the minimap on top, the mast camera tile below. The camera tile now holds its own header, freshness flags, picture, footer (compass and readout) and roll; the picture is drawn into the canvas under the tile's picture box, so the tile's place in the layout is the only place the view is (no more `mapOffset`). Large camera is the room under the map, at most 46% of the width; large map at most 38% of the height.
+- **Hazard legend**: a popover from the hazard chip, shown for 8 seconds when the overlay goes on.
+- **Phones**: the right stick shrank to 100 px, the camera tile loses its footer, roll and flags (below 140 px wide), the minimap is 96 px, nothing overlaps the sticks.
+- Panels have no backdrop blur (it would be re-blurred every frame over the animating canvas).
+
+Checked in headless screenshots (1280 x 800 and 844 x 390): the default Drive layout, telemetry open, hazard on with the legend, the help list, a past still with flags, the battery and settings popovers, a forced 74-degree tilt (red chip, alert, red cluster), the phone layout with and without the dock. `tsc`, `vite build`, `check:limits` (16) and `check:freshness` (17) pass.
+
+Not checked or known:
+- **A rendering quirk in headless Chrome**: the legend popover did not paint when it was opened in the same turn as the hazard toggle (the DOM said open and the element was topmost); opened 100 ms later it paints. The cause is not understood; the delay is a workaround. A real browser may not need it.
+- A real GPU or touch device; the cost of the DOM over the canvas; the large-map plus large-camera combination on small windows; the wordmark's contrast on a bright sky.
+- On a phone the open telemetry dock sits under the left stick's area.
+- The bench and recording chips were not triggered in a screenshot.
+- Modes (D) and the phone bottom sheet (E) are not built; the camera's "large" is still the C key's size cycle.

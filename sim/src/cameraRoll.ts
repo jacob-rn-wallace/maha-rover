@@ -17,13 +17,12 @@ export class CameraRoll {
   private liveBtn = document.createElement("button");
 
   constructor() {
-    this.strip.style.cssText = "display:none;position:fixed;gap:4px;align-items:center;justify-content:flex-end;font:11px system-ui;color:#eee";
+    this.strip.className = "tile-roll"; this.strip.style.display = "none";
     const snap = this.button("snap (P)"); snap.addEventListener("click", () => this.onSnap?.());
     this.liveBtn = this.button("live (V)"); this.liveBtn.addEventListener("click", () => this.live());
-    this.thumbs.style.cssText = "display:flex;gap:4px";
+    this.thumbs.style.cssText = "display:flex;gap:4px;flex-wrap:wrap";
     this.strip.append(this.thumbs, this.liveBtn, snap);
-    this.flags.style.cssText = "position:absolute;left:4px;top:18px;display:flex;gap:4px;flex-wrap:wrap;font:10px system-ui";
-    document.body.appendChild(this.strip);
+    this.flags.className = "flags";
   }
   /** set by CameraView: take a still at the next draw */
   onSnap?: () => void;
@@ -68,5 +67,6 @@ export class CameraRoll {
     this.flags.innerHTML = chip(`past image, ${formatAge(f.ageS)} old`, f.fresh ? GREEN : GREY) + chip(f.roverMoved ? "rover has moved" : "rover has not moved", f.roverMoved ? AMBER : GREEN) + chip(f.cameraMoved ? "camera has moved" : "camera unchanged", f.cameraMoved ? AMBER : GREEN);
   }
 
-  show(visible: boolean) { this.strip.style.display = visible ? "flex" : "none"; }
+  /** shown by the stylesheet (flex, or none on phones); hidden here only while the tile is off */
+  show(visible: boolean) { this.strip.style.display = visible ? "" : "none"; }
 }

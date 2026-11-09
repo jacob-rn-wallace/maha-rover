@@ -1,0 +1,79 @@
+/* The interface's look and its regions (docs/sim-ui-layout.md). Everything the page shows over the canvas lives in #ui, in one of its regions; nothing positions itself. */
+:root {
+  --bar-h: 36px; --gap: 8px; --pad: 12px; --radius: 8px; --fs: 12px;
+  --panel-bg: rgba(10, 12, 16, .72); --bar-bg: rgba(8, 10, 14, .8); --line: rgba(255, 255, 255, .22);
+  --fg: #e8e8ea; --dim: #9aa0aa; --ok: #6fdc7a; --warn: #ffb04a; --bad: #ff6a5a; --accent: #3a6ea5;
+}
+#ui { position: fixed; inset: 0; z-index: 5; pointer-events: none; font: var(--fs)/1.4 system-ui, sans-serif; color: var(--fg); }
+#ui *, #ui *::before, #ui *::after { box-sizing: border-box; }
+#ui button { font: inherit; color: inherit; cursor: pointer; }
+.panel { pointer-events: auto; background: var(--panel-bg); border: 1px solid var(--line); border-radius: var(--radius); }      /* no backdrop blur: it would be re-blurred every frame over the animating canvas */
+.panel-head { display: flex; align-items: center; gap: 6px; padding: 3px 8px; font-size: 11px; font-weight: 600; color: #fff; }
+.dim { color: var(--dim); }
+
+/* top bar */
+#ui-top { position: absolute; left: 0; right: 0; top: 0; height: var(--bar-h); display: flex; align-items: center; gap: 10px; padding: 0 var(--pad); background: var(--bar-bg); border-bottom: 1px solid var(--line); pointer-events: auto; }
+#ui-top .logo { height: 24px; width: auto; display: block; }
+#ui-top .spacer { flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--c, var(--dim)); color: var(--c, var(--dim)); background: transparent; white-space: nowrap; }
+.chip[data-level="on"] { --c: #6aa9ff; }
+.chip[data-level="0"] { --c: var(--ok); } .chip[data-level="1"] { --c: var(--warn); } .chip[data-level="2"] { --c: var(--bad); } .chip[data-level="off"] { --c: var(--dim); }
+.chip.pair { padding: 0; gap: 0; overflow: hidden; } .chip.pair > button { background: none; border: 0; color: inherit; padding: 1px 8px; }
+.chip.pair > button + button { padding: 1px 6px; border-left: 1px solid var(--c); }
+.chip.hidden { display: none; }
+.iconbtn { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 0 8px; height: 22px; }
+.pop { position: absolute; top: calc(var(--bar-h) + 4px); min-width: 220px; max-width: min(420px, 90vw); padding: 8px 10px; display: none; }
+.pop.open { display: block; }
+.pop h4 { margin: 0 0 4px; font-size: 11px; color: #fff; }
+.pop pre { margin: 6px 0 0; white-space: pre-wrap; font: 11px/1.4 system-ui; color: var(--dim); }
+.pop button.act { margin-top: 6px; padding: 3px 10px; border-radius: 6px; background: rgba(255,255,255,.12); border: 1px solid var(--line); }
+
+/* regions */
+#ui-left { z-index: 1; position: absolute; left: 0; top: var(--bar-h); bottom: 0; width: 280px; max-width: 80vw; padding: var(--gap); transform: translateX(-100%); transition: transform .18s; pointer-events: none; overflow: auto; }
+#ui-left.open { transform: none; }
+#ui-handle { position: absolute; left: 0; top: calc(var(--bar-h) + var(--gap)); width: 18px; height: 44px; border-radius: 0 6px 6px 0; border-left: 0; padding: 0; z-index: 1; pointer-events: auto; background: var(--panel-bg); border: 1px solid var(--line); border-left: 0; }
+#ui-right { position: absolute; right: var(--pad); top: calc(var(--bar-h) + var(--gap)); display: flex; flex-direction: column; align-items: flex-end; gap: var(--gap); max-height: calc(100% - var(--bar-h) - var(--gap) - var(--pad)); }
+#ui-cluster { position: absolute; left: var(--pad); bottom: var(--pad); z-index: 0; }      /* the open telemetry dock covers it (z-index 1) */
+#ui-alerts { position: absolute; left: 50%; transform: translateX(-50%); bottom: var(--pad); display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: min(560px, 60vw); text-align: center; }
+#ui-sticks { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
+#ui-modal { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-height: 90vh; overflow: auto; }
+
+/* alerts */
+.alert { padding: 3px 12px; border-radius: 999px; border: 1px solid var(--c); color: var(--c); background: rgba(10, 12, 16, .7); pointer-events: auto; }
+.alert[data-level="1"] { --c: var(--warn); } .alert[data-level="2"] { --c: var(--bad); } .alert[data-level="0"] { --c: var(--fg); }
+.hint { color: var(--dim); font-size: 11px; text-shadow: 0 0 3px #000; transition: opacity .6s; }
+.hint.gone { opacity: 0; }
+
+/* telemetry dock */
+.tele { padding: 6px 10px 8px; }
+.tele h4 { margin: 8px 0 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.tele h4:first-child { margin-top: 2px; }
+.tele .row { display: flex; justify-content: space-between; gap: 10px; }
+.tele .row span:first-child { color: var(--dim); }
+.tele .row span[data-level="1"] { color: var(--warn); } .tele .row span[data-level="2"] { color: var(--bad); }
+
+/* instrument cluster */
+.cluster { display: flex; align-items: center; gap: 10px; padding: 6px 10px; }
+.cluster .speed { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.1; }
+.cluster .speed small { font-size: 11px; font-weight: 400; color: var(--dim); }
+.cluster [data-level="1"] { color: var(--warn); } .cluster [data-level="2"] { color: var(--bad); }
+
+/* tiles in the right column */
+.tile { overflow: hidden; }
+.tile.past { border-color: var(--warn); border-width: 2px; }
+.tile-pic { position: relative; background: transparent; aspect-ratio: 4 / 3; }      /* the picture is drawn into the canvas behind it: nothing may cover it */
+.cam-tile { background: none; }
+.cam-tile > :not(.tile-pic) { background: rgba(10, 12, 16, .8); }
+.tile-pic canvas.still { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+.tile-foot { display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-size: 10px; line-height: 1.4; }
+.tile-roll { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 0 6px 6px; font-size: 11px; }
+.tile .flags { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 4px; font-size: 10px; }
+.map-tile canvas { display: block; }
+
+/* phones and tablets */
+#ui.coarse { --fs: 11px; --bar-h: 32px; }
+#ui.coarse .tile-foot, #ui.coarse .tile-roll, #ui.coarse .tile .flags { display: none; }
+#ui.coarse #ui-alerts { bottom: 108px; max-width: 70vw; }
+#ui.coarse .cluster { padding: 4px 8px; } #ui.coarse .cluster canvas { display: none; }
+#ui.coarse #ui-top { gap: 6px; }
+#ui.coarse #ui-top .logo { height: 20px; }
