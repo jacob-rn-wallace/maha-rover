@@ -19,6 +19,8 @@ maha-rover uses a split-license model, the same as megadroid. Unless otherwise n
   (Arizona State University, 2012; the elevation values, rescaled to 16 bit; no other change). The LROC team states that data products on the LROC Data Node of the PDS and the NASA PDS interfaces are in the
   public domain (https://lroc.im-ldi.com/about/terms, read 2026-11-08); the file came from pds.lroc.im-ldi.com. Credit as the LROC team asks: NASA/GSFC/Arizona State University. Reference: Henriksen et al., Icarus (2016),
   doi 10.1016/j.icarus.2016.05.012. Not covered by the licences above.
+- Lunar terrain ring for the simulation, `sim/public/terrain/ring.png`, `ring_mask.png`, `ring.json` and `docs/images/viewshed-ring-preview.png`: heights resampled from the LROC Atlas DTM above and from the LOLA gridded map LDEM_128 (NASA/GSFC, PDS Geosciences Node), with a computed visibility mask.
+  The LOLA archive's own terms of use have not been read yet (the hand-off records this): confirm that they allow redistribution of derived heights before the site is published.
 - The poster, headers and social preview are derivatives of those photographs; only the original mosaic and wordmark layout is under CC BY 4.0.
 - "Rashid" and the Emirates Lunar Mission marks belong to MBRSC / UAE entities. This is an independent,
   unofficial replica and is not affiliated with or endorsed by MBRSC. The al-maha wordmark is original and
