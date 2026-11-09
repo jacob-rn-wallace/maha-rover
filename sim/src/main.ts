@@ -105,7 +105,8 @@ async function main() {
   const cam = spec.camera, mastCam = new THREE.PerspectiveCamera(61.4, 4 / 3, 0.02, 200000);
   const camOff = new THREE.Vector3(...cam.position_m), camBasis = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0), new THREE.Vector3(-1, 0, 0));     // camera looks along the head's +x, up is its +y
   if (q.has("pip")) pip.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
-  const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1);      // ?vignette=0..1, ?noise=0
+  const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1, q.has("distort") ? Number(q.get("distort")) : 1, q.get("ae") !== "0");      // ?vignette=0..1, ?noise=0, ?distort=0..., ?ae=0
+  mastCam.fov = camFx.renderFov(61.4); mastCam.updateProjectionMatrix();
   const headQ = new THREE.Quaternion();
   const power = new Power();
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
@@ -144,6 +145,7 @@ async function main() {
       mastCam.quaternion.copy(headQ).multiply(new THREE.Quaternion().setFromRotationMatrix(camBasis));
       const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - 12 : 12;
       camFx.render(scene, mastCam, px, py, pw, ph);
+      pip.label.textContent = `mast camera, HQ + 4 mm lens, 76.6 x 61.4 deg, exposure gain x${camFx.gain.toFixed(2)}`;
       Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: "12px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
     } else pip.box.style.display = "none";
   });
@@ -167,9 +169,10 @@ function powerText(p: Power) {
 const pip = (() => {
   const box = document.createElement("div");
   box.style.cssText = "display:none;position:fixed;border:1px solid #888;box-sizing:border-box;pointer-events:none";
-  box.innerHTML = '<span style="position:absolute;left:4px;top:2px;font-size:11px;opacity:.8">mast camera, HQ + 4 mm lens, 76.6 x 61.4 deg</span>';
-  document.body.appendChild(box);
-  return { box, mode: 1 };
+  const label = document.createElement("span");
+  label.style.cssText = "position:absolute;left:4px;top:2px;font-size:11px;opacity:.8";
+  box.appendChild(label); document.body.appendChild(box);
+  return { box, label, mode: 1 };
 })();
 
 function edgeText(x: number, z: number, t: Terrain) {
