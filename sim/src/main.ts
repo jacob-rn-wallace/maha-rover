@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { addLunarScene } from "./lunar";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
@@ -10,28 +10,15 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 2000);
 camera.position.set(0.9, 0.6, 0.9);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0.1, 0.3, 0);
 
-// Placeholder lighting and ground (phase 3 replaces them with the lunar sun, earthshine and terrain)
-const sun = new THREE.DirectionalLight(0xffffff, 6);
-sun.position.set(2, 1.2, 1);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-Object.assign(sun.shadow.camera, { left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10 });
-// stand-in reflections so metals read in the viewer; phase 3 replaces this with the black sky, sunlit regolith bounce and earthshine
-scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environmentIntensity = 0.35;
-scene.add(sun, new THREE.HemisphereLight(0x8890a0, 0x202020, 0.4));
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 1 }));
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
+const lunar = addLunarScene(scene, renderer);
 
 interface Spec { total_mass_kg: number; bodies: Record<string, { mass_kg: number }>; }
 
@@ -42,6 +29,7 @@ async function main() {
   ]);
   gltf.scene.traverse((o) => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   scene.add(gltf.scene);
+  lunar.followSun(new THREE.Vector3(0, 0, 0));
   const node = (n: string) => gltf.scene.getObjectByName(n)!;
   hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${Object.keys(spec.bodies).length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`;
   // joint test, to check the export's axes: the pan, the tilt, the link plates (differential) and the wheels move
