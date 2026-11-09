@@ -161,7 +161,7 @@ TXB_HOLES = [(2.0, 13.2), (23.0, 13.2), (2.0, 25.7), (23.0, 25.7)]   # M2 holes:
 GLAND_D = 12.5                                    # hole in the -y wall for a PG7 cable gland (thread Ø12.5; for cords of 3 to 6.5 mm; ASSUMPTION: a catalogue part, not chosen)
 GLAND_OUT, GLAND_NUT = 12.0, 15.0                 # gland body length outside the wall and its across-corners size (ASSUMPTION, typical PG7)
 GLAND_X = FX - 73.0 + TXB_STANDOFF + TXB_T + TXB_RECEPT[2] / 2   # centred on the receptacle
-PLUG_H, PLUG_W, PLUG_L = 8.0, 16.2, 21.0         # envelope of a slim HDMI plug head: slim cables list heads of 16.2 x 6.8 x about 14 to 21 (Lindy) and 16.0 x 8.0 (Kramer); a standard moulded boot (10 to 14 mm thick) will not fit
+PLUG_H, PLUG_W, PLUG_L = 6.8, 16.2, 21.0         # the Lindy CROMO Slim 41671 (1 m) plug head: max 16.2 wide x 6.8 thick (datasheet, 2021); length 19 (0.5 m sheet), 21 with a chip in the head; the C2G 41363 head (25 x 8.2 x 18.6) is 1.2 mm too long for the 23.8 mm room; a standard moulded boot (10 to 14 mm thick) will not fit
 
 
 def _txb_x():
