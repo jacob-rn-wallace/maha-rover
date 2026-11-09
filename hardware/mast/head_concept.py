@@ -44,9 +44,9 @@ def tilt_check(parts):
     print(f"  bracket (2 mm aluminium) {al:.3f} kg; printed hat {kg:.3f} kg; bracket valid {parts['bracket'].is_valid}")
 
 
-COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "GNSS patch": (200, 170, 70), "HDMI plug": (190, 196, 204), "CSI extender Tx": (60, 140, 110), "camera-link cable": (225, 140, 50), "camera body": (40, 120, 80),
+COL = {"bracket": (170, 176, 184), "tilt servo": (60, 100, 190), "disk": (190, 100, 90), "enclosure": (236, 236, 232), "antenna hat": (200, 204, 208), "GNSS patch": (200, 170, 70), "HDMI plug": (190, 196, 204), "cable gland": (90, 90, 96), "CSI extender Tx": (60, 140, 110), "camera-link cable": (225, 140, 50), "camera body": (40, 120, 80),
        "lens": (70, 74, 82), "baffle": (150, 154, 160), "hood": (28, 28, 32)}
-NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "disk: horn coupler and cable spool", "enclosure": "camera box (die-cast)", "antenna hat": "aluminium hat (ground plane)", "GNSS patch": "GNSS L1 patch", "HDMI plug": "HDMI plug (slim boot) on the Tx board", "CSI extender Tx": "CSI extender Tx board", "camera-link cable": "camera-link cable (a loose loop, as the original's harness)",
+NAMES = {"bracket": "sheet bracket: web and two fins (2 mm Al)", "tilt servo": "STS3215 tilt servo", "disk": "disk: horn coupler and cable spool", "enclosure": "camera box (die-cast)", "antenna hat": "aluminium hat (ground plane)", "GNSS patch": "GNSS L1 patch", "HDMI plug": "HDMI plug (slim boot) on the Tx board", "cable gland": "PG7 cable gland", "CSI extender Tx": "CSI extender Tx board", "camera-link cable": "camera-link cable (a loose loop, as the original's harness)",
          "camera body": "Pi HQ camera", "lens": "4 mm CS lens", "baffle": "slotted baffle ring", "hood": "black hood, square window"}
 
 
