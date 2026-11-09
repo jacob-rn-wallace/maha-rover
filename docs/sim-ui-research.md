@@ -136,7 +136,7 @@ Changes you can see: pitch and roll, motor current and battery turn yellow or re
 - **Rocks:** tinted by height above the ground (0.7 of the instance's vertical scale, as they are buried 20 to 40%): 5, 10 and 20 cm and over (yellow-green, orange, red); under 5 cm untinted. The 10 and 20 cm come from the sim's own tilt-guard findings (a 0.1 m rock is climbed, a 0.2 m rock lifts the front to 48 degrees).
 - **Range:** full within 25 m of the rover, fading out by 70 m, because beyond that the mesh cells are 1 to 10 m and their slope does not say what the wheels will meet.
 - Colours and alphas are look choices. The red and the orange match the HUD's.
-- **Not done:** the overlay on the minimap, a slope-versus-limit gradient that follows the actual tilt limit if it changes at run time (the thresholds are read once), and the camera view's own overlay (it is drawn on the mast camera's render too, since it shares the materials: not checked whether that is wanted).
+- **Not done:** the overlay on the minimap, a slope-versus-limit gradient that follows the actual tilt limit if it changes at run time (the thresholds are read once). The mast camera view is drawn with the overlay off (the real camera would not see it); on phones the legend sits over the middle of the screen.
 - **Checked:** `tsc`, `vite build`, and headless screenshots on the real terrain (chase view and an overview): crater walls come out yellow to red, flat ground faint green, rocks yellow to red, legend shown. Not checked: a real GPU (cost of the extra fragment work), the phone layout beyond a screenshot at 844 x 390, other suns.
 
 ## 12. Gaps

@@ -43,6 +43,8 @@ export class HazardOverlay {
 
   toggle() { this.set(!this.on); }
   set(on: boolean) { this.on = on; this.uniforms.hzOn.value = on ? 1 : 0; this.legend.style.display = on ? "block" : "none"; }
+  /** runs `draw` with the tint off: the mast camera must not see the operator's overlay */
+  without(draw: () => void) { const v = this.uniforms.hzOn.value; this.uniforms.hzOn.value = 0; try { draw(); } finally { this.uniforms.hzOn.value = v; } }
   update(x: number, z: number) { this.uniforms.hzCenter.value.set(x, z); }
 
   /** patches a material: "ground" tints by slope (the mesh normal), "rock" by the instance's height */
