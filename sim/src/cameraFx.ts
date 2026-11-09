@@ -26,7 +26,7 @@ const AE_TARGET = 0.18, AE_TAU = 0.5, AE_MIN = 0.05, AE_MAX = 32, METER_W = 32, 
 export class MastCameraFx {
   readonly target: THREE.WebGLRenderTarget;
   private quad: THREE.Mesh; private cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1); private scene = new THREE.Scene();
-  private mat: THREE.ShaderMaterial;
+  private mat: THREE.ShaderMaterial; private snapMat: THREE.ShaderMaterial; private snapTarget: THREE.WebGLRenderTarget;
   private frame = 0;
   readonly k1: number; private sMax: number;
   private ae: boolean; gain = 1;
@@ -37,7 +37,7 @@ export class MastCameraFx {
   metered = 0;
   stats = { started: 0, done: 0, failed: '' };
 
-  constructor(private renderer: THREE.WebGLRenderer, width = 640, height = 480, vignette = 0.6, noise = 1, distort = 1, ae = true) {
+  constructor(readonly renderer: THREE.WebGLRenderer, width = 640, height = 480, vignette = 0.6, noise = 1, distort = 1, ae = true) {
     this.k1 = K1 * distort; this.sMax = Math.max(1, 1 + this.k1 + K2); this.ae = ae;
     this.target = new THREE.WebGLRenderTarget(width, height, { type: THREE.HalfFloatType, samples: 0, colorSpace: THREE.LinearSRGBColorSpace });
     this.mat = new THREE.ShaderMaterial({
@@ -64,6 +64,20 @@ export class MastCameraFx {
         }`,
       toneMapped: true, depthTest: false, depthWrite: false,
     });
+    // a still is the same pass drawn into an 8-bit offscreen target: three applies no tone mapping or colour space conversion when drawing into a target, so this variant has the ACES filmic curve
+    // (the renderer's exposure) and the sRGB encoding written out in the shader
+    const aces = `vec3 snapRRT( vec3 v ) { vec3 a = v * ( v + 0.0245786 ) - 0.000090537; vec3 b = v * ( 0.983729 * v + 0.4329510 ) + 0.238081; return a / b; }
+        vec3 snapTone( vec3 c ) {
+          const mat3 I = mat3( vec3( 0.59719, 0.07600, 0.02840 ), vec3( 0.35458, 0.90834, 0.13383 ), vec3( 0.04823, 0.01566, 0.83777 ) );
+          const mat3 O = mat3( vec3( 1.60475, -0.10208, -0.00327 ), vec3( -0.53108, 1.10813, -0.07276 ), vec3( -0.07367, -0.00605, 1.07602 ) );
+          c *= ${this.renderer.toneMappingExposure.toFixed(3)} / 0.6; c = O * snapRRT( I * c ); c = clamp( c, 0.0, 1.0 );
+          return mix( c * 12.92, 1.055 * pow( c, vec3( 1.0 / 2.4 ) ) - 0.055, step( 0.0031308, c ) ); }
+        `;
+    this.snapMat = new THREE.ShaderMaterial({
+      uniforms: this.mat.uniforms, vertexShader: this.mat.vertexShader, depthTest: false, depthWrite: false, toneMapped: false,
+      fragmentShader: aces + this.mat.fragmentShader.replace(/#include <tonemapping_fragment>\s*#include <colorspace_fragment>/, "gl_FragColor.rgb = snapTone( gl_FragColor.rgb );"),
+    });
+    this.snapTarget = new THREE.WebGLRenderTarget(width, height, { type: THREE.UnsignedByteType, samples: 0, colorSpace: THREE.LinearSRGBColorSpace });
     this.meterMat = new THREE.ShaderMaterial({
       uniforms: { tex: { value: this.target.texture } },
       vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
@@ -100,6 +114,19 @@ export class MastCameraFx {
     const now = performance.now(), dt = Math.min((now - this.lastT) / 1000, 0.5); this.lastT = now;
     const want = Math.min(AE_MAX, Math.max(AE_MIN, AE_TARGET / Math.max(this.metered, 1e-4)));
     this.gain *= Math.exp(Math.log(want / this.gain) * (1 - Math.exp(-dt / AE_TAU)));
+  }
+
+  /** the current image (the last scene pass through the vignette, noise, distortion and tone curve) as a canvas at the stream's resolution: a still for the camera roll */
+  snapshot(): HTMLCanvasElement {
+    const r = this.renderer, w = this.snapTarget.width, h = this.snapTarget.height;
+    this.quad.material = this.snapMat; r.setRenderTarget(this.snapTarget); r.setScissorTest(false); r.setViewport(0, 0, w, h); r.clear(); r.render(this.scene, this.cam); r.setRenderTarget(null);
+    this.quad.material = this.mat;
+    (r.getContext() as WebGL2RenderingContext).bindBuffer(WebGL2RenderingContext.PIXEL_PACK_BUFFER, null);      // the metering's asynchronous read leaves a pack buffer bound, which makes a synchronous read fail (INVALID_OPERATION)
+    const buf = new Uint8Array(w * h * 4); r.readRenderTargetPixels(this.snapTarget, 0, 0, w, h, buf);
+    const img = new ImageData(w, h);
+    for (let y = 0; y < h; y++) img.data.set(buf.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);      // rows come bottom-up
+    const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d")!.putImageData(img, 0, 0);
+    return c;
   }
 
   /** render `scene` through `camera` into the sensor target, then draw the processed image into the screen rectangle (CSS pixels, origin bottom left) */

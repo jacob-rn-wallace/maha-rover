@@ -153,12 +153,14 @@ async function main() {
   (window as any).__phys = phys;      // for scripted checks (tests/cdp-shot.mjs)
   const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1, q.has("distort") ? Number(q.get("distort")) : 1, q.get("ae") !== "0");      // ?vignette=0..1, ?noise=0, ?distort=0..., ?ae=0
   (window as any).__fx = camFx;
-  const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse);
+  const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse, { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg });      // the sun's azimuth is counterclockwise from east: bearing = 90 - azimuth
+  (window as any).__camview = cameraView;      // for scripted checks
   if (q.has("pip")) cameraView.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
   const power = new Power();
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
   const sunDir = new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), -Math.cos(el) * Math.sin(az));
   const chassisQ = new THREE.Quaternion();
+  const roverPose = { x: 0, z: 0, quat: new THREE.Quaternion(), pan: 0, tilt: 0 };
   const minimap = terrain && q.get("map") !== "0" ? new Minimap(terrain, lunar.sunElevationDeg, lunar.sunAzimuthDeg, coarse) : undefined;      // M cycles it; ?map=0 leaves it out
   if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
   const mapOffset = () => (minimap && minimap.mode ? (minimap.mode === 2 ? 240 : 110) + 24 : 12);      // on phones the camera view sits under the map
@@ -177,7 +179,7 @@ async function main() {
     return data;
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
-  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle() }, () => (benchT !== null ? benchControls(benchT) : null));
+  const input = setupInput(coarse, { upright: () => { resetRequested = true; }, cycleCamera: () => cameraView.cycle(), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -235,7 +237,8 @@ async function main() {
     if (benchT !== null) { benchT = (performance.now() - benchStart) / 1000; if (benchT > BENCH_SECONDS) { benchT = null; finish(BENCH_WARMUP, "Benchmark"); } }
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
-    hazard.without(() => cameraView.render(scene, node("head"), vw, vh, mapOffset()));
+    roverPose.x = ct.x; roverPose.z = ct.z; roverPose.quat.copy(chassisQ); roverPose.pan = phys.panAngle; roverPose.tilt = phys.tiltAngle;
+    hazard.without(() => cameraView.render(scene, node("head"), vw, vh, mapOffset(), roverPose));
   });
 }
 
