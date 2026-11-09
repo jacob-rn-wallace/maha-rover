@@ -34,6 +34,11 @@ const G_GROUND = 1, G_CHASSIS = 2, G_WHEEL = 4;
 const groups = (member: number, filter: number) => (member << 16) | filter;
 const v3 = (a: number[]) => ({ x: a[0], y: a[1], z: a[2] });
 
+/** what the physics needs of the terrain (terrain.ts): world height y at (x, z), the half width of the sandbox and the spawn point */
+export interface GroundSource { height(x: number, z: number, minWavelength?: number): number; half: number; spawn: { x: number; y: number; z: number }; }
+const PATCH = { cell: 0.25, cells: 128, rebuild: 4 };      // heightfield collider: 32 m square at 0.25 m, re-centred when the rover is 4 m from its centre
+const EDGE_MARGIN = 20;                                    // the boundary walls stand this far inside the tile edge
+
 export interface Controls { throttle: number; turn: number; pan: number; tilt: number; brake: boolean; }
 export const WHEELS = ["FL", "FR", "RL", "RR"] as const;
 
@@ -51,7 +56,10 @@ export class RoverPhysics {
   private spec!: Spec;
   readonly gravity = 1.62;
 
-  static async create(spec: Spec, spawnHeight = 0.03): Promise<RoverPhysics> {
+  private ground?: GroundSource;
+  private patch: { body: RAPIER.RigidBody; collider: RAPIER.Collider; cx: number; cz: number } | null = null;
+
+  static async create(spec: Spec, spawnHeight = 0.03, ground?: GroundSource): Promise<RoverPhysics> {
     await RAPIER.init();
     const p = new RoverPhysics();
     p.spec = spec;
@@ -59,16 +67,25 @@ export class RoverPhysics {
     p.world.integrationParameters.dt = p.dt;
     p.world.integrationParameters.numSolverIterations = 8;
 
-    const ground = p.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
-    p.world.createCollider(RAPIER.ColliderDesc.cuboid(500, 0.5, 500).setTranslation(0, -0.5, 0).setFriction(0.8).setRestitution(0)
-      .setCollisionGroups(groups(G_GROUND, G_CHASSIS | G_WHEEL)), ground);
+    p.ground = ground;
+    const sx = ground?.spawn.x ?? 0, sz = ground?.spawn.z ?? 0, sy = ground?.spawn.y ?? 0;
+    if (ground) {
+      p.updateGround(sx, sz);
+      const h = ground.half - EDGE_MARGIN, wb = p.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());     // hard walls round the sandbox (the HUD warns before them)
+      for (const [x, z, hx, hz] of [[h + 5, 0, 5, h + 10], [-h - 5, 0, 5, h + 10], [0, h + 5, h + 10, 5], [0, -h - 5, h + 10, 5]])
+        p.world.createCollider(RAPIER.ColliderDesc.cuboid(hx, 600, hz).setTranslation(x, 0, z).setFriction(0.2).setCollisionGroups(groups(G_GROUND, G_CHASSIS | G_WHEEL)), wb);
+    } else {
+      const flat = p.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+      p.world.createCollider(RAPIER.ColliderDesc.cuboid(500, 0.5, 500).setTranslation(0, -0.5, 0).setFriction(0.8).setRestitution(0)
+        .setCollisionGroups(groups(G_GROUND, G_CHASSIS | G_WHEEL)), flat);
+    }
 
     const half = Math.SQRT1_2;
     for (const [name, b] of Object.entries(spec.bodies)) {
       const inertia = [...(b.inertia_principal_kgm2 ?? [1e-4, 1e-4, 1e-4])];
       if (name.startsWith("wheel")) inertia[2] += MOTOR.rotorReflected;     // the wheel's spin axis is its largest principal axis (index 2): add the motor rotor seen through the gearbox
       const desc = RAPIER.RigidBodyDesc.dynamic()
-        .setTranslation(b.origin_m[0], b.origin_m[1] + spawnHeight, b.origin_m[2])
+        .setTranslation(b.origin_m[0] + sx, b.origin_m[1] + spawnHeight + sy, b.origin_m[2] + sz)
         .setCanSleep(false)
         .setAdditionalMassProperties(b.mass_kg, v3(b.com_m), v3(inertia),
           b.inertia_frame_quat_xyzw ? { x: b.inertia_frame_quat_xyzw[0], y: b.inertia_frame_quat_xyzw[1], z: b.inertia_frame_quat_xyzw[2], w: b.inertia_frame_quat_xyzw[3] } : { x: 0, y: 0, z: 0, w: 1 });
@@ -160,7 +177,25 @@ export class RoverPhysics {
   }
 
   /** advance by wall-clock seconds (clamped), in fixed substeps */
+  /** heightfield collider of the terrain round (x, z): the same height function as the visual mesh, sampled on a world-aligned 0.25 m lattice */
+  private updateGround(x: number, z: number) {
+    const g = this.ground!, { cell, cells } = PATCH, n = cells + 1;
+    const cx = Math.round(x / cell / 16) * cell * 16, cz = Math.round(z / cell / 16) * cell * 16;     // snap to 4 m so the lattice stays the same
+    if (this.patch && this.patch.cx === cx && this.patch.cz === cz) return;
+    const h = new Float32Array(n * n);
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) h[i + j * n] = g.height(cx + (j - cells / 2) * cell, cz + (i - cells / 2) * cell, 2 * cell);   // rows along z, columns along x, column-major
+    if (this.patch) this.world.removeRigidBody(this.patch.body);
+    const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(cx, 0, cz));
+    const collider = this.world.createCollider(RAPIER.ColliderDesc.heightfield(cells, cells, h, { x: cells * cell, y: 1, z: cells * cell }, RAPIER.HeightFieldFlags.FIX_INTERNAL_EDGES).setFriction(0.8).setRestitution(0)
+      .setCollisionGroups(groups(G_GROUND, G_CHASSIS | G_WHEEL)), body);
+    this.patch = { body, collider, cx, cz };
+  }
+
   advance(seconds: number, c: Controls) {
+    if (this.ground) {
+      const t = this.bodies.chassis.translation();
+      if (!this.patch || Math.hypot(t.x - this.patch.cx, t.z - this.patch.cz) > PATCH.rebuild) this.updateGround(t.x, t.z);
+    }
     this.acc += Math.min(seconds, 0.05);
     while (this.acc >= this.dt) { this.substep(c); this.acc -= this.dt; }
   }

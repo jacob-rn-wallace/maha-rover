@@ -54,7 +54,9 @@ export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer,
   const stars = new THREE.BufferGeometry();
   stars.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   stars.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  const starPts = new THREE.Points(stars, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true, fog: false, toneMapped: false }));
+  const starPts = new THREE.Points(stars, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true, fog: false, toneMapped: false, depthTest: false, depthWrite: false }));
+  starPts.renderOrder = -1000;                                   // drawn first and never depth-tested: the terrain reaches 74 km, beyond the star sphere
+  starPts.frustumCulled = false;
   scene.add(starPts);
 
   // regolith ground: tiling multi-scale noise for albedo and bump (craters and relief come with the terrain in phase 3)
@@ -66,7 +68,7 @@ export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer,
   ground.receiveShadow = true;
   for (const t of [tex.map, tex.bump]) { t.repeat.set(160, 160); }
   scene.add(ground);
-  return { sun, ground, sunDir, followSun(target: THREE.Vector3) { sun.target.position.copy(target); sun.position.copy(sunDir).multiplyScalar(20).add(target); sun.target.updateMatrixWorld(); } };
+  return { sun, ground, sunDir, groundMaterial: ground.material as THREE.MeshStandardMaterial, followSun(target: THREE.Vector3) { sun.target.position.copy(target); sun.position.copy(sunDir).multiplyScalar(20).add(target); sun.target.updateMatrixWorld(); } };
 }
 
 function regolithTexture(size: number) {

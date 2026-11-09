@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { addLunarScene } from "./lunar";
+import { Terrain } from "./terrain";
+import { TerrainView } from "./terrainView";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
 const hud = document.getElementById("hud")!;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, logarithmicDepthBuffer: true });   // terrain from 5 cm to 74 km
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -14,7 +16,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.85;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 2000);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 200000);
 camera.position.set(0.9, 0.6, 0.9);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0.1, 0.3, 0);
@@ -37,19 +39,35 @@ async function main() {
   (window as any).rover = { node, spec };
 
   const q = new URLSearchParams(location.search);
-  if (q.get("cam")) {                      // ?cam=x,y,z,tx,ty,tz&still=1: fixed view for screenshots (metres, glTF axes); still=1 also pauses the physics
+  // terrain: the real lunar tile and ring (default); ?flat=1 keeps the flat plane, which the scripted ?test=1 check assumes (add ?terrain=1 to run it on the terrain)
+  const flat = q.get("flat") === "1" || (q.get("test") === "1" && q.get("terrain") !== "1");
+  let terrain: Terrain | undefined, view: TerrainView | undefined;
+  const spawn = new THREE.Vector3();
+  if (!flat) {
+    hud.textContent = "loading terrain...";
+    terrain = await Terrain.load("terrain/", { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined });   // ?smooth=posts, ?detail=scale: tuning
+    spawn.set(terrain.spawn.x, terrain.spawn.y, terrain.spawn.z);
+    scene.remove(ground);
+    view = new TerrainView(terrain, lunar.groundMaterial);
+    scene.add(view.group);
+    view.update(spawn.x, spawn.z);
+    view.addRing().then((r) => console.log("ring mesh", r.triangles, "triangles"));
+    for (const n of names) node(n).position.add(spawn);       // the rover model starts at the spawn point
+    camera.position.add(spawn); controls.target.add(spawn);
+  }
+  if (q.get("cam")) {                      // ?cam=x,y,z,tx,ty,tz&still=1: fixed view for screenshots (metres, glTF axes, relative to the spawn point on the terrain); still=1 also pauses the physics
     const v = q.get("cam")!.split(",").map(Number);
-    camera.position.set(v[0], v[1], v[2]);
-    controls.target.set(v[3], v[4], v[5]);
+    camera.position.set(v[0] + spawn.x, v[1] + spawn.y, v[2] + spawn.z);
+    controls.target.set(v[3] + spawn.x, v[4] + spawn.y, v[5] + spawn.z);
   }
   const still = q.get("still") === "1";
-  lunar.followSun(new THREE.Vector3(0, 0, 0));
+  lunar.followSun(spawn);
   if (still) { hud.innerHTML = `<b>المَهَا al-maha</b><br>model loaded: ${names.length} bodies, ${spec.total_mass_kg.toFixed(2)} kg`; renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); }); return; }
 
-  const phys = await RoverPhysics.create(spec);
+  const phys = await RoverPhysics.create(spec, 0.03, terrain);
   if (q.get("test") === "1") { runTest(phys); return; }
   const input = setupInput();
-  const chase = new THREE.Vector3(0, 0.25, 0);
+  const chase = new THREE.Vector3(spawn.x, spawn.y + 0.25, spawn.z);
   const euler = new THREE.Euler();
   let last = performance.now(), hudT = 0;
   renderer.setAnimationLoop((now) => {
@@ -63,14 +81,20 @@ async function main() {
     const c = phys.bodies.chassis, ct = c.translation();
     const delta = new THREE.Vector3(ct.x, ct.y + 0.25, ct.z).sub(chase);
     chase.add(delta); camera.position.add(delta); controls.target.copy(chase);
-    lunar.followSun(new THREE.Vector3(ct.x, 0, ct.z));
-    ground.position.set(0, 0, 0);
+    lunar.followSun(new THREE.Vector3(ct.x, ct.y, ct.z));
+    view?.update(ct.x, ct.z);
     hudT += dt;
-    if (hudT > 0.1) { hudT = 0; hud.innerHTML = hudText(phys, c, euler); }
+    if (hudT > 0.1) { hudT = 0; hud.innerHTML = hudText(phys, c, euler) + (terrain ? edgeText(ct.x, ct.z, terrain) : ""); }
     resize();
     controls.update();
     renderer.render(scene, camera);
   });
+}
+
+function edgeText(x: number, z: number, t: Terrain) {
+  const edge = t.half - 20 - Math.max(Math.abs(x), Math.abs(z));      // the walls stand 20 m inside the tile edge (physics.ts)
+  const warn = edge < 100 ? `<br><span style="color:#ffb04a">sandbox edge ${Math.max(0, edge).toFixed(0)} m ahead</span>` : "";
+  return `<br>position ${x.toFixed(0)} m E, ${(-z).toFixed(0)} m N of the tile centre${warn}`;
 }
 
 function hudText(phys: RoverPhysics, c: any, euler: THREE.Euler) {

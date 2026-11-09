@@ -39,7 +39,7 @@ Do not fetch these from the archives again: **the LROC archive's CDN rate-limite
 
 ## Next steps, in order
 1. **Viewshed: done 2026-11-09** (`hardware/sim/terrain/viewshed.py prep|run`, results and limits in `docs/sim-spec.md` under Terrain data; ring files in `sim/public/terrain/`). Not yet used by the sim: the ring mesh is built from `ring.png` and `ring_mask.png` as part of step 2. The prep cache is in `~/lunar-data/viewshed-cache/` (not in git; `prep` takes 15 s, `run` 3 min).
-2. **Use the tile in the sim:** heightfield collider and visual mesh (patch of about 30 m around the rover, rebuilt as it moves), smoothing of the stereo stripes (note a thin vertical stripe near the tile's east edge), procedural fine detail seeded by position (deterministic), curvature, edge boundary.
+2. **Tile and ring in the sim: first version done 2026-11-09** (see `docs/sim-spec.md`, 'In the sim'). Left: the start-up transient, the tile-edge line, shadows beyond 2 m (mountain shadows matter at a 14 degree sun), the stripe near the tile's east edge, soft boundary, craters, the texture ripples, load time (the tile is smoothed in the browser, about 1 s; the ring mesh takes a few seconds).
 3. **Soil model:** read `Advance_Simulation_Method_for_Wheel-Terrain_Interactions_of_Space_Rovers_A_Case_Study_on_the_UAE_Rashid_Rover.pdf` and `Traction_Performance_Evaluation_for_a_Rashid-1_Rover_Wheel.pdf` (private papers) for Bekker-type parameters; cite them; replace the placeholder friction (ground 0.8, wheel 0.9).
 4. **Rocks:** Atlas ellipse FR-11: 144 boulders per km2 mapped (Joulaud 2024); the size distribution and smallest mapped size were not found in the pages read (find them, or a published lunar rock size-frequency law, and cite). The two papers disagree on Diviner rock abundance units (0.029% vs 0.0029): check.
 5. **Mast camera view and telemetry (phase 4);** camera FOV figure (76.6 x 61.4 degrees) is from a remembered sensor size: unverified.
@@ -48,6 +48,8 @@ Do not fetch these from the archives again: **the LROC archive's CDN rate-limite
 ## Things that bit before
 - Rapier: no joint motor torque limit in 0.14, so actuators are explicit torques; `addTorque` persists until `resetTorques`; a wheel through a 131:1 gearbox needs the rotor's reflected inertia or the explicit torque loop chatters.
 - glTF nodes: look all body nodes up before re-parenting them to the scene root, or the children vanish from the lookup.
+- Rapier heightfield colliders: `nrows`/`ncols` are cells (the heights array has (n+1)^2 entries), rows run along z, columns along x, column-major; without `HeightFieldFlags.FIX_INTERNAL_EDGES` the rover's wheels catch on triangle edges and it wheelies on flat ground.
+- `pkill -f` or `pgrep -f` with a pattern that also appears in your own command line kills the shell (use `[v]ite`).
 - Wheel grousers look like needles seen edge-on: not an artifact.
 - Regenerating `sim/public/rover.glb` on another machine gives slightly different bytes: only the chassis mesh differs (118 of 29,476 triangles on the server, probably fillet tessellation), the masses, centres of mass and inertia agree to 0.01% and the collision hulls are identical. Commit a regenerated model only if the CAD changed.
 - Site data: the Atlas DTM's valid area is irregular; a fully covered window must be checked, not assumed (the first tile was all missing values).
