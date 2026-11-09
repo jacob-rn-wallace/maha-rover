@@ -36,6 +36,7 @@ import detail as DT      # noqa: E402
 
 OUT = ROOT / "sim" / "public"
 M = 1e-3
+WHEEL_RIM_R = 0.100
 CREASE = math.cos(math.radians(35))     # smooth-shading threshold between faces
 
 # ---- joint geometry, rover frame (mm) ----------------------------------------------------------------------------
@@ -253,6 +254,7 @@ def main():
     items = R.collect()
     per = {k: {} for k in BODIES}            # body -> material group -> [mesh pieces (in joint-origin frame, glTF metres)]
     raw = {k: [] for k in BODIES}            # body -> triangles for the inertia
+    wheel_mesh = {}                          # wheel body -> its rim-and-grouser vertices (glTF metres, hub-centred), for the collision hulls
     for g, n, s in items:
         b = body_of(g, n)
         pieces = [(material_key(g, n), refine(g, n, s))]
@@ -270,6 +272,8 @@ def main():
                 continue
             bb_ = "pan" if (n == "bracket" and key == "steel") else b
             v = to_gl(v - np.array(BODIES[bb_]))
+            if g == "wheels":
+                wheel_mesh[b] = v
             per[bb_].setdefault(key, []).append((v, t))
             raw[bb_].append((v, t))
 
@@ -388,9 +392,40 @@ def main():
             t = np.concatenate([p[1] + o for p, o in zip(verts, off)])
             mp = mass_props(v, t, mass[b])
             if mp:
-                w = np.linalg.eigvalsh(mp[1])
-                entry["mesh_com_m"] = [round(x, 5) for x in mp[0].tolist()]
+                mcom, I = mp
+                d = np.array(com) - mcom                                   # the mass-weighted centre of mass is not the mesh's: parallel axis
+                I = I + mass[b] * (d @ d * np.eye(3) - np.outer(d, d))
+                w, V = np.linalg.eigh(I)
+                if np.linalg.det(V) < 0:
+                    V[:, 2] = -V[:, 2]
+                qw = math.sqrt(max(0.0, 1 + V[0, 0] + V[1, 1] + V[2, 2])) / 2
+                q = [(V[2, 1] - V[1, 2]) / (4 * qw), (V[0, 2] - V[2, 0]) / (4 * qw), (V[1, 0] - V[0, 1]) / (4 * qw), qw] if qw > 1e-6 else [1, 0, 0, 0]
+                entry["mesh_com_m"] = [round(x, 5) for x in mcom.tolist()]
                 entry["inertia_principal_kgm2"] = [float(f"{x:.4g}") for x in w]
+                entry["inertia_frame_quat_xyzw"] = [round(float(x), 6) for x in q]
+        if b == "chassis" and raw[b]:                                  # collision hull of the whole fixed structure, on a 6 mm grid
+            pts = np.unique(np.round(np.concatenate([p[0] for p in raw[b]]) / 0.006), axis=0) * 0.006
+            entry["collider_hull_points_m"] = [round(float(x), 4) for x in pts.ravel()]
+        if b in wheel_mesh:                                            # one convex hull per grouser (clustered by angle about the hub axis, glTF Z), plates thickened to 3 mm
+            v = wheel_mesh[b]
+            r = np.hypot(v[:, 0], v[:, 1])
+            gv = v[r > (WHEEL_RIM_R + 0.0005)]
+            ang = np.arctan2(gv[:, 1], gv[:, 0])
+            order_ = np.argsort(ang)
+            ang, gv = ang[order_], gv[order_]
+            cuts = np.where(np.diff(ang) > math.radians(5))[0] + 1
+            groups = np.split(np.arange(len(ang)), cuts)
+            if len(groups) > 1 and (ang[0] + 2 * math.pi - ang[-1]) < math.radians(5):    # first and last clusters are one across the +-pi seam
+                groups[0] = np.concatenate([groups[-1], groups[0]])
+                groups = groups[:-1]
+            hulls = []
+            for gi in groups:
+                P = gv[gi]
+                phi = float(np.arctan2(P[:, 1].mean(), P[:, 0].mean()))
+                tdir = np.array([-math.sin(phi), math.cos(phi), 0.0])
+                P2 = np.concatenate([P + 0.0015 * tdir, P - 0.0015 * tdir])
+                hulls.append([round(float(x), 4) for x in P2.ravel()])
+            entry["grouser_hulls_m"] = hulls
         bodies[b] = entry
     hx, hy, hz = HX * M, HY * M, HZ * M
     cam_x = HB.FX * M

@@ -33,6 +33,28 @@ optimisation, then phones (owner's order).
 A low sun (14 degrees elevation, a parameter), hard shadows from a 4096 shadow map, a black sky with 4000 seeded stars, a reflection environment of black sky over sunlit regolith (so metals reflect the ground and not a room), and a flat
 ground with procedural multi-scale regolith albedo and bump. Look-development values, not measurements: the albedo (about 0.12 to 0.2 effective) and the sun and exposure settings are choices. No craters, rocks or relief yet (phase 3's terrain), no earthshine, no dust.
 
+## Phase 2: driving physics (done 2026-11-08, `sim/src/physics.ts`)
+Rapier at 480 Hz fixed steps, lunar gravity 1.62 m/s2, flat ground. Nine rigid bodies from `rover.json`, with the CAD's mass, centre of mass and inertia tensor (mesh-derived, uniform density).
+- **Differential:** the two link plates are separate revolute joints on the chassis, coupled by a stiff spring and damper so that angle L + angle R = 0 (k = 600 N.m/rad, c = 6 N.m.s/rad, tuned for critical damping of the sum mode; not gears, so friction and backlash are not modelled).
+- **Drive:** each wheel has the Pololu 37D #4746 model from `docs/drive-spec.md`: R = 12 V / 5.5 A = 2.18 ohm, back-EMF constant 0.0111 V.s/rad from 76 rpm and 0.2 A no load, gearbox efficiency 0.75 (the value the datasheet's 0.59 N.m at 0.74 A implies), 7.4 V pack, current cap 1.6 A, shorted-terminal braking at zero duty. The motor rotor's inertia seen through the 131:1 gearbox (0.017 kg.m2, from an ASSUMED 1e-6 kg.m2 rotor) is added to each wheel.
+- **Wheels:** collision shapes from the CAD mesh: a rim cylinder and 14 convex grouser hulls (plates thickened from 0.8 to 3 mm to stop tunnelling). Wheels collide with the ground only. Ground friction 0.8 and wheel 0.9 are placeholders until the soil model (phase 3).
+- **Mast:** pan (limit +-160 degrees, the design's 320 degree stop) and tilt (+-90) servos as PD loops, torque capped at the STS3215's 1.91 N.m stall, target slewed at its 52 rpm no-load speed; gains are tuning choices. The mast and head have no collision shapes yet.
+- **Chassis collision:** the convex hull of the fixed structure on a 6 mm grid.
+
+Scripted check (`?test=1`, 7.4 V, flat ground, grouser tip radius 115 mm):
+| test | result |
+|---|---|
+| parked 5 s | still: 0.001 m/s, motor currents under 0.03 A |
+| full throttle 6 s | steady 0.53 m/s |
+| brake from speed | stops in about 1 s, no tipping |
+| full turn command | spins in place at 102 deg/s (clockwise for a right turn), about 35% wheel slip |
+| mast pan and tilt | reach +160 and +90 degrees |
+
+**What the first runs showed about the design:**
+- **Speed:** 0.53 m/s at full duty, above `drive-spec.md`'s 0.49 m/s no-load figure, because that used the 100 mm rim radius and the wheel rolls on its 115 mm grouser tips on hard ground (derived: 47 rpm x 0.115 m x 2 pi = 0.566 m/s before slip). On soft soil the effective radius will be smaller.
+- **Braking tips the rover:** it tips nose-over if it decelerates harder than about 0.68 x g = 1.1 m/s2 on the Moon (CAD centre of mass z 235 mm, x +23 mm, half wheelbase 136.5 mm; the threshold scales with g). With zero duty the 37D shorts its terminals and a full brake through the 1.6 A cap is about 5 m/s2; the first test flipped to pitch -100 degrees. The sim limits duty change to 1.5 per second (about 0.8 m/s2). The real motor controller firmware needs the same deceleration limit; this is a finding for the electronics, not only the sim.
+- **Wheel spin and friction:** with the placeholder friction the rover can spin in place; the real soil may not allow it.
+
 ## Fidelity criteria (proposed; the owner has not confirmed them)
 1. **Geometry:** the sim rover is the CAD, to the millimetre; wheels have their 14 grousers as real collision geometry.
 2. **Mass:** per-body mass and centre of mass from `replica.py`; lunar gravity 1.62 m/s2.
@@ -44,8 +66,8 @@ ground with procedural multi-scale regolith albedo and bump. Look-development va
 8. **Validation:** static tip angles and the 20 degree slope climb from `replica.py` and `docs/suspension-spec.md` must reproduce in the sim.
 
 ## Phases
-1. **Sim-ready design (done, this commit):** exporter, JSON, viewer scaffold, Pages workflow.
-2. **Rover on flat ground:** Rapier bodies and joints from the JSON, differential constraint, wheel motors, keyboard and gamepad driving, chase camera.
+1. **Sim-ready design (done):** exporter, JSON, viewer scaffold, Pages workflow.
+2. **Rover on flat ground (done, see above):** Rapier bodies and joints from the JSON, differential constraint, wheel motors, keyboard and gamepad driving, chase camera.
 3. **Terrain and lighting:** lunar sun, black sky, procedural terrain with craters and rocks, lunar gravity, soil model.
 4. **Mast camera and telemetry:** pan-tilt control, camera PiP, HUD, power model.
 5. **Publish:** GitHub Pages, README with controls.
