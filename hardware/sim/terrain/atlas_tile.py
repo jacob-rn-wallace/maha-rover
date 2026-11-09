@@ -31,6 +31,9 @@ BLOCK = 200
 MISSING = -3.0e38                                                 # the label's missing constant is 0xFF7FFFFB (about -3.4e38)
 
 
+QUANT_BITS = 4                                     # heights are stored in steps of 16 counts (about 8 cm for a 333 m range)
+
+
 def window():
     """first line, first sample of the tile in the DTM"""
     sample_c = round((CENTRE_LON - WEST) * math.pi / 180 * R * math.cos(PHI1) / POST)
@@ -99,6 +102,7 @@ def build(cache, out, local_img=None):
             h[nan] = m[nan]
     lo, hi = float(h.min()), float(h.max())
     q = np.round((h - lo) / (hi - lo) * 65535).astype("<u2")
+    q = (q >> QUANT_BITS) << QUANT_BITS            # the product's vertical precision is 2.89 m: the low bits are noise that only costs download size (6.0 MB at 16 bits, about 2 MB with 4 dropped)
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     Image.fromarray(q.astype(np.uint16)).save(out / "atlas_5km.png")
@@ -106,7 +110,7 @@ def build(cache, out, local_img=None):
         "source": "LROC NAC DTM NAC_DTM_ATLAS_E468N0446 (ASU, 2012), https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds4/lroc/lro-l-lroc-5-rdr/LROLRC_2001/DATA/SDP/NAC_DTM/ATLAS/",
         "reference": "Henriksen et al., Icarus 2016, doi 10.1016/j.icarus.2016.05.012",
         "size_px": N, "post_m": POST, "extent_m": N * POST, "centre_lat": CENTRE_LAT, "centre_lon": CENTRE_LON,
-        "height_min_m": lo, "height_max_m": hi, "height_encoding": "metres = min + value / 65535 * (max - min); rows run north to south, columns west to east",
+        "height_min_m": lo, "height_max_m": hi, "height_quantisation": f"low {QUANT_BITS} bits of the 16 bit value zeroed (about 8 cm steps)", "height_encoding": "metres = min + value / 65535 * (max - min); rows run north to south, columns west to east",
         "dtm_lines": [l0, l0 + N], "dtm_samples": [s0, s0 + N], "vertical_precision_m": 2.89, "rms_vs_lola_m": [3.47, 13.0],
         "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top",
         "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University",

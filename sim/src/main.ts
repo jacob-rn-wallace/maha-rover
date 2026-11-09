@@ -11,7 +11,8 @@ import { MastCameraFx } from "./cameraFx";
 import { applyMetalDetail } from "./metal";
 import { Power } from "./power";
 import { PhysicsProxy, type PhysicsView } from "./physicsProxy";
-import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
+import { WHEELS, MOTOR } from "./constants";
+import type { RoverPhysics, Spec, Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("c") as HTMLCanvasElement;
@@ -109,7 +110,8 @@ async function main() {
     phys = await PhysicsProxy.create(spec, { spawnHeight: 0.03, terrainBase: terrain ? new URL("terrain/", location.href).href : undefined,
       terrainOpts: { smoothPosts: q.has("smooth") ? Number(q.get("smooth")) : undefined, detail: q.has("detail") ? Number(q.get("detail")) : undefined }, rocks: !!terrain && q.get("rocks") !== "0", soil: !!soil });
   } else {
-    const direct = await RoverPhysics.create(spec, 0.03, terrain, soil);
+    const { RoverPhysics: RP } = await import("./physics");      // loaded only here: it carries Rapier and its WASM
+    const direct = await RP.create(spec, 0.03, terrain, soil);
     if (q.get("test") === "1") { runTest(direct); return; }
     phys = direct;
   }

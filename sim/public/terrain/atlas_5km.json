@@ -24,5 +24,6 @@
  ],
  "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top",
  "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University",
- "site_basis": "chosen with the criteria of Flahaut et al. 2024 (Space Sci. Rev. 220:53): >=95% of slopes under 15 deg, mean slope <=7.3 deg at 8 m cells, nearest to prime ellipse FR-11"
+ "site_basis": "chosen with the criteria of Flahaut et al. 2024 (Space Sci. Rev. 220:53): >=95% of slopes under 15 deg, mean slope <=7.3 deg at 8 m cells, nearest to prime ellipse FR-11",
+ "height_quantisation": "low 4 bits of the 16 bit value zeroed (about 8 cm steps)"
 }
