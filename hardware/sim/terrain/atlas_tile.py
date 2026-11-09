@@ -24,9 +24,9 @@ URL = ("https://pds.mcp.nasa.gov/data/store/img/lunar_reconnaissance_orbiter/pds
 LINES, SAMPLES, OFFSET = 29426, 10607, 42428                      # from the PDS4 label (the file size checks: 42428 + 29426 * 10607 * 4 = 1248528756)
 R, PHI1 = 1737400.0, math.radians(47.0)
 WEST, NORTH, POST = 44.10437844, 47.76639058, 2.0
-CENTRE_LAT, CENTRE_LON, N = 47.3047, 44.8055, 2500                # 5 x 5 km, chosen by hardware/sim/terrain/site_select.py: the nearest fully covered window to the Hakuto-R impact point
-#   (47.581 N, 44.094 E, outside the raster; the DTM is three strips with a large empty north-west part) that meets the driving criteria listed there, 16.9 km from it.
-#   The nearest covered window of any kind is 14.7 km away (47.58 N, 44.81 E) but has 299 m of relief, over the 250 m limit.
+CENTRE_LAT, CENTRE_LON, N = 47.5676, 44.8102, 2500               # 5 x 5 km, chosen by hardware/sim/terrain/site_select.py with the criteria of the Rashid-1 site-selection paper
+#   (Flahaut et al. 2024): at least 95% of slopes under 15 degrees, mean slope at most 7.3 degrees (8 m cells), nearest to their prime ellipse FR-11 (47.53 N, 44.33 E).
+#   The DTM is three strips with a large empty north-west part, so FR-11 itself is not covered; this is the nearest covered window, 10.0 km from it.
 BLOCK = 200
 MISSING = -3.0e38                                                 # the label's missing constant is 0xFF7FFFFB (about -3.4e38)
 

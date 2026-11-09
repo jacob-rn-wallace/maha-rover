@@ -4,18 +4,18 @@
  "size_px": 2500,
  "post_m": 2.0,
  "extent_m": 5000.0,
- "centre_lat": 47.3047,
- "centre_lon": 44.8055,
- "height_min_m": -3156.622802734375,
- "height_max_m": -2973.864013671875,
+ "centre_lat": 47.5676,
+ "centre_lon": 44.8102,
+ "height_min_m": -3210.177490234375,
+ "height_max_m": -2876.8798828125,
  "height_encoding": "metres = min + value / 65535 * (max - min); rows run north to south, columns west to east",
  "dtm_lines": [
-  5750,
-  8250
+  1764,
+  4264
  ],
  "dtm_samples": [
-  6000,
-  8500
+  6048,
+  8548
  ],
  "vertical_precision_m": 2.89,
  "rms_vs_lola_m": [
@@ -23,5 +23,6 @@
   13.0
  ],
  "note": "metre-scale relief is below the product's vertical precision: the simulation adds procedural detail on top",
- "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University"
+ "licence": "public domain (https://lroc.im-ldi.com/about/terms); credit NASA/GSFC/Arizona State University",
+ "site_basis": "chosen with the criteria of Flahaut et al. 2024 (Space Sci. Rev. 220:53): >=95% of slopes under 15 deg, mean slope <=7.3 deg at 8 m cells, nearest to prime ellipse FR-11"
 }
