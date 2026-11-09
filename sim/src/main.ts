@@ -7,6 +7,7 @@ import { RockField } from "./rocks";
 import { loadTerrainShadow, applyTerrainShadow, computeTerrainShadow } from "./terrainShadow";
 import { TerrainView } from "./terrainView";
 import { applyRegolithPhotometry } from "./regolith";
+import { MastCameraFx } from "./cameraFx";
 import { Power } from "./power";
 import { RoverPhysics, WHEELS, MOTOR, type Spec, type Controls } from "./physics";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -103,6 +104,8 @@ async function main() {
   // the mast camera: Raspberry Pi HQ (IMX477, 6.287 x 4.712 mm active area, Raspberry Pi documentation) behind a 4 mm lens: 76.6 x 61.4 degrees, 4:3, no distortion
   const cam = spec.camera, mastCam = new THREE.PerspectiveCamera(61.4, 4 / 3, 0.02, 200000);
   const camOff = new THREE.Vector3(...cam.position_m), camBasis = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0), new THREE.Vector3(-1, 0, 0));     // camera looks along the head's +x, up is its +y
+  if (q.has("pip")) pip.mode = Number(q.get("pip"));      // ?pip=0|1|2: camera view off, small, large at start
+  const camFx = new MastCameraFx(renderer, 640, 480, q.has("vignette") ? Number(q.get("vignette")) : 0.6, q.get("noise") === "0" ? 0 : 1);      // ?vignette=0..1, ?noise=0
   const headQ = new THREE.Quaternion();
   const power = new Power();
   const el = THREE.MathUtils.degToRad(lunar.sunElevationDeg), az = THREE.MathUtils.degToRad(lunar.sunAzimuthDeg);
@@ -140,10 +143,7 @@ async function main() {
       mastCam.position.copy(camOff).applyQuaternion(headQ).add(hp);
       mastCam.quaternion.copy(headQ).multiply(new THREE.Quaternion().setFromRotationMatrix(camBasis));
       const pw = Math.min(vw * (pip.mode === 2 ? 0.7 : 0.3), (vh * (pip.mode === 2 ? 0.7 : 0.3)) * 4 / 3), ph = pw * 3 / 4, px = vw - pw - 12, py = coarse ? vh - ph - 12 : 12;
-      renderer.setScissorTest(true); renderer.setViewport(px, py, pw, ph); renderer.setScissor(px, py, pw, ph);
-      renderer.clear();
-      renderer.render(scene, mastCam);
-      renderer.setScissorTest(false);
+      camFx.render(scene, mastCam, px, py, pw, ph);
       Object.assign(pip.box.style, { display: "block", right: "12px", ...(coarse ? { top: "12px", bottom: "" } : { bottom: "12px" }), width: pw + "px", height: ph + "px" });
     } else pip.box.style.display = "none";
   });
