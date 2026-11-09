@@ -12,9 +12,11 @@ export const MODES: { id: Mode; label: string; key: number }[] = [{ id: "drive",
  *  The inset is a DOM box over the canvas; the chase view is drawn into its rectangle. Clicking it returns to Drive. */
 export class Modes {
   mode: Mode = "drive";
-  private inset = h("div"); private lastMap = 0;
+  onEnter?: (m: Mode) => void;      // called after a mode is set
+  private inset = h("div"); private lastMapKey = "";
 
-  constructor(private ui: UI, private cam: CameraView, private map: Minimap | undefined, private coarse: boolean) {
+  /** `planBox`: the Plan panel, shown in the left dock in Plan mode in place of the telemetry */
+  constructor(private ui: UI, private cam: CameraView, private map: Minimap | undefined, private coarse: boolean, private planBox?: HTMLElement) {
     const box = ui.layout.inset; box.classList.add("panel"); box.title = "chase view: click to return to Drive";
     const label = h("span", "inset-label", "chase view"); box.append(label); this.inset = box; box.addEventListener("click", () => this.set("drive"));
     this.set("drive");
@@ -23,11 +25,13 @@ export class Modes {
   set(m: Mode) {
     this.mode = m;
     const { ui, cam, map } = this;
-    ui.layout.root.dataset.mode = m; ui.bar.setMode(m);
+    const planBox = this.planBox; ui.layout.root.dataset.mode = m; ui.bar.setMode(m);
     cam.primary = m === "camera"; cam.shown = m === "drive" || m === "camera";
     if (map) { map.shown = m !== "camera"; if (m !== "plan") map.setPrimary(false); }
-    ui.tele.toggle(m === "data");
+    ui.tele.toggle(m === "data" || m === "plan");
+    ui.tele.box.style.display = m === "plan" && planBox ? "none" : ""; if (planBox) planBox.style.display = m === "plan" ? "" : "none";
     this.inset.style.display = this.hasInset ? "block" : "none";
+    this.onEnter?.(m);
   }
   get hasInset() { return this.mode === "camera" || this.mode === "plan"; }
   /** C: the camera as the main view, and back */
@@ -38,9 +42,9 @@ export class Modes {
     const w = Math.round(this.coarse ? 120 : Math.max(160, Math.min(240, vw * 0.17)));
     this.inset.style.width = w + "px"; this.inset.style.height = Math.round(w * 0.625) + "px";
     this.cam.reserveX = w + 24;
-    if (this.mode === "plan" && this.map) {
-      const bar = this.coarse ? 32 : 36, px = Math.round(Math.max(120, Math.min(vw - 2 * (w + 24), vh - bar - 2 * 8)));
-      if (px !== this.lastMap || !this.lastMap) { this.lastMap = px; this.map.setPrimary(true, px); }
+    if (this.mode === "plan" && this.map) {      // the square map in the room between the dock and the inset
+      const bar = this.coarse ? 32 : 36, x0 = this.planBox ? 316 : 12, x1 = vw - w - 24, px = Math.round(Math.max(120, Math.min(x1 - x0, vh - bar - 16))), cx = Math.round((x0 + x1) / 2), key = px + "," + cx;
+      if (key !== this.lastMapKey) { this.lastMapKey = key; this.map.setPrimary(true, px, cx); }
     }
   }
 

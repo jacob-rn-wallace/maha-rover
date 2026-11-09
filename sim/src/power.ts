@@ -7,9 +7,9 @@
 import * as THREE from "three";
 
 export const PACK = { capacityAh: 6.0, vFull: 8.4, vEmpty: 6.4, rInt: 0.05, vNominal: 7.4 };
-const PI_AMPS = 0.8, SERVO_MOVING_AMPS = 0.3, SERVO_HOLD_AMPS = 0.04;
-const SOLAR_W_PER_SIDE = 9.6, CHARGER_EFF = 0.9;
-const TILT = Math.PI / 18;
+export const PI_AMPS = 0.8, SERVO_MOVING_AMPS = 0.3, SERVO_HOLD_AMPS = 0.04;
+export const SOLAR_W_PER_SIDE = 9.6, CHARGER_EFF = 0.9;
+export const TILT = Math.PI / 18;      // the panels' normals are this far above the horizon
 
 export class Power {
   chargeAh = PACK.capacityAh;

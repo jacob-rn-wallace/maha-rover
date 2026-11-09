@@ -4,8 +4,8 @@ import type { Mode } from "./modes";
 import { MODES } from "./modes";
 
 export interface BarActions { toggleHazard(): void; toggleHelp(): void; toggleLog(): void; setMode(m: Mode): void }
-export type ChipId = "battery" | "tilt" | "wall" | "hazard" | "rec";
-type Lv = Level | "off" | "on";
+export type ChipId = "battery" | "tilt" | "wall" | "hazard" | "rec" | "route";
+type Lv = Level | "off" | "on" | "route";
 
 /** The top bar: the wordmark at the bar's height, status chips coloured by the limits table (a chip's popover holds its detail), and the help and settings buttons.
  *  The mode tabs (Drive, Plan, Camera, Data) sit beside the wordmark. */
@@ -17,17 +17,17 @@ export class TopBar {
     const bar = layout.top;
     const logo = h("img", "logo"); logo.src = "almaha-wordmark-white.svg"; logo.alt = "المَهَا al-maha";
     const chip = (id: ChipId, text: string) => { const c = h("button", "chip", text); c.dataset.level = "off"; c.title = id; return c; };
-    const battery = chip("battery", "battery"), tilt = chip("tilt", "tilt"), wall = chip("wall", "wall"), recChip = chip("rec", "rec");
-    wall.classList.add("hidden"); recChip.classList.add("hidden");
+    const battery = chip("battery", "battery"), tilt = chip("tilt", "tilt"), wall = chip("wall", "wall"), recChip = chip("rec", "rec"), route = chip("route", "route");
+    wall.classList.add("hidden"); recChip.classList.add("hidden"); route.classList.add("hidden"); route.title = "the route: click for the Plan mode"; route.addEventListener("click", () => on.setMode("plan"));
     const hz = h("span", "chip pair"); hz.dataset.level = "off";
     const hzMain = h("button", "", "hazard"), hzMore = h("button", "", "▾"); hzMain.title = "hazard overlay (H)"; hzMore.title = "hazard legend";
     hz.append(hzMain, hzMore);
-    this.chips = { battery, tilt, wall, hazard: hz, rec: recChip };
+    this.chips = { battery, tilt, wall, hazard: hz, rec: recChip, route };
     const help = h("button", "iconbtn", "?"), gear = h("button", "iconbtn", "⚙"); help.title = "keys (?)"; gear.title = "settings and performance";
     const tabs = h("div", "tabs");
     for (const m of MODES) { const t = h("button", "tab", m.label); t.title = `${m.label} (${m.key})`; t.addEventListener("click", () => on.setMode(m.id)); this.tabs.set(m.id, t); tabs.append(t); }
     const sp = () => h("span", "spacer");
-    bar.append(logo, tabs, sp(), battery, tilt, wall, hz, recChip, sp(), help, gear);
+    bar.append(logo, tabs, sp(), route, battery, tilt, wall, hz, recChip, sp(), help, gear);
 
     this.batteryDetail.innerHTML = "";
     layout.popover("battery", battery, this.batteryDetail);

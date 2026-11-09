@@ -13,6 +13,7 @@
     "check:rocks": "esbuild tests/rocks-check.ts --bundle --platform=node --format=esm --outfile=.check/rocks-check.mjs --log-level=warning && node .check/rocks-check.mjs",
     "check:limits": "esbuild tests/limits-check.ts --bundle --platform=node --format=esm --outfile=.check/limits-check.mjs --log-level=warning && node .check/limits-check.mjs",
     "check:freshness": "esbuild tests/freshness-check.ts --bundle --platform=node --format=esm --outfile=.check/freshness-check.mjs --log-level=warning && node .check/freshness-check.mjs",
+    "check:plan": "esbuild tests/plan-check.ts --bundle --platform=node --format=esm --outfile=.check/plan-check.mjs --log-level=warning && node .check/plan-check.mjs",
     "bench:summary": "node tests/bench-summary.mjs"
   },
   "dependencies": {

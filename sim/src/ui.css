@@ -39,7 +39,7 @@
 .tbtn { margin-left: auto; background: none; border: 0; padding: 0 4px; color: var(--dim); }
 
 /* regions */
-#ui-left { z-index: 1; position: absolute; left: 0; top: var(--bar-h); bottom: 0; width: 280px; max-width: 80vw; padding: var(--gap); transform: translateX(-100%); transition: transform .18s; pointer-events: none; overflow: auto; }
+#ui-left { z-index: 1; position: absolute; left: 0; top: var(--bar-h); bottom: 0; width: 300px; max-width: 80vw; padding: var(--gap); transform: translateX(-100%); transition: transform .18s; pointer-events: none; overflow: auto; }
 #ui-left.open { transform: none; }
 #ui-handle { position: absolute; left: 0; top: calc(var(--bar-h) + var(--gap)); width: 18px; height: 44px; border-radius: 0 6px 6px 0; border-left: 0; padding: 0; z-index: 1; pointer-events: auto; background: var(--panel-bg); border: 1px solid var(--line); border-left: 0; }
 #ui-right { position: absolute; right: var(--pad); top: calc(var(--bar-h) + var(--gap)); display: flex; flex-direction: column; align-items: flex-end; gap: var(--gap); max-height: calc(100% - var(--bar-h) - var(--gap) - var(--pad)); }
@@ -90,3 +90,23 @@
 #ui.coarse #ui-top { gap: 6px; }
 #ui.coarse .tab { padding: 0 6px; font-size: 10px; }
 #ui.coarse #ui-top .logo { height: 20px; }
+
+/* plan panel */
+.plan { padding: 6px 10px 8px; }
+.plan h4 { margin: 8px 0 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.plan h4:first-child { margin-top: 2px; }
+.plan .hint { font-size: 11px; margin-bottom: 4px; }
+.plan .note { font-size: 10px; margin-top: 4px; }
+.plan .wp { display: flex; align-items: center; gap: 8px; padding: 2px 4px; border-radius: 5px; cursor: pointer; }
+.plan .wp.sel { background: rgba(74, 163, 255, .28); }
+.plan .wp.done { opacity: .5; }
+.plan .wp b { width: 14px; color: #fff; }
+.plan .grow { flex: 1; }
+.plan .n { white-space: nowrap; }
+.plan button { background: none; border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; color: var(--fg); }
+.plan .row { display: flex; justify-content: space-between; gap: 10px; } .plan .row span:first-child { color: var(--dim); }
+.plan .btns { display: flex; gap: 6px; margin-top: 6px; }
+.chip[data-level="route"] { --c: #6aa9ff; }
+.map-ctl { display: none; position: absolute; left: 6px; top: 6px; gap: 4px; }
+.map-tile.primary .map-ctl { display: flex; }
+.map-ctl button { width: 24px; height: 24px; padding: 0; border-radius: 6px; background: rgba(10,12,16,.75); border: 1px solid var(--line); }

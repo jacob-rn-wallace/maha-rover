@@ -12,6 +12,10 @@ import { MastCameraFx } from "./cameraFx";
 import { WHEELS } from "./constants";
 import { UI } from "./ui";
 import { Modes, MODES, type Mode } from "./modes";
+import { Route, type Pose } from "./plan";
+import { PlanPanel } from "./planPanel";
+import { RouteView } from "./routeView";
+import { bearingDeg } from "./freshness";
 import { HazardOverlay } from "./hazard";
 import { CameraView } from "./cameraView";
 import { PerfPanel } from "./perfPanel";
@@ -164,8 +168,17 @@ async function main() {
   if (minimap && q.has("mapmode")) { minimap.mode = Number(q.get("mapmode")); minimap.layout(); }
   const cameraView = new CameraView(camFx, spec.camera.position_m as [number, number, number], coarse, { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg }, ui.layout.right);      // the sun's azimuth is counterclockwise from east: bearing = 90 - azimuth
   (window as any).__camview = cameraView;      // for scripted checks
-  const modes = new Modes(ui, cameraView, minimap, coarse);
+  // the route: waypoints placed on the map in Plan mode (drag to set the heading), shown on the map and in the world, followed with the usual controls
+  const sun = { bearingDeg: (90 - lunar.sunAzimuthDeg + 360) % 360, elevationDeg: lunar.sunElevationDeg };
+  const route = new Route();
+  const routeView = new RouteView(scene, route, (x, z) => (terrain ? terrain.height(x, z) : 0));
+  let modes: Modes;
+  const plan = minimap ? new PlanPanel(ui.layout, route, minimap, sun, () => modes.mode === "plan") : undefined;
+  modes = new Modes(ui, cameraView, minimap, coarse, plan?.box);
   handlers.setMode = (m) => modes.set(m);
+  modes.onEnter = (m) => { if (m === "plan") plan?.centre(); };
+  (window as any).__route = route;      // for scripted checks
+  (window as any).__map = minimap;
   if (q.has("pip")) { const v = Number(q.get("pip")); if (v === 2) modes.set("camera"); else if (v === 0) (cameraView as any).fold.click(); }      // ?pip=0|1|2: camera tile folded away, small, as the main view at the start
   if (MODES.some((m) => m.id === q.get("mode"))) modes.set(q.get("mode") as Mode);      // ?mode=drive|plan|camera|data
   const fwd = new THREE.Vector3();
@@ -184,7 +197,7 @@ async function main() {
   };
   const toggleLog = () => { if (perf.recording) { finish(0, "Recording"); } else { panel.hide(); perf.start("manual", { search: location.search }); } };
   handlers.toggleLog = toggleLog;
-  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, toggleCamera: () => modes.toggleCamera(), setMode: (i) => modes.set(MODES[i - 1].id), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
+  const input = setupInput(coarse, ui.layout.sticks, { upright: () => { resetRequested = true; }, toggleCamera: () => modes.toggleCamera(), setMode: (i) => modes.set(MODES[i - 1].id), cycleMap: () => minimap?.cycle(), toggleLog, toggleHazard: () => hazard.toggle(), toggleTelemetry: () => ui.tele.toggle(), toggleHelp: () => ui.help.toggle(), undoWaypoint: () => { if (modes.mode === "plan") route.undo(); }, closeAll: () => { ui.help.close(); }, snap: () => cameraView.snap(), stepRoll: (d) => cameraView.roll.step(d), live: () => cameraView.roll.live() }, () => (benchT !== null ? benchControls(benchT) : null));
   let benchStart = 0;
   if (bench) { benchStart = performance.now(); benchT = 0; perf.start("benchmark", { search: location.search, seconds: BENCH_SECONDS, warmupSeconds: BENCH_WARMUP, adaptive: q.get("adapt") === "1" }); }
   let last = performance.now(), hudT = 0, mapT = 1, fpsEma = 60, frameEma = 1 / 60, resNote = 0, drawCalls = 0, drawTris = 0;
@@ -234,6 +247,11 @@ async function main() {
         else if (frameEma < FRAME_BUDGET * 0.75 && ratio < maxRatio && resNote > 120) { ratio = Math.min(maxRatio, ratio * 1.1); renderer.setPixelRatio(ratio); resNote = 0; }
       }
     }
+    if (hudT > 0.1) {      // the route: guidance to the next waypoint (the top-bar chip), the world markers and the panel
+      fwd.set(1, 0, 0).applyQuaternion(chassisQ); const pose: Pose = { x: ct.x, z: ct.z, headingDeg: bearingDeg(fwd.x, -fwd.z) }, g = route.guide(pose);
+      ui.bar.set("route", g ? `wp ${g.index + 1}/${g.count} · ${g.distance.toFixed(0)} m · ${Math.abs(g.turn) < 3 ? "ahead" : (g.turn > 0 ? "right " : "left ") + Math.abs(g.turn).toFixed(0) + "°"}` : null, "route");
+      routeView.update(pose); plan?.update(pose);
+    }
     if (hudT > 0.1) { hudT = 0; ui.update({ phys, chassis: c, power, terrain, recording: { on: perf.recording, seconds: perf.seconds, benchOf: benchT !== null ? BENCH_SECONDS : undefined }, stats: showStats ? `${gpuName}\nmain thread ${jsMs.toFixed(1)} ms/frame, ${fpsEma.toFixed(0)} fps, pixel ratio ${ratio.toFixed(2)} (${canvas.width} x ${canvas.height}), ${drawCalls} draw calls, ${(drawTris / 1e6).toFixed(2)} M triangles` : `${gpuName}\nopen with ?stats=1 for frame statistics` }); }
     resize();
     controls.update();
@@ -253,7 +271,7 @@ async function main() {
     perf.frame({ t: 0, dt, jsMs: performance.now() - jsStart, ratio, drawCalls, triangles: drawTris, x: ct.x, z: ct.z, stepMs: phys.stepMs ?? 0, snapHz: phys.snapHz ?? 0 });
     jsMs += (performance.now() - jsStart - jsMs) * 0.1;      // main-thread time of this frame up to the main render call (the GPU works after it)
     roverPose.x = ct.x; roverPose.z = ct.z; roverPose.quat.copy(chassisQ); roverPose.pan = phys.panAngle; roverPose.tilt = phys.tiltAngle;
-    hazard.without(() => cameraView.render(scene, node("head"), vw, vh, roverPose));
+    hazard.without(() => routeView.without(() => cameraView.render(scene, node("head"), vw, vh, roverPose)));
   });
 }
 

@@ -1,6 +1,6 @@
 # Sim interface layout: where everything goes (proposal, 2026-11-09)
 
-Status: **parts A to D built (2026-11-09), see sections 10 and 11; E (the phone bottom sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
+Status: **parts A to D built (2026-11-09), see sections 10 and 11; the Plan mode's waypoint planner (step 4) is built, section 12; E (the phone bottom sheet) not yet.** Written after the HUD, hazard overlay and camera view were added one at a time and began to collide. Wireframes: `docs/images/sim-ui-layout.svg` (and `.png`). Background: `docs/sim-ui-research.md` (rover operations tools); this file adds drone ground-station and OSD practice.
 
 ## 1. The problem today
 
@@ -124,7 +124,7 @@ Not checked or known:
 |---|---|---|
 | Drive | chase view | map and camera as small tiles; telemetry closed |
 | Camera | the mast camera, as a centred 4:3 tile with its header, flags, picture, compass, readout and roll | chase view as an inset; map hidden; telemetry closed |
-| Plan | the map, a centred square on a higher-resolution base map (768 samples, painted once on first use) | chase view as an inset; camera hidden. **No planner yet** (step 4) |
+| Plan | the map, a centred square, zoomable (the waypoint planner, section 12) | the Plan panel in the left dock; chase view as an inset; camera hidden |
 | Data | chase view | telemetry dock open; map small; camera hidden. **No strips yet** (step 6) |
 
 - A mode is a preset: switching sets the telemetry dock, the tiles and the inset; it does not remember a manual toggle.
@@ -134,3 +134,18 @@ Not checked or known:
 - Checked in headless screenshots (1280 x 800, 844 x 390): all four modes, the keys 1 to 4 and C, the inset click, the fold button, Camera mode on a phone. `tsc`, `vite build` and the node checks pass.
 - Not checked: a real GPU; the cost of the chase view as an inset plus the camera view; the camera's picture when the window is very narrow; orbit dragging on the canvas while the chase view is only an inset (it still moves the chase camera); the 768-sample map's first-use pause (it is a one-off paint of 590,000 height samples).
 - On phones the two touch buttons ("camera view", "stand upright") sit over the bottom of the Camera mode picture.
+
+## 12. Waypoint planning (step 4, built 2026-11-09)
+
+Files (`sim/src`): `plan.ts` (the pure logic: route, metrics, solar heading, footprint, guidance; `npm run check:plan`, 28 cases), `planPanel.ts` (the dock panel and the map interaction), `routeView.ts` (the markers in the world), plus a zoomable view in `minimap.ts`.
+
+- **Placing**: in Plan mode a click on the map places a waypoint; a drag sets its heading (without a drag it is the direction of travel); a click on a marker selects it. The panel lists each waypoint with its distance from the previous point, its heading and the turn it makes there (L or R), with a ☀ button (face the panels to the sun) and a remove button; Backspace or "undo" removes the last; "clear" empties the route.
+- **Map view**: on entering Plan it shows 800 m across, centred on the rover (1 m a pixel at the default window size); the wheel zooms about the cursor, shift-drag or right-drag pans, the buttons in the corner zoom and centre; the base map is repainted for the window (23 ms in the test) at most every 150 ms; the scale bar picks 10 m to 2 km. Leaving Plan resets the small map to the whole tile.
+- **On the map**: the path (dashed blue, distinct from the amber trail) from the rover through the waypoints, numbered markers with heading arrows, an arc with an arrowhead for the turn at each waypoint, and the selected waypoint's **camera footprint** (a quadrilateral for the camera 0.667 m up, level, out to 15 m: near edge 1.1 m).
+- **In the world**: a pole, a heading cone and a flag at each waypoint, the path on the ground and the selected footprint's outline (all drawn on the terrain, hidden from the mast camera's own view, as the hazard overlay is).
+- **Totals** (estimates, labelled in the panel): distance, turn degrees, time, energy in Wh and as a percentage of the pack's 44.4 Wh, and the solar power at the last waypoint's heading against the best possible. Assumptions: 0.5 m/s (the sim's full throttle gives 0.527), turns at 60 degrees a second (the sim turns at about 100 degrees a second at full command on flat rigid ground, `?test=1`; soil losses are not measured), 14 W while moving or turning (about 2 A, `sim-spec.md`). Slope, soil and rocks are not counted.
+- **Solar heading**: the side panels face the body's left and right, 10 degrees above the horizon, so the best heading puts one side to the sun (two equivalent headings; the one nearer the direction of travel is used). For the fixed sun (bearing 50 degrees, 14 degrees up) that is about 320 degrees or 140 degrees.
+- **Following the route**: the rover is driven with the usual controls. A **route chip** in the top bar (click: Plan mode) shows the next waypoint, the distance and the turn to face it (for example "wp 1/3 · 18 m · left 40°"); a waypoint counts as reached within 1.5 m. There is no autopilot.
+- Checked in headless screenshots and scripted pointer events: three waypoints placed (one with a drag), the solar heading button, the chip, the markers and footprint in the chase view, the zoomed map. `tsc`, `vite build`, `check:limits` (16), `check:freshness` (17), `check:plan` (28).
+- Not checked: a real mouse (wheel, shift and right-drag pans, the drag preview), touch placing on a phone, a waypoint list longer than the panel, waypoints near the tile edge, the footprint on slopes (it is flat-ground geometry), the route while the rover moves, a real GPU.
+- Not built from the plan: rehearse mode (step 8); energy cost on slopes; the path avoiding the hazard classes; a time-ordered view of the route.
