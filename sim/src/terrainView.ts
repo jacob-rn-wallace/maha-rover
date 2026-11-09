@@ -10,6 +10,7 @@ import { decode } from "fast-png";
  *  (hardware/sim/terrain/viewshed.py output: only the terrain that can be seen from the tile) lies beyond it.
  *  Octaves of procedural detail a level cannot resolve (shorter than twice its cell size) are left out of its heights.
  */
+const CHUNKS = 10;
 interface Level { s: number; n: number; snap: number; fixed?: boolean }
 const LEVELS: Level[] = [
   { s: 0.25, n: 256, snap: 4 },          // 64 m, aligned to the next level's 1 m lattice
@@ -25,6 +26,9 @@ class LevelMesh {
   private pos: Float32Array; private nor: Float32Array; private idx: Uint32Array;
   private geo = new THREE.BufferGeometry();
   private hts: Float32Array;
+  /** the fixed tile level is cut into CHUNKS x CHUNKS meshes over the shared vertex buffers (own index buffers, bounding spheres), so the frustum culling drops the 10 m cells behind the camera */
+  readonly object: THREE.Object3D;
+  private chunks: THREE.Mesh[] = []; private bounded = false;
   constructor(readonly level: Level, material: THREE.Material, readonly terrain: Terrain, readonly finer: LevelMesh | null, readonly coarser: Level | null) {
     const v = (level.n + 1) ** 2;
     this.pos = new Float32Array(v * 3); this.nor = new Float32Array(v * 3); this.idx = new Uint32Array(level.n * level.n * 6);
@@ -35,6 +39,14 @@ class LevelMesh {
     this.mesh = new THREE.Mesh(this.geo, material);
     this.mesh.frustumCulled = false;
     this.mesh.receiveShadow = true;
+    if (level.fixed) {
+      const g = new THREE.Group(); this.object = g;
+      for (let c = 0; c < CHUNKS * CHUNKS; c++) {
+        const cg = new THREE.BufferGeometry();
+        cg.setAttribute("position", this.geo.attributes.position); cg.setAttribute("normal", this.geo.attributes.normal);
+        const m = new THREE.Mesh(cg, material); m.receiveShadow = true; this.chunks.push(m); g.add(m);
+      }
+    } else this.object = this.mesh;
   }
 
   private job: { cx: number; cz: number; row: number; h: Float32Array } | null = null;
@@ -70,8 +82,22 @@ class LevelMesh {
     }
     (this.geo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
     (this.geo.attributes.normal as THREE.BufferAttribute).needsUpdate = true;
+    if (fixed && !this.bounded) this.bound();
     this.indices();
     return true;
+  }
+
+  /** bounding spheres of the chunks (the fixed level's heights never change) */
+  private bound() {
+    this.bounded = true;
+    const { n } = this.level, per = n / CHUNKS, stride = n + 1, box = new THREE.Box3(), v = new THREE.Vector3();
+    this.chunks.forEach((m, c) => {
+      const i0 = (c % CHUNKS) * per, j0 = Math.floor(c / CHUNKS) * per;
+      box.makeEmpty();
+      for (let j = j0; j <= j0 + per; j++) for (let i = i0; i <= i0 + per; i++) { const k = (j * stride + i) * 3; box.expandByPoint(v.set(this.pos[k], this.pos[k + 1], this.pos[k + 2])); }
+      m.geometry.boundingSphere = box.getBoundingSphere(new THREE.Sphere());
+      m.frustumCulled = true;
+    });
   }
 
   /** a boundary vertex lies on the coarser level's lattice line: take the linear interpolation of the two coarser vertices beside it */
@@ -90,6 +116,21 @@ class LevelMesh {
     const fh = f ? (f.level.n * f.level.s) / 2 : 0;
     this.holeKey = f ? `${f.cx},${f.cz}` : "";
     let c = 0;
+    if (this.level.fixed) {                                            // per chunk: its cells, in the shared index array
+      const per = n / CHUNKS;
+      this.chunks.forEach((m, ch) => {
+        const i0 = (ch % CHUNKS) * per, j0 = Math.floor(ch / CHUNKS) * per, start = c;
+        for (let j = j0; j < j0 + per; j++) for (let i = i0; i < i0 + per; i++) {
+          const mx = this.cx + (i - half) * s + s / 2, mz = this.cz + (j - half) * s + s / 2;
+          if (Math.abs(mx) > H || Math.abs(mz) > H) continue;
+          if (f && Math.abs(mx - f.cx) < fh && Math.abs(mz - f.cz) < fh) continue;
+          const a = j * stride + i, b = a + 1, d = a + stride, e = d + 1;
+          this.idx[c++] = a; this.idx[c++] = d; this.idx[c++] = b; this.idx[c++] = b; this.idx[c++] = d; this.idx[c++] = e;
+        }
+        m.geometry.setIndex(new THREE.BufferAttribute(this.idx.slice(start, c), 1)); m.visible = c > start;
+      });
+      return;
+    }
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
       const x0 = this.cx + (i - half) * s, z0 = this.cz + (j - half) * s;
       const mx = x0 + s / 2, mz = z0 + s / 2;
@@ -115,7 +156,7 @@ export class TerrainView {
       built.push(lm); finer = lm;
     }
     this.levels = built;
-    for (const l of built) this.group.add(l.mesh);
+    for (const l of built) this.group.add(l.object);
   }
 
   update(x: number, z: number) {

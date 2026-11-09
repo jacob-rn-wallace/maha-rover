@@ -194,3 +194,8 @@ Fixes (all untested on a real GPU; the next log will show): (1) **frame pacing**
 ### Second benchmark log (build 7071c24): the pacing fix worked
 
 Same machine (Apple M1-class, 117.5 Hz display, window 2009x1134, buffer 1331x751). 60 fps mean, 1% low 56.9, frame time std 0.41 ms (was 3.9), stutter frames 0.1% (was 26.5%), snapshot underruns 0.1%. The owner reported it as extremely smooth. The log is `sim/bench/b7dc4f21-almaha-perf-2026-11-09-19-16-18.json`. The mean fps now sits at the cap, so headroom is not visible in this log: to see it, run `?bench=1&fps=0`.
+
+### Draw-call merge and a chunked tile level
+
+- Rover: parts with the default finish (the electronics, boards, fuses, frame hardware: metal 0.15, roughness 0.45) now share one `interior` material per body with per-vertex colours (`COLOR_0`), so the rover is 35 draw calls, down from 46 (chassis 20 to 9). Bodies cannot merge with each other: they move separately under physics.
+- Terrain: the fixed 10 m tile level (500,000 triangles, drawn whole every frame) is cut into 10 x 10 chunk meshes over the shared vertex buffers, each with a bounding sphere, so the frustum culling drops the chunks behind the camera. Measured gain: not yet; `?bench=1&fps=0` reports the triangle count drawn.

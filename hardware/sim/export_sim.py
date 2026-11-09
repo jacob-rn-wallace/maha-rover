@@ -222,6 +222,11 @@ def material_key(group, name):
     return group
 
 
+def plain_finish(key):
+    """a material key with the default finish (metal 0.15, rough 0.45): mergeable by vertex colour"""
+    return key not in MATERIALS and key not in ("link plates", "differential housing", "motors")
+
+
 def material(key):
     if key in MATERIALS:
         (r, g, b), metal, rough = MATERIALS[key]
@@ -344,17 +349,30 @@ def main():
     for b in BODIES:
         prims = []
         ntri = 0
+        classes = {}                                 # draw-call merge: parts with the default finish (one colour each) share one material with per-vertex colours
         for g, pieces in per[b].items():
-            v = np.concatenate([p[0] for p in pieces])
-            off = np.cumsum([0] + [len(p[0]) for p in pieces[:-1]])
-            t = np.concatenate([p[1] + o for p, o in zip(pieces, off)])
-            vv, nn, ii = smooth(v, t)
-            if g not in mat_idx:
-                col, me, ro = material(g)
-                mats.append({"name": g, "pbrMetallicRoughness": {"baseColorFactor": list(col), "metallicFactor": me, "roughnessFactor": ro}})
-                mat_idx[g] = len(mats) - 1
-            prims.append({"attributes": {"POSITION": add_acc(vv.astype("<f4"), 34962, 5126, "VEC3", True), "NORMAL": add_acc(nn.astype("<f4"), 34962, 5126, "VEC3")},
-                          "indices": add_acc(ii.astype("<u4"), 34963, 5125, "SCALAR"), "material": mat_idx[g]})
+            classes.setdefault("interior" if plain_finish(g) else g, []).append((g, pieces))
+        for cls, groups in classes.items():
+            vs, ns, iis, cols, base = [], [], [], [], 0
+            for g, pieces in groups:
+                v = np.concatenate([p[0] for p in pieces])
+                off = np.cumsum([0] + [len(p[0]) for p in pieces[:-1]])
+                t = np.concatenate([p[1] + o for p, o in zip(pieces, off)])
+                vv, nn, ii = smooth(v, t)
+                vs.append(vv); ns.append(nn); iis.append(ii + base); base += len(vv)
+                cols.append(np.tile(np.array(material(g)[0][:3]), (len(vv), 1)))
+            vv, nn, ii = np.concatenate(vs), np.concatenate(ns), np.concatenate(iis)
+            if cls not in mat_idx:
+                if cls == "interior":
+                    mats.append({"name": cls, "pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1], "metallicFactor": 0.15, "roughnessFactor": 0.45}})
+                else:
+                    col, me, ro = material(cls)
+                    mats.append({"name": cls, "pbrMetallicRoughness": {"baseColorFactor": list(col), "metallicFactor": me, "roughnessFactor": ro}})
+                mat_idx[cls] = len(mats) - 1
+            attrs = {"POSITION": add_acc(vv.astype("<f4"), 34962, 5126, "VEC3", True), "NORMAL": add_acc(nn.astype("<f4"), 34962, 5126, "VEC3")}
+            if cls == "interior":
+                attrs["COLOR_0"] = add_acc(np.concatenate(cols).astype("<f4"), 34962, 5126, "VEC3")
+            prims.append({"attributes": attrs, "indices": add_acc(ii.astype("<u4"), 34963, 5125, "SCALAR"), "material": mat_idx[cls]})
             ntri += len(ii) // 3
         meshes.append({"name": b, "primitives": prims})
         stats[b] = ntri
