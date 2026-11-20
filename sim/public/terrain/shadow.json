@@ -1,6 +1,6 @@
 {
  "sun_elevation_deg": 14.0,
- "sun_azimuth_deg": 40.0,
+ "sun_azimuth_deg": -18.0,
  "azimuth_note": "sim world frame: sun direction (cos el cos az, sin el, -cos el sin az), x east, z south",
  "tile": {
   "half_m": 2500.0,

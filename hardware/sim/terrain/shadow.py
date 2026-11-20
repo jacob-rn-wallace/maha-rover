@@ -1,6 +1,6 @@
 """Terrain shadows for the simulation's fixed sun: which ground is in the shadow of other terrain (hills, the crater rim), as two textures the terrain shader samples.
 
-The sun is fixed (`sim/src/lunar.ts`: elevation 14 degrees, azimuth 40 degrees; in the sim's world frame, x east, z south, the sun direction is (cos el cos az, sin el, -cos el sin az),
+The sun is fixed (`sim/src/lunar.ts`: elevation 14 degrees, azimuth -18 degrees (bearing 108, the real Sun at the sky epoch, see build_sky.py); in the sim's world frame, x east, z south, the sun direction is (cos el cos az, sin el, -cos el sin az),
 so the ground-plane direction towards the sun is east cos az, north sin az). The dynamic shadow map of the renderer only covers 4 m round the rover (the rover's own shadow and
 rocks); this is everything larger.
 

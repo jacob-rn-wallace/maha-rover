@@ -12,10 +12,9 @@ Sources and status
   Earth:     NASA Blue Marble with bathymetry (a copy in the three-globe examples; NASA imagery is public domain, the copy's provenance is not
              checked) and a static cloud map from the same package, mixed into one albedo texture. Not the cloud cover of the epoch. approximate
   Orientation: Moon rotation from the IAU model, Earth from astropy's built-in ephemeris; see lunar_frame.py for the check against Meeus.
-Epoch: 2027-12-04 15:00 UTC. The date came from a search (3 years from 2026-11-20) for a small libration, with the real Sun in the morning sky at
-  the site, so the Earth sits near its mean place; the hour of day was then set so the Earth's Africa and Europe face the Moon (the Earth turns once
-  a day, so that is a free choice). The real Sun is then about 20 deg up. The simulation's own sun is a fixed look-development direction (bearing 50 deg),
-  which no date can produce at this latitude (the Sun is never that far north of east there); the sky does not depend on it except through the Earth's phase.
+Epoch: 2030-10-02 14:48 UTC, found by search (50 lunations from 2027-06-01; search kept out of this file): the real Sun at the site is 14.0 deg up in the
+  morning (the simulation's sun elevation) at bearing 108 deg, the libration is small (Earth near its mean place) and the Earth turned so that Africa faces
+  the Moon. The simulation's sun is set to this real Sun (lunar.ts and the shadow textures), so the sky and the lighting agree. The Earth is lit by it.
 """
 import sys, json, struct, warnings
 warnings.filterwarnings('ignore')
@@ -26,7 +25,7 @@ from astropy.time import Time
 import erfa
 from lunar_frame import sky_at, az_el
 
-EPOCH = '2027-12-04 15:00:00'
+EPOCH = '2030-10-02 14:48:00'
 MAG_LIMIT = 7.5
 R_EARTH_KM = 6378.137
 

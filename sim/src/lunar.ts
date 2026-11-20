@@ -6,7 +6,7 @@ import { applyRegolithPhotometry } from "./regolith";
  */
 export interface LunarOpts { sunElevationDeg: number; sunAzimuthDeg: number; }
 
-export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer, opts: LunarOpts = { sunElevationDeg: 14, sunAzimuthDeg: 40 }) {
+export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer, opts: LunarOpts = { sunElevationDeg: 14, sunAzimuthDeg: -18 }) {
   scene.background = new THREE.Color(0x000000);
   const el = THREE.MathUtils.degToRad(opts.sunElevationDeg), az = THREE.MathUtils.degToRad(opts.sunAzimuthDeg);
   const sunDir = new THREE.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), -Math.cos(el) * Math.sin(az)).normalize();

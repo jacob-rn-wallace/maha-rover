@@ -8,8 +8,8 @@ import * as THREE from "three";
  *
  *  Data is made by `hardware/sim/sky/build_sky.py` (sources, epoch and checks are in its header and in `docs/sim-spec.md`, 'Sky'):
  *  Hipparcos stars to V 7.5 with their B-V colours, a Milky Way glow image, an Earth albedo image, and the matrices placing them in the
- *  world frame (x east, y up, z south) for the site and the epoch 2027-12-04 15:00 UTC. The Earth is lit by the simulation's sun, so its phase
- *  agrees with the shadows on the ground (the simulation's sun direction is a look-development choice, see the docs).
+ *  world frame (x east, y up, z south) for the site and the epoch 2030-10-02 14:48 UTC, when the real Sun is where the simulation's default sun is (14 degrees up, bearing 108).
+ *  The Earth is lit by the simulation's sun, so its phase agrees with the shadows on the ground and with the stars.
  */
 interface SkyMeta {
   epoch_utc: string; n_stars: number;

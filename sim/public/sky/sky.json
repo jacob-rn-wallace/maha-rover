@@ -1,5 +1,5 @@
 {
- "epoch_utc": "2027-12-04 15:00:00",
+ "epoch_utc": "2030-10-02 14:48:00",
  "site": {
   "lat": 47.5676,
   "lon": 44.8102
@@ -7,49 +7,49 @@
  "n_stars": 25723,
  "mag_limit": 7.5,
  "icrf_to_world": [
-  0.1814458,
-  -0.9066521,
-  -0.3808667,
-  -0.6467702,
-  -0.4017674,
-  0.6482833,
-  -0.7407872,
-  0.128705,
-  -0.6592946
+  -0.852445,
+  -0.4859859,
+  -0.1927571,
+  -0.3340216,
+  0.2226177,
+  0.915899,
+  -0.4022029,
+  0.8451385,
+  -0.3520992
  ],
  "earth": {
   "dir_world": [
-   -0.719714,
-   0.434,
-   0.5419
+   -0.681519,
+   0.476464,
+   0.555441
   ],
-  "angular_radius_rad": 0.015792,
+  "angular_radius_rad": 0.017362,
   "world_to_fixed": [
-   0.8869132,
-   0.052354,
-   -0.4589597,
-   -0.2620963,
-   -0.7611125,
-   -0.5933071,
-   -0.380382,
-   0.6465035,
-   -0.661319
+   0.9009748,
+   0.0250656,
+   -0.4331467,
+   -0.3874215,
+   -0.4029434,
+   -0.829181,
+   -0.1953176,
+   0.9148816,
+   -0.3533309
   ],
-  "bearing_deg": 233.02,
-  "elevation_deg": 25.72,
-  "distance_km": 403899,
+  "bearing_deg": 230.82,
+  "elevation_deg": 28.45,
+  "distance_km": 367389,
   "sub_earth_moon_latlon": [
-   -2.41,
-   -1.16
+   -1.12,
+   1.96
   ],
   "sub_lunar_earth_latlon": [
-   -11.3,
-   28.19
+   -21.89,
+   24.75
   ]
  },
  "real_sun_at_epoch": {
-  "bearing_deg": 112.9,
-  "elevation_deg": 18.0
+  "bearing_deg": 108.0,
+  "elevation_deg": 14.0
  },
  "frame": "world: x east, y up, z south (north is -z); matrices are row-major, applied to column vectors",
  "credits": "Hipparcos (ESA 1997) via d3-celestial (BSD-3-Clause, O. Frohn); NASA Blue Marble imagery via the three-globe example images (MIT package; NASA imagery public domain)"
