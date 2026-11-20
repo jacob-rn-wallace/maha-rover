@@ -4,6 +4,8 @@
 
 # المَهَا (al-maha)
 
+<p align="center"><a href="https://jacob-rn-wallace.github.io/maha-rover/"><b>▶ Try the simulation in your browser</b></a><br>al-maha driving on real lunar terrain (three.js + Rapier; source in <a href="sim/"><code>sim/</code></a>)</p>
+
 An open-source, full-size replica of the UAE's **Rashid** lunar rover. It aims to look like the original and work roughly the way it does, in the spirit of Sawppy or the Beatty sisters' rover replicas, and to follow the original's dimensions wherever they are known.
 
 *Al-maha* (المَهَا) is the Arabian oryx, and also the word for the oryx's eyes in classical Arabic poetry.
