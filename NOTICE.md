@@ -25,3 +25,4 @@ maha-rover uses a split-license model, the same as megadroid. Unless otherwise n
 - "Rashid" and the Emirates Lunar Mission marks belong to MBRSC / UAE entities. This is an independent,
   unofficial replica and is not affiliated with or endorsed by MBRSC. The al-maha wordmark is original and
   does not reproduce the official mission logo.
+- Sky data in `sim/public/sky/`: star positions, magnitudes and colour indices from the Hipparcos catalogue (ESA 1997) as packaged in d3-celestial 0.7.35 (BSD-3-Clause, copyright 2015 Olaf Frohn); Milky Way outlines from the same package. The Earth texture is NASA Blue Marble imagery (NASA imagery is public domain) and a cloud map, both taken from the example images of the three-globe 2.45.6 package (MIT); the copy's exact provenance has not been checked against NASA's Visible Earth.

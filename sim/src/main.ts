@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { addLunarScene } from "./lunar";
+import { addSky } from "./sky";
 import { Terrain } from "./terrain";
 import { FJS1 } from "./soil";
 import { RockField } from "./rocks";
@@ -65,6 +66,7 @@ controls.target.set(0.1, 0.3, 0);
 const sunParam = new URLSearchParams(location.search).get("sun")?.split(",").map(Number);      // ?sun=elevation,azimuth (degrees; azimuth counterclockwise from east, 90 = north): another sun, its terrain shadows computed at load
 const lunar = addLunarScene(scene, renderer, sunParam && sunParam.length === 2 && sunParam.every(isFinite) ? { sunElevationDeg: sunParam[0], sunAzimuthDeg: sunParam[1] } : undefined);
 const ground = lunar.ground;
+addSky(scene, lunar.sunDir).catch((e) => console.warn("sky not loaded:", e));      // real stars, the Milky Way and the Earth at infinity (sky.ts)
 
 addEventListener("error", (e) => { ui.alerts.status("error: " + e.message, 2); });
 async function main() {

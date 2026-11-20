@@ -1,0 +1,56 @@
+{
+ "epoch_utc": "2027-12-04 15:00:00",
+ "site": {
+  "lat": 47.5676,
+  "lon": 44.8102
+ },
+ "n_stars": 25723,
+ "mag_limit": 7.5,
+ "icrf_to_world": [
+  0.1814458,
+  -0.9066521,
+  -0.3808667,
+  -0.6467702,
+  -0.4017674,
+  0.6482833,
+  -0.7407872,
+  0.128705,
+  -0.6592946
+ ],
+ "earth": {
+  "dir_world": [
+   -0.719714,
+   0.434,
+   0.5419
+  ],
+  "angular_radius_rad": 0.015792,
+  "world_to_fixed": [
+   0.8869132,
+   0.052354,
+   -0.4589597,
+   -0.2620963,
+   -0.7611125,
+   -0.5933071,
+   -0.380382,
+   0.6465035,
+   -0.661319
+  ],
+  "bearing_deg": 233.02,
+  "elevation_deg": 25.72,
+  "distance_km": 403899,
+  "sub_earth_moon_latlon": [
+   -2.41,
+   -1.16
+  ],
+  "sub_lunar_earth_latlon": [
+   -11.3,
+   28.19
+  ]
+ },
+ "real_sun_at_epoch": {
+  "bearing_deg": 112.9,
+  "elevation_deg": 18.0
+ },
+ "frame": "world: x east, y up, z south (north is -z); matrices are row-major, applied to column vectors",
+ "credits": "Hipparcos (ESA 1997) via d3-celestial (BSD-3-Clause, O. Frohn); NASA Blue Marble imagery via the three-globe example images (MIT package; NASA imagery public domain)"
+}

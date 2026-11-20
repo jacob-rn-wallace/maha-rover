@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { applyRegolithPhotometry } from "./regolith";
 
-/** Lunar lighting and surface: a low sun, a black sky with stars, regolith-coloured ground bounce, a procedural regolith ground.
+/** Lunar lighting and surface: a low sun, a black sky (the stars are in sky.ts), regolith-coloured ground bounce, a procedural regolith ground.
  *  Values are look-development choices, not measurements: sun elevation is a parameter; albedo 0.12 is the usual mean for the Moon (not sourced here).
  */
 export interface LunarOpts { sunElevationDeg: number; sunAzimuthDeg: number; }
@@ -44,23 +44,7 @@ export function addLunarScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer,
   scene.environment = new THREE.PMREMGenerator(renderer).fromScene(envScene, 0.02).texture;
   scene.environmentIntensity = 1.0;
 
-  // stars (seeded, so the sky is the same every run)
-  let seed = 12345;
-  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
-  const n = 4000, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const u = rnd() * 2 - 1, t = rnd() * Math.PI * 2, r = Math.sqrt(1 - u * u);
-    pos.set([r * Math.cos(t) * 900, Math.abs(u) * 900 * 0.98 + 5, r * Math.sin(t) * 900], i * 3);
-    const b = 0.25 + Math.pow(rnd(), 4) * 0.75;
-    col.set([b, b, b * (0.9 + rnd() * 0.1)], i * 3);
-  }
-  const stars = new THREE.BufferGeometry();
-  stars.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  stars.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  const starPts = new THREE.Points(stars, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true, fog: false, toneMapped: false, depthTest: false, depthWrite: false }));
-  starPts.renderOrder = -1000;                                   // drawn first and never depth-tested: the terrain reaches 74 km, beyond the star sphere
-  starPts.frustumCulled = false;
-  scene.add(starPts);
+  // the stars, Milky Way and Earth are in sky.ts
 
   // regolith ground: no texture image; the albedo mottling and the fine relief are world-space noise in the shader (regolith.ts)
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ roughness: 1, metalness: 0, color: new THREE.Color(0.20, 0.19, 0.18) }));
